@@ -27,6 +27,13 @@ import torch.nn as nn
 class Reservoir(nn.Module):
 
     def __init__(self, input_features, reservoir_features, output_features, bias=True):
+        """
+        Constructor
+        :param input_features: Number of input features.
+        :param reservoir_features:  Reservoir's size.
+        :param output_features: Number of outputs
+        :param bias: Use bias?
+        """
         # Params
         self.input_features = input_features
         self.reservoir_features = reservoir_features
@@ -50,6 +57,11 @@ class Reservoir(nn.Module):
 
     # Forward
     def forward(self, input):
+        """
+        Forward
+        :param input: Input
+        :return: I don't know.
+        """
         return Reservoir()(input, self.weight, self.bias)
     # end forward
 
