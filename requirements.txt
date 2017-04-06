@@ -1,5 +1,6 @@
 # This is an implicit value, here for clarity
 --index-url https://pypi.python.org/simple/
 
+sphinx_bootstrap_theme
 http://download.pytorch.org/whl/cu75/torch-0.1.11.post5-cp27-none-linux_x86_64.whl
 torchvision
