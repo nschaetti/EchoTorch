@@ -10,3 +10,4 @@ setup(name='EchoTorch',
       packages=['echotorch'],
       zip_safe=False
       )
+
