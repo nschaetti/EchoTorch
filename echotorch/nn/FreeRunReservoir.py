@@ -18,4 +18,59 @@
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
+"""
+Created on 6 April 2017
+@author: Nils Schaetti
+"""
+
+import torch
+import torch.nn as nn
+
+
+# Echo State Network Reservoir module with feed backs.
+class FreeRunReservoir(nn.Module):
+    """
+    Echo State Network Reservoir module with feed backs.
+    """
+
+    def __init__(self, input_features, reservoir_features, output_features, bias=True):
+        """
+        Constructor
+        :param input_features: Number of input features.
+        :param reservoir_features:  Reservoir's size.
+        :param output_features: Number of outputs
+        :param bias: Use bias?
+        """
+        # Params
+        self.input_features = input_features
+        self.reservoir_features = reservoir_features
+        self.output_features = output_features
+
+        # Parameters
+        self.weight = nn.Parameter(torch.Tensor(output_features))
+
+        # If bias
+        if bias:
+            self.bias = nn.Parameter(torch.Tensor(reservoir_features))
+        else:
+            self.register_parameter('bias', None)
+        # end if
+
+        # Initialize reservoir weights randomly
+        self.w = torch.Tensor.random_(-1, 2)
+
+    # end __init__
+
+
+    # Forward
+    def forward(self, input):
+        """
+        Forward
+        :param input: Input
+        :return: I don't know.
+        """
+        return FreeRunReservoir()(input, self.weight, self.bias)
+    # end forward
+
+# end Reservoir
 
