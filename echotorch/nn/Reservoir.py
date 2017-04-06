@@ -30,6 +30,9 @@ import torch.nn as nn
 
 # Echo State Network Reservoir module
 class Reservoir(nn.Module):
+    """
+    Echo State Network Reservoir module
+    """
 
     def __init__(self, input_features, reservoir_features, output_features, bias=True):
         """
