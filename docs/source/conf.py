@@ -88,7 +88,7 @@ todo_include_todos = True
 # a list of builtin themes.
 #
 #html_theme = 'sphinx_rtd_theme'
-html_theme = 'sphinx_bootstrap_theme'
+html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # Theme options are theme-specific and customize the look and feel of a theme
