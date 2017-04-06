@@ -8,10 +8,5 @@ setup(name='EchoTorch',
       author_email='nils.schaetti@unine.ch',
       license='GPLv3',
       packages=['echotorch'],
-      zip_safe=False,
-      install_requires=[
-          'torch',
-          'Sphinx',
-          'numpy'
-          ],
+      zip_safe=False
       )
