@@ -19,6 +19,11 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
+"""
+Created on 6 April 2017
+@author: Nils Schaetti
+"""
+
 import torch
 import torch.nn as nn
 
