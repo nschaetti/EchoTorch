@@ -7,7 +7,7 @@ setup(name='EchoTorch',
       author='Nils Schaetti',
       author_email='nils.schaetti@unine.ch',
       license='GPLv3',
-      packages=['echotorch'],
+      packages=['dataset', 'nn', 'tools'],
       zip_safe=False,
       install_requires=[
           'torch',
