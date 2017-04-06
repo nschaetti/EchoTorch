@@ -15,6 +15,12 @@ Welcome to EchoTorch's documentation!
 .. autoclass:: nn.Reservoir
    :members:
 
+.. autoclass:: nn.LeakyReservoir
+   :members:
+
+.. autoclass:: nn.FreeRunReservoir
+   :members:
+
 Indices and tables
 ==================
 
