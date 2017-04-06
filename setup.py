@@ -12,7 +12,6 @@ setup(name='EchoTorch',
       install_requires=[
           'torch',
           'Sphinx',
-          'numpy',
-          'scipy'
+          'numpy'
           ],
       )
