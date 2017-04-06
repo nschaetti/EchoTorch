@@ -1,5 +1,5 @@
 # This is an implicit value, here for clarity
 --index-url https://pypi.python.org/simple/
 
-torch==0.1.2
+torch
 torchvision==0.1.7
