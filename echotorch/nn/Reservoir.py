@@ -25,6 +25,7 @@ Created on 6 April 2017
 """
 
 import torch
+from torch.autograd import Variable
 import torch.nn as nn
 
 
@@ -34,7 +35,7 @@ class Reservoir(nn.Module):
     Echo State Network Reservoir module
     """
 
-    def __init__(self, input_features, reservoir_features, output_features, bias=True):
+    def __init__(self, size, input_features, reservoir_features, output_features, bias=True):
         """
         Constructor
         :param input_features: Number of input features.
@@ -43,34 +44,39 @@ class Reservoir(nn.Module):
         :param bias: Use bias?
         """
         # Params
+        self.size = size
         self.input_features = input_features
         self.reservoir_features = reservoir_features
         self.output_features = output_features
 
         # Parameters
-        self.weight = nn.Parameter(torch.Tensor(output_features))
+        """self.weight = nn.Parameter(torch.Tensor(output_features))
 
         # If bias
         if bias:
             self.bias = nn.Parameter(torch.Tensor(reservoir_features))
         else:
             self.register_parameter('bias', None)
-        # end if
+        # end if"""
+
+        # Initialize inout weights
+        #self.win = Variable(torch.rand(input_features), )
 
         # Initialize reservoir weights randomly
-        self.w = torch.Tensor.random_(-1, 2)
+        #self.w = Variable(torch.rand(size, size), requires_grad=False)
 
     # end __init__
 
 
     # Forward
-    def forward(self, input):
+    def forward(self, u):
         """
         Forward
         :param input: Input
         :return: I don't know.
         """
-        return Reservoir()(input, self.weight, self.bias)
+
+        return u
     # end forward
 
 # end Reservoir
