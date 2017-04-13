@@ -87,10 +87,10 @@ class Reservoir(nn.Module):
         print(u)
         print("x : ")
         print(x)
-        x = F.tanh(self.win.mv(u) + self.w.mv(self.x))
-        p = self.ll(x)
+        """x = F.tanh(self.win.mv(u) + self.w.mv(self.x))
+        p = self.ll(x)"""
 
-        return p, x
+        return u, x
     # end forward
 
 # end Reservoir

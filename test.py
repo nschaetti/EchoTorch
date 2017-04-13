@@ -15,6 +15,8 @@ if __name__ == "__main__":
 
     # ESN
     esn = echotorch.nn.Reservoir(2, 2, 100, bias=False)
-    esn(u, initial_state)
+    p, x = esn(u, initial_state)
+    print(x)
+    print(p)
 
 # end if
