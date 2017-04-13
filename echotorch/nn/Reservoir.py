@@ -65,10 +65,10 @@ class Reservoir(nn.Module):
         # end if
 
         # Initialize inout weights
-        self.win = Variable(torch.rand(self.size, self.input_features), requires_grad=False)
+        self.win = Variable((torch.rand(self.size, self.input_features) - 0.5) * 2.0, requires_grad=False)
 
         # Initialize reservoir weights randomly
-        self.w = Variable(torch.rand(self.size, self.size), requires_grad=False)
+        self.w = Variable((torch.rand(self.size, self.size) - 0.5) * 2.0, requires_grad=False)
 
         # Linear output
         self.ll = nn.Linear(self.size, self.output_features)

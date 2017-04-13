@@ -12,7 +12,7 @@ if __name__ == "__main__":
     reservoir_size = 5
 
     # Variable
-    u = Variable(torch.rand(batch_size, 2))
+    u = Variable((torch.rand(batch_size, 2) - 0.5) * 2.0)
     print("u : ")
     print(u)
     # Initial state
