@@ -83,14 +83,21 @@ class Reservoir(nn.Module):
         :param u: Input signal
         :return: I don't know.
         """
-        print("u : ")
-        print(u)
-        print("x : ")
-        print(x)
-        """x = F.tanh(self.win.mv(u) + self.w.mv(self.x))
-        p = self.ll(x)"""
+        # Batch size
+        batch_size = x.size()[0]
 
-        return u, x
+        # Last state
+        last_state = x[-1, :, :]
+
+        # For each state
+        for index in range(batch_size):
+            x[index, :, :] = F.tanh(self.win.mv(u[index, :]) + self.w.mv(last_state))
+        # end for
+
+        # Linear output
+        p = self.ll(x)
+
+        return p, x
     # end forward
 
 # end Reservoir
