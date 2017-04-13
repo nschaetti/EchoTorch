@@ -18,7 +18,7 @@ if __name__ == "__main__":
     w = Variable(torch.rand(reservoir_size, reservoir_size), requires_grad=False)
     x = F.tanh(win.mv(u) + w.mv(x))
     ll = nn.Linear(reservoir_size, output_size)
-    p = ll(x)
+    p = ll(x.view(1, reservoir_size))
     print(p)
     print(p.creator)
 
