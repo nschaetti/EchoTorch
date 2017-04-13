@@ -15,7 +15,11 @@ if __name__ == "__main__":
     u = Variable(torch.ones(input_size), requires_grad=True)
     win = Variable(torch.rand(reservoir_size, input_size), requires_grad=False)
     w = Variable(torch.rand(reservoir_size, reservoir_size), requires_grad=False)
-    x = F.tanh(win.mv(u) + w.mm(x))
+    winu = win.mv(u)
+    print("winu : ")
+    print(winu)
+    wx = w.mm(x)
+    x = F.tanh(winu + wx)
     print(x)
     print(x.creator)
 
