@@ -13,7 +13,8 @@ if __name__ == "__main__":
 
     # Variable
     u = Variable(torch.rand(batch_size, 2))
-
+    print("u : ")
+    print(u)
     # Initial state
     initial_state = Variable(torch.zeros(reservoir_size), requires_grad=False)
 
