@@ -44,6 +44,8 @@ class Reservoir(nn.Module):
         :param size: Reservoir size
         :param bias: Use bias?
         """
+        super(Reservoir, self).__init__()
+
         # Params
         self.input_features = input_features
         self.output_features = output_features
