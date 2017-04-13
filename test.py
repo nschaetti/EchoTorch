@@ -8,18 +8,11 @@ import echotorch.nn
 
 if __name__ == "__main__":
 
-    reservoir_size = 100
-    input_size = 2
-    output_size = 2
+    # Variable
+    u = Variable(torch.rand(10, 2))
 
-    x = Variable(torch.zeros(reservoir_size), requires_grad=False)
-    u = Variable(torch.ones(input_size), requires_grad=True)
-    win = Variable(torch.rand(reservoir_size, input_size), requires_grad=False)
-    w = Variable(torch.rand(reservoir_size, reservoir_size), requires_grad=False)
-    x = F.tanh(win.mv(u) + w.mv(x))
-    ll = nn.Linear(reservoir_size, output_size)
-    p = ll(x.view(1, reservoir_size))
-    print(p)
-    print(p.creator)
+    # ESN
+    esn = echotorch.nn.Reservoir(2, 2, 100, bias=False)
+    esn(u)
 
 # end if
