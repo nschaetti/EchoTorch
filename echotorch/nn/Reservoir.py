@@ -26,6 +26,7 @@ Created on 6 April 2017
 
 import torch
 from torch.autograd import Variable
+import torch.nn.functional as F
 import torch.nn as nn
 
 
@@ -86,7 +87,7 @@ class Reservoir(nn.Module):
         print(u)
         print("x : ")
         print(x)
-        #x = F.tanh(self.win.mv(u) + self.w.mv(self.x))
+        x = F.tanh(self.win.mv(u) + self.w.mv(self.x))
         p = self.ll(x)
 
         return p, x
