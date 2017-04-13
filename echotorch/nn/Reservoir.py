@@ -87,11 +87,11 @@ class Reservoir(nn.Module):
         batch_size = x.size()[0]
 
         # Last state
-        last_state = x[-1, :, :]
+        last_state = x[-1, :]
 
         # For each state
         for index in range(batch_size):
-            x[index, :, :] = F.tanh(self.win.mv(u[index, :]) + self.w.mv(last_state))
+            x[index, :] = F.tanh(self.win.mv(u[index, :]) + self.w.mv(last_state))
         # end for
 
         # Linear output
