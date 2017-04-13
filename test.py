@@ -20,7 +20,9 @@ if __name__ == "__main__":
     # ESN
     esn = echotorch.nn.Reservoir(2, 2, reservoir_size, bias=False)
     p, x = esn(u, initial_state)
+    print("X : ")
     print(x)
+    print("P : ")
     print(p)
 
 # end if

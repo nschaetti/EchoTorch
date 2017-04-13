@@ -97,6 +97,7 @@ class Reservoir(nn.Module):
             x = F.tanh(self.win.mv(u[index, :]) + self.w.mv(x))
             states[index, :] = x
         # end for
+        print("States : ")
         print(states)
         # Linear output
         p = self.ll(states)
