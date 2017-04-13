@@ -77,25 +77,29 @@ class Reservoir(nn.Module):
 
 
     # Forward
-    def forward(self, u, x):
+    def forward(self, u, X):
         """
         Forward
         :param u: Input signal
         :return: I don't know.
         """
         # Batch size
-        batch_size = x.size()[0]
+        batch_size = u.size()[0]
 
-        # Last state
-        last_state = x[-1, :]
+        # States
+        states = Variable(torch.zeros(batch_size, self.size), requires_grad=False)
+
+        # Starting state
+        x = X
 
         # For each state
         for index in range(batch_size):
-            x[index, :] = F.tanh(self.win.mv(u[index, :]) + self.w.mv(last_state))
+            x = F.tanh(self.win.mv(u[index, :]) + self.w.mv(x))
+            states[index, :] = x
         # end for
 
         # Linear output
-        p = self.ll(x)
+        p = self.ll(states)
 
         return p, x
     # end forward
