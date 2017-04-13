@@ -19,6 +19,8 @@ if __name__ == "__main__":
     print("winu : ")
     print(winu)
     wx = w.mm(x)
+    print("wx : ")
+    print(wx)
     x = F.tanh(winu + wx)
     print(x)
     print(x.creator)
