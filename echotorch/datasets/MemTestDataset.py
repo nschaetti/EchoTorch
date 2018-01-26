@@ -53,7 +53,7 @@ class MemTestDataset(Dataset):
         inputs = (torch.rand(self.sample_len, 1) - 0.5) * 1.6
         outputs = torch.zeros(self.sample_len, self.n_delays)
         for k in range(self.n_delays):
-            outputs[:, k:k+1] = torch.cat(torch.zero(k + 1, 1), inputs[:-k - 1, :])
+            outputs[:, k:k+1] = torch.cat((torch.zeros(k + 1, 1), inputs[:-k - 1, :]), dim=0)
         # end for
         return inputs, outputs
     # end __getitem__
