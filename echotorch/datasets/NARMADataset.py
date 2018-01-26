@@ -69,7 +69,7 @@ class NARMADataset(Dataset):
         outputs = torch.zeros(self.sample_len, 1)
         for k in range(self.system_order-1, self.sample_len - 1):
             outputs[k + 1] = self.parameters[0] * outputs[k] + self.parameters[1] * outputs[k] * torch.sum(
-                outputs[k - (self.system_order - 1):k + 1]) + 1.5 * inputs[k - self.parameters[2]] * inputs[k] + \
+                outputs[k - (self.system_order - 1):k + 1]) + 1.5 * inputs[k - int(self.parameters[2])] * inputs[k] + \
                              self.parameters[3]
         # end for
 
