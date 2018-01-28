@@ -47,7 +47,14 @@ class NARMADataset(Dataset):
         if seed is not None:
             torch.manual_seed(seed)
         # end if
+
+        # Generate data set
+        self.inputs, self.outputs = self._generate()
     # end __init__
+
+    #############################################
+    # OVERRIDE
+    #############################################
 
     # Length
     def __len__(self):
@@ -65,15 +72,34 @@ class NARMADataset(Dataset):
         :param idx:
         :return:
         """
-        inputs = torch.rand(self.sample_len, 1) * 0.5
-        outputs = torch.zeros(self.sample_len, 1)
-        for k in range(self.system_order-1, self.sample_len - 1):
-            outputs[k + 1] = self.parameters[0] * outputs[k] + self.parameters[1] * outputs[k] * torch.sum(
-                outputs[k - (self.system_order - 1):k + 1]) + 1.5 * inputs[k - int(self.parameters[2])] * inputs[k] + \
-                             self.parameters[3]
+        return self.inputs[idx], self.outputs[idx]
+    # end __getitem__
+
+    ##############################################
+    # PRIVATE
+    ##############################################
+
+    # Generate
+    def _generate(self):
+        """
+        Generate dataset
+        :return:
+        """
+        inputs = list()
+        outputs = list()
+        for i in range(self.n_samples):
+            ins = torch.rand(self.sample_len, 1) * 0.5
+            outs = torch.zeros(self.sample_len, 1)
+            for k in range(self.system_order - 1, self.sample_len - 1):
+                outs[k + 1] = self.parameters[0] * outs[k] + self.parameters[1] * outs[k] * torch.sum(
+                    outs[k - (self.system_order - 1):k + 1]) + 1.5 * ins[k - int(self.parameters[2])] * ins[k] + \
+                                 self.parameters[3]
+            # end for
+            inputs.append(ins)
+            outputs.append(outs)
         # end for
 
         return inputs, outputs
-    # end __getitem__
+    # end _generate
 
 # end MackeyGlassDataset
