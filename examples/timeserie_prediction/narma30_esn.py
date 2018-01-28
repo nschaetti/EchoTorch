@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : examples/SwitchAttractor/switch_attractor_esn
-# Description : Attractor switching task with ESN.
+# File : examples/timeserie_prediction/switch_attractor_esn
+# Description : NARMA 30 prediction with ESN.
 # Date : 26th of January, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
