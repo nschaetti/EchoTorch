@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 
-from FreeRunReservoir import *
-from LeakyReservoir import *
-from Reservoir import *
-
+# Imports
+from .ESNCell import ESNCell
