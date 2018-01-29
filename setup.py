@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='EchoTorch',
       version='0.1',
@@ -7,7 +7,7 @@ setup(name='EchoTorch',
       author='Nils Schaetti',
       author_email='nils.schaetti@unine.ch',
       license='GPLv3',
-      packages=['echotorch'],
+      packages=find_packages(),
       install_requires=[
           'torch',
           'numpy',
