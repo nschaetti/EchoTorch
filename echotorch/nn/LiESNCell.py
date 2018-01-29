@@ -26,11 +26,11 @@ Created on 26 January 2018
 
 import torch
 from torch.autograd import Variable
-import EchoTorch.nn.ESNCell
+from .ESNCell import ESNCell
 
 
 # Leak-Integrated Echo State Network layer
-class LiESNCell(EchoTorch.nn.ESNCell):
+class LiESNCell(ESNCell):
     """
     Leaky-Integrated Echo State Network layer
     """
