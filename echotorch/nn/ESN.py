@@ -26,7 +26,7 @@ Created on 26 January 2018
 
 import torch
 import torch.nn as nn
-from EchoTorch.nn.ESNCell import ESNCell
+from .ESNCell import ESNCell
 
 
 # Echo State Network module
