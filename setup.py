@@ -8,6 +8,11 @@ setup(name='EchoTorch',
       author_email='nils.schaetti@unine.ch',
       license='GPLv3',
       packages=['echotorch'],
+      install_requires=[
+          'torch',
+          'numpy',
+          'torchvision'
+      ],
       zip_safe=False
       )
 
