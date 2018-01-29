@@ -27,7 +27,7 @@ Created on 26 January 2018
 import torch
 from torch.autograd import Variable
 import torch.nn as nn
-from ..tools.utility_functions import spectral_radius
+from ..tools import utility_functions
 import numpy as np
 
 
@@ -142,7 +142,7 @@ class ESNCell(nn.Module):
         Get W's spectral radius
         :return: W's spectral radius
         """
-        return spectral_radius(self.w)
+        return utility_functions.spectral_radius(self.w)
     # end spectral_radius
 
     ###############################################
@@ -174,7 +174,7 @@ class ESNCell(nn.Module):
         # end if
 
         # Scale it to spectral radius
-        w *= self.spectral_radius / spectral_radius(w)
+        w *= self.spectral_radius / utility_functions.spectral_radius(w)
 
         return Variable(w, requires_grad=False)
     # end generate_W
