@@ -1,38 +1,20 @@
-echotorch\.nn package
-=====================
+echotorch.nn
+============
 
-Submodules
-----------
+.. automodule:: torch.nn
+.. currentmodule:: torch.nn
 
-echotorch\.nn\.ESN module
--------------------------
+Echo State Layers
+-----------------
 
-.. automodule:: echotorch.nn.ESN
+ESNCell
+~~~~~~~
+
+.. autoclass:: nn.ESNCell
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-echotorch\.nn\.ESNCell module
------------------------------
+ESN
+~~~
 
-.. automodule:: echotorch.nn.ESNCell
+.. autoclass:: nn.ESN
     :members:
-    :undoc-members:
-    :show-inheritance:
-
-echotorch\.nn\.LiESNCell module
--------------------------------
-
-.. automodule:: echotorch.nn.LiESNCell
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: echotorch.nn
-    :members:
-    :undoc-members:
-    :show-inheritance:
