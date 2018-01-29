@@ -26,7 +26,6 @@ Created on 26 January 2018
 
 import torch
 from torch.autograd import Variable
-import torch.nn.functional as F
 import torch.nn as nn
 import EchoTorch.tools
 import numpy as np
@@ -92,7 +91,7 @@ class ESNCell(nn.Module):
         """
         Forward
         :param u: Input signal.
-        :param x: Hidden layer state (x).
+        :param hidden: Hidden layer state (x).
         :return: Resulting hidden states.
         """
         # Steps
@@ -154,7 +153,7 @@ class ESNCell(nn.Module):
     def _generate_w(self):
         """
         Generate W matrix
-        :return:
+        :return: The generated W matrix as Variable
         """
         # Initialize reservoir weight matrix
         if self.w is None:
@@ -184,7 +183,7 @@ class ESNCell(nn.Module):
     def _generate_win(self):
         """
         Generate Win matrix
-        :return:
+        :return: The generated Win matrix as Variable
         """
         # Initialize input weight matrix
         if self.w_in is None:
@@ -215,7 +214,7 @@ class ESNCell(nn.Module):
     def _generate_wbias(self):
         """
         Generate Wbias matrix
-        :return:
+        :return: The generated Wbias matrix as Variable
         """
         # Initialize bias matrix
         if self.w_bias is None:

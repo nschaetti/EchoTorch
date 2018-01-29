@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/nn/ESNCell.py
-# Description : An Echo State Network layer.
+# File : echotorch/nn/LiESNCell.py
+# Description : An Leaky-Integrated Echo State Network layer.
 # Date : 26th of January, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -26,10 +26,6 @@ Created on 26 January 2018
 
 import torch
 from torch.autograd import Variable
-import torch.nn.functional as F
-import torch.nn as nn
-import EchoTorch.tools
-import numpy as np
 import EchoTorch.nn.ESNCell
 
 
@@ -61,7 +57,7 @@ class LiESNCell(EchoTorch.nn.ESNCell):
         """
         Forward
         :param u: Input signal.
-        :param x: Hidden layer state (x).
+        :param hidden: Hidden layer state (x).
         :return: Resulting hidden states.
         """
         # Steps

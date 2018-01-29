@@ -71,7 +71,7 @@ class ESN(nn.Module):
         """
         Forward
         :param u: Input signal.
-        :param x: Hidden layer state (x).
+        :param hidden: Hidden layer state (x).
         :return: Resulting hidden states.
         """
         # Get hidden states
@@ -86,7 +86,7 @@ class ESN(nn.Module):
     # Init hidden layer
     def init_hidden(self):
         """
-        Init hidden layer
+        Init hidden layer.
         :return: Initiated hidden layer
         """
         return self.esn_cell.init_hidden()
@@ -95,7 +95,7 @@ class ESN(nn.Module):
     # Get W's spectral radius
     def get_spectral_radius(self):
         """
-        Get W's spectral radius
+        Get W's spectral radius.
         :return: W's spectral radius
         """
         return self.esn_cell.get_spectral_raduis()
