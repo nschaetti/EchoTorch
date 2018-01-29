@@ -1,6 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 
-import datasets
-import nn
-import tools
-
+# All EchoTorch's modules
 __all__ = ['datasets', 'nn', 'tools']

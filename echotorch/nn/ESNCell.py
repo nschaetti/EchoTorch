@@ -27,7 +27,7 @@ Created on 26 January 2018
 import torch
 from torch.autograd import Variable
 import torch.nn as nn
-from ..tools import utility_functions
+from EchoTorch.tools import utility_functions
 import numpy as np
 
 
