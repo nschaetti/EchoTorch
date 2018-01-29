@@ -12,10 +12,10 @@ Welcome to EchoTorch's documentation!
 
 .. automodule:: nn
 
-.. autoclass:: nn.ESN
+.. autoclass:: ESN
    :members:
 
-.. autoclass:: nn.ESNCell
+.. autoclass:: ESNCell
    :members:
 
 Indices and tables
