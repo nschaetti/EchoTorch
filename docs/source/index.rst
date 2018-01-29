@@ -3,15 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to EchoTorch's documentation!
-=====================================
+EchoTorch documentation
+=======================
+
+EchoTorch is an pyTorch-based library for Reservoir Computing and Echo State Network using GPUs and CPUs.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :glob:
+    :maxdepth: 1
+    :caption: Notes
 
-.. automodule:: nn
+    notes/*
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Package Reference
+
+    echotorch
+    echotorch.datasets
+    echotorch.nn
+    echotorch.tools
 
 Indices and tables
 ==================
