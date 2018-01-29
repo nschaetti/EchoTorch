@@ -12,13 +12,10 @@ Welcome to EchoTorch's documentation!
 
 .. automodule:: nn
 
-.. autoclass:: nn.Reservoir
+.. autoclass:: nn.ESN
    :members:
 
-.. autoclass:: nn.LeakyReservoir
-   :members:
-
-.. autoclass:: nn.FreeRunReservoir
+.. autoclass:: nn.ESNCell
    :members:
 
 Indices and tables
