@@ -127,13 +127,13 @@ class ESN(nn.Module):
         hidden_states = self.esn_cell(u)
 
         # Learning algo
-        if self.learning_algo != 'grad' and targets is not None:
+        if self.learning_algo != 'grad' and self.training:
             for b in range(batch_size):
                 self.xTx.data.add_(hidden_states[b].t().mm(hidden_states[b]).data)
                 self.xTy.data.add_(hidden_states[b].t().mm(targets[b].unsqueeze(1)).data)
             # end for
             return hidden_states
-        elif self.learning_algo != 'grad':
+        elif self.learning_algo != 'grad' and not self.training:
             # Outputs
             outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
             outputs = outputs.cuda() if self.hidden.is_cuda else outputs
