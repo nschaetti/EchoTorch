@@ -22,7 +22,7 @@ EchoTorch is an pyTorch-based library for Reservoir Computing and Echo State Net
     echotorch
     echotorch.datasets
     echotorch.nn
-    echotorch.tools
+    echotorch.utils
 
 Indices and tables
 ==================

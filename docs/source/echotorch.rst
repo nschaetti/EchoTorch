@@ -8,7 +8,7 @@ Subpackages
 
     echotorch.datasets
     echotorch.nn
-    echotorch.tools
+    echotorch.utils
 
 Module contents
 ---------------
