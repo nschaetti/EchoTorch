@@ -74,8 +74,6 @@ if use_cuda:
 # Objective function
 criterion = nn.MSELoss()
 
-sgd_losses = torch.zeros(n_iterations)
-
 # Stochastic Gradient Descent
 optimizer = optim.SGD(esn.parameters(), lr=learning_rate, momentum=momentum, weight_decay=weight_decay)
 
@@ -94,7 +92,6 @@ for epoch in range(n_iterations):
         # Forward
         out = esn(inputs)
         loss = criterion(out, targets)
-        sgd_losses[epoch] = float(loss.data)
 
         # Backward pass
         loss.backward()
