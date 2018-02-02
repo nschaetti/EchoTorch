@@ -22,9 +22,9 @@
 
 # Imports
 import torch
-from EchoTorch.datasets.NARMADataset import NARMADataset
-import EchoTorch.nn as etnn
-import EchoTorch.utils
+from echotorch.datasets.NARMADataset import NARMADataset
+import echotorch.nn as etnn
+import echotorch.utils
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
 import numpy as np
@@ -33,16 +33,16 @@ import mdp
 # Dataset params
 train_sample_length = 5000
 test_sample_length = 1000
-n_train_samples = 10
+n_train_samples = 1
 n_test_samples = 1
-batch_size = 5
+batch_size = 1
 spectral_radius = 0.9
 leaky_rate = 1.0
 input_dim = 1
 n_hidden = 100
 
 # Use CUDA?
-use_cuda = True
+use_cuda = False
 use_cuda = torch.cuda.is_available() if use_cuda else False
 
 # Manual seed
@@ -88,8 +88,8 @@ if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
 y_predicted = esn(test_u)
 
 # Print error measures
-print(u"NRMSE: {}".format(EchoTorch.utils.nrmse(test_y.data, y_predicted.data)))
-print(u"NMSE: {}".format(EchoTorch.utils.nmse(test_y.data, y_predicted.data)))
-print(u"RMSE: {}".format(EchoTorch.utils.rmse(test_y.data, y_predicted.data)))
-print(u"MSE: {}".format(EchoTorch.utils.mse(test_y.data, y_predicted.data)))
+print(u"NRMSE: {}".format(echotorch.utils.nrmse(test_y.data, y_predicted.data)))
+print(u"NMSE: {}".format(echotorch.utils.nmse(test_y.data, y_predicted.data)))
+print(u"RMSE: {}".format(echotorch.utils.rmse(test_y.data, y_predicted.data)))
+print(u"MSE: {}".format(echotorch.utils.mse(test_y.data, y_predicted.data)))
 print(u"")
