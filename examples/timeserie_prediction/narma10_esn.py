@@ -80,16 +80,25 @@ for data in trainloader:
 # Finalize training
 esn.finalize()
 
-# Test reservoir
+# Test mode
+esn.train(False)
+
+# Train MSE
+dataiter = iter(trainloader)
+train_u, train_y = dataiter.next()
+train_u, train_y = Variable(train_u), Variable(train_y)
+if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
+y_predicted = esn(train_u)
+print(u"Train MSE: {}".format(echotorch.utils.mse(y_predicted.data, train_y.data)))
+print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, train_y.data)))
+print(u"")
+
+# Test MSE
 dataiter = iter(testloader)
 test_u, test_y = dataiter.next()
 test_u, test_y = Variable(test_u), Variable(test_y)
 if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
 y_predicted = esn(test_u)
-
-# Print error measures
-print(u"NRMSE: {}".format(echotorch.utils.nrmse(test_y.data, y_predicted.data)))
-print(u"NMSE: {}".format(echotorch.utils.nmse(test_y.data, y_predicted.data)))
-print(u"RMSE: {}".format(echotorch.utils.rmse(test_y.data, y_predicted.data)))
-print(u"MSE: {}".format(echotorch.utils.mse(test_y.data, y_predicted.data)))
+print(u"Test MSE: {}".format(echotorch.utils.mse(y_predicted.data, test_y.data)))
+print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, test_y.data)))
 print(u"")
