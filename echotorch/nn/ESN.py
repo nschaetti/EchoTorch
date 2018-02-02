@@ -39,7 +39,7 @@ class ESN(nn.Module):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
                  w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0):
+                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -65,17 +65,19 @@ class ESN(nn.Module):
         self.ridge_param = ridge_param
 
         # Recurrent layer
-        self.esn_cell = ESNCell(input_dim, hidden_dim, spectral_radius, bias_scaling, input_scaling, w, w_in, w_bias,
-                                sparsity, input_set, w_sparsity, nonlin_func)
+        if create_cell:
+            self.esn_cell = ESNCell(input_dim, hidden_dim, spectral_radius, bias_scaling, input_scaling, w, w_in, w_bias,
+                                    sparsity, input_set, w_sparsity, nonlin_func)
+        # end if
 
         # Linear layer if needed
         if learning_algo == 'grad':
             self.linear = nn.Linear(hidden_dim, output_dim, bias=True)
         else:
             # Set it as buffer
-            self.register_buffer('xTx', Variable(torch.zeros(self.esn_cell.output_dim, self.esn_cell.output_dim), requires_grad=False))
-            self.register_buffer('xTy', Variable(torch.zeros(self.esn_cell.output_dim, self.output_dim), requires_grad=False))
-            self.register_buffer('w_out', Variable(torch.zeros(1, self.esn_cell.output_dim), requires_grad=False))
+            self.register_buffer('xTx', Variable(torch.zeros(hidden_dim, hidden_dim), requires_grad=False))
+            self.register_buffer('xTy', Variable(torch.zeros(hidden_dim, output_dim), requires_grad=False))
+            self.register_buffer('w_out', Variable(torch.zeros(1, hidden_dim), requires_grad=False))
         # end if
     # end __init__
 

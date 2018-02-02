@@ -25,6 +25,7 @@ Created on 26 January 2018
 """
 
 import torch
+import torch.nn as nn
 from torch.autograd import Variable
 from .ESNCell import ESNCell
 
@@ -36,16 +37,21 @@ class LiESNCell(ESNCell):
     """
 
     # Constructor
-    def __init__(self, leaky_rate=1.0, train_leaky_rate=False, **kwargs):
+    def __init__(self, leaky_rate=1.0, train_leaky_rate=False, *args, **kwargs):
         """
         Constructor
         :param leaky_rate: Reservoir's leaky rate (default 1.0, normal ESN)
         :param train_leaky_rate: Train leaky rate as parameter? (default: False)
         """
-        super(LiESNCell, self).__init__(kwargs)
+        super(LiESNCell, self).__init__(*args, **kwargs)
 
         # Params
-        self.leaky_rate = Variable(torch.Tensor(leaky_rate), requires_grad=train_leaky_rate)
+        if train_leaky_rate:
+            self.leaky_rate = nn.Parameter(torch.Tensor(1).fill_(leaky_rate), requires_grad=True)
+        else:
+            # Initialize bias
+            self.register_buffer('leaky_rate', Variable(torch.Tensor(1).fill_(leaky_rate), requires_grad=False))
+        # end if
     # end __init__
 
     ###############################################
@@ -53,41 +59,50 @@ class LiESNCell(ESNCell):
     ###############################################
 
     # Forward
-    def forward(self, u, hidden):
+    def forward(self, u):
         """
         Forward
         :param u: Input signal.
-        :param hidden: Hidden layer state (x).
         :return: Resulting hidden states.
         """
-        # Steps
-        steps = int(u.size()[0])
+        # Time length
+        time_length = int(u.size()[1])
+
+        # Number of batches
+        n_batches = int(u.size()[0])
 
         # Outputs
-        outputs = Variable(torch.zeros(steps, self.output_dim))
+        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
+        outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
-        # For each steps
-        for i in range(steps):
-            # Current input
-            ut = u[i]
+        # For each batch
+        for b in range(n_batches):
+            # Reset hidden layer
+            self.reset_hidden()
 
-            # Compute input layer
-            u_win = self.w_in.mv(ut)
+            # For each steps
+            for t in range(time_length):
+                # Current input
+                ut = u[b, t]
 
-            # Apply W to x
-            x_w = self.w.mv(hidden)
+                # Compute input layer
+                u_win = self.w_in.mv(ut)
 
-            # Apply activation function
-            x_w = self.nonlin_func(x_w)
+                # Apply W to x
+                x_w = self.w.mv(self.hidden)
 
-            # Add everything
-            x = u_win + x_w + self.w_bias
+                # Apply activation function
+                x_w = self.nonlin_func(x_w)
 
-            # Add to outputs
-            hidden = x.view(self.output_dim)
+                # Add everything
+                x = u_win + x_w + self.w_bias
 
-            # New last state
-            outputs[i] = hidden
+                # Add to outputs
+                self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data
+
+                # New last state
+                outputs[b, t] = self.hidden
+            # end for
         # end for
 
         return outputs
@@ -97,4 +112,4 @@ class LiESNCell(ESNCell):
     # PRIVATE
     ###############################################
 
-# end ESNCell
+# end LiESNCell
