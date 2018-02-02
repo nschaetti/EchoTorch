@@ -91,11 +91,11 @@ class LiESNCell(ESNCell):
                 # Apply W to x
                 x_w = self.w.mv(self.hidden)
 
-                # Apply activation function
-                x_w = self.nonlin_func(x_w)
-
                 # Add everything
                 x = u_win + x_w + self.w_bias
+
+                # Apply activation function
+                x = self.nonlin_func(x)
 
                 # Add to outputs
                 self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data

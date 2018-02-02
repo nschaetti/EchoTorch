@@ -38,8 +38,9 @@ class ESN(nn.Module):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
-                 w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True):
+                 w=None, w_in=None, w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
+                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True,
+                 feedbacks=False):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -51,6 +52,7 @@ class ESN(nn.Module):
         :param w: Internation weights matrix
         :param w_in: Input-reservoir weights matrix
         :param w_bias: Bias weights matrix
+        :param w_fdb: Feedback weights matrix
         :param sparsity:
         :param input_set:
         :param w_sparsity:
@@ -63,11 +65,12 @@ class ESN(nn.Module):
         self.output_dim = output_dim
         self.learning_algo = learning_algo
         self.ridge_param = ridge_param
+        self.feedbacks = feedbacks
 
         # Recurrent layer
         if create_cell:
-            self.esn_cell = ESNCell(input_dim, hidden_dim, spectral_radius, bias_scaling, input_scaling, w, w_in, w_bias,
-                                    sparsity, input_set, w_sparsity, nonlin_func)
+            self.esn_cell = ESNCell(input_dim, hidden_dim, spectral_radius, bias_scaling, input_scaling, w, w_in,
+                                    w_bias, w_fdb, sparsity, input_set, w_sparsity, nonlin_func, feedbacks)
         # end if
 
         # Linear layer if needed
@@ -110,11 +113,11 @@ class ESN(nn.Module):
     ###############################################
 
     # Forward
-    def forward(self, u, targets=None):
+    def forward(self, u, y=None):
         """
         Forward
         :param u: Input signal.
-        :param targets: Target outputs
+        :param y: Target outputs
         :return: Output or hidden states
         """
         # Batch size
@@ -124,13 +127,17 @@ class ESN(nn.Module):
         time_length = u.size()[1]
 
         # Compute hidden states
-        hidden_states = self.esn_cell(u)
+        if self.feedbacks:
+            hidden_states = self.esn_cell(u, y)
+        else:
+            hidden_states = self.esn_cell(u)
+        # end if
 
         # Learning algo
         if self.learning_algo != 'grad' and self.training:
             for b in range(batch_size):
                 self.xTx.data.add_(hidden_states[b].t().mm(hidden_states[b]).data)
-                self.xTy.data.add_(hidden_states[b].t().mm(targets[b].unsqueeze(1)).data)
+                self.xTy.data.add_(hidden_states[b].t().mm(y[b].unsqueeze(1)).data)
             # end for
             return hidden_states
         elif self.learning_algo != 'grad' and not self.training:

@@ -39,8 +39,8 @@ class ESNCell(nn.Module):
 
     # Constructor
     def __init__(self, input_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0, w=None, w_in=None,
-                 w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh):
+                 w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
+                 nonlin_func=torch.tanh, feedbacks=False):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -68,6 +68,7 @@ class ESNCell(nn.Module):
         self.input_set = input_set
         self.w_sparsity = w_sparsity
         self.nonlin_func = nonlin_func
+        self.feedbacks = feedbacks
 
         # Init hidden state
         self.register_buffer('hidden', self.init_hidden())
@@ -80,6 +81,11 @@ class ESNCell(nn.Module):
 
         # Initialize bias
         self.register_buffer('w_bias', self._generate_wbias(w_bias))
+
+        # Initialize feedbacks weights randomly
+        if feedbacks:
+            self.register_buffer('w_fdb', self._generate_win(w_fdb))
+        # end if
     # end __init__
 
     ###############################################
@@ -87,12 +93,13 @@ class ESNCell(nn.Module):
     ###############################################
 
     # Forward
-    def forward(self, u):
+    def forward(self, u, y=None, w_out=None):
         """
         Forward
-        :param u: Input signal.
-        :param x: Hidden layer state (x).
-        :return: Resulting hidden states.
+        :param u: Input signal
+        :param y: Target output signal for teacher forcing
+        :param w_out: Output weights for teacher forcing
+        :return: Resulting hidden states
         """
         # Time length
         time_length = int(u.size()[1])
@@ -120,11 +127,32 @@ class ESNCell(nn.Module):
                 # Apply W to x
                 x_w = self.w.mv(self.hidden)
 
-                # Apply activation function
-                x_w = self.nonlin_func(x_w)
+                # Feedback or not
+                if self.feedbacks and y is not None:
+                    # Current target
+                    yt = y[b, t]
 
-                # Add everything
-                x = u_win + x_w + self.w_bias
+                    # Compute feedback layer
+                    y_wfdb = self.w_fdb.mv(yt)
+
+                    # Add everything
+                    x = u_win + x_w + y_wfdb + self.w_bias
+                elif self.feedbacks and y is None and w_out is not None:
+                    # Compute past output
+                    yt = w_out.mv(self.hidden)
+
+                    # Compute feedback layer
+                    y_wfdb = self.w_fdb.mv(yt)
+
+                    # Add everything
+                    x = u_win + x_w + y_wfdb + self.w_bias
+                else:
+                    # Add everything
+                    x = u_win + x_w + self.w_bias
+                # end if
+
+                # Apply activation function
+                x = self.nonlin_func(x)
 
                 # Add to outputs
                 self.hidden.data = x.view(self.output_dim).data
