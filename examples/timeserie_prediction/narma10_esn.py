@@ -59,7 +59,7 @@ trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=F
 testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
 # ESN cell
-esn = etnn.ESN(input_dim=input_dim, hidden_dim=n_hidden, output_dim=1, spectral_radius=spectral_radius, learning_algo='inv')
+esn = etnn.LiESN(input_dim=input_dim, hidden_dim=n_hidden, output_dim=1, spectral_radius=spectral_radius, learning_algo='inv', leaky_rate=leaky_rate)
 if use_cuda:
     esn.cuda()
 # end if
