@@ -30,7 +30,7 @@ class NARMADataset(Dataset):
         self.system_order = system_order
 
         # System order
-        self.parameters = torch.rand(4)
+        self.parameters = torch.zeros(4)
         if system_order == 10:
             self.parameters[0] = 0.3
             self.parameters[1] = 0.05
@@ -96,10 +96,10 @@ class NARMADataset(Dataset):
                                  self.parameters[3]
             # end for
             inputs.append(ins)
-            outputs.append(outs)
+            outputs.append(outs.squeeze_(1))
         # end for
 
         return inputs, outputs
     # end _generate
 
-# end MackeyGlassDataset
+# end NARMADataset
