@@ -161,6 +161,9 @@ class ESN(nn.Module):
         else:
             self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
         # end if
+
+        # Not in training mode anymore
+        self.train(False)
     # end finalize
 
     # Reset hidden layer

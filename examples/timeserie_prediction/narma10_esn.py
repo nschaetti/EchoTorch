@@ -80,9 +80,6 @@ for data in trainloader:
 # Finalize training
 esn.finalize()
 
-# Test mode
-esn.train(False)
-
 # Train MSE
 dataiter = iter(trainloader)
 train_u, train_y = dataiter.next()
