@@ -3,27 +3,16 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.utils.data
 import echotorch.nn
+import echotorch.datasets
 
+# Reuters C50 dataset
+c50_dataset = echotorch.datasets.ReutersC50Dataset(root="./data", download=False)
+trainloader = torch.utils.data.DataLoader(c50_dataset, batch_size=4)
 
-if __name__ == "__main__":
-
-    batch_size = 4
-    reservoir_size = 5
-
-    # Variable
-    u = Variable((torch.rand(batch_size, 2) - 0.5) * 2.0)
-    print("u : ")
-    print(u)
-    # Initial state
-    initial_state = Variable(torch.zeros(reservoir_size), requires_grad=False)
-
-    # ESN
-    esn = echotorch.nn.Reservoir(2, 2, reservoir_size, bias=False)
-    p, x = esn(u, initial_state)
-    print("X : ")
-    print(x)
-    print("P : ")
-    print(p)
-
-# end if
+# For each batch
+for i, data in enumerate(trainloader):
+    # Inputs and labels
+    inputs, labels = data
+# end for
