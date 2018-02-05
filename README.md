@@ -62,6 +62,7 @@ You now just have to give the ESN the inputs and the attended outputs.
 ```
 for data in trainloader:
     # Inputs and outputs
+    inputs, targets = data
 
     # To variable
     inputs, targets = Variable(inputs), Variable(targets)
