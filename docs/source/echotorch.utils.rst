@@ -4,18 +4,18 @@ echotorch\.tools package
 Submodules
 ----------
 
-echotorch\.tools\.measures module
+echotorch\.utils\.error_measures module
 ---------------------------------
 
-.. automodule:: echotorch.tools.measures
+.. automodule:: echotorch.utils.error_measures
     :members:
     :undoc-members:
     :show-inheritance:
 
-echotorch\.tools\.utility\_functions module
+echotorch\.utils\.utility\_functions module
 -------------------------------------------
 
-.. automodule:: echotorch.tools.utility_functions
+.. automodule:: echotorch.utils.utility_functions
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ echotorch\.tools\.utility\_functions module
 Module contents
 ---------------
 
-.. automodule:: echotorch.tools
+.. automodule:: echotorch.utils
     :members:
     :undoc-members:
     :show-inheritance:

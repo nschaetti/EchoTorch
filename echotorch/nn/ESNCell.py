@@ -27,7 +27,7 @@ Created on 26 January 2018
 import torch
 from torch.autograd import Variable
 import torch.nn as nn
-from echotorch.tools import utility_functions
+import echotorch.utils
 import numpy as np
 
 
@@ -39,8 +39,8 @@ class ESNCell(nn.Module):
 
     # Constructor
     def __init__(self, input_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0, w=None, w_in=None,
-                 w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh):
+                 w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
+                 nonlin_func=torch.tanh, feedbacks=False):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -64,22 +64,28 @@ class ESNCell(nn.Module):
         self.spectral_radius = spectral_radius
         self.bias_scaling = bias_scaling
         self.input_scaling = input_scaling
-        self.w = w
-        self.w_in = w_in
-        self.w_bias = w_bias
         self.sparsity = sparsity
         self.input_set = input_set
         self.w_sparsity = w_sparsity
         self.nonlin_func = nonlin_func
+        self.feedbacks = feedbacks
 
-        # Initialize inout weights
-        self.w_in = self._generate_win()
+        # Init hidden state
+        self.register_buffer('hidden', self.init_hidden())
+
+        # Initialize input weights
+        self.register_buffer('w_in', self._generate_win(w_in))
 
         # Initialize reservoir weights randomly
-        self.w = self._generate_w()
+        self.register_buffer('w', self._generate_w(w))
 
         # Initialize bias
-        self.w_bias = self._generate_wbias()
+        self.register_buffer('w_bias', self._generate_wbias(w_bias))
+
+        # Initialize feedbacks weights randomly
+        if feedbacks:
+            self.register_buffer('w_fdb', self._generate_win(w_fdb))
+        # end if
     # end __init__
 
     ###############################################
@@ -87,41 +93,73 @@ class ESNCell(nn.Module):
     ###############################################
 
     # Forward
-    def forward(self, u, hidden):
+    def forward(self, u, y=None, w_out=None):
         """
         Forward
-        :param u: Input signal.
-        :param hidden: Hidden layer state (x).
-        :return: Resulting hidden states.
+        :param u: Input signal
+        :param y: Target output signal for teacher forcing
+        :param w_out: Output weights for teacher forcing
+        :return: Resulting hidden states
         """
-        # Steps
-        steps = int(u.size()[0])
+        # Time length
+        time_length = int(u.size()[1])
+
+        # Number of batches
+        n_batches = int(u.size()[0])
 
         # Outputs
-        outputs = Variable(torch.zeros(steps, self.output_dim))
+        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
+        outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
-        # For each steps
-        for i in range(steps):
-            # Current input
-            ut = u[i]
+        # For each batch
+        for b in range(n_batches):
+            # Reset hidden layer
+            self.reset_hidden()
 
-            # Compute input layer
-            u_win = self.w_in.mv(ut)
+            # For each steps
+            for t in range(time_length):
+                # Current input
+                ut = u[b, t]
 
-            # Apply W to x
-            x_w = self.w.mv(hidden)
+                # Compute input layer
+                u_win = self.w_in.mv(ut)
 
-            # Apply activation function
-            x_w = self.nonlin_func(x_w)
+                # Apply W to x
+                x_w = self.w.mv(self.hidden)
 
-            # Add everything
-            x = u_win + x_w + self.w_bias
+                # Feedback or not
+                if self.feedbacks and y is not None:
+                    # Current target
+                    yt = y[b, t]
 
-            # Add to outputs
-            hidden = x.view(self.output_dim)
+                    # Compute feedback layer
+                    y_wfdb = self.w_fdb.mv(yt)
 
-            # New last state
-            outputs[i] = hidden
+                    # Add everything
+                    x = u_win + x_w + y_wfdb + self.w_bias
+                elif self.feedbacks and y is None and w_out is not None:
+                    # Compute past output
+                    yt = w_out.mv(self.hidden)
+
+                    # Compute feedback layer
+                    y_wfdb = self.w_fdb.mv(yt)
+
+                    # Add everything
+                    x = u_win + x_w + y_wfdb + self.w_bias
+                else:
+                    # Add everything
+                    x = u_win + x_w + self.w_bias
+                # end if
+
+                # Apply activation function
+                x = self.nonlin_func(x)
+
+                # Add to outputs
+                self.hidden.data = x.view(self.output_dim).data
+
+                # New last state
+                outputs[b, t] = self.hidden
+            # end for
         # end for
 
         return outputs
@@ -133,8 +171,18 @@ class ESNCell(nn.Module):
         Init hidden layer
         :return: Initiated hidden layer
         """
-        return Variable(torch.zeros(self.output_dim))
+        return Variable(torch.zeros(self.output_dim), requires_grad=False)
+        # return torch.zeros(self.output_dim)
     # end init_hidden
+
+    # Reset hidden layer
+    def reset_hidden(self):
+        """
+        Reset hidden layer
+        :return:
+        """
+        self.hidden.fill_(0.0)
+    # end reset_hidden
 
     # Get W's spectral radius
     def get_spectral_radius(self):
@@ -142,7 +190,7 @@ class ESNCell(nn.Module):
         Get W's spectral radius
         :return: W's spectral radius
         """
-        return utility_functions.spectral_radius(self.w)
+        return echotorch.utils.spectral_radius(self.w)
     # end spectral_radius
 
     ###############################################
@@ -150,13 +198,13 @@ class ESNCell(nn.Module):
     ###############################################
 
     # Generate W matrix
-    def _generate_w(self):
+    def _generate_w(self, w):
         """
         Generate W matrix
-        :return: The generated W matrix as Variable
+        :return:
         """
         # Initialize reservoir weight matrix
-        if self.w is None:
+        if w is None:
             # Sparsity
             if self.w_sparsity is None:
                 w = torch.rand(self.output_dim, self.output_dim) * 2.0 - 1.0
@@ -166,27 +214,25 @@ class ESNCell(nn.Module):
                 w = torch.from_numpy(w.astype(np.float32))
             # end if
         else:
-            if callable(self.w):
-                w = self.w(self.output_dim)
-            else:
-                w = self.w
+            if callable(w):
+                w = w(self.output_dim)
             # end if
         # end if
 
         # Scale it to spectral radius
-        w *= self.spectral_radius / utility_functions.spectral_radius(w)
+        w *= self.spectral_radius / echotorch.utils.spectral_radius(w)
 
         return Variable(w, requires_grad=False)
     # end generate_W
 
     # Generate Win matrix
-    def _generate_win(self):
+    def _generate_win(self, w_in):
         """
         Generate Win matrix
-        :return: The generated Win matrix as Variable
+        :return:
         """
         # Initialize input weight matrix
-        if self.w_in is None:
+        if w_in is None:
             if self.sparsity is None:
                 w_in = self.input_scaling * (
                             np.random.randint(0, 2, (self.output_dim, self.input_dim)) * 2.0 - 1.0)
@@ -200,10 +246,8 @@ class ESNCell(nn.Module):
                 w_in = torch.from_numpy(w_in.astype(np.float32))
             # end if
         else:
-            if callable(self.w_in):
-                w_in = self.w_in(self.output_dim, self.input_dim)
-            else:
-                w_in = self.w_in
+            if callable(w_in):
+                w_in = w_in(self.output_dim, self.input_dim)
             # end if
         # end if
 
@@ -211,19 +255,17 @@ class ESNCell(nn.Module):
     # end _generate_win
 
     # Generate Wbias matrix
-    def _generate_wbias(self):
+    def _generate_wbias(self, w_bias):
         """
         Generate Wbias matrix
-        :return: The generated Wbias matrix as Variable
+        :return:
         """
         # Initialize bias matrix
-        if self.w_bias is None:
+        if w_bias is None:
             w_bias = self.bias_scaling * (torch.rand(1, self.output_dim) * 2.0 - 1.0)
         else:
-            if callable((self.w_bias)):
-                w_bias = self.w_bias(self.output_dim)
-            else:
-                w_bias = self.w_bias
+            if callable((w_bias)):
+                w_bias = w_bias(self.output_dim)
             # end if
         # end if
 

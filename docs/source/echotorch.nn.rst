@@ -18,3 +18,15 @@ ESN
 
 .. autoclass:: nn.ESN
     :members:
+
+LiESNCell
+~~~~~~~~~
+
+.. autoclass:: nn.LiESNCell
+    :members:
+
+LiESN
+~~~~~
+
+.. autoclass:: nn.LiESN
+    :members:

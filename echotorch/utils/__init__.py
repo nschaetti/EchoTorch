@@ -2,7 +2,7 @@
 #
 
 # Imports
-from .measures import nrmse
+from .error_measures import nrmse, nmse, rmse, mse
 from .utility_functions import spectral_radius
 
 __all__ = [
