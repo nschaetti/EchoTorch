@@ -2,9 +2,8 @@
 #
 
 # Imports
-from .TextTransformer import TextTransformer
-from .WVTextTransformer import WVTextTransformer
+import text
 
 __all__ = [
-    'TextTransformer', 'WVTextTransformer'
+    'text', 'images'
 ]
