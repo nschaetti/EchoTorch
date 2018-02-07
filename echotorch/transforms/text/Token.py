@@ -2,18 +2,17 @@
 #
 
 # Imports
-import torch
 import spacy
 
 
-# Transform text to word vectors
-class WVTextTransformer(object):
+# Transform text to a list of tokens
+class Token(object):
     """
-    Transform text to word vectors
+    Transform text to a list of tokens
     """
 
     # Constructor
-    def __init__(self, model="en_vectors_web_lg"):
+    def __init__(self, model="en_core_web_lg"):
         """
         Constructor
         :param model: Spacy's model to load.
@@ -34,7 +33,7 @@ class WVTextTransformer(object):
         Get the number of inputs.
         :return: The input size.
         """
-        return 300
+        return 1
     # end input_dim
 
     ##############################################
@@ -48,15 +47,15 @@ class WVTextTransformer(object):
         :param text: Text to convert
         :return: Tensor of word vectors
         """
-        # Inputs as tensor
-        inputs = torch.FloatTensor()
+        # Inputs as a list
+        tokens = list()
 
         # For each tokens
         for token in self.nlp(text):
-            torch.cat((inputs, torch.FloatTensor(token.vector)), dimension=0)
+            tokens.append(unicode(token.text))
         # end for
 
-        return inputs
+        return tokens
     # end convert
 
     ##############################################
@@ -69,11 +68,11 @@ class WVTextTransformer(object):
         Get inputs size.
         :return:
         """
-        return 300
+        return 1
     # end if
 
     ##############################################
     # Static
     ##############################################
 
-# end TextTransformer
+# end Token
