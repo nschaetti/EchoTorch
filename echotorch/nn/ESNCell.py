@@ -25,6 +25,7 @@ Created on 26 January 2018
 """
 
 import torch
+import torch.sparse
 from torch.autograd import Variable
 import torch.nn as nn
 import echotorch.utils
@@ -205,14 +206,7 @@ class ESNCell(nn.Module):
         """
         # Initialize reservoir weight matrix
         if w is None:
-            # Sparsity
-            if self.w_sparsity is None:
-                w = torch.rand(self.output_dim, self.output_dim) * 2.0 - 1.0
-            else:
-                w = np.random.choice([0.0, 1.0], (self.output_dim, self.output_dim), p=[1.0-self.w_sparsity, self.w_sparsity])
-                w[w == 1] = np.random.rand(len(w[w == 1])) * 2.0 - 1.0
-                w = torch.from_numpy(w.astype(np.float32))
-            # end if
+            w = self.generate_w(self.output_dim, self.w_sparsity)
         else:
             if callable(w):
                 w = w(self.output_dim)
@@ -271,5 +265,65 @@ class ESNCell(nn.Module):
 
         return Variable(w_bias, requires_grad=False)
     # end _generate_wbias
+
+    ############################################
+    # STATIC
+    ############################################
+
+    # Generate W matrix
+    @staticmethod
+    def generate_w(output_dim, w_sparsity=None):
+        """
+        Generate W matrix
+        :param output_dim:
+        :param w_sparsity:
+        :return:
+        """
+        # Sparsity
+        if w_sparsity is None:
+            w = torch.rand(output_dim, output_dim) * 2.0 - 1.0
+        else:
+            w = np.random.choice([0.0, 1.0], (output_dim, output_dim),
+                                 p=[1.0 - w_sparsity, w_sparsity])
+            w[w == 1] = np.random.rand(len(w[w == 1])) * 2.0 - 1.0
+            w = torch.from_numpy(w.astype(np.float32))
+
+            # Return
+            return w
+        # end if
+        return w
+    # end generate_w
+
+    # To sparse matrix
+    @staticmethod
+    def to_sparse(m):
+        """
+        To sparse matrix
+        :param m:
+        :return:
+        """
+        # Rows, columns and values
+        rows = torch.LongTensor()
+        columns = torch.LongTensor()
+        values = torch.FloatTensor()
+
+        # For each row
+        for i in range(m.shape[0]):
+            # For each column
+            for j in range(m.shape[1]):
+                if m[i, j] != 0.0:
+                    rows = torch.cat((rows, torch.LongTensor([i])), dim=0)
+                    columns = torch.cat((columns, torch.LongTensor([j])), dim=0)
+                    values = torch.cat((values, torch.FloatTensor([m[i, j]])), dim=0)
+                # end if
+            # end for
+        # end for
+
+        # Indices
+        indices = torch.cat((rows.unsqueeze(0), columns.unsqueeze(0)), dim=0)
+
+        # To sparse
+        return torch.sparse.FloatTensor(indices, values)
+    # end to_sparse
 
 # end ESNCell
