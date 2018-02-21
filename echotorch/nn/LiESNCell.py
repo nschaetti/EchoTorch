@@ -25,6 +25,7 @@ Created on 26 January 2018
 """
 
 import torch
+import torch.sparse
 import torch.nn as nn
 from torch.autograd import Variable
 from .ESNCell import ESNCell
@@ -59,7 +60,7 @@ class LiESNCell(ESNCell):
     ###############################################
 
     # Forward
-    def forward(self, u):
+    def forward(self, u, y=None, w_out=None):
         """
         Forward
         :param u: Input signal.
