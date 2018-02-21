@@ -4,6 +4,7 @@
 # Imports
 import torch
 import spacy
+from datetime import datetime
 
 
 # Transform text to word vectors
@@ -54,6 +55,7 @@ class GloveVector(object):
         # Start
         start = True
         count = 0
+
         # For each tokens
         for token in self.nlp(text):
             if not start:
@@ -63,10 +65,9 @@ class GloveVector(object):
                 start = False
             # end if
             count += 1
-            print(count)
         # end for
 
-        return inputs
+        return inputs, inputs.size()[0]
     # end convert
 
     ##############################################
