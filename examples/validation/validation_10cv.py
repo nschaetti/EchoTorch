@@ -29,7 +29,7 @@ from echotorch.transforms import text
 # Reuters C50 dataset
 reutersloader = torch.utils.data.DataLoader(
     datasets.ReutersC50Dataset(root="../../data/reutersc50/", download=True, n_authors=2,
-                               transform=text.Tag(), dataset_size=48),
+                               transform=text.Token(), dataset_size=2, dataset_start=20),
     batch_size=1, shuffle=True)
 
 # For each batch
@@ -41,7 +41,7 @@ for k in range(10):
     # Get training data for this fold
     for i, data in enumerate(reutersloader):
         # Inputs and labels
-        inputs, labels = data
+        inputs, label, labels = data
     # end for
 
     # Set test mode
@@ -50,8 +50,6 @@ for k in range(10):
     # Get test data for this fold
     for i, data in enumerate(reutersloader):
         # Inputs and labels
-        inputs, labels = data
+        inputs, label, labels = data
     # end for
-
-    print(u"")
 # end for
