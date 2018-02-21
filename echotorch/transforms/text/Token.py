@@ -55,7 +55,7 @@ class Token(object):
             tokens.append(unicode(token.text))
         # end for
 
-        return tokens
+        return tokens, len(tokens)
     # end convert
 
     ##############################################
