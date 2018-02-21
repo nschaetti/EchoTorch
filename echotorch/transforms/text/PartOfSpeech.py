@@ -55,19 +55,13 @@ class PartOfSpeech(Transformer):
         # Inputs as tensor
         inputs = torch.FloatTensor(1, self.input_dim)
 
-        # Null symbol
-        null_symbol = torch.zeros(1, self.input_dim)
-        null_symbol[0, -1] = 1.0
-
         # Start
         start = True
 
         # For each tokens
         for token in self.nlp(text):
             pos = self.tag_to_symbol(token.pos_)
-            if pos is None:
-                pos = null_symbol
-            # end if
+
             if not start:
                 inputs = torch.cat((inputs, pos), dim=0)
             else:
@@ -76,7 +70,7 @@ class PartOfSpeech(Transformer):
             # end if
         # end for
 
-        return inputs
+        return inputs, inputs.size()[0]
     # end convert
 
 # end PartOfSpeech
