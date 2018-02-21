@@ -91,7 +91,7 @@ class Character(Transformer):
             # end if
         # end for
 
-        return inputs
+        return inputs, inputs.size()[0]
     # end convert
 
 # end FunctionWord
