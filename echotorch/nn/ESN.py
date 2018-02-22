@@ -188,8 +188,10 @@ class ESN(nn.Module):
         time_length = u.size()[1]
 
         # Compute hidden states
-        if self.feedbacks:
+        if self.feedbacks and self.training:
             hidden_states = self.esn_cell(u, y)
+        elif self.feedbacks and not self.training:
+            hidden_states = self.esn_cell(u, w_out=self.w_out)
         else:
             hidden_states = self.esn_cell(u)
         # end if
