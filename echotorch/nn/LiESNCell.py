@@ -92,8 +92,29 @@ class LiESNCell(ESNCell):
                 # Apply W to x
                 x_w = self.w.mv(self.hidden)
 
-                # Add everything
-                x = u_win + x_w + self.w_bias
+                # Feedback or not
+                if self.feedbacks and self.training and y is not None:
+                    # Current target
+                    yt = y[b, t]
+
+                    # Compute feedback layer
+                    y_wfdb = self.w_fdb.mv(yt)
+
+                    # Add everything
+                    x = u_win + x_w + y_wfdb + self.w_bias
+                elif self.feedbacks and not self.training and w_out is not None:
+                    # Compute past output
+                    yt = w_out.mv(self.hidden)
+
+                    # Compute feedback layer
+                    y_wfdb = self.w_fdb.mv(yt)
+
+                    # Add everything
+                    x = u_win + x_w + y_wfdb + self.w_bias
+                else:
+                    # Add everything
+                    x = u_win + x_w + self.w_bias
+                # end if
 
                 # Apply activation function
                 x = self.nonlin_func(x)

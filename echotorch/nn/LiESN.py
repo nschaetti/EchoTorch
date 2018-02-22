@@ -37,9 +37,9 @@ class LiESN(ESN):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, spectral_radius=0.9,
-                 bias_scaling=0, input_scaling=1.0,
-                 w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, leaky_rate=1.0, train_leaky_rate=False):
+                 bias_scaling=0, input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None,
+                 input_set=[1.0, -1.0], w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
+                 leaky_rate=1.0, train_leaky_rate=False, feedbacks=False):
         """
         Constructor
         :param input_dim:
@@ -59,18 +59,19 @@ class LiESN(ESN):
         :param ridge_param:
         :param leaky_rate:
         :param train_leaky_rate:
+        :param feedbacks:
         """
         super(LiESN, self).__init__(input_dim, hidden_dim, output_dim, spectral_radius=spectral_radius,
                                     bias_scaling=bias_scaling, input_scaling=input_scaling,
                                     w=w, w_in=w_in, w_bias=w_bias, sparsity=sparsity, input_set=input_set,
                                     w_sparsity=w_sparsity, nonlin_func=nonlin_func, learning_algo=learning_algo,
-                                    ridge_param=ridge_param, create_cell=False)
+                                    ridge_param=ridge_param, create_cell=False, feedbacks=feedbacks)
 
         # Recurrent layer
         self.esn_cell = LiESNCell(leaky_rate, train_leaky_rate, input_dim, hidden_dim, spectral_radius=spectral_radius,
                                   bias_scaling=bias_scaling, input_scaling=input_scaling,
                                   w=w, w_in=w_in, w_bias=w_bias, sparsity=sparsity, input_set=input_set,
-                                  w_sparsity=w_sparsity, nonlin_func=nonlin_func)
+                                  w_sparsity=w_sparsity, nonlin_func=nonlin_func, feedbacks=feedbacks)
     # end __init__
 
     ###############################################
