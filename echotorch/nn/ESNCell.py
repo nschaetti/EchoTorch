@@ -129,7 +129,7 @@ class ESNCell(nn.Module):
                 x_w = self.w.mv(self.hidden)
 
                 # Feedback or not
-                if self.feedbacks and y is not None:
+                if self.feedbacks and self.training and y is not None:
                     # Current target
                     yt = y[b, t]
 
@@ -138,7 +138,7 @@ class ESNCell(nn.Module):
 
                     # Add everything
                     x = u_win + x_w + y_wfdb + self.w_bias
-                elif self.feedbacks and y is None and w_out is not None:
+                elif self.feedbacks and not self.training and w_out is not None:
                     # Compute past output
                     yt = w_out.mv(self.hidden)
 
