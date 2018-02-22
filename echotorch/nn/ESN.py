@@ -24,6 +24,7 @@ Created on 26 January 2018
 @author: Nils Schaetti
 """
 
+# Imports
 import torch.sparse
 import torch
 import torch.nn as nn
