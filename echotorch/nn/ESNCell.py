@@ -41,7 +41,8 @@ class ESNCell(nn.Module):
     # Constructor
     def __init__(self, input_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0, w=None, w_in=None,
                  w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh, feedbacks=False):
+                 nonlin_func=torch.tanh, feedbacks=False, feedbacks_dim=None, wfdb_sparsity=None,
+                 normalize_feedbacks=False):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -70,6 +71,9 @@ class ESNCell(nn.Module):
         self.w_sparsity = w_sparsity
         self.nonlin_func = nonlin_func
         self.feedbacks = feedbacks
+        self.feedbacks_dim = feedbacks_dim
+        self.wfdb_sparsity = wfdb_sparsity
+        self.normalize_feedbacks = normalize_feedbacks
 
         # Init hidden state
         self.register_buffer('hidden', self.init_hidden())
@@ -85,7 +89,7 @@ class ESNCell(nn.Module):
 
         # Initialize feedbacks weights randomly
         if feedbacks:
-            self.register_buffer('w_fdb', self._generate_win(w_fdb))
+            self.register_buffer('w_fdb', self._generate_wfdb(w_fdb))
         # end if
     # end __init__
 
@@ -141,6 +145,13 @@ class ESNCell(nn.Module):
                 elif self.feedbacks and not self.training and w_out is not None:
                     # Compute past output
                     yt = w_out.mv(self.hidden)
+
+                    # Normalize
+                    if self.normalize_feedbacks:
+                        yt -= torch.min(yt)
+                        yt /= torch.max(yt) - torch.min(yt)
+                        yt /= torch.sum(yt)
+                    # end if
 
                     # Compute feedback layer
                     y_wfdb = self.w_fdb.mv(yt)
@@ -265,6 +276,36 @@ class ESNCell(nn.Module):
 
         return Variable(w_bias, requires_grad=False)
     # end _generate_wbias
+
+    # Generate Wfdb matrix
+    def _generate_wfdb(self, w_fdb):
+        """
+        Generate Wfdb matrix
+        :return:
+        """
+        # Initialize feedbacks weight matrix
+        if w_fdb is None:
+            if self.wfdb_sparsity is None:
+                w_fdb = self.input_scaling * (
+                        np.random.randint(0, 2, (self.output_dim, self.feedbacks_dim)) * 2.0 - 1.0)
+                w_fdb = torch.from_numpy(w_fdb.astype(np.float32))
+            else:
+                w_fdb = self.input_scaling * np.random.choice(np.append([0], self.input_set),
+                                                             (self.output_dim, self.feedbacks_dim),
+                                                             p=np.append([1.0 - self.wfdb_sparsity],
+                                                                         [self.wfdb_sparsity / len(
+                                                                             self.input_set)] * len(
+                                                                             self.input_set)))
+                w_fdb = torch.from_numpy(w_fdb.astype(np.float32))
+            # end if
+        else:
+            if callable(w_fdb):
+                w_fdb = w_fdb(self.output_dim, self.feedbacks_dim)
+            # end if
+        # end if
+
+        return Variable(w_fdb, requires_grad=False)
+    # end _generate_wfdb
 
     ############################################
     # STATIC

@@ -29,6 +29,7 @@ import torch.sparse
 import torch.nn as nn
 from torch.autograd import Variable
 from .ESNCell import ESNCell
+import matplotlib.pyplot as plt
 
 
 # Leak-Integrated Echo State Network layer
@@ -102,15 +103,27 @@ class LiESNCell(ESNCell):
 
                     # Add everything
                     x = u_win + x_w + y_wfdb + self.w_bias
+                    # x = u_win + x_w + self.w_bias
                 elif self.feedbacks and not self.training and w_out is not None:
+                    # Add bias
+                    bias_hidden = torch.cat((Variable(torch.ones(1)), self.hidden), dim=0)
+
                     # Compute past output
-                    yt = w_out.mv(self.hidden)
+                    yt = w_out.t().mv(bias_hidden)
+
+                    # Normalize
+                    if self.normalize_feedbacks:
+                        yt -= torch.min(yt)
+                        yt /= torch.max(yt) - torch.min(yt)
+                        yt /= torch.sum(yt)
+                    # end if
 
                     # Compute feedback layer
                     y_wfdb = self.w_fdb.mv(yt)
 
                     # Add everything
                     x = u_win + x_w + y_wfdb + self.w_bias
+                    # x = u_win + x_w + self.w_bias
                 else:
                     # Add everything
                     x = u_win + x_w + self.w_bias
