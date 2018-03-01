@@ -3,6 +3,7 @@
 
 # Imports
 from .Character import Character
+from .Character2Gram import Character2Gram
 from .FunctionWord import FunctionWord
 from .GloveVector import GloveVector
 from .PartOfSpeech import PartOfSpeech
@@ -11,5 +12,5 @@ from .Token import Token
 from .Transformer import Transformer
 
 __all__ = [
-    'Character', 'FunctionWord', 'Transformer', 'GloveVector', 'PartOfSpeech', 'Tag', 'Token'
+    'Character', 'Character2Gram', 'FunctionWord', 'Transformer', 'GloveVector', 'PartOfSpeech', 'Tag', 'Token'
 ]
