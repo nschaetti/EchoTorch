@@ -13,13 +13,14 @@ class Character(Transformer):
     """
 
     # Constructor
-    def __init__(self, alphabet):
+    def __init__(self, uppercase=False):
         """
         Constructor
-        :param model: Spacy's model to load.
         """
         # Properties
-        self.alphabet = alphabet
+        self.gram_to_ix = dict()
+        self.gram_count = 0
+        self.uppercase = uppercase
 
         # Super constructor
         super(Character, self).__init__()
@@ -28,15 +29,6 @@ class Character(Transformer):
     ##############################################
     # Public
     ##############################################
-
-    # Get tags
-    def get_tags(self):
-        """
-        Get tags.
-        :return: A tag list.
-        """
-        return self.alphabet
-    # end get_tags
 
     ##############################################
     # Properties
@@ -49,8 +41,35 @@ class Character(Transformer):
         Get the number of inputs.
         :return: The input size.
         """
-        return len(self.get_tags()) + 1
+        return 1
     # end input_dim
+
+    # Vocabulary size
+    @property
+    def voc_size(self):
+        """
+        Vocabulary size
+        :return:
+        """
+        return self.gram_count
+    # end voc_size
+
+    ##############################################
+    # Private
+    ##############################################
+
+    # To upper
+    def to_upper(self, gram):
+        """
+        To upper
+        :param gram:
+        :return:
+        """
+        if not self.uppercase:
+            return gram.lower()
+        # end if
+        return gram
+    # end to_upper
 
     ##############################################
     # Override
@@ -63,35 +82,22 @@ class Character(Transformer):
         :param text: Text to convert
         :return: Tensor of word vectors
         """
-        # Inputs as tensor
-        inputs = torch.FloatTensor(1, self.input_dim)
-
-        # Null symbol
-        null_symbol = torch.zeros(1, self.input_dim)
-        null_symbol[0, -1] = 1.0
-
-        # Start
-        start = True
-
-        # For each character
-        for c in text:
-            # Replace if not function word
-            if c not in self.alphabet:
-                c_sym = null_symbol
-            else:
-                c_sym = self.tag_to_symbol(c)
-            # end if
-
-            # Add
-            if not start:
-                inputs = torch.cat((inputs, c_sym), dim=0)
-            else:
-                inputs = c_sym
-                start = False
+        # Add to voc
+        for i in range(len(text)):
+            gram = self.to_upper(text[i])
+            if gram not in self.gram_to_ix.keys():
+                self.gram_to_ix[gram] = self.gram_count
+                self.gram_count += 1
             # end if
         # end for
 
-        return inputs, inputs.size()[0]
+        # List of character to 2grams
+        text_idxs = [self.gram_to_ix[self.to_upper(text[i])] for i in range(len(text))]
+
+        # To long tensor
+        text_idxs = torch.LongTensor(text_idxs)
+
+        return text_idxs, text_idxs.size(0)
     # end convert
 
 # end FunctionWord
