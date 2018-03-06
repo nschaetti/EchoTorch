@@ -14,7 +14,7 @@ class GensimModel(object):
     """
 
     # Constructor
-    def __init__(self, model_path):
+    def __init__(self, model_path, binary=True):
         """
         Constructor
         :param model_path: Model's path.
@@ -23,7 +23,7 @@ class GensimModel(object):
         self.model_path = model_path
 
         # Load
-        self.model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=True)
+        self.model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=binary)
     # end __init__
 
     ##############################################
