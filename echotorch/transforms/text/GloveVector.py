@@ -4,6 +4,7 @@
 # Imports
 import torch
 import spacy
+import numpy as np
 from datetime import datetime
 
 
@@ -22,6 +23,7 @@ class GloveVector(object):
         # Properties
         self.model = model
         self.nlp = spacy.load(model)
+        self.oov = 0.0
     # end __init__
 
     ##############################################
@@ -54,18 +56,28 @@ class GloveVector(object):
 
         # Start
         start = True
-        count = 0
+        count = 0.0
+
+        # Zero count
+        zero = 0.0
+        oov = 0.0
 
         # For each tokens
         for token in self.nlp(text):
+            if np.sum(token.vector) == 0:
+                zero += 1.0
+            # end if
             if not start:
                 inputs = torch.cat((inputs, torch.FloatTensor(token.vector).unsqueeze_(0)), dim=0)
             else:
                 inputs = torch.FloatTensor(token.vector).unsqueeze_(0)
                 start = False
             # end if
-            count += 1
+            count += 1.0
         # end for
+
+        # OOV
+        self.oov = zero / count * 100.0
 
         return inputs, inputs.size()[0]
     # end convert
