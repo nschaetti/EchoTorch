@@ -5,6 +5,7 @@
 import gensim
 from gensim.utils import tokenize
 import torch
+import numpy as np
 
 
 # Transform text to vectors with a Gensim model
@@ -24,6 +25,9 @@ class GensimModel(object):
 
         # Load
         self.model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=binary)
+
+        # OOV
+        self.oov = 0.0
     # end __init__
 
     ##############################################
@@ -56,11 +60,22 @@ class GensimModel(object):
 
         # Start
         start = True
-        count = 0
+        count = 0.0
+
+        # OOV
+        zero = 0.0
+        self.oov = 0.0
 
         # For each tokens
         for token in tokenize(text):
-            word_vector = self.model[token]
+            try:
+                word_vector = self.model[token]
+            except KeyError:
+                zero += 1.0
+            # end try
+            if np.sum(word_vector) == 0.0:
+                zero += 1.0
+            # end if
             if not start:
                 inputs = torch.cat((inputs, torch.FloatTensor(word_vector).unsqueeze_(0)), dim=0)
             else:
@@ -69,6 +84,9 @@ class GensimModel(object):
             # end if
             count += 1
         # end for
+
+        # OOV
+        self.oov = zero / count * 100.0
 
         return inputs, inputs.size()[0]
     # end convert
