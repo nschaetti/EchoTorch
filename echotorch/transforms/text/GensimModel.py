@@ -76,7 +76,7 @@ class GensimModel(object):
                 if self.uppercase:
                     word_vector = self.model[token]
                 else:
-                    word_vector = self.model[token.tolower()]
+                    word_vector = self.model[token.lower()]
                 # end if
             except KeyError:
                 print(token)
