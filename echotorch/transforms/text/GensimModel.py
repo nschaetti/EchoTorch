@@ -84,16 +84,6 @@ class GensimModel(object):
             if not found:
                 try:
                     word_vector = self.model[token.lower()]
-                    found = True
-                except KeyError:
-                    pass
-                # end try
-            # end if
-
-            # Try upper
-            if not found:
-                try:
-                    word_vector = self.model[token.upper()]
                 except KeyError:
                     zero += 1.0
                     word_vector = np.zeros(self.input_dim)
