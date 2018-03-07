@@ -4,6 +4,8 @@
 # Imports
 from .Character import Character
 from .Character2Gram import Character2Gram
+from .Compose import Compose
+from .Embedding import Embedding
 from .FunctionWord import FunctionWord
 from .GensimModel import GensimModel
 from .GloveVector import GloveVector
@@ -13,5 +15,6 @@ from .Token import Token
 from .Transformer import Transformer
 
 __all__ = [
-    'Character', 'Character2Gram', 'FunctionWord', 'GensimModel', 'Transformer', 'GloveVector', 'PartOfSpeech', 'Tag', 'Token'
+    'Character', 'Character2Gram', 'Compose', 'Embedding', 'FunctionWord', 'GensimModel', 'Transformer', 'GloveVector',
+    'PartOfSpeech', 'Tag', 'Token'
 ]
