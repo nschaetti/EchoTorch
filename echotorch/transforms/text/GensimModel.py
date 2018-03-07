@@ -24,7 +24,7 @@ class GensimModel(object):
         self.model_path = model_path
 
         # Load
-        self.model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=binary)
+        self.model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=binary, unicode_errors='ignore' )
 
         # OOV
         self.oov = 0.0
@@ -91,6 +91,4 @@ class GensimModel(object):
 
     ##############################################
     # Static
-    ##############################################
-
-# end GensimModel
+    #########################################
