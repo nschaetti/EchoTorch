@@ -70,12 +70,12 @@ class GensimModel(object):
         for token in tokenize(text):
             try:
                 word_vector = self.model[token]
+                if np.sum(word_vector) == 0.0:
+                    zero += 1.0
+                # end if
             except KeyError:
                 zero += 1.0
             # end try
-            if np.sum(word_vector) == 0.0:
-                zero += 1.0
-            # end if
             if not start:
                 inputs = torch.cat((inputs, torch.FloatTensor(word_vector).unsqueeze_(0)), dim=0)
             else:
