@@ -15,14 +15,13 @@ class GensimModel(object):
     """
 
     # Constructor
-    def __init__(self, model_path, uppercase=False):
+    def __init__(self, model_path):
         """
         Constructor
         :param model_path: Model's path.
         """
         # Properties
         self.model_path = model_path
-        self.uppercase = uppercase
 
         # Format
         binary = False if model_path[-4:] == ".vec" else True
@@ -72,17 +71,36 @@ class GensimModel(object):
 
         # For each tokens
         for token in tokenize(text):
+            found = False
+            # Try normal
             try:
-                if self.uppercase:
-                    word_vector = self.model[token]
-                else:
-                    word_vector = self.model[token.lower()]
-                # end if
+                word_vector = self.model[token]
+                found = True
             except KeyError:
-                print(token)
-                zero += 1.0
-                word_vector = np.zeros(self.input_dim)
+                pass
             # end try
+
+            # Try lower
+            if not found:
+                try:
+                    word_vector = self.model[token.lower()]
+                    found = True
+                except KeyError:
+                    pass
+                # end try
+            # end if
+
+            # Try upper
+            if not found:
+                try:
+                    word_vector = self.model[token.upper()]
+                except KeyError:
+                    zero += 1.0
+                    word_vector = np.zeros(self.input_dim)
+                # end try
+            # end if
+
+            # Start/continue
             if not start:
                 inputs = torch.cat((inputs, torch.FloatTensor(word_vector).unsqueeze_(0)), dim=0)
             else:
