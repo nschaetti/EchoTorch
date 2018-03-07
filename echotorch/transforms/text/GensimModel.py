@@ -15,13 +15,16 @@ class GensimModel(object):
     """
 
     # Constructor
-    def __init__(self, model_path, binary=True):
+    def __init__(self, model_path):
         """
         Constructor
         :param model_path: Model's path.
         """
         # Properties
         self.model_path = model_path
+
+        # Format
+        binary = False if model_path[-4:] == ".vec" else True
 
         # Load
         self.model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=binary, unicode_errors='ignore')
