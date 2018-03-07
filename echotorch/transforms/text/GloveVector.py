@@ -60,7 +60,7 @@ class GloveVector(object):
 
         # Zero count
         zero = 0.0
-        oov = 0.0
+        self.oov = 0.0
 
         # For each tokens
         for token in self.nlp(text):
