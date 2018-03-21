@@ -19,6 +19,7 @@ class Character(Transformer):
         """
         # Properties
         self.gram_to_ix = dict()
+        self.ix_to_gram = dict()
         self.gram_count = 0
         self.uppercase = uppercase
 
@@ -87,6 +88,7 @@ class Character(Transformer):
             gram = self.to_upper(text[i])
             if gram not in self.gram_to_ix.keys():
                 self.gram_to_ix[gram] = self.gram_count
+                self.ix_to_gram[self.gram_count] = gram
                 self.gram_count += 1
             # end if
         # end for
