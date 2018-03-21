@@ -6,10 +6,10 @@ import torch
 from .Transformer import Transformer
 
 
-# Transform text to character 2-gram
-class Character2Gram(Transformer):
+# Transform text to character 3-gram
+class Character3Gram(Transformer):
     """
-    Transform text to character 2-grams
+    Transform text to character 3-grams
     """
 
     # Constructor
@@ -102,4 +102,4 @@ class Character2Gram(Transformer):
         return text_idxs, text_idxs.size(0)
     # end convert
 
-# end Character2Gram
+# end Character3Gram
