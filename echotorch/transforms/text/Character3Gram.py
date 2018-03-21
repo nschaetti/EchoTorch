@@ -24,7 +24,7 @@ class Character3Gram(Transformer):
         self.uppercase = uppercase
 
         # Super constructor
-        super(Character2Gram, self).__init__()
+        super(Character3Gram, self).__init__()
     # end __init__
 
     ##############################################
@@ -84,8 +84,8 @@ class Character3Gram(Transformer):
         :return: Tensor of word vectors
         """
         # Add to voc
-        for i in range(len(text)-1):
-            gram = self.to_upper(text[i] + text[i+1])
+        for i in range(len(text)-2):
+            gram = self.to_upper(text[i] + text[i+1] + text[i+2])
             if gram not in self.gram_to_ix.keys():
                 self.gram_to_ix[gram] = self.gram_count
                 self.ix_to_gram[self.gram_count] = gram
@@ -93,8 +93,8 @@ class Character3Gram(Transformer):
             # end if
         # end for
 
-        # List of character to 2grams
-        text_idxs = [self.gram_to_ix[self.to_upper(text[i] + text[i+1])] for i in range(len(text)-1)]
+        # List of character to 3 grams
+        text_idxs = [self.gram_to_ix[self.to_upper(text[i] + text[i+1] + text[i+2])] for i in range(len(text)-2)]
 
         # To long tensor
         text_idxs = torch.LongTensor(text_idxs)
