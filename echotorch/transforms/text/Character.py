@@ -97,8 +97,6 @@ class Character(Transformer):
         :param text: Text to convert
         :return: Tensor of word vectors
         """
-        print(len(text))
-        print(u"\"{}\"".format(text[-4:]))
         # Add to voc
         for i in range(len(text)):
             gram = self.to_upper(text[i])
