@@ -29,8 +29,8 @@ class Character2Gram(Transformer):
         # Ix to gram
         self.ix_to_gram = dict()
         if gram_to_ix is not None:
-            for gram, ix in gram_to_ix:
-                self.ix_to_gram[ix] = gram
+            for gram in gram_to_ix.keys():
+                self.ix_to_gram[gram_to_ix[gram]] = gram
             # end for
         # end if
 
