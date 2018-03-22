@@ -62,8 +62,11 @@ class Embedding(object):
         zero = 0.0
         self.oov = 0.0
 
-        # For each tokens
-        for ix in idxs:
+        # For each inputs
+        for i in range(idxs.size(0)):
+            # Get token ix
+            ix = idxs[i]
+
             # Get vector
             if ix < self.voc_size:
                 embedding_vector = self.weights[ix]
