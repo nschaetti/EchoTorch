@@ -13,14 +13,28 @@ class Character2Gram(Transformer):
     """
 
     # Constructor
-    def __init__(self, uppercase=False):
+    def __init__(self, uppercase=False, gram_to_ix=None):
         """
         Constructor
         """
-        # Properties
-        self.gram_to_ix = dict()
+        # Gram to ix
+        if gram_to_ix is not None:
+            self.gram_count = len(self.gram_to_ix.keys())
+            self.gram_to_ix = gram_to_ix
+        else:
+            self.gram_count = 0
+            self.gram_to_ix = dict()
+        # end if
+
+        # Ix to gram
         self.ix_to_gram = dict()
-        self.gram_count = 0
+        if gram_to_ix is not None:
+            for gram, ix in gram_to_ix:
+                self.ix_to_gram[ix] = gram
+            # end for
+        # end if
+
+        # Properties
         self.uppercase = uppercase
 
         # Super constructor
