@@ -19,7 +19,7 @@ class Character3Gram(Transformer):
         """
         # Gram to ix
         if gram_to_ix is not None:
-            self.gram_count = len(self.gram_to_ix.keys())
+            self.gram_count = len(gram_to_ix.keys())
             self.gram_to_ix = gram_to_ix
         else:
             self.gram_count = 0
