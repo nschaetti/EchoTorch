@@ -15,14 +15,15 @@ class Embedding(object):
     """
 
     # Constructor
-    def __init__(self, embedding, size):
+    def __init__(self, weights):
         """
         Constructor
-        :param embedding: Embedding
+        :param weights: Embedding weight matrix
         """
         # Properties
-        self.embedding = embedding
-        self.size = size
+        self.weights = weights
+        self.voc_size = weights.size(0)
+        self.embedding_dim = weights.size(1)
     # end __init__
 
     ##############################################
@@ -36,7 +37,7 @@ class Embedding(object):
         Get the number of inputs
         :return:
         """
-        return self.size
+        return self.embedding_dim
     # end input_dim
 
     ##############################################
@@ -44,14 +45,14 @@ class Embedding(object):
     ##############################################
 
     # Convert a string
-    def __call__(self, text_array):
+    def __call__(self, idxs):
         """
         Convert a strng
         :param text:
         :return:
         """
         # Inputs as tensor
-        inputs = torch.FloatTensor(1, self.input_dim)
+        inputs = torch.FloatTensor(1, self.embedding_dim)
 
         # Start
         start = True
@@ -62,9 +63,13 @@ class Embedding(object):
         self.oov = 0.0
 
         # For each tokens
-        for token in text_array:
+        for ix in idxs:
             # Get vector
-            embedding_vector = self.embedding(token)
+            if ix < self.voc_size:
+                embedding_vector = self.weights[ix]
+            else:
+                embedding_vector = torch.zeros(self.embedding_dim)
+            # end if
 
             # Test zero
             if torch.sum(embedding_vector) == 0.0:
@@ -93,4 +98,4 @@ class Embedding(object):
     ##############################################
 
 
-# end GloveVector
+# end Embedding
