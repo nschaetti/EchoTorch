@@ -4,6 +4,8 @@
 # Imports
 import torch
 import math
+from decimal import Decimal
+import numpy as np
 
 
 # Normalized root-mean-square error
@@ -110,3 +112,47 @@ def nmse(outputs, targets):
     # Return
     return float(torch.mean(error) / var)
 # end nmse
+
+
+# Perplexity
+def perplexity(output_probs, targets, log=False):
+    """
+    Perplexity
+    :param output_probs: Output probabilities for each word/tokens (length x n_tokens)
+    :param targets: Real word index
+    :return: Perplexity
+    """
+    pp = Decimal(1.0)
+    e_vec = torch.FloatTensor(output_probs.size(0), output_probs.size(1)).fill_(np.e)
+    if log:
+        set_p = 1.0 / torch.gather(torch.pow(e_vec, exponent=output_probs.data.cpu()), 1,
+                                   targets.data.cpu().unsqueeze(1))
+    else:
+        set_p = 1.0 / torch.gather(output_probs.data.cpu(), 1, targets.data.cpu().unsqueeze(1))
+    # end if
+    for j in range(set_p.size(0)):
+        pp *= Decimal(set_p[j][0])
+    # end for
+    return pp
+# end perplexity
+
+
+# Cumulative perplexity
+def cumperplexity(output_probs, targets, log=False):
+    """
+    Cumulative perplexity
+    :param output_probs:
+    :param targets:
+    :param log:
+    :return:
+    """
+    # Perplexity
+    if log:
+        e_vec = torch.FloatTensor(output_probs.size(0), output_probs.size(1)).fill_(np.e)
+        set_p = torch.gather(torch.pow(e_vec, exponent=output_probs.data.cpu()), 1,
+                             targets.data.cpu().unsqueeze(1))
+    else:
+        set_p = torch.gather(output_probs.data.cpu(), 1, targets.data.cpu().unsqueeze(1))
+    # end if
+    return np.sum(np.log2(set_p.numpy()))
+# end cumperplexity
