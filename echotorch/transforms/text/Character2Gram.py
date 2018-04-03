@@ -13,7 +13,7 @@ class Character2Gram(Transformer):
     """
 
     # Constructor
-    def __init__(self, uppercase=False, gram_to_ix=None):
+    def __init__(self, uppercase=False, gram_to_ix=None, start_ix=0, fixed_length=-1):
         """
         Constructor
         """
@@ -22,7 +22,7 @@ class Character2Gram(Transformer):
             self.gram_count = len(gram_to_ix.keys())
             self.gram_to_ix = gram_to_ix
         else:
-            self.gram_count = 0
+            self.gram_count = start_ix
             self.gram_to_ix = dict()
         # end if
 
@@ -36,6 +36,7 @@ class Character2Gram(Transformer):
 
         # Properties
         self.uppercase = uppercase
+        self.fixed_length = fixed_length
 
         # Super constructor
         super(Character2Gram, self).__init__()
@@ -112,6 +113,17 @@ class Character2Gram(Transformer):
 
         # To long tensor
         text_idxs = torch.LongTensor(text_idxs)
+
+        # Check length
+        if self.fixed_length != -1:
+            if text_idxs.size(0) > self.fixed_length:
+                text_idxs = text_idxs[:self.fixed_length]
+            elif text_idxs.size(0) < self.fixed_length:
+                zero_idxs = torch.LongTensor(self.fixed_length).fill_(0)
+                zero_idxs[:text_idxs.size(0)] = text_idxs
+                text_idxs = zero_idxs
+            # end if
+        # end if
 
         return text_idxs, text_idxs.size(0)
     # end convert
