@@ -268,7 +268,7 @@ class ReutersC50Dataset(Dataset):
             # If in the set
             if author_count < self.n_authors and (given_authors is None or author_name in given_authors):
                 # New author
-                self.author2id[author_name] = index
+                self.author2id[author_name] = author_count
                 self.id2author[index] = author_name
 
                 # Add each text
