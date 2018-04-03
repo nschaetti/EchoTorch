@@ -4,6 +4,7 @@
 # Imports
 import torch
 from .Transformer import Transformer
+import numpy as np
 
 
 # Transform text to character 3-gram
@@ -13,7 +14,7 @@ class Character3Gram(Transformer):
     """
 
     # Constructor
-    def __init__(self, uppercase=False, gram_to_ix=None, start_ix=0, fixed_length=-1):
+    def __init__(self, uppercase=False, gram_to_ix=None, start_ix=0, fixed_length=-1, overlapse=True):
         """
         Constructor
         """
@@ -37,6 +38,7 @@ class Character3Gram(Transformer):
         # Properties
         self.uppercase = uppercase
         self.fixed_length = fixed_length
+        self.overlapse = overlapse
 
         # Super constructor
         super(Character3Gram, self).__init__()
@@ -98,8 +100,15 @@ class Character3Gram(Transformer):
         :param text: Text to convert
         :return: Tensor of word vectors
         """
+        # Step
+        if self.overlapse:
+            step = 1
+        else:
+            step = 3
+        #  end if
+
         # Add to voc
-        for i in range(len(text)-2):
+        for i in np.arange(0, len(text) - 2, step):
             gram = self.to_upper(text[i] + text[i+1] + text[i+2])
             if gram not in self.gram_to_ix.keys():
                 self.gram_to_ix[gram] = self.gram_count
