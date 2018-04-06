@@ -1,4 +1,4 @@
-<p align="center"><img width="40%" src="docs/images/echotorch.png" /></p>
+<p align="center"><img width="40%" src="docs/images/echotorch_complete.png" /></p>
 
 --------------------------------------------------------------------------------
 
