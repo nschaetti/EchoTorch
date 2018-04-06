@@ -1,4 +1,7 @@
-# EchoTorch
+<p align="center"><img width="40%" src="docs/images/echotorch.png" /></p>
+
+--------------------------------------------------------------------------------
+
 EchoTorch is a python module based on pyTorch to implement and test
 various flavours of Echo State Network models. EchoTorch is not
 intended to be put into production but for research purposes. As it is
