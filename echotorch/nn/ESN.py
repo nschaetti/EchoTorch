@@ -80,7 +80,7 @@ class ESN(nn.Module):
 
         # Linear layer if needed
         if learning_algo == 'grad':
-            self.linear = nn.Linear(hidden_dim, output_dim, bias=True)
+            self.output = nn.Linear(hidden_dim, output_dim, bias=True)
         else:
             # Size
             if self.with_bias:
@@ -223,7 +223,7 @@ class ESN(nn.Module):
             return outputs
         else:
             # Linear output
-            return self.linear(hidden_states)
+            return self.output(hidden_states)
         # end if
     # end forward
 
