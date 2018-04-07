@@ -30,6 +30,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from . import ESNCell
+from RRCell import RRCell
 
 
 # Echo State Network module
@@ -65,8 +66,6 @@ class ESN(nn.Module):
 
         # Properties
         self.output_dim = output_dim
-        self.learning_algo = learning_algo
-        self.ridge_param = ridge_param
         self.feedbacks = feedbacks
         self.with_bias = with_bias
         self.normalize_feedbacks = normalize_feedbacks
@@ -78,22 +77,8 @@ class ESN(nn.Module):
                                     wfdb_sparsity, normalize_feedbacks)
         # end if
 
-        # Linear layer if needed
-        if learning_algo == 'grad':
-            self.output = nn.Linear(hidden_dim, output_dim, bias=True)
-        else:
-            # Size
-            if self.with_bias:
-                self.x_size = hidden_dim + 1
-            else:
-                self.x_size = hidden_dim
-            # end if
-
-            # Set it as buffer
-            self.register_buffer('xTx', Variable(torch.zeros(self.x_size, self.x_size), requires_grad=False))
-            self.register_buffer('xTy', Variable(torch.zeros(self.x_size, output_dim), requires_grad=False))
-            self.register_buffer('w_out', Variable(torch.zeros(1, hidden_dim), requires_grad=False))
-        # end if
+        # Ouput layer
+        self.output = RRCell(hidden_dim, output_dim, ridge_param, feedbacks, with_bias, learning_algo)
     # end __init__
 
     ###############################################
@@ -140,13 +125,8 @@ class ESN(nn.Module):
         Reset learning
         :return:
         """
-        if self.learning_algo == 'grad':
-            self.linear.reset_parameters()
-        else:
-            self.xTx.data = torch.zeros(self.x_size, self.x_size)
-            self.xTy.data = torch.zeros(self.x_size, self.output_dim)
-            self.w_out.data = torch.zeros(1, self.output_dim)
-        # end if
+        # Reset output layer
+        self.output.reset()
 
         # Training mode again
         self.train(True)
@@ -158,11 +138,7 @@ class ESN(nn.Module):
         Output matrix
         :return:
         """
-        if self.learning_algo == 'grad':
-            return self.linear.weight
-        else:
-            return self.w_out
-        # end if
+        return self.output.w_out
     # end get_w_out
 
     # Set W
@@ -183,12 +159,6 @@ class ESN(nn.Module):
         :param y: Target outputs
         :return: Output or hidden states
         """
-        # Batch size
-        batch_size = u.size()[0]
-
-        # Time length
-        time_length = u.size()[1]
-
         # Compute hidden states
         if self.feedbacks and self.training:
             hidden_states = self.esn_cell(u, y)
@@ -198,33 +168,8 @@ class ESN(nn.Module):
             hidden_states = self.esn_cell(u)
         # end if
 
-        # Add bias
-        if self.with_bias:
-            hidden_states = self._add_constant(hidden_states)
-        # end if
-
         # Learning algo
-        if self.learning_algo != 'grad' and self.training:
-            for b in range(batch_size):
-                self.xTx.data.add_(hidden_states[b].t().mm(hidden_states[b]).data)
-                self.xTy.data.add_(hidden_states[b].t().mm(y[b]).data)
-            # end for
-            return hidden_states
-        elif self.learning_algo != 'grad' and not self.training:
-            # Outputs
-            outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
-            outputs = outputs.cuda() if self.hidden.is_cuda else outputs
-
-            # For each batch
-            for b in range(batch_size):
-                outputs[b] = torch.mm(hidden_states[b], self.w_out)
-            # end for
-
-            return outputs
-        else:
-            # Linear output
-            return self.output(hidden_states)
-        # end if
+        return self.output(hidden_states)
     # end forward
 
     # Finish training
@@ -232,12 +177,8 @@ class ESN(nn.Module):
         """
         Finalize training with LU factorization
         """
-        if self.learning_algo == 'inv':
-            inv_xTx = self.xTx.inverse()
-            self.w_out.data = torch.mm(inv_xTx, self.xTy).data
-        else:
-            self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
-        # end if
+        # Finalize output training
+        self.output.finalize()
 
         # Not in training mode anymore
         self.train(False)
@@ -260,20 +201,5 @@ class ESN(nn.Module):
         """
         return self.esn_cell.get_spectral_raduis()
     # end spectral_radius
-
-    ###############################################
-    # PRIVATE
-    ###############################################
-
-    # Add constant
-    def _add_constant(self, x):
-        """
-        Add constant
-        :param x:
-        :return:
-        """
-        bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
-        return torch.cat((bias, x), dim=2)
-    # end _add_constant
 
 # end ESNCell
