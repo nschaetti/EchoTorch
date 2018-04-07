@@ -29,7 +29,6 @@ import torch.sparse
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from . import ESNCell
 
 
 # Ridge Regression cell
@@ -39,7 +38,7 @@ class RRCell(nn.Module):
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, ridge_param=0.0, feedbacks=False, with_bias=True):
+    def __init__(self, input_dim, output_dim, ridge_param=0.0, feedbacks=False, with_bias=True, learning_algo='inv'):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -53,6 +52,7 @@ class RRCell(nn.Module):
         self.ridge_param = ridge_param
         self.feedbacks = feedbacks
         self.with_bias = with_bias
+        self.learning_algo = learning_algo
 
         # Size
         if self.with_bias:
@@ -123,7 +123,7 @@ class RRCell(nn.Module):
                 self.xTx.data.add_(x[b].t().mm(x[b]).data)
                 self.xTy.data.add_(x[b].t().mm(y[b]).data)
             # end for
-            return x
+            return None
         elif not self.training:
             # Outputs
             outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
@@ -141,10 +141,11 @@ class RRCell(nn.Module):
     # Finish training
     def finalize(self):
         """
-        Finalize training with LU factorization
+        Finalize training with LU factorization or Pseudo-inverse
         """
         if self.learning_algo == 'inv':
             inv_xTx = self.xTx.inverse()
+            # inv_xTx = torch.inverse(self.xTx + self.ridge_param * torch.eye(self._input_dim + self.with_bias))
             self.w_out.data = torch.mm(inv_xTx, self.xTy).data
         else:
             self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
