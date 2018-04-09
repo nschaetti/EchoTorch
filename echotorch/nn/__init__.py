@@ -7,10 +7,11 @@ from .ESN import ESN
 from .LiESNCell import LiESNCell
 from .LiESN import LiESN
 from .ICACell import ICACell
+from .Identity import Identity
 from .PCACell import PCACell
 from .RRCell import RRCell
 from .SFACell import SFACell
 
 __all__ = [
-    'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'ICACell', 'PCACell', 'RRCell', 'SFACell'
+    'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'ICACell', 'Identity', 'PCACell', 'RRCell', 'SFACell'
 ]
