@@ -66,11 +66,16 @@ class StackedESN(nn.Module):
 
         # Properties
         self.n_layers = len(hidden_dim)
+        self.esn_layers = list()
+
+        # Number of features
+        self.n_features = 0
 
         # Recurrent layer
         for n in range(self.n_layers):
             # Input dim
             layer_input_dim = input_dim if n == 0 else hidden_dim[n-1]
+            self.n_features += layer_input_dim
 
             # Parameters
             layer_spectral_radius = spectral_radius[n] if type(spectral_radius) is list else spectral_radius
@@ -86,8 +91,8 @@ class StackedESN(nn.Module):
                 layer_w = None
             # end if
 
-            # Parameters
-            if type(w_in) is torch.Tensor and w.ndim == 3:
+            # W in
+            if type(w_in) is torch.Tensor and w_in.ndim == 3:
                 layer_w_in = w_in[n]
             elif type(w_in) is torch.Tensor:
                 layer_w_in = w_in
@@ -95,14 +100,25 @@ class StackedESN(nn.Module):
                 layer_w_in = None
             # end if
 
-            self.esn_cell = ESNCell(
+            # W bias
+            if type(w_bias) is torch.Tensor and w_bias.ndim == 2:
+                layer_w_bias = w_bias[n]
+            elif type(w_bias) is torch.Tensor:
+                layer_w_bias = w_bias
+            else:
+                layer_w_bias = None
+            # end if
+
+            # Parameters
+
+            self.esn_layers.append(ESNCell(
                 layer_input_dim, hidden_dim[n], layer_spectral_radius, layer_bias_scaling, layer_input_scaling,
-                layer_w, layer_w_in, w_bias, w_fdb, sparsity, input_set, w_sparsity, nonlin_func, feedbacks, output_dim, wfdb_sparsity, normalize_feedbacks
-            )
+                layer_w, layer_w_in, layer_w_bias, None, sparsity, input_set, w_sparsity, nonlin_func, feedbacks, output_dim, wfdb_sparsity, normalize_feedbacks
+            ))
         # end for
 
         # Output layer
-        self.output = RRCell(hidden_dim, output_dim, ridge_param, feedbacks, with_bias, learning_algo)
+        self.output = RRCell(self.n_features, output_dim, ridge_param, feedbacks, with_bias, learning_algo)
     # end __init__
 
     ###############################################
