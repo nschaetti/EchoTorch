@@ -3,9 +3,10 @@
 
 # Imports
 import datasets
+import models
 import nn
 import utils
 
 
 # All EchoTorch's modules
-__all__ = ['datasets', 'nn', 'utils']
+__all__ = ['datasets', 'models', 'nn', 'utils']
