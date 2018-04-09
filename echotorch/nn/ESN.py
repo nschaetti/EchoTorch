@@ -17,7 +17,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright Nils Schaetti <nils.schaetti@unine.ch>
+# Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>
 
 """
 Created on 26 January 2018
