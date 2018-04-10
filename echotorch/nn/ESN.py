@@ -169,7 +169,7 @@ class ESN(nn.Module):
         # end if
 
         # Learning algo
-        return self.output(hidden_states)
+        return self.output(hidden_states, y)
     # end forward
 
     # Finish training
