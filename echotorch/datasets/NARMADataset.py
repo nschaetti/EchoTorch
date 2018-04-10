@@ -96,7 +96,7 @@ class NARMADataset(Dataset):
                                  self.parameters[3]
             # end for
             inputs.append(ins)
-            outputs.append(outs.squeeze_(1))
+            outputs.append(outs)
         # end for
 
         return inputs, outputs
