@@ -11,7 +11,8 @@ from .Identity import Identity
 from .PCACell import PCACell
 from .RRCell import RRCell
 from .SFACell import SFACell
+from .StackedESN import StackedESN
 
 __all__ = [
-    'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'ICACell', 'Identity', 'PCACell', 'RRCell', 'SFACell'
+    'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'ICACell', 'Identity', 'PCACell', 'RRCell', 'SFACell', 'StackedESN'
 ]
