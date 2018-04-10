@@ -123,11 +123,11 @@ class RRCell(nn.Module):
                 self.xTx.data.add_(x[b].t().mm(x[b]).data)
                 self.xTy.data.add_(x[b].t().mm(y[b]).data)
             # end for
-            return None
+            return x
         elif not self.training:
             # Outputs
             outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
-            outputs = outputs.cuda() if self.hidden.is_cuda else outputs
+            outputs = outputs.cuda() if x.is_cuda else outputs
 
             # For each batch
             for b in range(batch_size):
