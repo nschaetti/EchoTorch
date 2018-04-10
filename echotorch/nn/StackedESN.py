@@ -41,9 +41,8 @@ class StackedESN(nn.Module):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
-                 w=None, w_in=None, w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True,
-                 feedbacks=False, with_bias=True, wfdb_sparsity=None, normalize_feedbacks=False):
+                 w=None, w_in=None, w_bias=None, sparsity=None, input_set=(1.0, -1.0), w_sparsity=None,
+                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -110,15 +109,20 @@ class StackedESN(nn.Module):
             # end if
 
             # Parameters
+            layer_sparsity = sparsity[n] if type(sparsity) is list else sparsity
+            layer_input_set = input_set[n] if type(input_set) is list else input_set
+            layer_w_sparsity = w_sparsity[n] if type(w_sparsity) is list else w_sparsity
+            layer_nonlin_func = nonlin_func[n] if type(nonlin_func) is list else nonlin_func
 
             self.esn_layers.append(ESNCell(
                 layer_input_dim, hidden_dim[n], layer_spectral_radius, layer_bias_scaling, layer_input_scaling,
-                layer_w, layer_w_in, layer_w_bias, None, sparsity, input_set, w_sparsity, nonlin_func, feedbacks, output_dim, wfdb_sparsity, normalize_feedbacks
+                layer_w, layer_w_in, layer_w_bias, None, layer_sparsity, layer_input_set, layer_w_sparsity,
+                layer_nonlin_func
             ))
         # end for
 
         # Output layer
-        self.output = RRCell(self.n_features, output_dim, ridge_param, feedbacks, with_bias, learning_algo)
+        self.output = RRCell(self.n_features, output_dim, ridge_param, False, with_bias, learning_algo)
     # end __init__
 
     ###############################################
