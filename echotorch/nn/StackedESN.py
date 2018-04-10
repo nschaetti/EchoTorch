@@ -29,7 +29,7 @@ import torch.sparse
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from . import ESNCell
+from . import LiESNCell
 from RRCell import RRCell
 
 
@@ -40,9 +40,9 @@ class StackedESN(nn.Module):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
-                 w=None, w_in=None, w_bias=None, sparsity=None, input_set=(1.0, -1.0), w_sparsity=None,
-                 nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True):
+    def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate=1.0, spectral_radius=0.9, bias_scaling=0,
+                 input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None, input_set=(1.0, -1.0),
+                 w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -74,9 +74,10 @@ class StackedESN(nn.Module):
         for n in range(self.n_layers):
             # Input dim
             layer_input_dim = input_dim if n == 0 else hidden_dim[n-1]
-            self.n_features += layer_input_dim
+            self.n_features += hidden_dim[n]
 
             # Parameters
+            layer_leaky_rate = leaky_rate[n] if type(leaky_rate) is list else leaky_rate
             layer_spectral_radius = spectral_radius[n] if type(spectral_radius) is list else spectral_radius
             layer_bias_scaling = bias_scaling[n] if type(bias_scaling) is list else bias_scaling
             layer_input_scaling = input_scaling[n] if type(input_scaling) is list else input_scaling
@@ -114,10 +115,10 @@ class StackedESN(nn.Module):
             layer_w_sparsity = w_sparsity[n] if type(w_sparsity) is list else w_sparsity
             layer_nonlin_func = nonlin_func[n] if type(nonlin_func) is list else nonlin_func
 
-            self.esn_layers.append(ESNCell(
-                layer_input_dim, hidden_dim[n], layer_spectral_radius, layer_bias_scaling, layer_input_scaling,
-                layer_w, layer_w_in, layer_w_bias, None, layer_sparsity, layer_input_set, layer_w_sparsity,
-                layer_nonlin_func
+            self.esn_layers.append(LiESNCell(
+                layer_leaky_rate, False, layer_input_dim, hidden_dim[n], layer_spectral_radius, layer_bias_scaling,
+                layer_input_scaling, layer_w, layer_w_in, layer_w_bias, None, layer_sparsity, layer_input_set,
+                layer_w_sparsity, layer_nonlin_func
             ))
         # end for
 
@@ -136,7 +137,15 @@ class StackedESN(nn.Module):
         Hidden layer
         :return:
         """
-        return self.esn_cell.hidden
+        # Hidden states
+        hidden_states = list()
+
+        # For each ESN
+        for esn_cell in self.esn_layers:
+            hidden_states.append(esn_cell.hidden)
+        # end for
+
+        return hidden_states
     # end hidden
 
     # Hidden weight matrix
@@ -146,7 +155,15 @@ class StackedESN(nn.Module):
         Hidden weight matrix
         :return:
         """
-        return self.esn_cell.w
+        # W
+        w_mtx = list()
+
+        # For each ESN
+        for esn_cell in self.esn_layers:
+            w_mtx.append(esn_cell.w)
+        # end for
+
+        return w_mtx
     # end w
 
     # Input matrix
@@ -156,7 +173,15 @@ class StackedESN(nn.Module):
         Input matrix
         :return:
         """
-        return self.esn_cell.w_in
+        # W in
+        win_mtx = list()
+
+        # For each ESN
+        for esn_cell in self.esn_layers:
+            win_mtx.append(esn_cell.w_in)
+        # end for
+
+        return win_mtx
     # end w_in
 
     ###############################################
@@ -169,7 +194,6 @@ class StackedESN(nn.Module):
         Reset learning
         :return:
         """
-        # Reset output layer
         self.output.reset()
 
         # Training mode again
@@ -185,16 +209,6 @@ class StackedESN(nn.Module):
         return self.output.w_out
     # end get_w_out
 
-    # Set W
-    def set_w(self, w):
-        """
-        Set W
-        :param w:
-        :return:
-        """
-        self.esn_cell.w = w
-    # end set_w
-
     # Forward
     def forward(self, u, y=None):
         """
@@ -203,17 +217,25 @@ class StackedESN(nn.Module):
         :param y: Target outputs
         :return: Output or hidden states
         """
+        # Hidden states
+        hidden_states = Variable(torch.zeros(u.size(0), u.size(1), self.n_features))
+
         # Compute hidden states
-        if self.feedbacks and self.training:
-            hidden_states = self.esn_cell(u, y)
-        elif self.feedbacks and not self.training:
-            hidden_states = self.esn_cell(u, w_out=self.w_out)
-        else:
-            hidden_states = self.esn_cell(u)
-        # end if
+        pos = 0
+        for index, esn_cell in enumerate(self.esn_layers):
+            layer_dim = esn_cell.output_dim
+            if index == 0:
+                last_hidden_states = esn_cell(u)
+                hidden_states[:, :, pos:pos+layer_dim] = last_hidden_states
+            else:
+                last_hidden_states = esn_cell(last_hidden_states)
+                hidden_states[:, :, pos:pos + layer_dim] = last_hidden_states
+            # end if
+            pos += layer_dim
+        # end for
 
         # Learning algo
-        return self.output(hidden_states)
+        return self.output(hidden_states, y)
     # end forward
 
     # Finish training
