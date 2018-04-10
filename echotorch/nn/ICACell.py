@@ -34,7 +34,7 @@ from torch.autograd import Variable
 # Independent Component Analysis layer
 class ICACell(nn.Module):
     """
-    Principal Component Analysis layer
+    Principal Component Analysis layer. It can be used to handle different batch-mode algorithm for ICA.
     """
 
     # Constructor
