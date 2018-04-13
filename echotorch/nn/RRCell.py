@@ -127,7 +127,7 @@ class RRCell(nn.Module):
         elif not self.training:
             # Outputs
             outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
-            outputs = outputs.cuda() if x.is_cuda else outputs
+            outputs = outputs.cuda() if self.w_out.is_cuda else outputs
 
             # For each batch
             for b in range(batch_size):
