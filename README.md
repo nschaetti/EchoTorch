@@ -78,7 +78,7 @@ If you find EchoTorch useful for an academic publication, then please use the fo
 You can simply create an ESN with the ESN or LiESN objects in the nn
 module.
 
-```
+```python
 esn = etnn.LiESN(input_dim, n_hidden, output_dim, spectral_radius, learning_algo='inv', leaky_rate=leaky_rate)
 ```
 
@@ -93,7 +93,7 @@ The possible values are inv, LU and sdg;
 
 You now just have to give the ESN the inputs and the attended outputs.
 
-```
+```python
 for data in trainloader:
     # Inputs and outputs
     inputs, targets = data
@@ -109,14 +109,14 @@ for data in trainloader:
 After giving all examples to EchoTorch, you just have to call the
 finalize method.
 
-```
+```python
 esn.finalize()
 ```
 
 The model is now trained and you can call the esn object to get a
 prediction.
 
-```
+```python
 predicted = esn(test_input)
 ```
 
