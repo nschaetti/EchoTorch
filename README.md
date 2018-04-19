@@ -44,8 +44,7 @@ You need to following package to install EchoTorch.
 
 ### Installation
 
-EchoTorch is still under development. Until the first release you can
-use the setup.py for classical installation.
+    pip install EchoTorch
 
 ## Authors
 
