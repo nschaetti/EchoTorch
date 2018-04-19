@@ -56,6 +56,21 @@ use the setup.py for classical installation.
 This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file
 for details.
 
+## Citing
+
+If you find EchoTorch useful for an academic publication, then please use the following BibTeX to cite it:
+
+```
+@misc{echotorch,
+  author = {Schaetti, Nils},
+  title = {EchoTorch: Reservoir Computing with pyTorch},
+  year = {2018},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/nschaetti/EchoTorch}},
+}
+```
+
 ## A short introduction
 
 ### Classical ESN training
