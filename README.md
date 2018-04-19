@@ -41,8 +41,6 @@ You need to following package to install EchoTorch.
 
 * pyTorch
 * TorchVision
-* SpaCy
-* NLTK
 
 ### Installation
 
