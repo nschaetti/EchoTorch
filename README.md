@@ -79,7 +79,14 @@ You can simply create an ESN with the ESN or LiESN objects in the nn
 module.
 
 ```python
-esn = etnn.LiESN(input_dim, n_hidden, output_dim, spectral_radius, learning_algo='inv', leaky_rate=leaky_rate)
+esn = etnn.LiESN(
+    input_dim,
+    n_hidden,
+    output_dim,
+    spectral_radius,
+    learning_algo='inv',
+    leaky_rate=leaky_rate
+)
 ```
 
 Where
