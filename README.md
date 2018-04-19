@@ -15,7 +15,7 @@ EchoTorch gives two possible ways to train models :
     <img style='vertical-align: text-bottom !important;' src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social" alt="Tweet">
   </a>
 
-Join our community to create datasets and deep-learning models! Chat with us on [Gitter](https://gitter.im/TorchLanguage/Lobby) and join the [Google Group](https://groups.google.com/forum/#!forum/torchlanguage/) to collaborate with us.
+Join our community to create datasets and deep-learning models! Chat with us on [Gitter](https://gitter.im/EchoTorch/Lobby) and join the [Google Group](https://groups.google.com/forum/#!forum/echotorch/) to collaborate with us.
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/echotorch.svg?style=flat-square)
 [![Codecov](https://img.shields.io/codecov/c/github/nschaetti/echotorch/master.svg?style=flat-square)](https://codecov.io/gh/nschaetti/EchoTorch)
