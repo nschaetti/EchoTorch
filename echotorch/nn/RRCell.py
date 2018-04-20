@@ -83,7 +83,7 @@ class RRCell(nn.Module):
         """
         self.xTx.data = torch.zeros(self.x_size, self.x_size)
         self.xTy.data = torch.zeros(self.x_size, self.output_dim)
-        self.w_out.data = torch.zeros(1, self.output_dim)
+        self.w_out.data = torch.zeros(1, self.input_dim)
 
         # Training mode again
         self.train(True)
