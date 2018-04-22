@@ -31,6 +31,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 from . import LiESNCell
 from RRCell import RRCell
+from ESNCell import ESNCell
 
 
 # Stacked Echo State Network module
@@ -267,5 +268,26 @@ class StackedESN(nn.Module):
         """
         return self.esn_cell.get_spectral_raduis()
     # end spectral_radius
+
+    ############################################
+    # STATIC
+    ############################################
+
+    # Generate W matrices for a stacked ESN
+    @staticmethod
+    def generate_ws(n_layers, reservoir_size, w_sparsity):
+        """
+        Generate W matrices for a stacked ESN
+        :param n_layers:
+        :param reservoir_size:
+        :param w_sparsity:
+        :return:
+        """
+        ws = torch.FloatTensor(n_layers, reservoir_size, reservoir_size)
+        for i in range(n_layers):
+            ws[i] = ESNCell.generate_w(reservoir_size, w_sparsity)
+        # end for
+        return ws
+    # end for
 
 # end ESNCell
