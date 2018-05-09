@@ -9,6 +9,7 @@ from .ESNCell import ESNCell
 from .ESN import ESN
 from .LiESNCell import LiESNCell
 from .LiESN import LiESN
+from .GatedESN import GatedESN
 from .ICACell import ICACell
 from .Identity import Identity
 from .PCACell import PCACell
@@ -17,6 +18,6 @@ from .SFACell import SFACell
 from .StackedESN import StackedESN
 
 __all__ = [
-    'BDESN', 'BDESNPCA', 'BDESNCell', 'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'ICACell', 'Identity', 'PCACell',
-    'RRCell', 'SFACell', 'StackedESN'
+    'BDESN', 'BDESNPCA', 'BDESNCell', 'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'GatedESN', 'ICACell', 'Identity',
+    'PCACell', 'RRCell', 'SFACell', 'StackedESN'
 ]
