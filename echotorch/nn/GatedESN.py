@@ -182,8 +182,14 @@ class GatedESN(nn.Module):
         Reset learning
         :return:
         """
-        # Reset output layer
+        # Reset PCA layer
         self.output.reset()
+
+        # Reset hidden vector
+        self.reset_hidden()
+
+        # Reset reservoir
+        self.reset_reservoir()
 
         # Training mode again
         self.train(True)
@@ -196,18 +202,52 @@ class GatedESN(nn.Module):
         :param u: Input signal.
         :return: Output or hidden states
         """
-        # Compute hidden states
-        hidden_states = self.esn_cell(u)
+        # Time length
+        time_length = int(u.size()[1])
+
+        # Number of batches
+        n_batches = int(u.size()[0])
+
+        # Compute reservoir states
+        reservoir_states = self.esn_cell(u)
 
         # Resulting reduced stated
-        pca_states = torch.zeros(1, hidden_states.size(1), self.pca_dim)
+        pca_states = torch.zeros(1, reservoir_states.size(1), self.pca_dim)
 
         # For each batch
-        pca_states[0] = torch.from_numpy(self.ipca.fit_transform(hidden_states.data[0].numpy()).copy())
+        pca_states[0] = torch.from_numpy(self.ipca.fit_transform(reservoir_states.data[0].numpy()).copy())
         pca_states = Variable(pca_states)
 
-        # FFNN output
-        return F.relu(self.linear2(F.relu(self.linear1(pca_states))))
+        # Hidden states
+        hidden_states = Variable(torch.zeros(n_batches, time_length, self.hidden_dim))
+        hidden_states = hidden_states.cuda() if reservoir_states.is_cuda else hidden_states
+
+        # For each batch
+        for b in range(n_batches):
+            # Reset hidden layer
+            self.reset_hidden()
+
+            # For each steps
+            for t in range(time_length):
+                # Current reduced state
+                pt = pca_states[b, t]
+
+                # Compute update vectpr
+                zt = F.sigmoid(self.wzp.mv(pt) + self.wzh.mv(self.hidden) + self.bz)
+
+                # Compute hidden state
+                ht = (1.0 - zt) * self.hidden + zt * pt
+
+                # Add to outputs
+                self.hidden.data = ht.view(self.output_dim).data
+
+                # New last state
+                hidden_states[b, t] = self.hidden
+            # end for
+        # end for
+
+        # Return hidden states
+        return hidden_states
     # end forward
 
     # Finish training
@@ -222,13 +262,22 @@ class GatedESN(nn.Module):
         self.train(False)
     # end finalize
 
+    # Reset reservoir layer
+    def reset_reservoir(self):
+        """
+        Reset hidden layer
+        :return:
+        """
+        self.esn_cell.reset_hidden()
+    # end reset_reservoir
+
     # Reset hidden layer
     def reset_hidden(self):
         """
         Reset hidden layer
         :return:
         """
-        self.esn_cell.reset_hidden()
+        self.hidden.fill_(0.0)
     # end reset_hidden
 
 # end GatedESN
