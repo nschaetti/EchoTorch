@@ -166,7 +166,11 @@ class RRCell(nn.Module):
         :param x:
         :return:
         """
-        bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
+        if x.is_cuda:
+            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)).cuda(), requires_grad=False)
+        else:
+            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
+        # end if
         return torch.cat((bias, x), dim=2)
     # end _add_constant
 
