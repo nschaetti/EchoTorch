@@ -1,0 +1,8 @@
+@misc{echotorch,
+  author = {Schaetti, Nils},
+  title = {EchoTorch: Reservoir Computing with pyTorch},
+  year = {2018},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/nschaetti/EchoTorch}},
+}
