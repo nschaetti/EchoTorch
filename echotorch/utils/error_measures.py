@@ -146,13 +146,20 @@ def cumperplexity(output_probs, targets, log=False):
     :param log:
     :return:
     """
-    # Perplexity
-    if log:
-        e_vec = torch.FloatTensor(output_probs.size(0), output_probs.size(1)).fill_(np.e)
-        set_p = torch.gather(torch.pow(e_vec, exponent=output_probs.data.cpu()), 1,
-                             targets.data.cpu().unsqueeze(1))
-    else:
-        set_p = torch.gather(output_probs.data.cpu(), 1, targets.data.cpu().unsqueeze(1))
+    # Get prob of test events
+    set_p = torch.gather(output_probs, 1, targets.unsqueeze(1))
+
+    # Make sure it's log
+    if not log:
+        set_p = torch.log(set_p)
     # end if
-    return np.sum(np.log2(set_p.numpy()))
+
+    # Log2
+    set_log = set_p / np.log(2)
+
+    # sum log
+    sum_log = torch.sum(set_log)
+
+    # Return
+    return sum_log
 # end cumperplexity
