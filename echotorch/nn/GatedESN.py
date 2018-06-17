@@ -28,8 +28,9 @@ Created on 26 January 2018
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .BDESNCell import BDESNCell
+from .LiESNCell import LiESNCell
 from sklearn.decomposition import IncrementalPCA
+from .PCACell import PCACell
 import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
@@ -43,8 +44,8 @@ class GatedESN(nn.Module):
     # Constructor
     def __init__(self, input_dim, reservoir_dim, pca_dim, hidden_dim, leaky_rate=1.0, spectral_radius=0.9,
                  bias_scaling=0, input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None,
-                 input_set=[1.0, -1.0], w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
-                 create_cell=True, pca_batch_size=10):
+                 input_set=[1.0, -1.0], w_sparsity=None, nonlin_func=torch.tanh,
+                 create_cell=True):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -68,38 +69,30 @@ class GatedESN(nn.Module):
         self.reservoir_dim = reservoir_dim
         self.pca_dim = pca_dim
         self.hidden_dim = hidden_dim
+        self.finalized = False
 
         # Recurrent layer
         if create_cell:
-            self.esn_cell = BDESNCell(
-                input_dim=input_dim, hidden_dim=reservoir_dim, spectral_radius=spectral_radius, bias_scaling=bias_scaling,
+            self.esn_cell = LiESNCell(
+                input_dim=input_dim, output_dim=reservoir_dim, spectral_radius=spectral_radius, bias_scaling=bias_scaling,
                 input_scaling=input_scaling, w=w, w_in=w_in, w_bias=w_bias, sparsity=sparsity, input_set=input_set,
-                w_sparsity=w_sparsity, nonlin_func=nonlin_func, leaky_rate=leaky_rate, create_cell=create_cell
+                w_sparsity=w_sparsity, nonlin_func=nonlin_func, leaky_rate=leaky_rate
             )
         # end if
 
         # PCA
         if self.pca_dim > 0:
-            self.ipca = IncrementalPCA(n_components=pca_dim, batch_size=pca_batch_size)
+            self.pca_cell = PCACell(input_dim=reservoir_dim, output_dim=pca_dim)
         # end if
 
-        # Init hidden vector
-        self.register_buffer('hidden', self.init_hidden())
-
-        # Init update vector
-        self.register_buffer('update', self.init_update())
-
         # Initialize input update weights
-        self.register_buffer('wzp', self._init_wzp())
+        self.register_parameter('wzp', nn.Parameter(self.init_wzp()))
 
         # Initialize hidden update weights
-        self.register_buffer('wzh', self._init_wzh())
-
-        # Initialize input update weights
-        self.register_buffer('wzp', self._init_wzp())
+        self.register_parameter('wzh', nn.Parameter(self.init_wzh()))
 
         # Initialize update bias
-        self.register_buffer('bz', self._init_bz())
+        self.register_parameter('bz', nn.Parameter(self.init_bz()))
     # end __init__
 
     ###############################################
@@ -164,7 +157,7 @@ class GatedESN(nn.Module):
         Init update-reduced matrix
         :return: Initiated update-reduced matrix
         """
-        return Variable(torch.rand(self.pca_dim, self.hidden_dim))
+        return torch.rand(self.pca_dim, self.hidden_dim)
     # end init_hidden
 
     # Init update-hidden matrix
@@ -173,8 +166,17 @@ class GatedESN(nn.Module):
         Init update-hidden matrix
         :return: Initiated update-hidden matrix
         """
-        return Variable(torch.rand(self.pca_dim, self.hidden_dim))
+        return torch.rand(self.pca_dim, self.hidden_dim)
     # end init_hidden
+
+    # Init update bias
+    def init_bz(self):
+        """
+        Init update bias
+        :return:
+        """
+        return torch.rand(self.hidden_dim)
+    # end init_bz
 
     # Reset learning
     def reset(self):
@@ -183,10 +185,7 @@ class GatedESN(nn.Module):
         :return:
         """
         # Reset PCA layer
-        self.output.reset()
-
-        # Reset hidden vector
-        self.reset_hidden()
+        self.pca_cell.reset()
 
         # Reset reservoir
         self.reset_reservoir()
@@ -210,39 +209,58 @@ class GatedESN(nn.Module):
 
         # Compute reservoir states
         reservoir_states = self.esn_cell(u)
+        reservoir_states.required_grad = False
 
-        # Resulting reduced stated
-        pca_states = torch.zeros(1, reservoir_states.size(1), self.pca_dim)
+        # Reduce
+        if self.pca_dim > 0:
+            # Reduce states
+            pca_states = self.pca_cell(reservoir_states)
+            pca_states.required_grad = False
 
-        # For each batch
-        pca_states[0] = torch.from_numpy(self.ipca.fit_transform(reservoir_states.data[0].numpy()).copy())
-        pca_states = Variable(pca_states)
+            # Stop here if we learn PCA
+            if self.finalized:
+                return
+            # end if
 
-        # Hidden states
-        hidden_states = Variable(torch.zeros(n_batches, time_length, self.hidden_dim))
-        hidden_states = hidden_states.cuda() if reservoir_states.is_cuda else hidden_states
+            # Hidden states
+            hidden_states = Variable(torch.zeros(n_batches, time_length, self.hidden_dim))
+            hidden_states = hidden_states.cuda() if pca_states.is_cuda else hidden_states
+        else:
+            # Hidden states
+            hidden_states = Variable(torch.zeros(n_batches, time_length, self.hidden_dim))
+            hidden_states = hidden_states.cuda() if reservoir_states.is_cuda else hidden_states
+        # end if
 
         # For each batch
         for b in range(n_batches):
             # Reset hidden layer
-            self.reset_hidden()
+            hidden = self.init_hidden()
+
+            # TO CUDA
+            if u.is_cuda:
+                hidden = hidden.cuda()
+            # end if
 
             # For each steps
             for t in range(time_length):
                 # Current reduced state
-                pt = pca_states[b, t]
+                if self.pca_dim > 0:
+                    pt = pca_states[b, t]
+                else:
+                    pt = reservoir_states[b, t]
+                # end if
 
-                # Compute update vectpr
-                zt = F.sigmoid(self.wzp.mv(pt) + self.wzh.mv(self.hidden) + self.bz)
+                # Compute update vector
+                zt = F.sigmoid(self.wzp.mv(pt) + self.wzh.mv(hidden) + self.bz)
 
                 # Compute hidden state
-                ht = (1.0 - zt) * self.hidden + zt * pt
+                ht = (1.0 - zt) * hidden + zt * pt
 
                 # Add to outputs
-                self.hidden.data = ht.view(self.output_dim).data
+                hidden = ht.view(self.hidden_dim)
 
                 # New last state
-                hidden_states[b, t] = self.hidden
+                hidden_states[b, t] = hidden
             # end for
         # end for
 
@@ -256,10 +274,10 @@ class GatedESN(nn.Module):
         Finalize training with LU factorization
         """
         # Finalize output training
-        self.output.finalize()
+        self.pca_cell.finalize()
 
-        # Not in training mode anymore
-        self.train(False)
+        # Finalized
+        self.finalized = True
     # end finalize
 
     # Reset reservoir layer

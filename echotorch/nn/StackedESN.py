@@ -32,6 +32,7 @@ from torch.autograd import Variable
 from . import LiESNCell
 from RRCell import RRCell
 from ESNCell import ESNCell
+import numpy as np
 
 
 # Stacked Echo State Network module
@@ -78,13 +79,13 @@ class StackedESN(nn.Module):
             self.n_features += hidden_dim[n]
 
             # Parameters
-            layer_leaky_rate = leaky_rate[n] if type(leaky_rate) is list else leaky_rate
-            layer_spectral_radius = spectral_radius[n] if type(spectral_radius) is list else spectral_radius
-            layer_bias_scaling = bias_scaling[n] if type(bias_scaling) is list else bias_scaling
-            layer_input_scaling = input_scaling[n] if type(input_scaling) is list else input_scaling
+            layer_leaky_rate = leaky_rate[n] if type(leaky_rate) is list or type(leaky_rate) is np.ndarray else leaky_rate
+            layer_spectral_radius = spectral_radius[n] if type(spectral_radius) is list or type(spectral_radius) is np.ndarray else spectral_radius
+            layer_bias_scaling = bias_scaling[n] if type(bias_scaling) is list or type(bias_scaling) is np.ndarray else bias_scaling
+            layer_input_scaling = input_scaling[n] if type(input_scaling) is list or type(input_scaling) is np.ndarray else input_scaling
 
             # W
-            if type(w) is torch.Tensor and w.ndim == 3:
+            if type(w) is torch.Tensor and w.dim() == 3:
                 layer_w = w[n]
             elif type(w) is torch.Tensor:
                 layer_w = w
@@ -93,7 +94,7 @@ class StackedESN(nn.Module):
             # end if
 
             # W in
-            if type(w_in) is torch.Tensor and w_in.ndim == 3:
+            if type(w_in) is torch.Tensor and w_in.dim() == 3:
                 layer_w_in = w_in[n]
             elif type(w_in) is torch.Tensor:
                 layer_w_in = w_in
@@ -102,7 +103,7 @@ class StackedESN(nn.Module):
             # end if
 
             # W bias
-            if type(w_bias) is torch.Tensor and w_bias.ndim == 2:
+            if type(w_bias) is torch.Tensor and w_bias.dim() == 2:
                 layer_w_bias = w_bias[n]
             elif type(w_bias) is torch.Tensor:
                 layer_w_bias = w_bias
@@ -111,10 +112,10 @@ class StackedESN(nn.Module):
             # end if
 
             # Parameters
-            layer_sparsity = sparsity[n] if type(sparsity) is list else sparsity
-            layer_input_set = input_set[n] if type(input_set) is list else input_set
-            layer_w_sparsity = w_sparsity[n] if type(w_sparsity) is list else w_sparsity
-            layer_nonlin_func = nonlin_func[n] if type(nonlin_func) is list else nonlin_func
+            layer_sparsity = sparsity[n] if type(sparsity) is list or type(sparsity) is np.ndarray else sparsity
+            layer_input_set = input_set[n] if type(input_set) is list or type(input_set) is np.ndarray else input_set
+            layer_w_sparsity = w_sparsity[n] if type(w_sparsity) is list or type(w_sparsity) is np.ndarray else w_sparsity
+            layer_nonlin_func = nonlin_func[n] if type(nonlin_func) is list or type(nonlin_func) is np.ndarray else nonlin_func
 
             self.esn_layers.append(LiESNCell(
                 layer_leaky_rate, False, layer_input_dim, hidden_dim[n], layer_spectral_radius, layer_bias_scaling,
