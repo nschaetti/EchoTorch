@@ -128,9 +128,6 @@ class StackedESN(nn.Module):
                 layer_input_scaling, layer_w, layer_w_in, layer_w_bias, None, layer_sparsity, layer_input_set,
                 layer_w_sparsity, layer_nonlin_func
             ))
-
-            # Apply spectral radius for Deep ESN
-            self.esn_layers[-1].w = layer_spectral_radius / echotorch.utils.deep_spectral_radius(w, layer_leaky_rate)
         # end for
 
         # Output layer
