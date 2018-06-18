@@ -13,7 +13,19 @@ def spectral_radius(m):
     :return:
     """
     return torch.max(torch.abs(torch.eig(m)[0]))
-# end nrmse
+# end spectral_radius
+
+
+# Compute spectral radius of a square 2-D tensor for stacked-ESN
+def deep_spectral_radius(m, leaky_rate):
+    """
+    Compute spectral radius of a square 2-D tensor for stacked-ESN
+    :param m: squared 2D tensor
+    :param leaky_rate: Layer's leaky rate
+    :return:
+    """
+    return spectral_radius((1.0 - leaky_rate) * torch.eye(m.size(0), m.size(0)) + leaky_rate * m)
+# end spectral_radius
 
 
 # Normalize a tensor on a single dimension
