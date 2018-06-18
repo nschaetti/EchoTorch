@@ -28,6 +28,7 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
+import echotorch.utils
 from torch.autograd import Variable
 from . import LiESNCell
 from RRCell import RRCell
@@ -46,21 +47,23 @@ class StackedESN(nn.Module):
                  w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True):
         """
         Constructor
-        :param input_dim: Inputs dimension.
-        :param hidden_dim: Hidden layer dimension
-        :param output_dim: Reservoir size
-        :param spectral_radius: Reservoir's spectral radius
-        :param bias_scaling: Scaling of the bias, a constant input to each neuron (default: 0, no bias)
-        :param input_scaling: Scaling of the input weight matrix, default 1.
-        :param w: Internation weights matrix
-        :param w_in: Input-reservoir weights matrix
-        :param w_bias: Bias weights matrix
-        :param w_fdb: Feedback weights matrix
-        :param sparsity:
-        :param input_set:
-        :param w_sparsity:
-        :param nonlin_func: Reservoir's activation function (tanh, sig, relu)
-        :param learning_algo: Which learning algorithm to use (inv, LU, grad)
+
+        Arguments:
+            :param input_dim: Inputs dimension.
+            :param hidden_dim: Hidden layer dimension
+            :param output_dim: Reservoir size
+            :param spectral_radius: Reservoir's spectral radius
+            :param bias_scaling: Scaling of the bias, a constant input to each neuron (default: 0, no bias)
+            :param input_scaling: Scaling of the input weight matrix, default 1.
+            :param w: Internation weights matrix
+            :param w_in: Input-reservoir weights matrix
+            :param w_bias: Bias weights matrix
+            :param w_fdb: Feedback weights matrix
+            :param sparsity:
+            :param input_set:
+            :param w_sparsity:
+            :param nonlin_func: Reservoir's activation function (tanh, sig, relu)
+            :param learning_algo: Which learning algorithm to use (inv, LU, grad)
         """
         super(StackedESN, self).__init__()
 
@@ -75,6 +78,8 @@ class StackedESN(nn.Module):
         for n in range(self.n_layers):
             # Input dim
             layer_input_dim = input_dim if n == 0 else hidden_dim[n-1]
+
+            # Final state size
             self.n_features += hidden_dim[n]
 
             # Parameters
@@ -116,11 +121,15 @@ class StackedESN(nn.Module):
             layer_w_sparsity = w_sparsity[n] if type(w_sparsity) is list else w_sparsity
             layer_nonlin_func = nonlin_func[n] if type(nonlin_func) is list else nonlin_func
 
+            # Create LiESN cell
             self.esn_layers.append(LiESNCell(
                 layer_leaky_rate, False, layer_input_dim, hidden_dim[n], layer_spectral_radius, layer_bias_scaling,
                 layer_input_scaling, layer_w, layer_w_in, layer_w_bias, None, layer_sparsity, layer_input_set,
                 layer_w_sparsity, layer_nonlin_func
             ))
+
+            # Apply spectral radius for Deep ESN
+            self.esn_layers[-1].w = layer_spectral_radius / echotorch.utils.deep_spectral_radius(w, layer_leaky_rate)
         # end for
 
         # Output layer
@@ -227,11 +236,14 @@ class StackedESN(nn.Module):
             layer_dim = esn_cell.output_dim
             if index == 0:
                 last_hidden_states = esn_cell(u)
-                hidden_states[:, :, pos:pos+layer_dim] = last_hidden_states
             else:
                 last_hidden_states = esn_cell(last_hidden_states)
-                hidden_states[:, :, pos:pos + layer_dim] = last_hidden_states
             # end if
+
+            # Update
+            hidden_states[:, :, pos:pos + layer_dim] = last_hidden_states
+
+            # Next position
             pos += layer_dim
         # end for
 
