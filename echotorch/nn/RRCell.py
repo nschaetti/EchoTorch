@@ -81,9 +81,12 @@ class RRCell(nn.Module):
         Reset learning
         :return:
         """
-        self.xTx.data = torch.zeros(self.x_size, self.x_size)
+        """self.xTx.data = torch.zeros(self.x_size, self.x_size)
         self.xTy.data = torch.zeros(self.x_size, self.output_dim)
-        self.w_out.data = torch.zeros(1, self.input_dim)
+        self.w_out.data = torch.zeros(1, self.input_dim)"""
+        self.xTx.data.fill_(0.0)
+        self.xTy.data.fill_(0.0)
+        self.w_out.data.fill_(0.0)
 
         # Training mode again
         self.train(True)

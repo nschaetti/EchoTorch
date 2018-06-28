@@ -143,8 +143,11 @@ class ESNCell(nn.Module):
                     # Add everything
                     x = u_win + x_w + y_wfdb + self.w_bias
                 elif self.feedbacks and not self.training and w_out is not None:
+                    # Add bias
+                    bias_hidden = torch.cat((Variable(torch.ones(1)), self.hidden), dim=0)
+
                     # Compute past output
-                    yt = w_out.mv(self.hidden)
+                    yt = w_out.t().mv(bias_hidden)
 
                     # Normalize
                     if self.normalize_feedbacks:
