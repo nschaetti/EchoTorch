@@ -30,7 +30,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from .BDESNCell import BDESNCell
-from RRCell import RRCell
+from .RRCell import RRCell
 
 
 # Bi-directional Echo State Network module

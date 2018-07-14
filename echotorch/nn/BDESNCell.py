@@ -28,7 +28,7 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
-from LiESNCell import LiESNCell
+from .LiESNCell import LiESNCell
 import numpy as np
 from torch.autograd import Variable
 

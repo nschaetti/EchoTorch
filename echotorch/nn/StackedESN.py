@@ -31,8 +31,8 @@ import torch.nn as nn
 import echotorch.utils
 from torch.autograd import Variable
 from . import LiESNCell
-from RRCell import RRCell
-from ESNCell import ESNCell
+from .RRCell import RRCell
+from .ESNCell import ESNCell
 import numpy as np
 
 
