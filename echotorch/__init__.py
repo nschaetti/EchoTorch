@@ -2,10 +2,10 @@
 #
 
 # Imports
-import datasets
-import models
-import nn
-import utils
+from . import datasets
+from . import models
+from . import nn
+from . import utils
 
 
 # All EchoTorch's modules
