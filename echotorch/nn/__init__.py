@@ -5,6 +5,9 @@
 from .BDESN import BDESN
 from .BDESNPCA import BDESNPCA
 from .BDESNCell import BDESNCell
+from .Conceptor import Conceptor
+from ConceptorNet import ConceptorNet
+from ConceptorNetCell import ConceptorNetCell
 from .ESNCell import ESNCell
 from .ESN import ESN
 from .LiESNCell import LiESNCell
@@ -18,6 +21,6 @@ from .SFACell import SFACell
 from .StackedESN import StackedESN
 
 __all__ = [
-    'BDESN', 'BDESNPCA', 'BDESNCell', 'ESNCell', 'ESN', 'LiESNCell', 'LiESN', 'GatedESN', 'ICACell', 'Identity',
-    'PCACell', 'RRCell', 'SFACell', 'StackedESN'
+    'BDESN', 'BDESNPCA', 'BDESNCell', 'Conceptor', 'ConceptorNet', 'ConceptorNetCell', 'ESNCell', 'ESN', 'LiESNCell',
+    'LiESN', 'GatedESN', 'ICACell', 'Identity', 'PCACell', 'RRCell', 'SFACell', 'StackedESN'
 ]
