@@ -147,8 +147,10 @@ class RRCell(nn.Module):
         Finalize training with LU factorization or Pseudo-inverse
         """
         if self.learning_algo == 'inv':
-            inv_xTx = self.xTx.inverse()
+            # inv_xTx = self.xTx.inverse()
             # inv_xTx = torch.inverse(self.xTx + self.ridge_param * torch.eye(self._input_dim + self.with_bias))
+            ridge_xTx = self.xTx + self.ridge_param * torch.eye(self._input_dim + self.with_bias)
+            inv_xTx = ridge_xTx.inverse()
             self.w_out.data = torch.mm(inv_xTx, self.xTy).data
         else:
             self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
