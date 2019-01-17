@@ -152,7 +152,7 @@ class ESN(nn.Module):
     # end set_w
 
     # Forward
-    def forward(self, u, y=None):
+    def forward(self, u, y=None, reset_state=True):
         """
         Forward
         :param u: Input signal.
@@ -161,11 +161,11 @@ class ESN(nn.Module):
         """
         # Compute hidden states
         if self.feedbacks and self.training:
-            hidden_states = self.esn_cell(u, y)
+            hidden_states = self.esn_cell(u, y, reset_state=reset_state)
         elif self.feedbacks and not self.training:
-            hidden_states = self.esn_cell(u, w_out=self.output.w_out)
+            hidden_states = self.esn_cell(u, w_out=self.output.w_out, reset_state=reset_state)
         else:
-            hidden_states = self.esn_cell(u)
+            hidden_states = self.esn_cell(u, reset_state=reset_state)
         # end if
 
         # Learning algo

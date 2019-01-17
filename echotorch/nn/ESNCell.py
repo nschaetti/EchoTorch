@@ -98,7 +98,7 @@ class ESNCell(nn.Module):
     ###############################################
 
     # Forward
-    def forward(self, u, y=None, w_out=None):
+    def forward(self, u, y=None, w_out=None, reset_state=True):
         """
         Forward
         :param u: Input signal
@@ -119,7 +119,9 @@ class ESNCell(nn.Module):
         # For each batch
         for b in range(n_batches):
             # Reset hidden layer
-            self.reset_hidden()
+            if reset_state:
+                self.reset_hidden()
+            # end if
 
             # For each steps
             for t in range(time_length):
