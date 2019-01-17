@@ -25,10 +25,8 @@ Created on 26 January 2018
 """
 
 # Imports
-import torch.sparse
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 from . import ESNCell
 from .RRCell import RRCell
 
