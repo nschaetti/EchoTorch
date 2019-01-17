@@ -30,7 +30,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from . import ESNCell
-from RRCell import RRCell
+from .RRCell import RRCell
 
 
 # Echo State Network module

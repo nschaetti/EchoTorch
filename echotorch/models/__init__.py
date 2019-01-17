@@ -20,5 +20,5 @@
 # Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>
 
 # Imports
-from HNilsNet import HNilsNet
-from NilsNet import NilsNet
+from .HNilsNet import HNilsNet
+from .NilsNet import NilsNet

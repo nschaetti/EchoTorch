@@ -8,5 +8,5 @@ from .MemTestDataset import MemTestDataset
 from .NARMADataset import NARMADataset
 
 __all__ = [
-    'LogisticMapDataset', 'MackeyGlassDataset', 'MemTestDataset', 'NARMADataset'
+   'LogisticMapDataset', 'MackeyGlassDataset', 'MemTestDataset', 'NARMADataset'
 ]
