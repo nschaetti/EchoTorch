@@ -51,7 +51,7 @@ class ConceptorNetCell(LiESNCell):
     ###############################################
 
     # Forward
-    def forward(self, u=None, y=None, w_out=None, reset_state=True, input_recreation=None, conceptor=None):
+    def forward(self, u=None, y=None, w_out=None, reset_state=True, input_recreation=None, conceptor=None, length=None):
         """
         Forward execution
         :param u:
@@ -62,10 +62,18 @@ class ConceptorNetCell(LiESNCell):
         :return:
         """
         # Time length
-        time_length = int(u.size()[1])
+        if u is not None:
+            time_length = int(u.size()[1])
+        else:
+            time_length = length
+        # end if
 
         # Number of batches
-        n_batches = int(u.size()[0])
+        if u is not None:
+            n_batches = int(u.size()[0])
+        else:
+            n_batches = 1
+        # end if
 
         # Outputs
         outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
@@ -81,7 +89,7 @@ class ConceptorNetCell(LiESNCell):
             # For each steps
             for t in range(time_length):
                 # Generative mode ?
-                if self.training:
+                if self.training or input_recreation is None:
                     # Current input
                     ut = u[b, t]
 
@@ -104,7 +112,7 @@ class ConceptorNetCell(LiESNCell):
                     outputs[b, t] = self.hidden
                 else:
                     # Input recreation
-                    ut = input_recreation.get_w_out().mv(self.hidden)
+                    ut = input_recreation(self.hidden.view(1, 1, -1)).view(-1)
 
                     # Compute input layer
                     u_win = self.w_in.mv(ut)
@@ -119,7 +127,7 @@ class ConceptorNetCell(LiESNCell):
                     x = self.nonlin_func(x)
 
                     # Apply conceptor
-                    xc = conceptor.get_w_out().mv(x)
+                    xc = conceptor(x.view(1, 1, -1)).view(-1)
 
                     # New hidden
                     self.hidden.data = xc.data
