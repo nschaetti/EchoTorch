@@ -42,7 +42,7 @@ class ESNCell(nn.Module):
     def __init__(self, input_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0, w=None, w_in=None,
                  w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  nonlin_func=torch.tanh, feedbacks=False, feedbacks_dim=None, wfdb_sparsity=None,
-                 normalize_feedbacks=False):
+                 normalize_feedbacks=False, seed=None):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -79,17 +79,17 @@ class ESNCell(nn.Module):
         self.register_buffer('hidden', self.init_hidden())
 
         # Initialize input weights
-        self.register_buffer('w_in', self._generate_win(w_in))
+        self.register_buffer('w_in', self._generate_win(w_in, seed=seed))
 
         # Initialize reservoir weights randomly
-        self.register_buffer('w', self._generate_w(w))
+        self.register_buffer('w', self._generate_w(w, seed=seed))
 
         # Initialize bias
-        self.register_buffer('w_bias', self._generate_wbias(w_bias))
+        self.register_buffer('w_bias', self._generate_wbias(w_bias, seed=seed))
 
         # Initialize feedbacks weights randomly
         if feedbacks:
-            self.register_buffer('w_fdb', self._generate_wfdb(w_fdb))
+            self.register_buffer('w_fdb', self._generate_wfdb(w_fdb, seed=seed))
         # end if
     # end __init__
 
@@ -215,14 +215,14 @@ class ESNCell(nn.Module):
     ###############################################
 
     # Generate W matrix
-    def _generate_w(self, w):
+    def _generate_w(self, w, seed=None):
         """
         Generate W matrix
         :return:
         """
         # Initialize reservoir weight matrix
         if w is None:
-            w = self.generate_w(self.output_dim, self.w_sparsity)
+            w = self.generate_w(self.output_dim, self.w_sparsity, seed=seed)
         else:
             if callable(w):
                 w = w(self.output_dim)
@@ -236,11 +236,16 @@ class ESNCell(nn.Module):
     # end generate_W
 
     # Generate Win matrix
-    def _generate_win(self, w_in):
+    def _generate_win(self, w_in, seed=None):
         """
         Generate Win matrix
         :return:
         """
+        # Manual seed
+        if seed is not None:
+            np.random.seed(seed)
+        # end if
+
         # Initialize input weight matrix
         if w_in is None:
             if self.sparsity is None:
@@ -265,11 +270,16 @@ class ESNCell(nn.Module):
     # end _generate_win
 
     # Generate Wbias matrix
-    def _generate_wbias(self, w_bias):
+    def _generate_wbias(self, w_bias, seed=None):
         """
         Generate Wbias matrix
         :return:
         """
+        # Manual seed
+        if seed is not None:
+            torch.manual_seed(seed)
+        # end if
+
         # Initialize bias matrix
         if w_bias is None:
             w_bias = self.bias_scaling * (torch.rand(1, self.output_dim) * 2.0 - 1.0)
@@ -283,11 +293,16 @@ class ESNCell(nn.Module):
     # end _generate_wbias
 
     # Generate Wfdb matrix
-    def _generate_wfdb(self, w_fdb):
+    def _generate_wfdb(self, w_fdb, seed=None):
         """
         Generate Wfdb matrix
         :return:
         """
+        # Manual seed
+        if seed is not None:
+            torch.manual_seed(seed)
+        # end if
+
         # Initialize feedbacks weight matrix
         if w_fdb is None:
             if self.wfdb_sparsity is None:
@@ -318,13 +333,18 @@ class ESNCell(nn.Module):
 
     # Generate W matrix
     @staticmethod
-    def generate_w(output_dim, w_sparsity=None):
+    def generate_w(output_dim, w_sparsity=None, seed=None):
         """
         Generate W matrix
         :param output_dim:
         :param w_sparsity:
         :return:
         """
+        # Manual seed
+        if seed is not None:
+            torch.manual_seed(seed)
+        # end if
+
         # Sparsity
         if w_sparsity is None:
             w = torch.rand(output_dim, output_dim) * 2.0 - 1.0
