@@ -28,6 +28,7 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 from .RRCell import RRCell
+import math
 
 
 # Conceptor
@@ -37,7 +38,7 @@ class Conceptor(RRCell):
     """
 
     # Constructor
-    def __init__(self, conceptor_dim, aperture=0.0, with_bias=True, learning_algo='inv'):
+    def __init__(self, conceptor_dim, aperture=0.0, with_bias=True, learning_algo='inv', name=""):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -47,6 +48,8 @@ class Conceptor(RRCell):
 
         # Properties
         self.conceptor_dim = conceptor_dim
+        self.aperture = aperture
+        self.name = name
     # end __init__
 
     ###############################################
@@ -72,7 +75,7 @@ class Conceptor(RRCell):
         Finalize training with LU factorization or Pseudo-inverse
         """
         if self.learning_algo == 'inv':
-            ridge_xTx = self.xTx + torch.pow(self.ridge_param, -2) * torch.eye(self._input_dim + self.with_bias)
+            ridge_xTx = self.xTx + math.pow(self.ridge_param, -2) * torch.eye(self.input_dim + self.with_bias)
             inv_xTx = ridge_xTx.inverse()
             self.w_out.data = torch.mm(inv_xTx, self.xTy).data
         else:
@@ -105,7 +108,8 @@ class Conceptor(RRCell):
         :param x: states (x)
         :return:
         """
-        return x.t().mm(self.w_out).mm(x)
+        x = x.unsqueeze(0)
+        return x.mm(self.w_out).mm(x.t())
     # end E_plus
 
     # Evidence against
