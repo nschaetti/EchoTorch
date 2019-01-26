@@ -11,8 +11,9 @@ from .MemTestDataset import MemTestDataset
 from .NARMADataset import NARMADataset
 from .RosslerAttractor import RosslerAttractor
 from .SinusoidalTimeseries import SinusoidalTimeseries
+from .PeriodicSignalDataset import PeriodicSignalDataset
 
 __all__ = [
    'DatasetComposer', 'HenonAttractor', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset',
-   'MemTestDataset', 'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries'
+   'MemTestDataset', 'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset'
 ]
