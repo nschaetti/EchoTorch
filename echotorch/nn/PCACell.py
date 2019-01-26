@@ -160,7 +160,8 @@ class PCACell(nn.Module):
 
         # Check for negative eigenvalues
         if float(d.min()) < 0:
-            raise Exception(u"Got negative eigenvalues ({}). You may either set output_dim to be smaller".format(d))
+            # raise Exception(u"Got negative eigenvalues ({}). You may either set output_dim to be smaller".format(d))
+            pass
         # end if
 
         # Indexes

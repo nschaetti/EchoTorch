@@ -6,6 +6,52 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from echotorch.nn.PCACell import PCACell
+from sklearn.decomposition import PCA
+
+
+# Plot singular values
+def plot_singular_values(stats, title, log=False):
+    """
+    Plot singular values
+    :param stats:
+    :param title:
+    :param timestep:
+    :param start:
+    :return:
+    """
+    # PCA cell
+    pca_cell = PCACell(input_dim=stats.shape[1], output_dim=int(stats.shape[1] / 2.0))
+
+    # Feed
+    pca_cell(stats.unsqueeze(0))
+
+    # Finish training
+    pca_cell.finalize()
+
+    # PCA
+    pca = PCA(n_components=stats.shape[1], svd_solver='full')
+    pca.fit(stats)
+
+    # Singular values
+    if not log:
+        singular_values = pca.singular_values_
+    else:
+        singular_values = np.log10(pca.singular_values_)
+    # end if
+
+    # Fig
+    fig = plt.figure()
+    ax = fig.gca()
+
+    # For each plot
+    ax.plot(singular_values, '--o')
+
+    ax.set_xlabel("Timesteps")
+    ax.set_title(title)
+    plt.show()
+    plt.close()
+# end plot_singular_values
 
 
 # Display neurons activities on a 3D plot
@@ -81,7 +127,7 @@ def neurons_activities_2d(stats, neurons, title, colors, timesteps=-1, start=0):
 
 
 # Display neurons activities
-def neurons_activities_1d(stats, neurons, title, timesteps=-1, start=0):
+def neurons_activities_1d(stats, neurons, title, colors, timesteps=-1, start=0):
     """
     Display neurons activities
     :param stats:
@@ -92,11 +138,14 @@ def neurons_activities_1d(stats, neurons, title, timesteps=-1, start=0):
     fig = plt.figure()
     ax = fig.gca()
 
-    if timesteps == -1:
-        ax.plot(stats[:, neurons].numpy())
-    else:
-        ax.plot(stats[start:start + timesteps, neurons].numpy())
-    # end if
+    # For each plot
+    for i, stat in enumerate(stats):
+        if timesteps == -1:
+            ax.plot(stat[:, neurons].numpy(), colors[i])
+        else:
+            ax.plot(stat[start:start + timesteps, neurons].numpy(), colors[i])
+        # end if
+    # end for
 
     ax.set_xlabel("Timesteps")
     ax.set_title(title)
