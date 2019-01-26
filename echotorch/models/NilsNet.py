@@ -22,7 +22,6 @@
 # Imports
 import torchvision
 import torch.nn as nn
-import torch.legacy.nn as lnn
 from echotorch import nn as ecnn
 
 
