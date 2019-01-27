@@ -3,6 +3,28 @@
 
 # Imports
 import torch
+from sklearn.decomposition import PCA
+import numpy as np
+
+
+# Compute singular values
+def compute_singular_values(stats, aperture=-1):
+    """
+    Compute singular values
+    :param states:
+    :return:
+    """
+    # PCA
+    pca = PCA(n_components=stats.shape[1], svd_solver='full')
+    pca.fit(stats)
+
+    # Singular values
+    if aperture == -1:
+        return pca.singular_values_, pca.components_
+    else:
+        return pca.singular_values_ / (pca.singular_values_ + (1.0 / np.power(aperture, 2))), pca.components_
+    # end if
+# end compute_singular_values
 
 
 # Compute spectral radius of a square 2-D tensor
