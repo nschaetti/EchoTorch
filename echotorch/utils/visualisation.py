@@ -11,7 +11,7 @@ from sklearn.decomposition import PCA
 
 
 # Plot singular values
-def plot_singular_values(stats, title, log=False):
+def plot_singular_values(stats, title, log=False, aperture=-1):
     """
     Plot singular values
     :param stats:
@@ -21,13 +21,13 @@ def plot_singular_values(stats, title, log=False):
     :return:
     """
     # PCA cell
-    pca_cell = PCACell(input_dim=stats.shape[1], output_dim=int(stats.shape[1] / 2.0))
+    # pca_cell = PCACell(input_dim=stats.shape[1], output_dim=int(stats.shape[1] / 2.0))
 
     # Feed
-    pca_cell(stats.unsqueeze(0))
+    # pca_cell(stats.unsqueeze(0))
 
     # Finish training
-    pca_cell.finalize()
+    # pca_cell.finalize()
 
     # PCA
     pca = PCA(n_components=stats.shape[1], svd_solver='full')
@@ -35,7 +35,11 @@ def plot_singular_values(stats, title, log=False):
 
     # Singular values
     if not log:
-        singular_values = pca.singular_values_
+        if aperture == -1:
+            singular_values = pca.singular_values_
+        else:
+            singular_values = pca.singular_values_ / (pca.singular_values_ + (1.0 / np.power(aperture, 2)))
+        # end if
     else:
         singular_values = np.log10(pca.singular_values_)
     # end if
@@ -51,6 +55,8 @@ def plot_singular_values(stats, title, log=False):
     ax.set_title(title)
     plt.show()
     plt.close()
+
+    return singular_values, pca.components_
 # end plot_singular_values
 
 
