@@ -56,6 +56,20 @@ class Conceptor(RRCell):
     # PROPERTIES
     ###############################################
 
+    # Compute quota
+    @property
+    def quota(self):
+        """
+        Compute quota
+        :return:
+        """
+        # Conceptor matrix
+        conceptor_matrix = self.get_C()
+
+        # Compute sum of singular values devided by number of neurons
+        return float(torch.sum(conceptor_matrix.mm(torch.eye(self.conceptor_dim))) / self.conceptor_dim)
+    # end quota
+
     ###############################################
     # PUBLIC
     ###############################################
