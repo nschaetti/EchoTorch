@@ -78,6 +78,20 @@ class Conceptor(RRCell):
     # PUBLIC
     ###############################################
 
+    # Change aperture
+    def set_aperture(self, new_a):
+        """
+        Change aperture
+        :param new_a:
+        :return:
+        """
+        # Conceptor matrix
+        c = self.w_out.clone()
+
+        # New tensor
+        self.w_out = c.mm(torch.inverse(c + torch.pow(new_a / self.aperture, -2) * (torch.eye(self.conceptor_dim) - c)))
+    # end set_aperture
+
     # Output matrix
     def get_C(self):
         """
