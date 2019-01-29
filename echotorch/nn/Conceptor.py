@@ -129,6 +129,24 @@ class Conceptor(RRCell):
         self.w_out.data = c
     # end set_conceptor
 
+    # Singular values
+    def singular_values(self):
+        """
+        Singular values
+        :return:
+        """
+        return self.w_out.diag()
+    # end singular_values
+
+    # Some of singular values
+    def get_quota(self):
+        """
+        Sum of singular values
+        :return:
+        """
+        return float(torch.sum(self.singular_values()))
+    # end get_quota
+
     ###############################################
     # OPERATORS
     ###############################################
@@ -201,6 +219,16 @@ class Conceptor(RRCell):
         return new_c
     # end logical_or
 
+    # OR
+    def __or__(self, other):
+        """
+        OR
+        :param other:
+        :return:
+        """
+        return self.logical_or(other)
+    # end __or__
+
     # NOT
     def logical_not(self):
         """
@@ -222,6 +250,15 @@ class Conceptor(RRCell):
 
         return new_c
     # end logical_not
+
+    # Not
+    def __invert__(self):
+        """
+        NOT
+        :return:
+        """
+        return self.logical_not()
+    # end __invert__
 
     # AND
     def logical_and(self, c):
@@ -245,5 +282,59 @@ class Conceptor(RRCell):
 
         return new_c
     # end logical_and
+
+    # AND
+    def __and__(self, other):
+        """
+        AND
+        :param other:
+        :return:
+        """
+        return self.logical_and(other)
+    # end __and__
+
+    # Greater or equal
+    def __ge__(self, other):
+        """
+        Greater or equal
+        :param other:
+        :return:
+        """
+        # Compute eigenvalues of a - b
+        eig_v = torch.eig(other.get_C() - self.w_out, eigenvectors=False)
+        return float(torch.max(eig_v)) >= 0.0
+    # end __ge__
+
+    # Greater
+    def __gt__(self, other):
+        """
+        Greater
+        :param other:
+        :return:
+        """
+        # Compute eigenvalues of a - b
+        eig_v = torch.eig(other.get_C() - self.w_out, eigenvectors=False)
+        return float(torch.max(eig_v)) > 0.0
+    # end __gt__
+
+    # Less
+    def __lt__(self, other):
+        """
+        Less than
+        :param other:
+        :return:
+        """
+        return not self >= other
+    # end __lt__
+
+    # Less or equal
+    def __le__(self, other):
+        """
+        Less or equal
+        :param other:
+        :return:
+        """
+        return not self > other
+    # end __le__
 
 # end RRCell
