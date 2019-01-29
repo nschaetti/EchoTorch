@@ -128,7 +128,13 @@ class RRCell(nn.Module):
                 self.xTx.data.add_(x[b].t().mm(x[b]).data)
                 self.xTy.data.add_(x[b].t().mm(y[b]).data)
             # end for
-            return x
+
+            # Bias or not
+            if self.with_bias:
+                return x[:, :, 1:]
+            else:
+                return x
+            # end if
         elif not self.training:
             # Outputs
             outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
