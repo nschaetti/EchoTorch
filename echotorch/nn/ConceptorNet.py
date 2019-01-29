@@ -38,7 +38,7 @@ class ConceptorNet(nn.Module):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
+    def __init__(self, input_dim, hidden_dim, output_dim=None, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
                  w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  leaky_rate=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
                  with_bias=True, seed=None):
@@ -75,6 +75,13 @@ class ConceptorNet(nn.Module):
 
         # Input recreation weights layer (Ridge regression)
         self.input_recreation = RRCell(hidden_dim, input_dim, ridge_param, None, with_bias, learning_algo)
+
+        # Output (state observer)
+        if output_dim is not None:
+            self.output = RRCell(hidden_dim, output_dim, ridge_param, None, with_bias, learning_algo)
+        else:
+            self.output = None
+        # end if
     # end __init__
 
     ###############################################
@@ -158,7 +165,7 @@ class ConceptorNet(nn.Module):
     # end set_w
 
     # Forward
-    def forward(self, u=None, c=None, reset_state=True, length=None):
+    def forward(self, u=None, y=None, c=None, reset_state=True, length=None):
         """
         Forward
         :param u: Input signal.
@@ -172,8 +179,17 @@ class ConceptorNet(nn.Module):
                 reset_state=reset_state
             )
 
+            # Past hidden states
+            batch_size, time_length, n_neurons = hidden_states.shape
+            past_hidden_states = torch.cat((torch.zeros(batch_size, time_length, n_neurons), hidden_states[:-1]), dim=1)
+
             # Learning input recreation
-            self.input_recreation(hidden_states, u)
+            self.input_recreation(past_hidden_states, u)
+
+            # Learning state observer
+            if self.output is not None and y is not None:
+                self.output(hidden_states, y)
+            # end if
 
             # Learning conceptor
             return c(hidden_states, hidden_states)
@@ -183,7 +199,12 @@ class ConceptorNet(nn.Module):
                 reset_state=reset_state
             )
 
-            return hidden_states
+            # Return outputs or states
+            if self.output is not None:
+                return self.output(hidden_states)
+            else:
+                return hidden_states
+            # end if
         else:
             hidden_states = self.esn_cell(
                 u=None,
@@ -193,8 +214,12 @@ class ConceptorNet(nn.Module):
                 length=length
             )
 
-            # Return observed outputs
-            return self.input_recreation(hidden_states)
+            # Return outputs of states
+            if self.output is not None:
+                return self.output(hidden_states)
+            else:
+                return self.input_recreation(hidden_states)
+            # end if
         # end if
     # end forward
 
