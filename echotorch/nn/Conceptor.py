@@ -38,7 +38,7 @@ class Conceptor(RRCell):
     """
 
     # Constructor
-    def __init__(self, conceptor_dim, aperture=0.0, with_bias=True, learning_algo='inv', name=""):
+    def __init__(self, conceptor_dim, aperture=0.0, with_bias=False, learning_algo='inv', name="", conceptor_matrix=None):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -50,6 +50,10 @@ class Conceptor(RRCell):
         self.conceptor_dim = conceptor_dim
         self.aperture = aperture
         self.name = name
+        if conceptor_matrix is not None:
+            self.w_out = conceptor_matrix
+            self.train(False)
+        # end if
     # end __init__
 
     ###############################################
@@ -122,7 +126,6 @@ class Conceptor(RRCell):
         :param x: states (x)
         :return:
         """
-        x = x.unsqueeze(0)
         return x.mm(self.w_out).mm(x.t())
     # end E_plus
 
