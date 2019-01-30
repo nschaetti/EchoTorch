@@ -46,8 +46,7 @@ class LiESNCell(ESNCell):
         :param train_leaky_rate: Train leaky rate as parameter? (default: False)
         """
         super(LiESNCell, self).__init__(*args, **kwargs)
-        """print("W")
-        print(self.w)"""
+
         # Params
         if train_leaky_rate:
             self.leaky_rate = nn.Parameter(torch.Tensor(1).fill_(leaky_rate), requires_grad=True)
@@ -92,12 +91,10 @@ class LiESNCell(ESNCell):
 
                 # Compute input layer
                 u_win = self.w_in.mv(ut)
-                # print("u_win")
-                # print(u_win)
+
                 # Apply W to x
                 x_w = self.w.mv(self.hidden)
-                # print("x_w")
-                # print(x_w)
+
                 # Feedback or not
                 if self.feedbacks and self.training and y is not None:
                     # Current target
@@ -108,7 +105,6 @@ class LiESNCell(ESNCell):
 
                     # Add everything
                     x = u_win + x_w + y_wfdb + self.w_bias
-                    # x = u_win + x_w + self.w_bias
                 elif self.feedbacks and not self.training and w_out is not None:
                     # Add bias
                     bias_hidden = torch.cat((Variable(torch.ones(1)), self.hidden), dim=0)
@@ -128,32 +124,20 @@ class LiESNCell(ESNCell):
 
                     # Add everything
                     x = u_win + x_w + y_wfdb + self.w_bias
-                    # x = u_win + x_w + self.w_bias
                 else:
                     # Add everything
                     x = u_win + x_w + self.w_bias
                 # end if
-                # print("u_win + x_w + bias")
-                # print(x)
+
                 # Apply activation function
                 x = self.nonlin_func(x)
-                # print("non lin")
-                # print(x)
+
                 # Add to outputs
                 self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data
-                # print("leak")
-                # print(self.hidden.data)
+
                 # New last state
                 outputs[b, t] = self.hidden
-                """if t == 2:
-                    exit()
-                # end if
-                print("")
-                print("")"""
             # end for
-            """print(outputs[0])
-            plt.imshow(outputs[0].t().numpy(), cmap='Greys')
-            plt.show()"""
         # end for
 
         return outputs

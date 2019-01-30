@@ -40,7 +40,7 @@ class LiESN(ESN):
                  bias_scaling=0, input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None,
                  input_set=[1.0, -1.0], w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
                  leaky_rate=1.0, train_leaky_rate=False, feedbacks=False, wfdb_sparsity=None,
-                 normalize_feedbacks=False, softmax_output=False, seed=None):
+                 normalize_feedbacks=False, softmax_output=False, seed=None, washout=0):
         """
         Constructor
         :param input_dim:
@@ -68,7 +68,7 @@ class LiESN(ESN):
                                     w_sparsity=w_sparsity, nonlin_func=nonlin_func, learning_algo=learning_algo,
                                     ridge_param=ridge_param, create_cell=False, feedbacks=feedbacks,
                                     wfdb_sparsity=wfdb_sparsity, normalize_feedbacks=normalize_feedbacks,
-                                    softmax_output=softmax_output, seed=seed)
+                                    softmax_output=softmax_output, seed=seed, washout=washout)
 
         # Recurrent layer
         self.esn_cell = LiESNCell(leaky_rate, train_leaky_rate, input_dim, hidden_dim, spectral_radius=spectral_radius,

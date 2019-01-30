@@ -42,7 +42,7 @@ class ESN(nn.Module):
                  w=None, w_in=None, w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True,
                  feedbacks=False, with_bias=True, wfdb_sparsity=None, normalize_feedbacks=False,
-                 softmax_output=False, seed=None):
+                 softmax_output=False, seed=None, washout=0):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -68,6 +68,7 @@ class ESN(nn.Module):
         self.feedbacks = feedbacks
         self.with_bias = with_bias
         self.normalize_feedbacks = normalize_feedbacks
+        self.washout = washout
 
         # Recurrent layer
         if create_cell:
@@ -168,7 +169,7 @@ class ESN(nn.Module):
         # end if
 
         # Learning algo
-        return self.output(hidden_states, y)
+        return self.output(hidden_states[:, self.washout:], y)
     # end forward
 
     # Finish training
