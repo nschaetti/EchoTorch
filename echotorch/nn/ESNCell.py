@@ -42,7 +42,8 @@ class ESNCell(nn.Module):
     def __init__(self, input_dim, output_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0, w=None, w_in=None,
                  w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  nonlin_func=torch.tanh, feedbacks=False, feedbacks_dim=None, wfdb_sparsity=None,
-                 normalize_feedbacks=False, seed=None):
+                 normalize_feedbacks=False, seed=None, w_distrib='uniform', win_distrib='uniform',
+                 wbias_distrib='uniform', win_normal=(0.0, 1.0), w_normal=(0.0, 1.0), wbias_normal=(0.0, 1.0)):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -74,6 +75,12 @@ class ESNCell(nn.Module):
         self.feedbacks_dim = feedbacks_dim
         self.wfdb_sparsity = wfdb_sparsity
         self.normalize_feedbacks = normalize_feedbacks
+        self.w_distrib = w_distrib
+        self.win_distrib = win_distrib
+        self.wbias_distrib = wbias_distrib
+        self.win_normal = win_normal
+        self.w_normal = w_normal
+        self.wbias_normal = wbias_normal
 
         # Init hidden state
         self.register_buffer('hidden', self.init_hidden())
@@ -222,7 +229,7 @@ class ESNCell(nn.Module):
         """
         # Initialize reservoir weight matrix
         if w is None:
-            w = self.generate_w(self.output_dim, self.w_sparsity, seed=seed)
+            w = self.generate_w(output_dim=self.output_dim, w_distrib=self.w_distrib, w_sparsity=self.w_sparsity, mean=self.w_normal[0], std=self.w_normal[1], seed=seed)
         else:
             if callable(w):
                 w = w(self.output_dim)
@@ -244,22 +251,19 @@ class ESNCell(nn.Module):
         # Manual seed
         if seed is not None:
             np.random.seed(seed)
+            torch.random.manual_seed(seed)
         # end if
 
         # Initialize input weight matrix
         if w_in is None:
-            if self.sparsity is None:
-                w_in = self.input_scaling * (
-                            np.random.randint(0, 2, (self.output_dim, self.input_dim)) * 2.0 - 1.0)
+            # Distribution
+            if self.win_distrib == 'uniform':
+                w_in = self.generate_uniform_matrix(size=(self.output_dim, self.input_dim), sparsity=self.sparsity, input_set=self.input_set)
                 w_in = torch.from_numpy(w_in.astype(np.float32))
             else:
-                w_in = self.input_scaling * np.random.choice(np.append([0], self.input_set),
-                                                             (self.output_dim, self.input_dim),
-                                                             p=np.append([1.0 - self.sparsity],
-                                                                         [self.sparsity / len(self.input_set)] * len(
-                                                                             self.input_set)))
-                w_in = torch.from_numpy(w_in.astype(np.float32))
+                w_in = self.generate_gaussian_matrix(size=(self.output_dim, self.input_dim), sparsity=self.sparsity, mean=self.win_normal[0], std=self.win_normal[1])
             # end if
+            w_in *= self.input_scaling
         else:
             if callable(w_in):
                 w_in = w_in(self.output_dim, self.input_dim)
@@ -282,7 +286,13 @@ class ESNCell(nn.Module):
 
         # Initialize bias matrix
         if w_bias is None:
-            w_bias = self.bias_scaling * (torch.rand(1, self.output_dim) * 2.0 - 1.0)
+            # Distribution
+            if self.w_distrib == 'uniform':
+                w_bias = self.generate_uniform_matrix(size=(1, self.output_dim), sparsity=1.0, input_set=[-1.0, 1.0])
+            else:
+                w_bias = self.generate_gaussian_matrix(size=(1, self.output_dim), sparsity=1.0, mean=self.wbias_normal[0], std=self.wbias_normal[1])
+            # end if
+            w_bias *= self.bias_scaling
         else:
             if callable((w_bias)):
                 w_bias = w_bias(self.output_dim)
@@ -331,9 +341,48 @@ class ESNCell(nn.Module):
     # STATIC
     ############################################
 
+    # Generate uniform matrix
+    @staticmethod
+    def generate_uniform_matrix(size, sparsity, input_set):
+        """
+        Generate uniform Win matrix
+        :param w_in:
+        :param seed:
+        :return:
+        """
+        if sparsity is None:
+            w = (np.random.randint(0, 2, size) * 2.0 - 1.0)
+        else:
+            w = np.random.choice(np.append([0], input_set), size,
+                                 p=np.append([1.0 - sparsity], [sparsity / len(input_set)] * len(input_set)))
+        # end if
+        return w
+
+    # end _generate_uniform_win
+
+    # Generate gaussian matrix
+    @staticmethod
+    def generate_gaussian_matrix(size, sparsity, mean=0.0, std=1.0):
+        """
+        Generate gaussian Win matrix
+        :return:
+        """
+        if sparsity is None:
+            w = torch.zeros(size)
+            w = w.normal_(mean=mean, std=std)
+        else:
+            w = torch.zeros(size)
+            w = w.normal_(mean=mean, std=std)
+            mask = torch.zeros(size)
+            mask.bernoulli_(p=sparsity)
+            w *= mask
+        # end if
+        return w
+    # end if
+
     # Generate W matrix
     @staticmethod
-    def generate_w(output_dim, w_sparsity=None, seed=None):
+    def generate_w(output_dim, w_distrib='uniform', w_sparsity=None, mean=0.0, std=1.0, seed=None):
         """
         Generate W matrix
         :param output_dim:
@@ -343,20 +392,17 @@ class ESNCell(nn.Module):
         # Manual seed
         if seed is not None:
             torch.manual_seed(seed)
+            np.random.seed(seed)
         # end if
 
-        # Sparsity
-        if w_sparsity is None:
-            w = torch.rand(output_dim, output_dim) * 2.0 - 1.0
-        else:
-            w = np.random.choice([0.0, 1.0], (output_dim, output_dim),
-                                 p=[1.0 - w_sparsity, w_sparsity])
-            w[w == 1] = np.random.rand(len(w[w == 1])) * 2.0 - 1.0
+        # Distribution
+        if w_distrib == 'uniform':
+            w = ESNCell.generate_uniform_matrix(size=(output_dim, output_dim), sparsity=w_sparsity, input_set=[-1.0, 1.0])
             w = torch.from_numpy(w.astype(np.float32))
-
-            # Return
-            return w
+        else:
+            w = ESNCell.generate_gaussian_matrix(size=(output_dim, output_dim), sparsity=w_sparsity, mean=mean, std=std)
         # end if
+
         return w
     # end generate_w
 
