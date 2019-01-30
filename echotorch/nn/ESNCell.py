@@ -289,6 +289,7 @@ class ESNCell(nn.Module):
             # Distribution
             if self.w_distrib == 'uniform':
                 w_bias = self.generate_uniform_matrix(size=(1, self.output_dim), sparsity=1.0, input_set=[-1.0, 1.0])
+                w_bias = torch.from_numpy(w_bias.astype(np.float32))
             else:
                 w_bias = self.generate_gaussian_matrix(size=(1, self.output_dim), sparsity=1.0, mean=self.wbias_normal[0], std=self.wbias_normal[1])
             # end if
