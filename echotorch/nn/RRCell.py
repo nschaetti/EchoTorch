@@ -29,6 +29,7 @@ import torch.sparse
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import math
 
 
 # Ridge Regression cell
@@ -38,7 +39,7 @@ class RRCell(nn.Module):
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, ridge_param=0.0, feedbacks=False, with_bias=True, learning_algo='inv', softmax_output=False):
+    def __init__(self, input_dim, output_dim, ridge_param=0.0, feedbacks=False, with_bias=True, learning_algo='inv', softmax_output=False, averaged=False, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -55,6 +56,9 @@ class RRCell(nn.Module):
         self.learning_algo = learning_algo
         self.softmax_output = softmax_output
         self.softmax = torch.nn.Softmax(dim=2)
+        self.averaged = averaged
+        self.n_samples = 0
+        self.dtype = dtype
 
         # Size
         if self.with_bias:
@@ -64,9 +68,9 @@ class RRCell(nn.Module):
         # end if
 
         # Set it as buffer
-        self.register_buffer('xTx', Variable(torch.zeros(self.x_size, self.x_size), requires_grad=False))
-        self.register_buffer('xTy', Variable(torch.zeros(self.x_size, output_dim), requires_grad=False))
-        self.register_buffer('w_out', Variable(torch.zeros(1, input_dim), requires_grad=False))
+        self.register_buffer('xTx', Variable(torch.zeros(self.x_size, self.x_size, dtype=dtype), requires_grad=False))
+        self.register_buffer('xTy', Variable(torch.zeros(self.x_size, output_dim, dtype=dtype), requires_grad=False))
+        self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
     # end __init__
 
     ###############################################
@@ -125,8 +129,13 @@ class RRCell(nn.Module):
         # Learning algo
         if self.training:
             for b in range(batch_size):
-                self.xTx.data.add_(x[b].t().mm(x[b]).data)
-                self.xTy.data.add_(x[b].t().mm(y[b]).data)
+                if not self.averaged:
+                    self.xTx.data.add_(x[b].t().mm(x[b]).data)
+                    self.xTy.data.add_(x[b].t().mm(y[b]).data)
+                else:
+                    self.xTx.data.add_((x[b].t().mm(x[b]) / time_length).data)
+                    self.xTy.data.add_((x[b].t().mm(y[b]) / time_length).data)
+                    self.n_samples += 1.0
             # end for
 
             # Bias or not
@@ -137,7 +146,7 @@ class RRCell(nn.Module):
             # end if
         elif not self.training:
             # Outputs
-            outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim), requires_grad=False)
+            outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim, dtype=self.dtype), requires_grad=False)
             outputs = outputs.cuda() if self.w_out.is_cuda else outputs
 
             # For each batch
@@ -158,11 +167,20 @@ class RRCell(nn.Module):
         Finalize training with LU factorization or Pseudo-inverse
         """
         if self.learning_algo == 'inv':
-            # inv_xTx = self.xTx.inverse()
-            # inv_xTx = torch.inverse(self.xTx + self.ridge_param * torch.eye(self._input_dim + self.with_bias))
-            ridge_xTx = self.xTx + self.ridge_param * torch.eye(self.input_dim + self.with_bias)
-            inv_xTx = ridge_xTx.inverse()
-            self.w_out.data = torch.mm(inv_xTx, self.xTy).data
+            if not self.averaged:
+                ridge_xTx = self.xTx + self.ridge_param * torch.eye(self.input_dim + self.with_bias, dtype=self.dtype)
+                inv_xTx = ridge_xTx.inverse()
+                self.w_out.data = torch.mm(inv_xTx, self.xTy).data
+            else:
+                # Average
+                self.xTx = self.xTx / self.n_samples
+                self.xTy = self.xTy / self.n_samples
+
+                # Algo
+                ridge_xTx = self.xTx + self.ridge_param * torch.eye(self.input_dim + self.with_bias, dtype=self.dtype)
+                inv_xTx = ridge_xTx.inverse()
+                self.w_out.data = torch.mm(inv_xTx, self.xTy).data
+            # end if
         else:
             self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
         # end if
@@ -183,9 +201,9 @@ class RRCell(nn.Module):
         :return:
         """
         if x.is_cuda:
-            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)).cuda(), requires_grad=False)
+            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype).cuda(), requires_grad=False)
         else:
-            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
+            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype), requires_grad=False)
         # end if
         return torch.cat((bias, x), dim=2)
     # end _add_constant
