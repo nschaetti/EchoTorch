@@ -10,8 +10,81 @@ from echotorch.nn.PCACell import PCACell
 from sklearn.decomposition import PCA
 
 
+# Show singular values increasing aperture
+def show_sv_for_increasing_aperture(conceptor, factor, title):
+    """
+    Show singular values for increasing aperture
+    :param conceptors:
+    :param factor:
+    :param title:
+    :return:
+    """
+    # Fig
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 1.5)
+    ax.grid(True)
+
+    # For each aperture multiplication
+    for i in range(5):
+        # Compute SVD
+        _, S, _ = torch.svd(conceptor.get_C())
+
+        # Plot
+        ax.plot(S.numpy(), '--')
+
+        # Multiply all conceptor's aperture by 10
+        conceptor.multiply_aperture(factor)
+    # end for
+
+    # Show
+    ax.set_xlabel(u"Singular values")
+    ax.set_title(title)
+    plt.show()
+    plt.close()
+# end show_sv_for_increasing_aperture
+
+
+# Show conceptors similarity matrix
+def show_conceptors_similarity_matrix(conceptors, title):
+    """
+    Show conceptors similarity matrix
+    :param conceptors:
+    :param title:
+    :return:
+    """
+    # Similarity matrix
+    sim_matrix = torch.zeros(len(conceptors), len(conceptors))
+    for i, ca in enumerate(conceptors):
+        for j, cb in enumerate(conceptors):
+            sim_matrix[i, j] = ca.sim(cb)
+        # end for
+    # end for
+    show_similarity_matrix(sim_matrix, title)
+# end conceptors_similarity_matrix
+
+
+# Show similarity matrix
+def show_similarity_matrix(sim_matrix, title):
+    """
+    Show similarity matrix
+    :param sim_matrix:
+    :return:
+    """
+    # Get cmap
+    cmap = plt.cm.get_cmap('Greens')
+    fig, ax = plt.subplots(figsize=(sim_matrix.shape[0], sim_matrix.shape[0]))
+    cax = ax.matshow(sim_matrix, interpolation='nearest', cmap=cmap)
+    ax.grid(True)
+    plt.title(title)
+    fig.colorbar(cax, ticks=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, .75, .8, .85, .90, .95, 1])
+    plt.show()
+# end show_similarity_matrix
+
+
 # Plot singular values
-def plot_singular_values(stats, title, log=False, aperture=-1):
+def plot_singular_values(stats, title, xmin, xmax, ymin, ymax, log=False):
     """
     Plot singular values
     :param stats:
@@ -20,43 +93,34 @@ def plot_singular_values(stats, title, log=False, aperture=-1):
     :param start:
     :return:
     """
-    # PCA cell
-    # pca_cell = PCACell(input_dim=stats.shape[1], output_dim=int(stats.shape[1] / 2.0))
+    # Compute R (correlation matrix)
+    R = stats.t().mm(stats) / stats.shape[0]
 
-    # Feed
-    # pca_cell(stats.unsqueeze(0))
+    # Compute singular values
+    U, S, V = torch.svd(R)
+    singular_values = S
 
-    # Finish training
-    # pca_cell.finalize()
-
-    # PCA
-    pca = PCA(n_components=stats.shape[1], svd_solver='full')
-    pca.fit(stats)
-
-    # Singular values
-    if not log:
-        if aperture == -1:
-            singular_values = pca.singular_values_
-        else:
-            singular_values = pca.singular_values_ / (pca.singular_values_ + (1.0 / np.power(aperture, 2)))
-        # end if
-    else:
-        singular_values = np.log10(pca.singular_values_)
+    # Compute singular values
+    if log:
+        singular_values = np.log10(singular_values)
     # end if
 
     # Fig
     fig = plt.figure()
     ax = fig.gca()
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    ax.grid(True)
 
     # For each plot
-    ax.plot(singular_values, '--o')
+    ax.plot(singular_values.numpy(), '--o')
 
     ax.set_xlabel("Timesteps")
     ax.set_title(title)
     plt.show()
     plt.close()
 
-    return singular_values, pca.components_
+    return singular_values, U
 # end plot_singular_values
 
 
@@ -133,7 +197,7 @@ def neurons_activities_2d(stats, neurons, title, colors, timesteps=-1, start=0):
 
 
 # Display neurons activities
-def neurons_activities_1d(stats, neurons, title, colors, timesteps=-1, start=0):
+def neurons_activities_1d(stats, neurons, title, colors, xmin, xmax, ymin, ymax, timesteps=-1, start=0):
     """
     Display neurons activities
     :param stats:
@@ -143,13 +207,16 @@ def neurons_activities_1d(stats, neurons, title, colors, timesteps=-1, start=0):
     # Fig
     fig = plt.figure()
     ax = fig.gca()
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    ax.grid(True)
 
-    # For each plot
-    for i, stat in enumerate(stats):
+    # For each neurons
+    for i, n in enumerate(neurons):
         if timesteps == -1:
-            ax.plot(stat[:, neurons].numpy(), colors[i])
+            ax.plot(stats[:, n].numpy(), colors[i])
         else:
-            ax.plot(stat[start:start + timesteps, neurons].numpy(), colors[i])
+            ax.plot(stats[start:start + timesteps, n].numpy(), colors[i])
         # end if
     # end for
 
@@ -204,7 +271,7 @@ def show_2d_timeseries(ts, title):
 
 
 # Show 1D time series
-def show_1d_timeseries(ts, title, start=0, timesteps=-1):
+def show_1d_timeseries(ts, title, xmin, xmax, ymin, ymax, start=0, timesteps=-1):
     """
     Show 1D time series
     :param ts:
@@ -214,6 +281,9 @@ def show_1d_timeseries(ts, title, start=0, timesteps=-1):
     # Fig
     fig = plt.figure()
     ax = fig.gca()
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    ax.grid(True)
 
     if timesteps == -1:
         ax.plot(ts[:, 0].numpy())
