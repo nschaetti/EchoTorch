@@ -76,7 +76,7 @@ class ConceptorNetCell(LiESNCell):
         # end if
 
         # Outputs
-        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
+        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype))
         outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
         # For each batch
@@ -89,7 +89,7 @@ class ConceptorNetCell(LiESNCell):
             # For each steps
             for t in range(time_length):
                 # Generative mode ?
-                if self.training or input_recreation is None:
+                if self.training:
                     # Current input
                     ut = u[b, t]
 
@@ -101,27 +101,38 @@ class ConceptorNetCell(LiESNCell):
 
                     # Add everything
                     x = u_win + x_w + self.w_bias
-
+                    """if t == 500:
+                        print(u_win + x_w)
+                    # end if"""
                     # Apply activation function
                     x = self.nonlin_func(x)
 
                     # Add to outputs
-                    self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data
+                    self.hidden.data = x.view(-1).data
+                    # self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data
 
                     # New last state
                     outputs[b, t] = self.hidden
                 else:
-                    # Input recreation
-                    ut = input_recreation(self.hidden.view(1, 1, -1)).view(-1)
+                    if u is not None:
+                        # Current input
+                        ut = u[b, t]
 
-                    # Compute input layer
-                    u_win = self.w_in.mv(ut)
+                        # Compute input layer
+                        u_win = self.w_in.mv(ut)
 
-                    # Apply W to x
-                    x_w = self.w.mv(self.hidden)
+                        # Apply W to x
+                        x_w = self.w.mv(self.hidden)
 
-                    # Add everything
-                    x = u_win + x_w + self.w_bias
+                        # Add everything
+                        x = u_win + x_w + self.w_bias
+                    else:
+                        # Apply W to x
+                        x_w = input_recreation(self.hidden.view(1, 1, -1))
+
+                        # Add everything
+                        x = x_w + self.w_bias
+                    # end if
 
                     # Apply activation function
                     x = self.nonlin_func(x)
