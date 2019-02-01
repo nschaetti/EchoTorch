@@ -29,6 +29,9 @@ import torch.sparse
 import torch
 from .RRCell import RRCell
 import math
+from echotorch.utils import generalized_squared_cosine
+import math as m
+from torch.autograd import Variable
 
 
 # Conceptor
@@ -38,20 +41,27 @@ class Conceptor(RRCell):
     """
 
     # Constructor
-    def __init__(self, conceptor_dim, aperture=0.0, with_bias=False, learning_algo='inv', name="", conceptor_matrix=None):
+    def __init__(self, conceptor_dim, aperture=0.0, with_bias=False, learning_algo='inv', name="", conceptor_matrix=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Inputs dimension.
         :param output_dim: Reservoir size
         """
-        super(Conceptor, self).__init__(conceptor_dim, conceptor_dim, ridge_param=aperture, feedbacks=False, with_bias=with_bias, learning_algo=learning_algo)
+        super(Conceptor, self).__init__(conceptor_dim, conceptor_dim, ridge_param=aperture, feedbacks=False, with_bias=with_bias, learning_algo=learning_algo, softmax_output=False, dtype=dtype)
 
         # Properties
         self.conceptor_dim = conceptor_dim
         self.aperture = aperture
         self.name = name
+        self.n_samples = 0.0
+
+        # Set it as buffer
+        self.register_buffer('R', Variable(torch.zeros(self.x_size, self.x_size, dtype=self.dtype), requires_grad=False))
+        self.register_buffer('C', Variable(torch.zeros(1, conceptor_dim, dtype=self.dtype), requires_grad=False))
+
+        # Set conceptor
         if conceptor_matrix is not None:
-            self.w_out = conceptor_matrix
+            self.C = conceptor_matrix
             self.train(False)
         # end if
     # end __init__
@@ -71,7 +81,7 @@ class Conceptor(RRCell):
         conceptor_matrix = self.get_C()
 
         # Compute sum of singular values devided by number of neurons
-        return float(torch.sum(conceptor_matrix.mm(torch.eye(self.conceptor_dim))) / self.conceptor_dim)
+        return float(torch.sum(conceptor_matrix.mm(torch.eye(self.conceptor_dim, dtype=self.dtype))) / self.conceptor_dim)
     # end quota
 
     ###############################################
@@ -86,11 +96,25 @@ class Conceptor(RRCell):
         :return:
         """
         # Conceptor matrix
-        c = self.w_out.clone()
+        c = self.C.clone()
 
         # New tensor
-        self.w_out = c.mm(torch.inverse(c + torch.pow(new_a / self.aperture, -2) * (torch.eye(self.conceptor_dim) - c)))
+        self.C = c.mm(torch.inverse(c + m.pow(new_a / self.aperture, -2) * (torch.eye(self.conceptor_dim, dtype=self.dtype) - c)))
     # end set_aperture
+
+    # Multiply aperture
+    def multiply_aperture(self, factor):
+        """
+        Multiply aperture
+        :param factor:
+        :return:
+        """
+        # Conceptor matrix
+        c = self.C.clone()
+
+        # New tensor
+        self.C = c.mm(torch.inverse(c + m.pow(factor, -2) * (torch.eye(self.conceptor_dim, dtype=self.dtype) - c)))
+    # end multiply_aperture
 
     # Output matrix
     def get_C(self):
@@ -98,21 +122,70 @@ class Conceptor(RRCell):
         Output matrix
         :return:
         """
-        return self.w_out
+        return self.C
     # end get_w_out
+
+    # Forward
+    def forward(self, x, y=None):
+        """
+        Forward
+        :param x: Input signal.
+        :param y: Target outputs
+        :return: Output or hidden states
+        """
+        # Batch size
+        batch_size = x.size()[0]
+
+        # Time length
+        time_length = x.size()[1]
+
+        # Add bias
+        if self.with_bias:
+            x = self._add_constant(x)
+        # end if
+
+        # Learning algo
+        if self.training:
+            for b in range(batch_size):
+                Rj = x[b].t().mm(x[b]) / time_length
+                self.R.data.add_(Rj.data)
+                self.n_samples += 1.0
+            # end for
+
+            # Bias or not
+            if self.with_bias:
+                return x[:, :, 1:]
+            else:
+                return x
+            # end if
+        elif not self.training:
+            # Outputs
+            outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim, dtype=self.dtype), requires_grad=False)
+            outputs = outputs.cuda() if self.C.is_cuda else outputs
+
+            # For each batch
+            for b in range(batch_size):
+                outputs[b] = torch.mm(x[b], self.C)
+            # end for
+
+            return outputs
+        # end if
+    # end forward
 
     # Finish training
     def finalize(self):
         """
         Finalize training with LU factorization or Pseudo-inverse
         """
-        if self.learning_algo == 'inv':
-            ridge_xTx = self.xTx + math.pow(self.ridge_param, -2) * torch.eye(self.input_dim + self.with_bias)
-            inv_xTx = ridge_xTx.inverse()
-            self.w_out.data = torch.mm(inv_xTx, self.xTy).data
-        else:
-            self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
-        # end if
+        # Average
+        self.R = self.R / self.n_samples
+
+        # Algo
+        ridge_R = self.R + math.pow(self.ridge_param, -2) * torch.eye(self.input_dim + self.with_bias, dtype=self.dtype)
+
+        inv_R = ridge_R.inverse()
+
+        self.C.data = torch.mm(self.R, inv_R).data
 
         # Not in training mode anymore
         self.train(False)
@@ -148,8 +221,48 @@ class Conceptor(RRCell):
     # end get_quota
 
     ###############################################
+    # STATIC
+    ###############################################
+
+    # Morphing patterns
+    @staticmethod
+    def morphing(conceptor_list, mu):
+        """
+        Morphing pattern
+        :param conceptor_list:
+        :return:
+        """
+        # For each conceptors
+        for i, c in enumerate(conceptor_list):
+            if i == 0:
+                M = c.mul(mu[i])
+            else:
+                M += c.mul(mu[i])
+            # end if
+        # end for
+        return M
+    # end for
+
+    ###############################################
     # OPERATORS
     ###############################################
+
+    # Similarity with another conceptor
+    def sim(self, cb, measure='gsc'):
+        """
+        Similarity with another conceptor
+        :param cb:
+        :return:
+        """
+        # Compute singular values
+        Ua, Sa, _ = torch.svd(self.C)
+        Ub, Sb, _ = torch.svd(cb.get_C())
+
+        # Measure
+        if measure == 'gsc':
+            return generalized_squared_cosine(Sa, Ua, Sb, Ub)
+        # end if
+    # end sim
 
     # Positive evidence
     def E_plus(self, x):
@@ -202,19 +315,16 @@ class Conceptor(RRCell):
         :param c:
         :return:
         """
-        # New conceptor
-        new_c = Conceptor(self.conceptor_dim)
-
         # Matrices
-        C = self.w_out
-        B = c.get_w_out()
-        I = torch.eye(self.conceptor_dim)
+        C = self.C
+        B = c.get_C()
+        I = torch.eye(self.conceptor_dim, dtype=self.dtype)
 
         # Compute C1 \/ C2
         conceptor_matrix = torch.inverse(I + torch.inverse(C.mm(torch.inverse(I - C)) + B.mm(torch.inverse(I - B))))
 
         # Set conceptor
-        new_c.set_conceptor(conceptor_matrix)
+        new_c = Conceptor(conceptor_dim=self.conceptor_dim, conceptor_matrix=conceptor_matrix, dtype=self.dtype)
 
         return new_c
     # end logical_or
@@ -236,17 +346,14 @@ class Conceptor(RRCell):
         :param c:
         :return:
         """
-        # New conceptor
-        new_c = Conceptor(self.conceptor_dim)
-
         # Matrices
-        C = self.w_out
+        C = self.C
 
         # Compute not C
-        conceptor_matrix = torch.eye(self.conceptor_dim) - C
+        conceptor_matrix = torch.eye(self.conceptor_dim, dtype=self.dtype) - C
 
         # Set conceptor
-        new_c.set_conceptor(conceptor_matrix)
+        new_c = Conceptor(conceptor_dim=self.conceptor_dim, conceptor_matrix=conceptor_matrix, dtype=self.dtype)
 
         return new_c
     # end logical_not
@@ -267,18 +374,15 @@ class Conceptor(RRCell):
         :param c:
         :return:
         """
-        # New conceptor
-        new_c = Conceptor(self.conceptor_dim)
-
         # Matrices
-        C = self.w_out
-        B = c.get_w_out()
+        C = self.C
+        B = c.get_C()
 
         # Compute C1 /\ C2
-        conceptor_matrix = torch.inverse(torch.inverse(C) + torch.inverse(B) + torch.eye(self.conceptor_dim))
+        conceptor_matrix = torch.inverse(torch.inverse(C) + torch.inverse(B) + torch.eye(self.conceptor_dim, dtype=self.dtype))
 
         # Set conceptor
-        new_c.set_conceptor(conceptor_matrix)
+        new_c = Conceptor(conceptor_dim=self.conceptor_dim, conceptor_matrix=conceptor_matrix, dtype=self.dtype)
 
         return new_c
     # end logical_and
@@ -292,6 +396,132 @@ class Conceptor(RRCell):
         """
         return self.logical_and(other)
     # end __and__
+
+    # Multiply
+    def mul(self, other):
+        """
+        Multiply
+        :param other:
+        :return:
+        """
+        # Multiply matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() * other.get_C()
+        else:
+            new_c = self.get_C() * other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end mul
+
+    # Multiply
+    def __mul__(self, other):
+        """
+        Multiply
+        :param other:
+        :return:
+        """
+        # Multiply matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() * other.get_C()
+        else:
+            new_c = self.get_C() * other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end __mul__
+
+    # Multiply
+    def __rmul__(self, other):
+        """
+        Multiply
+        :param other:
+        :return:
+        """
+        # Multiply matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() * other.get_C()
+        else:
+            new_c = self.get_C() * other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end __mul__
+
+    # Override *=
+    def __imul__(self, other):
+        """
+        *=
+        :param other:
+        :return:
+        """
+        # Multiply matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() * other.get_C()
+        else:
+            new_c = self.get_C() * other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end __imul__
+
+    # Add
+    def __add__(self, other):
+        """
+        Add
+        :param other:
+        :return:
+        """
+        # Add matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() + other.get_C()
+        else:
+            new_c = self.get_C() + other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end __add__
+
+    # Add
+    def __radd__(self, other):
+        """
+        Add
+        :param other:
+        :return:
+        """
+        # Add matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() + other.get_C()
+        else:
+            new_c = self.get_C() + other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end __radd__
+
+    # +=
+    def __iadd__(self, other):
+        """
+        +=
+        :param other:
+        :return:
+        """
+        # Add matrix
+        if type(other) is Conceptor:
+            new_c = self.get_C() + other.get_C()
+        else:
+            new_c = self.get_C() + other
+        # end if
+
+        # New conceptor
+        return Conceptor(self.conceptor_dim, self.aperture, conceptor_matrix=new_c, dtype=self.dtype)
+    # end __iadd__
 
     # Greater or equal
     def __ge__(self, other):
