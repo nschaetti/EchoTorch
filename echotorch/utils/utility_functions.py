@@ -5,25 +5,86 @@
 import torch
 from sklearn.decomposition import PCA
 import numpy as np
+from error_measures import generalized_squared_cosine
+from .error_measures import nrmse
+import math
+
+
+# Find phase shift
+def find_phase_shift(s1, s2, window_size, error_measure=nrmse):
+    """
+    Find phase shift
+    :param s1:
+    :param s2:
+    :param window_size:
+    :return:
+    """
+    # Origin window
+    s2_window = s2[:window_size]
+
+    # List of shift and error
+    list_of_shift = list()
+
+    # Sliding window
+    for i in np.arange(0, s1.shape[0] - window_size, 1):
+        # Integer
+        i = int(i)
+
+        # Window
+        s1_window = s1[i:i+window_size]
+
+        # Measure difference
+        measure_diff = error_measure(s1_window, s2_window)
+
+        # Add
+        list_of_shift.append((i, round(measure_diff, 2), measure_diff))
+    # end for
+
+    # Sorted
+    list_of_shift = sorted(list_of_shift, key=lambda x: (x[1], x[0]))
+
+    return list_of_shift[0][0], list_of_shift[0][2]
+# end find_phase_shift
+
+
+# Compute similarity matrix
+def compute_similarity_matrix(svd_list):
+    """
+    Compute similarity matrix
+    :param svd_list:
+    :return:
+    """
+    # N samples
+    n_samples = len(svd_list)
+
+    # Similarity matrix
+    sim_matrix = torch.zeros(n_samples, n_samples)
+
+    # For each combinasion
+    for i, (Sa, Ua) in enumerate(svd_list):
+        for j, (Sb, Ub) in enumerate(svd_list):
+            sim_matrix[i, j] = generalized_squared_cosine(Sa, Ua, Sb, Ub)
+        # end for
+    # end for
+
+    return sim_matrix
+# end compute_similarity_matrix
 
 
 # Compute singular values
-def compute_singular_values(stats, aperture=-1):
+def compute_singular_values(stats):
     """
     Compute singular values
     :param states:
     :return:
     """
-    # PCA
-    pca = PCA(n_components=stats.shape[1], svd_solver='full')
-    pca.fit(stats)
+    # Compute R (correlation matrix)
+    R = stats.t().mm(stats) / stats.shape[0]
 
-    # Singular values
-    if aperture == -1:
-        return pca.singular_values_, pca.components_
-    else:
-        return pca.singular_values_ / (pca.singular_values_ + (1.0 / np.power(aperture, 2))), pca.components_
-    # end if
+    # Compute singular values
+    U, S, V = torch.svd(R)
+
+    return S, U
 # end compute_singular_values
 
 
