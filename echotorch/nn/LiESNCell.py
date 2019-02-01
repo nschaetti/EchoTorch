@@ -47,12 +47,19 @@ class LiESNCell(ESNCell):
         """
         super(LiESNCell, self).__init__(*args, **kwargs)
 
+        # Type
+        if self.dtype == torch.float32:
+            tensor_type = torch.FloatTensor
+        else:
+            tensor_type = torch.DoubleTensor
+        # end if
+
         # Params
         if train_leaky_rate:
-            self.leaky_rate = nn.Parameter(torch.Tensor(1).fill_(leaky_rate), requires_grad=True)
+            self.leaky_rate = nn.Parameter(tensor_type(1).fill_(leaky_rate), requires_grad=True)
         else:
             # Initialize bias
-            self.register_buffer('leaky_rate', Variable(torch.Tensor(1).fill_(leaky_rate), requires_grad=False))
+            self.register_buffer('leaky_rate', Variable(tensor_type(1).fill_(leaky_rate), requires_grad=False))
         # end if
     # end __init__
 
@@ -74,7 +81,7 @@ class LiESNCell(ESNCell):
         n_batches = int(u.size()[0])
 
         # Outputs
-        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
+        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype))
         outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
         # For each batch
