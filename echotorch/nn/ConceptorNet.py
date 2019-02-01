@@ -29,6 +29,7 @@ import torch
 import torch.nn as nn
 from .ConceptorNetCell import ConceptorNetCell
 from .RRCell import RRCell
+import matplotlib.pyplot as plt
 
 
 # ESN-based ConceptorNet
@@ -41,7 +42,9 @@ class ConceptorNet(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim=None, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
                  w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  leaky_rate=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
-                 with_bias=True, seed=None):
+                 with_bias=True, seed=None, washout=1, w_distrib='uniform', win_distrib='uniform',
+                 wbias_distrib='uniform', win_normal=(0.0, 1.0), w_normal=(0.0, 1.0), wbias_normal=(0.0, 1.0),
+                 w_ridge_param=0.0, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -63,6 +66,8 @@ class ConceptorNet(nn.Module):
 
         # Properties
         self.with_bias = with_bias
+        self.washout = washout
+        self.hidden_dim = hidden_dim
 
         # Recurrent layer
         self.esn_cell = ConceptorNetCell(leaky_rate, False, input_dim, hidden_dim, spectral_radius=spectral_radius,
@@ -70,15 +75,37 @@ class ConceptorNet(nn.Module):
                                          w=w, w_in=w_in, w_bias=w_bias, sparsity=sparsity, input_set=input_set,
                                          w_sparsity=w_sparsity, nonlin_func=nonlin_func, feedbacks=False,
                                          feedbacks_dim=input_dim, wfdb_sparsity=None,
-                                         normalize_feedbacks=False, seed=seed)
+                                         normalize_feedbacks=False, seed=seed, w_distrib=w_distrib,
+                                         win_distrib=win_distrib, wbias_distrib=wbias_distrib, win_normal=win_normal,
+                                         w_normal=w_normal, wbias_normal=wbias_normal, dtype=dtype)
         # end if
 
         # Input recreation weights layer (Ridge regression)
-        self.input_recreation = RRCell(hidden_dim, input_dim, ridge_param, None, with_bias, learning_algo)
+        self.input_recreation = RRCell(
+            hidden_dim,
+            hidden_dim,
+            w_ridge_param,
+            None,
+            with_bias=False,
+            learning_algo=learning_algo,
+            softmax_output=False,
+            averaged=True,
+            dtype=dtype
+        )
 
         # Output (state observer)
         if output_dim is not None:
-            self.output = RRCell(hidden_dim, output_dim, ridge_param, None, with_bias, learning_algo)
+            self.output = RRCell(
+                hidden_dim,
+                output_dim,
+                ridge_param,
+                None,
+                with_bias=False,
+                learning_algo=learning_algo,
+                softmax_output=False,
+                averaged=False,
+                dtype=dtype
+            )
         else:
             self.output = None
         # end if
@@ -127,6 +154,20 @@ class ConceptorNet(nn.Module):
         """
         return self.input_recreation.get_w_out()
     # end input_recreation_matrix
+
+    ###############################################
+    # PRIVATE
+    ###############################################
+
+    # Arctanh
+    def arctanh(self, x):
+        """
+        Inverse tanh
+        :param x:
+        :return:
+        """
+        return 0.5 * torch.log((1 + x) / (1 - x))
+    # end arctanh
 
     ###############################################
     # PUBLIC
@@ -179,26 +220,36 @@ class ConceptorNet(nn.Module):
                 reset_state=reset_state
             )
 
+            # Batch size and time length
+            batch_size = hidden_states.shape[0]
+
+            # X and Washout
+            x = hidden_states[:, self.washout:]
+            time_length = x.shape[1]
+
             # Past hidden states
-            batch_size, time_length, n_neurons = hidden_states.shape
-            past_hidden_states = torch.cat((torch.zeros(batch_size, time_length, n_neurons), hidden_states[:-1]), dim=1)
+            x_tilda = hidden_states[:, self.washout-1:-1]
+
+            # Bias
+            bias = self.esn_cell.w_bias[0].expand(batch_size, time_length, self.hidden_dim)
 
             # Learning input recreation
-            self.input_recreation(past_hidden_states, u)
+            self.input_recreation(x_tilda, self.arctanh(x) - bias)
 
             # Learning state observer
             if self.output is not None and y is not None:
-                self.output(hidden_states, y)
+                self.output(x, y[:, self.washout:])
             # end if
 
             # Learning conceptor
-            return c(hidden_states, hidden_states)
+            return c(x, x)
         elif c is None:
             hidden_states = self.esn_cell(
                 u,
-                reset_state=reset_state
+                reset_state=reset_state,
             )
-
+            # plt.imshow(hidden_states[0].t().numpy())
+            # plt.show()
             # Return outputs or states
             if self.output is not None:
                 return self.output(hidden_states)
@@ -207,7 +258,7 @@ class ConceptorNet(nn.Module):
             # end if
         else:
             hidden_states = self.esn_cell(
-                u=None,
+                u=u,
                 reset_state=reset_state,
                 input_recreation=self.input_recreation,
                 conceptor=c,
@@ -230,6 +281,11 @@ class ConceptorNet(nn.Module):
         """
         # Finalize input recreation training
         self.input_recreation.finalize()
+
+        # Finalize output
+        if self.output is not None:
+            self.output.finalize()
+        # end if
 
         # Not in training mode anymore
         self.train(False)
