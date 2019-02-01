@@ -43,7 +43,8 @@ class ESNCell(nn.Module):
                  w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  nonlin_func=torch.tanh, feedbacks=False, feedbacks_dim=None, wfdb_sparsity=None,
                  normalize_feedbacks=False, seed=None, w_distrib='uniform', win_distrib='uniform',
-                 wbias_distrib='uniform', win_normal=(0.0, 1.0), w_normal=(0.0, 1.0), wbias_normal=(0.0, 1.0)):
+                 wbias_distrib='uniform', win_normal=(0.0, 1.0), w_normal=(0.0, 1.0), wbias_normal=(0.0, 1.0),
+                 dtype=torch.float32):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -81,6 +82,7 @@ class ESNCell(nn.Module):
         self.win_normal = win_normal
         self.w_normal = w_normal
         self.wbias_normal = wbias_normal
+        self.dtype = dtype
 
         # Init hidden state
         self.register_buffer('hidden', self.init_hidden())
@@ -120,7 +122,7 @@ class ESNCell(nn.Module):
         n_batches = int(u.size()[0])
 
         # Outputs
-        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
+        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype))
         outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
         # For each batch
@@ -195,7 +197,7 @@ class ESNCell(nn.Module):
         Init hidden layer
         :return: Initiated hidden layer
         """
-        return Variable(torch.zeros(self.output_dim), requires_grad=False)
+        return Variable(torch.zeros(self.output_dim, dtype=self.dtype), requires_grad=False)
         # return torch.zeros(self.output_dim)
     # end init_hidden
 
@@ -229,7 +231,7 @@ class ESNCell(nn.Module):
         """
         # Initialize reservoir weight matrix
         if w is None:
-            w = self.generate_w(output_dim=self.output_dim, w_distrib=self.w_distrib, w_sparsity=self.w_sparsity, mean=self.w_normal[0], std=self.w_normal[1], seed=seed)
+            w = self.generate_w(output_dim=self.output_dim, w_distrib=self.w_distrib, w_sparsity=self.w_sparsity, mean=self.w_normal[0], std=self.w_normal[1], seed=seed, dtype=self.dtype)
         else:
             if callable(w):
                 w = w(self.output_dim)
@@ -259,9 +261,13 @@ class ESNCell(nn.Module):
             # Distribution
             if self.win_distrib == 'uniform':
                 w_in = self.generate_uniform_matrix(size=(self.output_dim, self.input_dim), sparsity=self.sparsity, input_set=self.input_set)
-                w_in = torch.from_numpy(w_in.astype(np.float32))
+                if self.dtype == torch.float32:
+                    w_in = torch.from_numpy(w_in.astype(np.float32))
+                else:
+                    w_in = torch.from_numpy(w_in.astype(np.float64))
+                # end if
             else:
-                w_in = self.generate_gaussian_matrix(size=(self.output_dim, self.input_dim), sparsity=self.sparsity, mean=self.win_normal[0], std=self.win_normal[1])
+                w_in = self.generate_gaussian_matrix(size=(self.output_dim, self.input_dim), sparsity=self.sparsity, mean=self.win_normal[0], std=self.win_normal[1], dtype=self.dtype)
             # end if
             w_in *= self.input_scaling
         else:
@@ -289,9 +295,13 @@ class ESNCell(nn.Module):
             # Distribution
             if self.w_distrib == 'uniform':
                 w_bias = self.generate_uniform_matrix(size=(1, self.output_dim), sparsity=1.0, input_set=[-1.0, 1.0])
-                w_bias = torch.from_numpy(w_bias.astype(np.float32))
+                if self.dtype == torch.float32:
+                    w_in = torch.from_numpy(w_bias.astype(np.float32))
+                else:
+                    w_in = torch.from_numpy(w_bias.astype(np.float64))
+                # end if
             else:
-                w_bias = self.generate_gaussian_matrix(size=(1, self.output_dim), sparsity=1.0, mean=self.wbias_normal[0], std=self.wbias_normal[1])
+                w_bias = self.generate_gaussian_matrix(size=(1, self.output_dim), sparsity=1.0, mean=self.wbias_normal[0], std=self.wbias_normal[1], dtype=self.dtype)
             # end if
             w_bias *= self.bias_scaling
         else:
@@ -327,7 +337,11 @@ class ESNCell(nn.Module):
                                                                          [self.wfdb_sparsity / len(
                                                                              self.input_set)] * len(
                                                                              self.input_set)))
-                w_fdb = torch.from_numpy(w_fdb.astype(np.float32))
+                if self.dtype == torch.float32:
+                    w_in = torch.from_numpy(w_fdb.astype(np.float32))
+                else:
+                    w_in = torch.from_numpy(w_fdb.astype(np.float64))
+                # end if
             # end if
         else:
             if callable(w_fdb):
@@ -363,18 +377,18 @@ class ESNCell(nn.Module):
 
     # Generate gaussian matrix
     @staticmethod
-    def generate_gaussian_matrix(size, sparsity, mean=0.0, std=1.0):
+    def generate_gaussian_matrix(size, sparsity, mean=0.0, std=1.0, dtype=torch.float32):
         """
         Generate gaussian Win matrix
         :return:
         """
         if sparsity is None:
-            w = torch.zeros(size)
+            w = torch.zeros(size, dtype=dtype)
             w = w.normal_(mean=mean, std=std)
         else:
-            w = torch.zeros(size)
+            w = torch.zeros(size, dtype=dtype)
             w = w.normal_(mean=mean, std=std)
-            mask = torch.zeros(size)
+            mask = torch.zeros(size, dtype=dtype)
             mask.bernoulli_(p=sparsity)
             w *= mask
         # end if
@@ -383,7 +397,7 @@ class ESNCell(nn.Module):
 
     # Generate W matrix
     @staticmethod
-    def generate_w(output_dim, w_distrib='uniform', w_sparsity=None, mean=0.0, std=1.0, seed=None):
+    def generate_w(output_dim, w_distrib='uniform', w_sparsity=None, mean=0.0, std=1.0, seed=None, dtype=torch.float32):
         """
         Generate W matrix
         :param output_dim:
@@ -401,7 +415,7 @@ class ESNCell(nn.Module):
             w = ESNCell.generate_uniform_matrix(size=(output_dim, output_dim), sparsity=w_sparsity, input_set=[-1.0, 1.0])
             w = torch.from_numpy(w.astype(np.float32))
         else:
-            w = ESNCell.generate_gaussian_matrix(size=(output_dim, output_dim), sparsity=w_sparsity, mean=mean, std=std)
+            w = ESNCell.generate_gaussian_matrix(size=(output_dim, output_dim), sparsity=w_sparsity, mean=mean, std=std, dtype=dtype)
         # end if
 
         return w
