@@ -42,7 +42,9 @@ class ESN(nn.Module):
                  w=None, w_in=None, w_bias=None, w_fdb=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
                  nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True,
                  feedbacks=False, with_bias=True, wfdb_sparsity=None, normalize_feedbacks=False,
-                 softmax_output=False, seed=None, washout=0):
+                 softmax_output=False, seed=None, washout=0, w_distrib='uniform', win_distrib='uniform',
+                 wbias_distrib='uniform', win_normal=(0.0, 1.0), w_normal=(0.0, 1.0), wbias_normal=(0.0, 1.0),
+                 dtype=torch.float32):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -69,16 +71,18 @@ class ESN(nn.Module):
         self.with_bias = with_bias
         self.normalize_feedbacks = normalize_feedbacks
         self.washout = washout
+        self.dtype = dtype
 
         # Recurrent layer
         if create_cell:
             self.esn_cell = ESNCell(input_dim, hidden_dim, spectral_radius, bias_scaling, input_scaling, w, w_in,
                                     w_bias, w_fdb, sparsity, input_set, w_sparsity, nonlin_func, feedbacks, output_dim,
-                                    wfdb_sparsity, normalize_feedbacks, seed)
+                                    wfdb_sparsity, normalize_feedbacks, seed, w_distrib, win_distrib, wbias_distrib,
+                                    win_normal, w_normal, wbias_normal, dtype)
         # end if
 
         # Ouput layer
-        self.output = RRCell(hidden_dim, output_dim, ridge_param, feedbacks, with_bias, learning_algo, softmax_output)
+        self.output = RRCell(hidden_dim, output_dim, ridge_param, feedbacks, with_bias, learning_algo, softmax_output, dtype)
     # end __init__
 
     ###############################################
