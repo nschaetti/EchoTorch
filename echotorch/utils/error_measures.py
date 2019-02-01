@@ -163,3 +163,34 @@ def cumperplexity(output_probs, targets, log=False):
     # Return
     return sum_log
 # end cumperplexity
+
+
+# Generalized squared cosine
+def generalized_squared_cosine(Sa, Ua, Sb, Ub):
+    """
+    Generalized square cosine
+    :param Sa:
+    :param Ua:
+    :param Sb:
+    :param Ub:
+    :return:
+    """
+    # Diag
+    Sa = torch.diag(Sa)
+    Sb = torch.diag(Sb)
+
+    # Compute Va and Vb
+    Va = torch.sqrt(Sa).mm(Ua.t())
+    Vb = Ub.mm(torch.sqrt(Sb))
+
+    # Vab
+    Vab = Va.mm(Vb)
+
+    # Num
+    num = torch.pow(torch.norm(Vab), 2)
+
+    # Den
+    den = torch.norm(torch.diag(Sa), p=2) * torch.norm(torch.diag(Sb), p=2)
+
+    return num / den
+# end generalized_squared_cosine
