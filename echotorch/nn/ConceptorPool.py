@@ -41,20 +41,58 @@ class ConceptorPool(object):
     """
 
     # Contructor
-    def __init__(self, conceptors=list(), dtype=torch.float32):
+    def __init__(self, conceptor_dim, conceptors=list(), dtype=torch.float32):
         """
         Constructor
         :param conceptors:
         """
         # Properties
+        self.conceptor_dim = conceptor_dim
         self.conceptors = conceptors
         self.name_to_conceptor = {}
         self.dtype = dtype
     # end __init__
 
     ###############################################
+    # PROPERTIES
+    ###############################################
+
+    # Quota
+    @property
+    def quota(self):
+        """
+        Quota
+        :return:
+        """
+        # OR for all conceptor
+        for i, c in self.conceptors:
+            if i == 0:
+                M = c
+            else:
+                M = c.logical_or(M)
+            # nd if
+        # end for
+
+        # Quota is the sum of SV
+        return float(
+            torch.sum(M.mm(torch.eye(self.conceptor_dim, dtype=self.dtype))) / self.conceptor_dim
+        )
+    # end quota
+
+    ###############################################
     # PUBLIC
     ###############################################
+
+    # Finalize all conceptors
+    def finalize(self):
+        """
+        Finalize all conceptors
+        :return:
+        """
+        for c in self.conceptors:
+            c.finalize()
+        # end for
+    # end finalize
 
     # Evidence for each conceptor
     def E(self):
@@ -66,15 +104,14 @@ class ConceptorPool(object):
     # end E
 
     # New conceptor
-    def add(self, conceptor_dim, aperture, name):
+    def add(self, aperture, name):
         """
         New conceptor
-        :param conceptor_dim: Conceptor's dim
         :param aperture: Aperture
         :param name: Conceptor's name
         :return: New conceptor
         """
-        new_conceptor = Conceptor(conceptor_dim, aperture=aperture, name=name, dtype=self.dtype)
+        new_conceptor = Conceptor(self.conceptor_dim, aperture=aperture, name=name, dtype=self.dtype)
         self.conceptors.append(new_conceptor)
         self.name_to_conceptor[name] = new_conceptor
         return new_conceptor
