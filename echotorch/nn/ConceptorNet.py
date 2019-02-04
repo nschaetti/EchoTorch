@@ -206,7 +206,7 @@ class ConceptorNet(nn.Module):
     # end set_w
 
     # Forward
-    def forward(self, u=None, y=None, c=None, reset_state=True, length=None):
+    def forward(self, u=None, y=None, c=None, reset_state=True, length=None, mu=None):
         """
         Forward
         :param u: Input signal.
@@ -262,7 +262,8 @@ class ConceptorNet(nn.Module):
                 reset_state=reset_state,
                 input_recreation=self.input_recreation,
                 conceptor=c,
-                length=length
+                length=length,
+                mu=mu
             )
 
             # Return outputs of states

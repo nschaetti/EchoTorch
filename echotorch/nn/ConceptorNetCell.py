@@ -28,6 +28,8 @@ import torch
 import torch.sparse
 from torch.autograd import Variable
 from .LiESNCell import LiESNCell
+from .Conceptor import Conceptor
+from .ConceptorPool import ConceptorPool
 
 
 # Special reservoir layer for Conceptors
@@ -51,7 +53,7 @@ class ConceptorNetCell(LiESNCell):
     ###############################################
 
     # Forward
-    def forward(self, u=None, y=None, w_out=None, reset_state=True, input_recreation=None, conceptor=None, length=None):
+    def forward(self, u=None, y=None, w_out=None, reset_state=True, input_recreation=None, conceptor=None, length=None, mu=None):
         """
         Forward execution
         :param u:
@@ -101,15 +103,12 @@ class ConceptorNetCell(LiESNCell):
 
                     # Add everything
                     x = u_win + x_w + self.w_bias
-                    """if t == 500:
-                        print(u_win + x_w)
-                    # end if"""
+
                     # Apply activation function
                     x = self.nonlin_func(x)
 
                     # Add to outputs
                     self.hidden.data = x.view(-1).data
-                    # self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data
 
                     # New last state
                     outputs[b, t] = self.hidden
@@ -138,7 +137,13 @@ class ConceptorNetCell(LiESNCell):
                     x = self.nonlin_func(x)
 
                     # Apply conceptor
-                    xc = conceptor(x.view(1, 1, -1)).view(-1)
+                    if type(conceptor) is Conceptor:
+                        xc = conceptor(x.view(1, 1, -1)).view(-1)
+                    elif type(conceptor) is ConceptorPool:
+                        # Apply morphing
+                        M = Conceptor.morphing(mu[b, t])
+                        xc = M(x.view(1, 1, -1)).view(-1)
+                    # end if
 
                     # New hidden
                     self.hidden.data = xc.data
