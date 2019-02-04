@@ -141,7 +141,7 @@ class ConceptorNetCell(LiESNCell):
                         xc = conceptor(x.view(1, 1, -1)).view(-1)
                     elif type(conceptor) is ConceptorPool:
                         # Apply morphing
-                        M = Conceptor.morphing(mu[b, t])
+                        M = conceptor.morphing(mu[b, t])
                         xc = M(x.view(1, 1, -1)).view(-1)
                     # end if
 
