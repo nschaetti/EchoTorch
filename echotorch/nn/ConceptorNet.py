@@ -248,8 +248,7 @@ class ConceptorNet(nn.Module):
                 u,
                 reset_state=reset_state,
             )
-            # plt.imshow(hidden_states[0].t().numpy())
-            # plt.show()
+
             # Return outputs or states
             if self.output is not None:
                 return self.output(hidden_states)
