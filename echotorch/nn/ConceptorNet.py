@@ -173,6 +173,19 @@ class ConceptorNet(nn.Module):
     # PUBLIC
     ###############################################
 
+    # Mode
+    def set_train(self):
+        """
+        Mode
+        :return:
+        """
+        self.train(True)
+        self.input_recreation.train(True)
+        if self.output is not None:
+            self.output.train(True)
+        # end if
+    # end set_train
+
     # Reset learning
     def reset(self):
         """
@@ -206,7 +219,7 @@ class ConceptorNet(nn.Module):
     # end set_w
 
     # Forward
-    def forward(self, u=None, y=None, c=None, reset_state=True, length=None, mu=None):
+    def forward(self, u=None, y=None, c=None, reset_state=True, length=None, mu=None, return_states=False):
         """
         Forward
         :param u: Input signal.
@@ -250,7 +263,7 @@ class ConceptorNet(nn.Module):
             )
 
             # Return outputs or states
-            if self.output is not None:
+            if self.output is not None and not return_states:
                 return self.output(hidden_states)
             else:
                 return hidden_states
@@ -275,7 +288,7 @@ class ConceptorNet(nn.Module):
     # end forward
 
     # Finish training
-    def finalize(self):
+    def finalize(self, train=False):
         """
         Finalize training with LU factorization
         """
@@ -288,7 +301,7 @@ class ConceptorNet(nn.Module):
         # end if
 
         # Not in training mode anymore
-        self.train(False)
+        self.train(train)
     # end finalize
 
     # Reset hidden layer
