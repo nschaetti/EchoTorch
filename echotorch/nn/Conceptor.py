@@ -55,6 +55,7 @@ class Conceptor(RRCell):
         self.aperture = aperture
         self.name = name
         self.n_samples = 0.0
+        self.attenuation = 0.0
 
         # Set it as buffer
         self.register_buffer('R', Variable(torch.zeros(self.x_size, self.x_size, dtype=self.dtype), requires_grad=False))
@@ -106,11 +107,7 @@ class Conceptor(RRCell):
         :param new_a:
         :return:
         """
-        # Conceptor matrix
-        c = self.C.clone()
-
-        # New tensor
-        self.C = c.mm(torch.inverse(c + m.pow(new_a / self.aperture, -2) * (torch.eye(self.conceptor_dim, dtype=self.dtype) - c)))
+        self.C = Conceptor.phi_function(self.C, new_a / self.aperture)
     # end set_aperture
 
     # Multiply aperture
@@ -120,12 +117,31 @@ class Conceptor(RRCell):
         :param factor:
         :return:
         """
-        # Conceptor matrix
-        c = self.C.clone()
-
-        # New tensor
-        self.C = c.mm(torch.inverse(c + m.pow(factor, -2) * (torch.eye(self.conceptor_dim, dtype=self.dtype) - c)))
+        self.C = Conceptor.phi_function(self.C, factor)
     # end multiply_aperture
+
+    # Compute Delta measure
+    def delta_measure(self, gamma, epsilon=0.01):
+        """
+        Compute Delta measure
+        :param gamma:
+        :param epsilon:
+        :return:
+        """
+        # Conceptor matrix for both sides
+        A = Conceptor.phi_function(self.C, gamma - epsilon)
+        B = Conceptor.phi_function(self.C, gamma + epsilon)
+
+        # Gradient in Frobenius norm of matrix
+        A_norm = torch.norm(A)
+        B_norm = torch.norm(B)
+        d_C_norm = torch.abs(B_norm - A_norm)
+
+        # Change in log(gamma)
+        d_log_gamma = torch.log2(gamma + epsilon) - torch.log2(gamma - epsilon)
+
+        return d_C_norm / d_log_gamma
+    # end delta_measure
 
     # Output matrix
     def get_C(self):
@@ -178,6 +194,9 @@ class Conceptor(RRCell):
             for b in range(batch_size):
                 outputs[b] = torch.mm(x[b], self.C)
             # end for
+
+            # Compute attenuation
+            self.attenuation = torch.mean(torch.pow(torch.abs(x - outputs), 2)) / torch.mean(torch.pow(torch.abs(x), 2))
 
             return outputs
         # end if
@@ -234,6 +253,24 @@ class Conceptor(RRCell):
     ###############################################
     # STATIC
     ###############################################
+
+    # Multiply aperture matrix
+    @staticmethod
+    def phi_function(C, gamma):
+        """
+        Multiply aperture matrix
+        :param c:
+        :param gamma:
+        :return:
+        """
+        # Conceptor matrix
+        c = C.clone()
+        conceptor_dim = c.shape[0]
+        dtype = c.dtype
+
+        # New tensor
+        return c.mm(torch.inverse(c + m.pow(gamma, -2) * (torch.eye(conceptor_dim, dtype=dtype) - c)))
+    # end phi_function
 
     # Morphing patterns
     @staticmethod
