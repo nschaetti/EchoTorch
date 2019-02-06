@@ -32,6 +32,7 @@ import math
 from echotorch.utils import generalized_squared_cosine
 import math as m
 from torch.autograd import Variable
+import matplotlib.pyplot as plt
 
 
 # Conceptor
@@ -86,7 +87,17 @@ class Conceptor(RRCell):
 
     ###############################################
     # PUBLIC
-    ###############################################
+    ###############################################4
+
+    # Show the conceptor matrix
+    def show(self):
+        """
+        Show the conceptor matrix
+        :return:
+        """
+        plt.imshow(self.C, cmap='Greys')
+        plt.show()
+    # end show
 
     # Change aperture
     def set_aperture(self, new_a):
