@@ -238,7 +238,7 @@ class ConceptorPool(object):
         Evidence for each conceptor
         :return:
         """
-        return self.E_plus(p) + self.E_neg(p)
+        return (self.E_plus(p) + self.E_neg(p)) / 2.0
     # end E
 
     # New conceptor
