@@ -143,6 +143,8 @@ class ConceptorNetCell(LiESNCell):
                         # Apply morphing
                         M = conceptor.morphing(mu[b, t])
                         xc = M(x.view(1, 1, -1)).view(-1)
+                    else:
+                        xc = x.view(-1)
                     # end if
 
                     # New hidden
