@@ -33,6 +33,7 @@ from echotorch.utils import generalized_squared_cosine
 import math as m
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 # Conceptor
@@ -135,10 +136,10 @@ class Conceptor(RRCell):
         # Gradient in Frobenius norm of matrix
         A_norm = torch.norm(A)
         B_norm = torch.norm(B)
-        d_C_norm = torch.abs(B_norm - A_norm)
+        d_C_norm = np.abs(B_norm - A_norm)
 
         # Change in log(gamma)
-        d_log_gamma = torch.log2(gamma + epsilon) - torch.log2(gamma - epsilon)
+        d_log_gamma = np.log2(gamma + epsilon) - np.log2(gamma - epsilon)
 
         return d_C_norm / d_log_gamma
     # end delta_measure
