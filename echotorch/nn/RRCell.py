@@ -162,7 +162,7 @@ class RRCell(nn.Module):
     # end forward
 
     # Finish training
-    def finalize(self):
+    def finalize(self, train=False):
         """
         Finalize training with LU factorization or Pseudo-inverse
         """
@@ -186,7 +186,7 @@ class RRCell(nn.Module):
         # end if
 
         # Not in training mode anymore
-        self.train(False)
+        self.train(train)
     # end finalize
 
     ###############################################
