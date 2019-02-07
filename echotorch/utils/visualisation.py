@@ -54,19 +54,23 @@ def show_conceptors_similarity_matrix(conceptors, title):
     :param title:
     :return:
     """
+    # Labels
+    labels = list()
+
     # Similarity matrix
     sim_matrix = torch.zeros(len(conceptors), len(conceptors))
     for i, ca in enumerate(conceptors):
+        labels.append(ca.name)
         for j, cb in enumerate(conceptors):
             sim_matrix[i, j] = ca.sim(cb)
         # end for
     # end for
-    show_similarity_matrix(sim_matrix, title)
+    show_similarity_matrix(sim_matrix, title, labels, labels)
 # end conceptors_similarity_matrix
 
 
 # Show similarity matrix
-def show_similarity_matrix(sim_matrix, title):
+def show_similarity_matrix(sim_matrix, title, column_labels=None, row_labels=None):
     """
     Show similarity matrix
     :param sim_matrix:
@@ -74,11 +78,15 @@ def show_similarity_matrix(sim_matrix, title):
     """
     # Get cmap
     cmap = plt.cm.get_cmap('Greens')
-    fig, ax = plt.subplots(figsize=(sim_matrix.shape[0], sim_matrix.shape[0]))
-    cax = ax.matshow(sim_matrix, interpolation='nearest', cmap=cmap)
-    ax.grid(True)
+    fig = plt.figure()
     plt.title(title)
-    fig.colorbar(cax, ticks=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, .75, .8, .85, .90, .95, 1])
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(sim_matrix, interpolation='nearest', cmap=cmap)
+    fig.colorbar(cax)
+    ax.set_xticks(np.arange(len(row_labels)))
+    ax.set_yticks(np.arange(len(column_labels)))
+    ax.set_xticklabels(row_labels, rotation=90)
+    ax.set_yticklabels(column_labels)
     plt.show()
 # end show_similarity_matrix
 
