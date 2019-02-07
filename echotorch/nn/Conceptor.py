@@ -89,7 +89,16 @@ class Conceptor(RRCell):
 
     ###############################################
     # PUBLIC
-    ###############################################4
+    ###############################################
+
+    # Clone
+    def clone(self):
+        """
+        Clone
+        :return:
+        """
+        return Conceptor(conceptor_dim=self.conceptor_dim, aperture=self.aperture, name=self.name, conceptor_matrix=self.C, dtype=self.dtype)
+    # end clone
 
     # Show the conceptor matrix
     def show(self):
@@ -109,6 +118,7 @@ class Conceptor(RRCell):
         :return:
         """
         self.C = Conceptor.phi_function(self.C, new_a / self.aperture)
+        self.aperture = new_a
     # end set_aperture
 
     # Multiply aperture
@@ -119,7 +129,37 @@ class Conceptor(RRCell):
         :return:
         """
         self.C = Conceptor.phi_function(self.C, factor)
+        self.aperture *= factor
     # end multiply_aperture
+
+    # Plot delta measure
+    def plot_delta_measure(self, start, end, steps=50):
+        """
+        Plot delta measure
+        :param start:
+        :param end:
+        :return:
+        """
+        # Gamma values
+        gamma_values = torch.logspace(start=start, end=end, steps=steps)
+
+        # Log10 of gamma values
+        gamma_log_values = torch.log10(gamma_values)
+
+        # Delta measures
+        C_norms = torch.zeros(steps)
+        delta_scores = torch.zeros(steps)
+
+        # For each gamma measure
+        for i, gamma in enumerate(gamma_values):
+            delta_scores[i], C_norms[i] = self.delta_measure(float(gamma), epsilon=0.1)
+        # end for
+
+        # Plot
+        plt.plot(gamma_log_values.numpy(), delta_scores.numpy())
+        plt.plot(gamma_log_values.numpy(), C_norms.numpy())
+        plt.show()
+    # end plot_delta_measure
 
     # Compute Delta measure
     def delta_measure(self, gamma, epsilon=0.01):
@@ -136,12 +176,12 @@ class Conceptor(RRCell):
         # Gradient in Frobenius norm of matrix
         A_norm = torch.norm(A)
         B_norm = torch.norm(B)
-        d_C_norm = np.abs(B_norm - A_norm)
+        d_C_norm = B_norm - A_norm
 
         # Change in log(gamma)
         d_log_gamma = np.log2(gamma + epsilon) - np.log2(gamma - epsilon)
 
-        return d_C_norm / d_log_gamma
+        return d_C_norm / d_log_gamma, d_C_norm
     # end delta_measure
 
     # Output matrix
@@ -373,7 +413,13 @@ class Conceptor(RRCell):
         conceptor_matrix = torch.inverse(I + torch.inverse(C.mm(torch.inverse(I - C)) + B.mm(torch.inverse(I - B))))
 
         # Set conceptor
-        new_c = Conceptor(conceptor_dim=self.conceptor_dim, conceptor_matrix=conceptor_matrix, dtype=self.dtype)
+        new_c = Conceptor(
+            conceptor_dim=self.conceptor_dim,
+            conceptor_matrix=conceptor_matrix,
+            name="({} OR {})".format(self.name, c.name),
+            aperture=math.sqrt(math.pow(self.aperture, 2) + math.pow(c.aperture, 2)),
+            dtype=self.dtype
+        )
 
         return new_c
     # end logical_or
@@ -402,7 +448,13 @@ class Conceptor(RRCell):
         conceptor_matrix = torch.eye(self.conceptor_dim, dtype=self.dtype) - C
 
         # Set conceptor
-        new_c = Conceptor(conceptor_dim=self.conceptor_dim, conceptor_matrix=conceptor_matrix, dtype=self.dtype)
+        new_c = Conceptor(
+            conceptor_dim=self.conceptor_dim,
+            conceptor_matrix=conceptor_matrix,
+            name="NOT {}".format(self.name),
+            aperture=1.0 / self.aperture,
+            dtype=self.dtype
+        )
 
         return new_c
     # end logical_not
@@ -431,7 +483,13 @@ class Conceptor(RRCell):
         conceptor_matrix = torch.inverse(torch.inverse(C) + torch.inverse(B) + torch.eye(self.conceptor_dim, dtype=self.dtype))
 
         # Set conceptor
-        new_c = Conceptor(conceptor_dim=self.conceptor_dim, conceptor_matrix=conceptor_matrix, dtype=self.dtype)
+        new_c = Conceptor(
+            conceptor_dim=self.conceptor_dim,
+            conceptor_matrix=conceptor_matrix,
+            name="({} AND {})".format(self.name, c.name),
+            aperture=math.pow(math.pow(self.aperture, -2) + math.pow(c.aperture, -2), -0.5),
+            dtype=self.dtype
+        )
 
         return new_c
     # end logical_and
