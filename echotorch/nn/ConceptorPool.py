@@ -94,14 +94,7 @@ class ConceptorPool(object):
         Get similarity matrix
         :return:
         """
-        # Similarity matrix
-        sim_matrix = torch.zeros(len(self.conceptors), len(self.conceptors))
-        for i, ca in enumerate(self.conceptors):
-            for j, cb in enumerate(self.conceptors):
-                sim_matrix[i, j] = ca.sim(cb)
-            # end for
-        # end for
-        return sim_matrix
+        return ConceptorPool.compute_similarity_matrix(self.conceptors)
     # end similarity_matrix
 
     # Finalize conceptor
@@ -133,28 +126,7 @@ class ConceptorPool(object):
         :param x: states (x)
         :return:
         """
-        # Sizes
-        batch_size = p.shape[0]
-        n_conceptors = len(self.conceptors)
-        time_length = p.shape[1]
-
-        # List of evidences
-        evidences = torch.zeros(batch_size, time_length, n_conceptors)
-
-        # Compute hidden states
-        x = self.esn(u=p, return_states=True)
-
-        # For each batch
-        for b in range(batch_size):
-            # Time
-            for t in range(time_length):
-                # For each conceptors
-                for i, c in enumerate(self.conceptors):
-                    evidences[b, t, i] = torch.mm(x[b, t].view(1, -1), c.get_C()).mm(x[b, t].view(-1, 1))
-                # end for
-            # end for
-        # end for
-        return torch.mean(evidences, dim=1)
+        return ConceptorPool.compute_E_plus(self.conceptors, self.esn, p)
     # end E_plus
 
     # Evidence for other
@@ -255,6 +227,69 @@ class ConceptorPool(object):
         return new_conceptor
     # end add
 
+    # Add an OR between conceptors
+    def add_or(self, i, j):
+        """
+        Add an OR between conceptors
+        :param i:
+        :param j:
+        :return:
+        """
+        self.append(self.conceptors[i].logical_or(self.conceptors[j]))
+    # end for
+
+    # Add an AND between conceptors
+    def add_and(self, i, j):
+        """
+        Add an AND between conceptors
+        :param i:
+        :param j:
+        :return:
+        """
+        self.append(self.conceptors[i].logical_and(self.conceptors[j]))
+    # end for
+
+    # Add a NOT of a conceptor
+    def add_not(self, i):
+        """
+        Add an OR between conceptors
+        :param i:
+        :return:
+        """
+        self.append(self.conceptors[i].logical_not())
+    # end for
+
+    # Add (C1 OR ... OR CN)
+    def add_A(self):
+        """
+        Add an OR between conceptors
+        :param i:
+        :return:
+        """
+        # Compute A
+        A = ConceptorPool.compute_A(self.conceptors)
+
+        # Append
+        self.append(A)
+    # end for
+
+    # Add NOT (C1 OR ... OR CN)
+    def add_Not_A(self):
+        """
+        Add an OR between conceptors
+        :param i:
+        :return:
+        """
+        # Compute A
+        A = ConceptorPool.compute_A(self.conceptors)
+
+        # Not A
+        N = A.logical_not()
+
+        # Append
+        self.append(N)
+    # end for
+
     # Append a conceptor
     def append(self, c):
         """
@@ -263,7 +298,7 @@ class ConceptorPool(object):
         :return:
         """
         self.conceptors.append(c)
-        self.conceptors[c.name] = c
+        self.name_to_conceptor[c.name] = c
     # end append
 
     # Morphing patterns
@@ -302,6 +337,17 @@ class ConceptorPool(object):
         # end if
     # end __getitem__
 
+    # Set item
+    def __setitem__(self, key, value):
+        """
+        Set item
+        :param key:
+        :param value:
+        :return:
+        """
+        self.conceptors[key] = value
+    # end __setitem__
+
     # Length
     def __len__(self):
         """
@@ -314,6 +360,55 @@ class ConceptorPool(object):
     ###############################################
     # STATIC
     ###############################################
+
+    # Get similarity matrix
+    @staticmethod
+    def compute_similarity_matrix(conceptors):
+        """
+        Get similarity matrix
+        :return:
+        """
+        # Similarity matrix
+        sim_matrix = torch.zeros(len(conceptors), len(conceptors))
+        for i, ca in enumerate(conceptors):
+            for j, cb in enumerate(conceptors):
+                sim_matrix[i, j] = ca.sim(cb)
+            # end for
+        # end for
+        return sim_matrix
+    # end similarity_matrix
+
+    # Positive evidence
+    @staticmethod
+    def compute_E_plus(conceptors, esn, p):
+        """
+        Positive evidence
+        :param x: states (x)
+        :return:
+        """
+        # Sizes
+        batch_size = p.shape[0]
+        n_conceptors = len(conceptors)
+        time_length = p.shape[1]
+
+        # List of evidences
+        evidences = torch.zeros(batch_size, time_length, n_conceptors)
+
+        # Compute hidden states
+        x = esn(u=p, return_states=True)
+
+        # For each batch
+        for b in range(batch_size):
+            # Time
+            for t in range(time_length):
+                # For each conceptors
+                for i, c in enumerate(conceptors):
+                    evidences[b, t, i] = torch.mm(x[b, t].view(1, -1), c.get_C()).mm(x[b, t].view(-1, 1))
+                # end for
+            # end for
+        # end for
+        return torch.mean(evidences, dim=1)
+    # end E_plus
 
     # Get singular values of A
     @staticmethod
@@ -348,6 +443,8 @@ class ConceptorPool(object):
                 A = c.logical_or(A)
             # end if
         # end for
+        A.name = "A"
+
         return A
     # end compute_A
 
