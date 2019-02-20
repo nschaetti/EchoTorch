@@ -3,15 +3,17 @@
 
 # Imports
 import torch
+from torch.nn.functional import interpolate
 from sklearn.decomposition import PCA
 import numpy as np
 from error_measures import generalized_squared_cosine
 from .error_measures import nrmse
 import math
+import matplotlib.pyplot as plt
 
 
 # Find phase shift
-def find_phase_shift(s1, s2, window_size, error_measure=nrmse):
+def find_phase_shift(p, y, interpolation_rate, error_measure=nrmse):
     """
     Find phase shift
     :param s1:
@@ -19,31 +21,40 @@ def find_phase_shift(s1, s2, window_size, error_measure=nrmse):
     :param window_size:
     :return:
     """
-    # Origin window
-    s2_window = s2[:window_size]
+    # Size
+    p_length = p.size(0)
+    y_length = y.size(0)
 
-    # List of shift and error
-    list_of_shift = list()
+    # 1D
+    p = p.view(-1)
+    y = y.view(-1)
 
-    # Sliding window
-    for i in np.arange(0, s1.shape[0] - window_size, 1):
-        # Integer
-        i = int(i)
+    # Interpolate p and y
+    p_int = torch.from_numpy(np.interp(np.arange(0, p_length, 1.0 / interpolation_rate), np.arange(p_length), p.numpy()))
+    y_int = torch.from_numpy(np.interp(np.arange(0, y_length, 1.0 / interpolation_rate), np.arange(y_length), y.numpy()))
 
-        # Window
-        s1_window = s1[i:i+window_size]
+    # New shape
+    L = y_int.shape[0]
+    M = p_int.shape[0]
 
-        # Measure difference
-        measure_diff = error_measure(s1_window, s2_window)
-
-        # Add
-        list_of_shift.append((i, round(measure_diff, 2), measure_diff))
+    # Find best phase
+    phasematches = torch.zeros(L - M)
+    for phaseshift in range(L - M):
+        phasematches[phaseshift] = torch.norm(p_int - y_int[phaseshift:phaseshift + M], p=2)
     # end for
 
-    # Sorted
-    list_of_shift = sorted(list_of_shift, key=lambda x: (x[1], x[0]))
+    # Best phase
+    max_index = torch.argmax(-phasematches)
+    # Matching phase
+    y_aligned = y_int[np.arange(max_index, max_index + interpolation_rate * p_length, interpolation_rate)]
 
-    return list_of_shift[0][0], list_of_shift[0][2]
+    # Original phase
+    original_phase = np.ceil(max_index / interpolation_rate)
+
+    # Error after alignment
+    error_aligned = error_measure(y_aligned.reshape(1, -1), p.reshape(1, -1))
+
+    return p, y_aligned, original_phase, error_aligned
 # end find_phase_shift
 
 
