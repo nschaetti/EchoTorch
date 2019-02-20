@@ -174,13 +174,22 @@ class Conceptor(RRCell):
         B = Conceptor.phi_function(self.C, gamma + epsilon)
 
         # Gradient in Frobenius norm of matrix
-        A_norm = torch.norm(A)
-        B_norm = torch.norm(B)
+        A_norm = math.pow(torch.norm(A, p=2), 2)
+        B_norm = math.pow(torch.norm(B, p=2), 2)
         d_C_norm = B_norm - A_norm
 
         # Change in log(gamma)
-        d_log_gamma = np.log2(gamma + epsilon) - np.log2(gamma - epsilon)
-
+        d_log_gamma = np.log(gamma + epsilon) - np.log(gamma - epsilon)
+        """if d_C_norm / d_log_gamma > 50.0:
+            print(A)
+            print(B)
+            print(torch.norm(A, p=2))
+            print(torch.norm(B, p=2))
+            print(d_C_norm)
+            print(gamma)
+            print(d_C_norm / d_log_gamma)
+            exit()
+        # end if"""
         return d_C_norm / d_log_gamma, d_C_norm
     # end delta_measure
 
