@@ -18,7 +18,7 @@ class SinusoidalTimeseries(Dataset):
     """
 
     # Constructor
-    def __init__(self, sample_len, n_samples, w, a=1, g=None, seed=None):
+    def __init__(self, sample_len, n_samples, w, a=1, start=0, u=0.0, seed=None):
         """
         Constructor
         :param sample_len: Length of the time-series in time steps.
@@ -32,7 +32,8 @@ class SinusoidalTimeseries(Dataset):
         self.n_samples = n_samples
         self.w = w
         self.a = a
-        self.g = g
+        self.start = start
+        self.u = u
 
         # Seed
         if seed is not None:
@@ -108,19 +109,10 @@ class SinusoidalTimeseries(Dataset):
             # Tensor
             sample = torch.zeros(self.sample_len, 1)
 
-            # Random start
-            if self.g is None:
-                # Init
-                init_g = self.random_initial_points()
-
-                for t in range(0, self.sample_len):
-                    sample[t, 0] = self.a * math.sin(self.w * t + init_g)
-                # end for
-            else:
-                for t in range(0, self.sample_len):
-                    sample[t, 0] = self.a * math.sin(self.w * t + self.g)
-                # end for
-            # end if
+            # Time steps
+            for t in range(self.sample_len):
+                sample[t, 0] = self.a * math.sin(2.0 * math.pi * ((t + self.start) / self.w)) + self.u
+            # end for
 
             # Append
             samples.append(sample)
