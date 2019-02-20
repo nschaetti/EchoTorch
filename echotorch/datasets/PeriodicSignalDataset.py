@@ -14,7 +14,7 @@ class PeriodicSignalDataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, sample_len, period, n_samples, start=0):
+    def __init__(self, sample_len, period, n_samples, height=1.8, start=0, dtype=torch.float32):
         """
         Constructor
         :param sample_len: Sample's length
@@ -25,6 +25,8 @@ class PeriodicSignalDataset(Dataset):
         self.n_samples = n_samples
         self.period = period
         self.start = start
+        self.height = height
+        self.dtype = dtype
 
         # Period length
         if type(period) is list:
@@ -73,21 +75,24 @@ class PeriodicSignalDataset(Dataset):
         # List of samples
         samples = list()
 
+        # Pattern
+        maxVal = torch.max(self.period)
+        minVal = torch.min(self.period)
+        rp = self.height * (self.period - minVal) / (maxVal - minVal) - (self.height / 2.0)
+        p_length = rp.size(0)
+
         # For each sample
         for i in range(self.n_samples):
             # Tensor
-            period_tensor = torch.FloatTensor(self.period)
-            sample = period_tensor.repeat(int(self.sample_len // self.period_length) + 1)
+            sample = torch.zeros(self.sample_len, 1, dtype=self.dtype)
 
-            # Start
-            if type(self.start) is list:
-                start = self.start[i]
-            else:
-                start = self.start
-            # end if
+            # Timestep
+            for t in range(self.sample_len):
+                sample[t, 0] = rp[(t + self.start) % p_length]
+            # end for
 
             # Append
-            samples.append(sample[start:start+self.sample_len].unsqueeze(-1))
+            samples.append(sample)
         # end for
 
         return samples
