@@ -5,6 +5,7 @@
 import torch
 from torch.utils.data.dataset import Dataset
 from random import shuffle
+import numpy as np
 
 
 # Henon Attractor
@@ -16,7 +17,7 @@ class HenonAttractor(Dataset):
     """
 
     # Constructor
-    def __init__(self, sample_len, n_samples, a=1.4, b=0.3, x=0.0, y=0.0, start=0, dt=0.01, normalize=False, mult=1.0):
+    def __init__(self, sample_len, n_samples, xy, a=1.4, b=0.3, washout=0, normalize=False, seed=None):
         """
         Constructor
         :param sample_len: Length of the time-series in time steps.
@@ -30,12 +31,14 @@ class HenonAttractor(Dataset):
         self.n_samples = n_samples
         self.a = a
         self.b = b
-        self.init_x = x
-        self.init_y = y
-        self.dt = dt
+        self.xy = xy
         self.normalize = normalize
-        self.mult = mult
-        self.start = start
+        self.washout = washout
+
+        # Seed
+        if seed is not None:
+            torch.initial_seed(seed)
+        # end if
 
         # Generate data set
         self.outputs = self._generate()
@@ -102,42 +105,46 @@ class HenonAttractor(Dataset):
         Generate dataset
         :return:
         """
-        # List of samples
-        outputs = list()
-
         # Sizes
-        total_size = self.start + self.sample_len * self.n_samples
-
-        # Tensor
-        samples = torch.zeros(total_size, 2)
+        total_size = self.sample_len
 
         # First position
-        samples[0, 0] = self.init_x
-        samples[0, 1] = self.init_y
+        xy = self.xy
 
-        for t in range(1, total_size):
-            # Derivatives of the X, Y, Z state
-            x_dot, y_dot = self._henon(samples[t - 1, 0], samples[t - 1, 1])
-            samples[t, 0] = samples[t - 1, 0] + (x_dot * self.dt)
-            samples[t, 1] = samples[t - 1, 1] + (y_dot * self.dt)
+        # Samples
+        samples = list()
+
+        # Washout
+        for t in range(self.washout):
+            xy = self._henon(xy[0], xy[1])
         # end for
 
-        # Normalize
-        if self.normalize:
-            mu = torch.mean(samples)
-            std = torch.std(samples)
-            samples = ((samples - mu) / std) * self.mult
-        # end if
+        # For each sample
+        for n in range(self.n_samples):
+            # Tensor
+            sample = torch.zeros(total_size, 2)
 
-        # For each samples
-        for i in range(self.start, total_size, self.sample_len):
-            outputs.append(samples[i:i + self.sample_len])
+            # Timesteps
+            for t in range(total_size):
+                xy = self._henon(xy[0], xy[1])
+                sample[t] = xy
+            # end for
+
+            # Normalize
+            if self.normalize:
+                maxval = torch.max(sample, dim=0)
+                minval = torch.min(sample, dim=0)
+                sample = torch.mm(torch.inv(torch.diag(maxval - minval)), (sample - minval.repeat(total_size, 1)))
+            # end if
+
+            # Add
+            samples.append(sample)
         # end for
 
         # Shuffle
-        shuffle(outputs)
+        shuffle(samples)
 
-        return outputs
+        return samples
     # end _generate
 
 # end HenonAttractor
