@@ -17,7 +17,7 @@ class HenonAttractor(Dataset):
     """
 
     # Constructor
-    def __init__(self, sample_len, n_samples, xy, a=1.4, b=0.3, washout=0, normalize=False, seed=None):
+    def __init__(self, sample_len, n_samples, xy, a, b, washout=0, normalize=False, seed=None):
         """
         Constructor
         :param sample_len: Length of the time-series in time steps.
