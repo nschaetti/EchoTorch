@@ -16,7 +16,7 @@ class RosslerAttractor(Dataset):
     """
 
     # Constructor
-    def __init__(self, sample_len, n_samples, a=0.1, b=0.1, c=14, init_mult=10.0, dt=0.01, normalize=False, mult=1.0, dim=3, seed=None):
+    def __init__(self, sample_len, n_samples, xyz, a, b, c, dt=0.01, washout=0, normalize=False, seed=None):
         """
         Constructor
         :param sample_len: Length of the time-series in time steps.
@@ -33,11 +33,8 @@ class RosslerAttractor(Dataset):
         self.c = c
         self.dt = dt
         self.normalize = normalize
-        self.mult = mult
-        self.init_mult = init_mult
-        self.mu = {1: 0.1658, 2: 0.0354, 3: 0.0354}
-        self.std = {1: 11.8935, 2: 9.5861, 3: 9.5861}
-        self.dim = dim
+        self.washout = washout
+        self.xyz = xyz
 
         # Seed
         if seed is not None:
@@ -98,23 +95,11 @@ class RosslerAttractor(Dataset):
         :param z:
         :return:
         """
-        x_dot = -y - z
+        x_dot = -(y + z)
         y_dot = x + self.a * y
-        z_dot = self.b + z * (x - self.c)
+        z_dot = self.b + x * z - self.c * z
         return x_dot, y_dot, z_dot
     # end _lorenz
-
-    # Random initial points
-    def random_initial_points(self):
-        """
-        Random initial points
-        :return:
-        """
-        # Set
-        return (np.random.random() * 2.0 - 1.0) * self.init_mult, \
-               (np.random.random() * 2.0 - 1.0) * self.init_mult, \
-               (np.random.random() * 2.0 - 1.0) * self.init_mult
-    # end random_initial_points
 
     # Generate
     def _generate(self):
@@ -122,36 +107,52 @@ class RosslerAttractor(Dataset):
         Generate dataset
         :return:
         """
+        # Sizes
+        total_size = self.sample_len
+
         # List of samples
         samples = list()
+
+        # XYZ
+        xyz = self.xyz
+
+        # Washout
+        for t in range(self.washout):
+            # Derivatives of the X, Y, Z state
+            x_dot, y_dot, z_dot = self._rossler(xyz[0], xyz[1], xyz[2])
+
+            # Apply changes
+            xyz[0] += self.dt * x_dot
+            xyz[1] += self.dt * y_dot
+            xyz[2] += self.dt * z_dot
+        # end for
 
         # For each sample
         for i in range(self.n_samples):
             # Tensor
-            sample = torch.zeros(self.sample_len, 3)
+            sample = torch.zeros(total_size, 3)
 
-            # Set
-            init_x, init_y, init_z = self.random_initial_points()
-            sample[0, 0] = init_x
-            sample[0, 1] = init_y
-            sample[0, 2] = init_z
-
+            # Time steps
             for t in range(1, self.sample_len):
                 # Derivatives of the X, Y, Z state
-                x_dot, y_dot, z_dot = self._rossler(sample[t - 1, 0], sample[t - 1, 1], sample[t - 1, 2])
+                x_dot, y_dot, z_dot = self._rossler(xyz[0], xyz[1], xyz[2])
+
+                # Apply changes
+                xyz[0] += self.dt * x_dot
+                xyz[1] += self.dt * y_dot
+                xyz[2] += self.dt * z_dot
 
                 # Set
-                sample[t, 0] = sample[t - 1, 0] + (x_dot * self.dt)
-                sample[t, 1] = sample[t - 1, 1] + (y_dot * self.dt)
-                sample[t, 2] = sample[t - 1, 2] + (z_dot * self.dt)
+                sample[t, 0] = xyz[0]
+                sample[t, 1] = xyz[1]
+                sample[t, 2] = xyz[2]
             # end for
-
-            # Keep only specific dim
-            sample = sample[:, :self.dim]
 
             # Normalize
             if self.normalize:
-                sample = ((sample - self.mu[self.dim]) / self.std[self.dim]) * self.mult
+                maxval = torch.max(sample, dim=0)
+                minval = torch.min(sample, dim=0)
+                sample = torch.mm(torch.inv(torch.diag(maxval - minval)), (sample - minval.repeat(total_size, 1)))
             # end if
 
             # Append
