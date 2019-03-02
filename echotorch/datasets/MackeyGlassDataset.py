@@ -68,8 +68,11 @@ class MackeyGlassDataset(Dataset):
             inp[timestep] = self.timeseries
         # end for
 
+        # Inputs
+        inputs = torch.tan(inp - 1)
+
         # Squash timeseries through tanh
-        return torch.tan(inp - 1)
+        return inputs[:-1], inputs[1:]
     # end __getitem__
 
 # end MackeyGlassDataset

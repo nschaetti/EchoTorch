@@ -22,97 +22,79 @@
 
 # Imports
 import torch
-from EchoTorch.datasets.MackeyGlassDataset import MackeyGlassDataset
-import EchoTorch.nn as etnn
-import torch.nn as nn
+from echotorch.datasets.MackeyGlassDataset import MackeyGlassDataset
+import echotorch.nn as etnn
+import echotorch.utils
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
-import matplotlib.pyplot as plt
 
 # Dataset params
-sample_length = 1000
-n_samples = 40
-batch_size = 5
+train_sample_length = 5000
+test_sample_length = 1000
+n_train_samples = 1
+n_test_samples = 1
+spectral_radius = 0.9
+leaky_rate = 1.0
+input_dim = 1
+n_hidden = 100
+
+# Use CUDA?
+use_cuda = False
+use_cuda = torch.cuda.is_available() if use_cuda else False
 
 # Mackey glass dataset
-mackey_glass_dataset = MackeyGlassDataset(sample_length, n_samples, tau=30)
+mackey_glass_train_dataset = MackeyGlassDataset(train_sample_length, n_train_samples, tau=30)
+mackey_glass_test_dataset = MackeyGlassDataset(test_sample_length, n_test_samples, tau=30)
 
 # Data loader
-dataloader = DataLoader(mackey_glass_dataset, batch_size=5, shuffle=False, num_workers=2)
-
-# ESN properties
-input_dim = 1
-n_hidden = 20
+trainloader = DataLoader(mackey_glass_train_dataset, batch_size=1, shuffle=False, num_workers=2)
+testloader = DataLoader(mackey_glass_test_dataset, batch_size=1, shuffle=False, num_workers=2)
 
 # ESN cell
-esn = etnn.ESNCell(input_dim, n_hidden)
+esn = etnn.LiESN(
+    input_dim=input_dim,
+    hidden_dim=n_hidden,
+    output_dim=1,
+    spectral_radius=spectral_radius,
+    learning_algo='inv',
+    leaky_rate=leaky_rate
+)
+if use_cuda:
+    esn.cuda()
+# end if
 
-# Linear layer
-linear = nn.Linear(n_hidden, 1)
+# For each batch
+for data in trainloader:
+    # Inputs and outputs
+    inputs, targets = data
 
-# Objective function
-criterion = nn.MSELoss()
+    # To variable
+    inputs, targets = Variable(inputs), Variable(targets)
+    if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
 
-# Learning rate
-learning_rate = 0.0001
-
-# Number of iterations
-n_iterations = 10
-
-# For each iterations
-for i_iter in range(n_iterations):
-    # Iterate through batches
-    for i_batch, sample_batched in enumerate(dataloader):
-        # For each sample
-        for i_sample in range(sample_batched.size()[0]):
-            # Inputs and outputs
-            inputs = Variable(sample_batched[i_sample][:-1], requires_grad=False)
-            outputs = Variable(sample_batched[i_sample][1:], requires_grad=False)
-            esn_outputs = torch.zeros(sample_length-1, 1)
-            gradients = torch.zeros(sample_length-1, 1)
-
-            # Init hidden
-            hidden = esn.init_hidden()
-
-            # Zero grad
-            esn.zero_grad()
-
-            # Null loss
-            loss = 0
-
-            # For each input
-            for pos in range(sample_length-1):
-                # Compute next state
-                next_hidden = esn(inputs[pos], hidden)
-
-                # Linear output
-                out = linear(next_hidden)
-                esn_outputs[pos, :] = out.data
-
-                # Add loss
-                loss += criterion(out, outputs[pos])
-            # end for
-
-            # Loss
-            loss.div_(sample_length-1)
-
-            loss.backward()
-
-            # Update parameters
-            for p in linear.parameters():
-                p.data.add_(-learning_rate, p.grad.data)
-            # end for
-
-            # Show the graph only for last sample of iteration
-            #if i_batch == len(dataloader) - 1 and i_sample == len(sample_batched) -1 :
-            """plt.plot(inputs.data.numpy(), c='b')
-            plt.plot(outputs.data.numpy(), c='lightblue')
-            plt.plot(esn_outputs.numpy(), c='r')
-            plt.show()"""
-            # end if
-        # end for
-    # end for
-
-    # Print
-    print(u"Iteration {}, loss {}".format(i_iter, loss.data[0]))
+    # Accumulate xTx and xTy
+    esn(inputs, targets)
 # end for
+
+# Finalize training
+esn.finalize()
+
+# Train MSE
+dataiter = iter(trainloader)
+train_u, train_y = dataiter.next()
+train_u, train_y = Variable(train_u), Variable(train_y)
+if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
+y_predicted = esn(train_u)
+print(u"Train MSE: {}".format(echotorch.utils.mse(y_predicted.data, train_y.data)))
+print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, train_y.data)))
+print(u"")
+
+# Test MSE
+dataiter = iter(testloader)
+test_u, test_y = dataiter.next()
+test_u, test_y = Variable(test_u), Variable(test_y)
+if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
+y_predicted = esn(test_u)
+print(u"Test MSE: {}".format(echotorch.utils.mse(y_predicted.data, test_y.data)))
+print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, test_y.data)))
+print(u"")
