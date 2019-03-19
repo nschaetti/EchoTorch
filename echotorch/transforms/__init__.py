@@ -2,7 +2,7 @@
 #
 
 # Imports
-import text
+from . import text
 
 __all__ = [
     'text', 'images'
