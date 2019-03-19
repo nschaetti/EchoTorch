@@ -6,7 +6,7 @@ import torch
 from torch.nn.functional import interpolate
 from sklearn.decomposition import PCA
 import numpy as np
-from error_measures import generalized_squared_cosine
+from .error_measures import generalized_squared_cosine
 from .error_measures import nrmse
 import math
 import matplotlib.pyplot as plt
