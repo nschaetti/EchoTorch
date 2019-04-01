@@ -6,9 +6,9 @@ from .BDESN import BDESN
 from .BDESNPCA import BDESNPCA
 from .BDESNCell import BDESNCell
 from .Conceptor import Conceptor
-from ConceptorNet import ConceptorNet
-from ConceptorNetCell import ConceptorNetCell
-from ConceptorPool import ConceptorPool
+from .ConceptorNet import ConceptorNet
+from .ConceptorNetCell import ConceptorNetCell
+from .ConceptorPool import ConceptorPool
 from .ESNCell import ESNCell
 from .ESN import ESN
 from .LiESNCell import LiESNCell
