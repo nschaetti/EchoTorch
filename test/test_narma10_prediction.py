@@ -124,8 +124,7 @@ class Test_NARMA10_Prediction(TestCase):
             name='normal',
             connectivity=connectivity,
             mean=0.0,
-            std=1.0,
-            dtype=torch.float32
+            std=1.0
         )
 
         # Create a Leaky-integrated ESN,
@@ -143,7 +142,7 @@ class Test_NARMA10_Prediction(TestCase):
             bias_scaling=bias_scaling,
             ridge_param=ridge_param
         )
-
+        print(matrix_generator.generate((20, 1)))
         # Transfer in the GPU if possible
         if use_cuda:
             esn.cuda()

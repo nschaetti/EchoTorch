@@ -75,8 +75,7 @@ matrix_generator = mg.matrix_factory.get_generator(
     name='normal',
     connectivity=0.1,
     mean=0.0,
-    std=1.0,
-    dtype=torch.float32
+    std=1.0
 )
 
 # Create a Leaky-integrated ESN,
