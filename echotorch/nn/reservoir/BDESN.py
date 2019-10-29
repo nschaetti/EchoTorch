@@ -25,28 +25,27 @@ Created on 26 January 2018
 """
 
 # Imports
-import torch.sparse
 import torch
 import torch.nn as nn
-from .LiESNCell import LiESNCell
-import numpy as np
-from torch.autograd import Variable
+from .BDESNCell import BDESNCell
+from echotorch.nn.linear.RRCell import RRCell
 
 
 # Bi-directional Echo State Network module
-class BDESNCell(nn.Module):
+class BDESN(nn.Module):
     """
     Bi-directional Echo State Network module
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, spectral_radius=0.9, bias_scaling=0, input_scaling=1.0,
-                 w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0], w_sparsity=None,
-                 nonlin_func=torch.tanh,  leaky_rate=1.0, create_cell=True):
+    def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate=1.0, spectral_radius=0.9, bias_scaling=0,
+                 input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0],
+                 w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True):
         """
         Constructor
         :param input_dim: Inputs dimension.
         :param hidden_dim: Hidden layer dimension
+        :param output_dim: Reservoir size
         :param spectral_radius: Reservoir's spectral radius
         :param bias_scaling: Scaling of the bias, a constant input to each neuron (default: 0, no bias)
         :param input_scaling: Scaling of the input weight matrix, default 1.
@@ -57,20 +56,41 @@ class BDESNCell(nn.Module):
         :param input_set:
         :param w_sparsity:
         :param nonlin_func: Reservoir's activation function (tanh, sig, relu)
+        :param learning_algo: Which learning algorithm to use (inv, LU, grad)
         """
-        super(BDESNCell, self).__init__()
+        super(BDESN, self).__init__()
+
+        # Properties
+        self.output_dim = output_dim
 
         # Recurrent layer
         if create_cell:
-            self.esn_cell = LiESNCell(leaky_rate, False, input_dim, hidden_dim, spectral_radius, bias_scaling,
-                                      input_scaling, w, w_in, w_bias, None, sparsity, input_set, w_sparsity,
-                                      nonlin_func)
+            self.esn_cell = BDESNCell(
+                input_dim=input_dim, hidden_dim=hidden_dim, spectral_radius=spectral_radius, bias_scaling=bias_scaling,
+                input_scaling=input_scaling, w=w, w_in=w_in, w_bias=w_bias, sparsity=sparsity, input_set=input_set,
+                w_sparsity=w_sparsity, nonlin_func=nonlin_func, leaky_rate=leaky_rate, create_cell=create_cell
+            )
         # end if
+
+        # Ouput layer
+        self.output = RRCell(
+            input_dim=hidden_dim * 2, output_dim=output_dim, ridge_param=ridge_param, learning_algo=learning_algo
+        )
     # end __init__
 
     ###############################################
     # PROPERTIES
     ###############################################
+
+    # Hidden layer
+    @property
+    def hidden(self):
+        """
+        Hidden layer
+        :return:
+        """
+        return self.esn_cell.hidden
+    # end hidden
 
     # Hidden weight matrix
     @property
@@ -133,17 +153,13 @@ class BDESNCell(nn.Module):
         """
         Forward
         :param u: Input signal.
-        :param y: Target outputs
         :return: Output or hidden states
         """
-        # Forward compute hidden states
-        forward_hidden_states = self.esn_cell(u)
+        # Compute hidden states
+        hidden_states = self.esn_cell(u)
 
-        # Backward compute hidden states
-        backward_hidden_states = self.esn_cell(Variable(torch.from_numpy(np.flip(u.data.numpy(), 1).copy())))
-        backward_hidden_states = Variable(torch.from_numpy(np.flip(backward_hidden_states.data.numpy(), 1).copy()))
-
-        return torch.cat((forward_hidden_states, backward_hidden_states), dim=2)
+        # Learning algorithm
+        return self.output(hidden_states, y)
     # end forward
 
     # Finish training
@@ -176,4 +192,4 @@ class BDESNCell(nn.Module):
         return self.esn_cell.get_spectral_raduis()
     # end spectral_radius
 
-# end BDESNCell
+# end BDESN

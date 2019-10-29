@@ -19,10 +19,8 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
-import torch
 import torch.sparse
-import torch.nn as nn
-from .LiESN import LiESN
+from echotorch.nn.reservoir.LiESN import LiESN
 
 
 # ESN with input pre-trained and used with transfer learning

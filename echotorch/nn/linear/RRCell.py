@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/nn/ESN.py
-# Description : An Echo State Network module.
+# File : echotorch/nn/linear/RRCell.py
+# Description : Ridge Regression node
 # Date : 26th of January, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -27,44 +27,52 @@ Created on 26 January 2018
 # Imports
 import torch.sparse
 import torch
-import torch.nn as nn
+from ..Node import Node
 from torch.autograd import Variable
-import math
 
 
-# Ridge Regression cell
-class RRCell(nn.Module):
+# Ridge Regression node
+class RRCell(Node):
     """
-    Ridge Regression cell
+    Ridge Regression node
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, ridge_param=0.0, feedbacks=False, with_bias=True, learning_algo='inv', softmax_output=False, averaged=False, dtype=torch.float32):
+    def __init__(self, input_dim, output_dim, ridge_param=0.0, with_bias=True, learning_algo='inv',
+                 softmax_output=False, averaged=True, dtype=torch.float32):
         """
         Constructor
-        :param input_dim: Inputs dimension.
-        :param output_dim: Reservoir size
+        :param input_dim: Feature space dimension
+        :param output_dim: Output space dimension
+        :param ridge_param: Ridge parameter
+        :param with_bias: Add a bias to the linear layer
+        :param learning_algo: Inverse (inv) or pseudo-inverse (pinv)
+        :param softmax_output: Add a softmax output (normalize outputs) ?
+        :param average: Covariance matrix divided by the number of samples ?
         """
-        super(RRCell, self).__init__()
+        # Superclass
+        super(RRCell, self).__init__(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            dtype=dtype
+        )
 
         # Properties
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.ridge_param = ridge_param
-        self.feedbacks = feedbacks
-        self.with_bias = with_bias
-        self.learning_algo = learning_algo
-        self.softmax_output = softmax_output
-        self.softmax = torch.nn.Softmax(dim=2)
-        self.averaged = averaged
-        self.n_samples = 0
-        self.dtype = dtype
+        self._input_dim = input_dim
+        self._output_dim = output_dim
+        self._ridge_param = ridge_param
+        self._with_bias = with_bias
+        self._learning_algo = learning_algo
+        self._softmax_output = softmax_output
+        self._softmax = torch.nn.Softmax(dim=2)
+        self._averaged = averaged
+        self._n_samples = 0
 
         # Size
         if self.with_bias:
-            self.x_size = input_dim + 1
+            self._x_size = input_dim + 1
         else:
-            self.x_size = input_dim
+            self._x_size = input_dim
         # end if
 
         # Set it as buffer
@@ -73,13 +81,23 @@ class RRCell(nn.Module):
         self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
     # end __init__
 
-    ###############################################
+    #####################
     # PROPERTIES
-    ###############################################
+    #####################
 
-    ###############################################
+    # Output matrix
+    @property
+    def w_out(self):
+        """
+        Output matrix
+        :return:
+        """
+        return self.w_out
+    # end w_out
+
+    #####################
     # PUBLIC
-    ###############################################
+    #####################
 
     # Reset learning
     def reset(self):
@@ -87,9 +105,6 @@ class RRCell(nn.Module):
         Reset learning
         :return:
         """
-        """self.xTx.data = torch.zeros(self.x_size, self.x_size)
-        self.xTy.data = torch.zeros(self.x_size, self.output_dim)
-        self.w_out.data = torch.zeros(1, self.input_dim)"""
         self.xTx.data.fill_(0.0)
         self.xTy.data.fill_(0.0)
         self.w_out.data.fill_(0.0)
@@ -97,15 +112,6 @@ class RRCell(nn.Module):
         # Training mode again
         self.train(True)
     # end reset
-
-    # Output matrix
-    def get_w_out(self):
-        """
-        Output matrix
-        :return:
-        """
-        return self.w_out
-    # end get_w_out
 
     # Forward
     def forward(self, x, y=None):
@@ -122,7 +128,7 @@ class RRCell(nn.Module):
         time_length = x.size()[1]
 
         # Add bias
-        if self.with_bias:
+        if self._with_bias:
             x = self._add_constant(x)
         # end if
 
@@ -135,18 +141,18 @@ class RRCell(nn.Module):
                 else:
                     self.xTx.data.add_((x[b].t().mm(x[b]) / time_length).data)
                     self.xTy.data.add_((x[b].t().mm(y[b]) / time_length).data)
-                    self.n_samples += 1.0
+                    self._n_samples += 1.0
             # end for
 
             # Bias or not
-            if self.with_bias:
+            if self._with_bias:
                 return x[:, :, 1:]
             else:
                 return x
             # end if
         elif not self.training:
             # Outputs
-            outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim, dtype=self.dtype), requires_grad=False)
+            outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype), requires_grad=False)
             outputs = outputs.cuda() if self.w_out.is_cuda else outputs
 
             # For each batch
@@ -154,7 +160,7 @@ class RRCell(nn.Module):
                 outputs[b] = torch.mm(x[b], self.w_out)
             # end for
 
-            if self.softmax_output:
+            if self._softmax_output:
                 return self.softmax(outputs)
             else:
                 return outputs
@@ -162,31 +168,34 @@ class RRCell(nn.Module):
     # end forward
 
     # Finish training
-    def finalize(self, train=False):
+    def finalize(self):
         """
-        Finalize training with LU factorization or Pseudo-inverse
+        Finalize training with inverse or pseudo-inverse
         """
-        if self.learning_algo == 'inv':
-            if not self.averaged:
-                ridge_xTx = self.xTx + self.ridge_param * torch.eye(self.input_dim + self.with_bias, dtype=self.dtype)
-                inv_xTx = ridge_xTx.inverse()
-                self.w_out.data = torch.mm(inv_xTx, self.xTy).data
-            else:
-                # Average
-                self.xTx = self.xTx / self.n_samples
-                self.xTy = self.xTy / self.n_samples
-
-                # Algo
-                ridge_xTx = self.xTx + self.ridge_param * torch.eye(self.input_dim + self.with_bias, dtype=self.dtype)
-                inv_xTx = ridge_xTx.inverse()
-                self.w_out.data = torch.mm(inv_xTx, self.xTy).data
-            # end if
-        else:
-            self.w_out.data = torch.gesv(self.xTy, self.xTx + torch.eye(self.esn_cell.output_dim).mul(self.ridge_param)).data
+        if self.averaged:
+            # Average
+            self.xTx = self.xTx / self.n_samples
+            self.xTy = self.xTy / self.n_samples
         # end if
 
+        # We need to solve wout = (xTx)^(-1)xTy
+        # Covariance matrix xTx
+        ridge_xTx = self.xTx + self._ridge_param * torch.eye(self._input_dim + self._with_bias, dtype=self._dtype)
+
+        # Inverse / pinverse
+        if self._learning_algo == "inv":
+            inv_xTx = ridge_xTx.inverse()
+        elif self._learning_algo == "pinv":
+            inv_xTx = ridge_xTx.pinverse()
+        else:
+            raise Exception("Unknown learning method {}".format(self._learning_algo))
+        # end if
+
+        # wout = (xTx)^(-1)xTy
+        self.w_out.data = torch.mm(inv_xTx, self.xTy).data
+
         # Not in training mode anymore
-        self.train(train)
+        self.train(False)
     # end finalize
 
     ###############################################

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # File : echotorch/models/NilsNet.py
-# Description : An NilsNet module.
+# Description : A NilsNet module.
 # Date : 09th of April, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -22,7 +22,6 @@
 # Imports
 import torchvision
 import torch.nn as nn
-from echotorch import nn as ecnn
 
 
 # A NilsNet

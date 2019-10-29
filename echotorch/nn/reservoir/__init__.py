@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/__init__.py
-# Description : EchoTorch package init file.
-# Date : 26th of January, 2018
+# File : echotorch/nn/reservoir/__init__.py
+# Description : nn/reservoir init file.
+# Date : 29th of October, 2019
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,16 +17,22 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from . import datasets
-from . import evaluation
-from . import models
-from . import nn
-from . import transforms
-from . import utils
+from .BDESN import BDESN
+from .BDESNCell import BDESNCell
+from .BDESNPCA import BDESNPCA
+from .EESN import EESN
+from .ESN import ESN
+from .ESNCell import ESNCell
+from .GatedESN import GatedESN
+from .HESN import HESN
+from .LiESN import LiESN
+from .LiESNCell import LiESNCell
+from .StackedESN import StackedESN
 
-
-# All echotorch's modules
-__all__ = ['datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils']
+# All
+__all__ = [
+    'BDESN', 'BDESNPCA', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'StackedESN'
+]

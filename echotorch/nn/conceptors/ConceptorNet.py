@@ -28,8 +28,7 @@ Created on 17 January 2019
 import torch
 import torch.nn as nn
 from .ConceptorNetCell import ConceptorNetCell
-from .RRCell import RRCell
-import matplotlib.pyplot as plt
+from echotorch.nn.linear.RRCell import RRCell
 
 
 # ESN-based ConceptorNet

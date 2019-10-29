@@ -27,7 +27,7 @@ Created on 26 January 2018
 # Imports
 import torch.sparse
 import torch
-from .RRCell import RRCell
+from ..linear import RRCell
 import math
 from echotorch.utils import generalized_squared_cosine
 import math as m

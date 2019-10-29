@@ -27,7 +27,7 @@ Created on 26 January 2018
 import torch
 import torch.sparse
 from torch.autograd import Variable
-from .LiESNCell import LiESNCell
+from echotorch.nn.reservoir.LiESNCell import LiESNCell
 from .Conceptor import Conceptor
 from .ConceptorPool import ConceptorPool
 

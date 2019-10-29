@@ -5,9 +5,6 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from echotorch.nn.PCACell import PCACell
-from sklearn.decomposition import PCA
 
 
 # Show singular values increasing aperture

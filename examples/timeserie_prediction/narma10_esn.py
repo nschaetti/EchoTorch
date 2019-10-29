@@ -23,8 +23,9 @@
 # Imports
 import torch
 from echotorch.datasets.NARMADataset import NARMADataset
-import echotorch.nn as etnn
+import echotorch.nn.reservoir as etrs
 import echotorch.utils
+import echotorch.utils.matrix_generation as mg
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
 import numpy as np
@@ -47,7 +48,8 @@ batch_size = 1
 spectral_radius = 0.99
 leaky_rate = 1.0
 input_dim = 1
-reservoir_size = 500
+reservoir_size = 100
+connectivity = 0.1
 
 # Predicted/target plot length
 plot_length = 200
@@ -57,7 +59,7 @@ use_cuda = False
 use_cuda = torch.cuda.is_available() if use_cuda else False
 
 # Manual seed initialisation
-np.random.seed(2)
+np.random.seed(1)
 torch.manual_seed(1)
 
 # NARMA30 dataset
@@ -68,16 +70,25 @@ narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_o
 trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
+# Get matrix generators
+matrix_generator = mg.matrix_factory.get_generator(
+    name='normal',
+    connectivity=connectivity,
+    mean=0.0,
+    std=1.0
+)
+
 # Create a Leaky-integrated ESN,
 # with least-square training algo.
-esn = etnn.LiESN(
+esn = etrs.ESN(
     input_dim=input_dim,
     hidden_dim=reservoir_size,
     output_dim=1,
     spectral_radius=spectral_radius,
     learning_algo='inv',
-    leaky_rate=leaky_rate,
-    w_sparsity=0.05
+    w_generator=matrix_generator,
+    win_generator=matrix_generator,
+    wbias_generator=matrix_generator
 )
 
 # Transfer in the GPU if possible

@@ -1,27 +1,61 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/nn/__init__.py
+# Description : nn init file.
+# Date : 29th of October, 2019
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
-# Imports
-from .BDESN import BDESN
-from .BDESNPCA import BDESNPCA
-from .BDESNCell import BDESNCell
-from .Conceptor import Conceptor
-from .ConceptorNet import ConceptorNet
-from .ConceptorNetCell import ConceptorNetCell
-from .ConceptorPool import ConceptorPool
-from .ESNCell import ESNCell
-from .ESN import ESN
-from .LiESNCell import LiESNCell
-from .LiESN import LiESN
-from .GatedESN import GatedESN
-from .ICACell import ICACell
-from .Identity import Identity
-from .PCACell import PCACell
-from .RRCell import RRCell
-from .SFACell import SFACell
-from .StackedESN import StackedESN
+# Import basis
+from .Node import Node
 
+# Import conceptor nodes
+from .conceptors.Conceptor import Conceptor
+from .conceptors.ConceptorNet import ConceptorNet
+from .conceptors.ConceptorNetCell import ConceptorNetCell
+from .conceptors.ConceptorPool import ConceptorPool
+
+# Import feature transformation nodes
+from .features.ICACell import ICACell
+from .features.OnlinePCACell import OnlinePCACell
+from .features.PCACell import PCACell
+from .features.SFACell import SFACell
+
+# Import reservoir nodes
+from .reservoir.BDESN import BDESN
+from .reservoir.BDESNCell import BDESNCell
+from .reservoir.BDESNPCA import BDESNPCA
+from .reservoir.EESN import EESN
+from .reservoir.ESN import ESN
+from .reservoir.ESNCell import ESNCell
+from .reservoir.GatedESN import GatedESN
+from .reservoir.HESN import HESN
+from .reservoir.LiESN import LiESN
+from .reservoir.LiESNCell import LiESNCell
+from .reservoir.StackedESN import StackedESN
+
+# Import linear nodes
+from .linear.RRCell import RRCell
+
+# Import utils nodes
+from .utils.Identity import Identity
+
+# All
 __all__ = [
-    'BDESN', 'BDESNPCA', 'BDESNCell', 'Conceptor', 'ConceptorNet', 'ConceptorNetCell', 'ConceptorPool', 'ESNCell',
-    'ESN', 'LiESNCell', 'LiESN', 'GatedESN', 'ICACell', 'Identity', 'PCACell', 'RRCell', 'SFACell', 'StackedESN'
+    'Conceptor', 'ConceptorNet', 'ConceptorNetCell', 'ConceptorPool', 'ICACell', 'OnlinePCACell', 'PCACell', 'SFACell',
+    'BDESN', 'BDESNPCA', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'Node', 'StackedESN',
+    'RRCell', 'Identity'
 ]

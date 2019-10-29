@@ -28,10 +28,9 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
-import echotorch.utils
 from torch.autograd import Variable
-from . import LiESNCell
-from .RRCell import RRCell
+from .LiESNCell import LiESNCell
+from ..linear.RRCell import RRCell
 from .ESNCell import ESNCell
 import numpy as np
 

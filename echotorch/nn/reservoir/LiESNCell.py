@@ -28,8 +28,7 @@ import torch
 import torch.sparse
 import torch.nn as nn
 from torch.autograd import Variable
-from .ESNCell import ESNCell
-import matplotlib.pyplot as plt
+from echotorch.nn.reservoir.ESNCell import ESNCell
 
 
 # Leak-Integrated Echo State Network layer

@@ -28,10 +28,8 @@ Created on 26 January 2018
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .LiESNCell import LiESNCell
-from sklearn.decomposition import IncrementalPCA
-from .PCACell import PCACell
-import matplotlib.pyplot as plt
+from echotorch.nn.reservoir.LiESNCell import LiESNCell
+from echotorch.nn.features.PCACell import PCACell
 from torch.autograd import Variable
 
 
