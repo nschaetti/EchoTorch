@@ -43,13 +43,13 @@ class Conceptor(RRCell):
     """
 
     # Constructor
-    def __init__(self, conceptor_dim, aperture=0.0, with_bias=False, learning_algo='inv', name="", conceptor_matrix=None, dtype=torch.float32):
+    def __init__(self, conceptor_dim, aperture=0.0, learning_algo='inv', name="", conceptor_matrix=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Inputs dimension.
         :param output_dim: Reservoir size
         """
-        super(Conceptor, self).__init__(conceptor_dim, conceptor_dim, ridge_param=aperture, feedbacks=False, with_bias=with_bias, learning_algo=learning_algo, softmax_output=False, dtype=dtype)
+        super(Conceptor, self).__init__(conceptor_dim, conceptor_dim, ridge_param=aperture, feedbacks=False, with_bias=False, learning_algo=learning_algo, softmax_output=False, dtype=dtype)
 
         # Properties
         self.conceptor_dim = conceptor_dim
@@ -90,6 +90,20 @@ class Conceptor(RRCell):
     ###############################################
     # PUBLIC
     ###############################################
+
+    # Plot 2D ellipse
+    def plot(self, colorstring, linewidth=3, resolution=200, dim='2d'):
+        """
+        Plot 2D ellipse
+        :return:
+        """
+        # 2D or 3D ?
+        if dim == '2d':
+            Conceptor.plot_ellipse_2D(self.get_C(), colorstring, linewidth, resolution)
+        else:
+            pass
+        # end if
+    # end plot
 
     # Clone
     def clone(self):
@@ -211,15 +225,10 @@ class Conceptor(RRCell):
         :return: Output or hidden states
         """
         # Batch size
-        batch_size = x.size()[0]
+        batch_size = x.size(0)
 
         # Time length
-        time_length = x.size()[1]
-
-        # Add bias
-        if self.with_bias:
-            x = self._add_constant(x)
-        # end if
+        time_length = x.size(1)
 
         # Learning algo
         if self.training:
@@ -228,13 +237,7 @@ class Conceptor(RRCell):
                 self.R.data.add_(Rj.data)
                 self.n_samples += 1.0
             # end for
-
-            # Bias or not
-            if self.with_bias:
-                return x[:, :, 1:]
-            else:
-                return x
-            # end if
+            return x
         elif not self.training:
             # Outputs
             outputs = Variable(torch.zeros(batch_size, time_length, self.output_dim, dtype=self.dtype), requires_grad=False)
@@ -260,12 +263,14 @@ class Conceptor(RRCell):
         # Average
         self.R = self.R / self.n_samples
 
-        # Algo
-        ridge_R = self.R + math.pow(self.ridge_param, -2) * torch.eye(self.input_dim + self.with_bias, dtype=self.dtype)
+        # SVF
+        (U, S, V) = torch.svd(self.R)
 
-        inv_R = ridge_R.inverse()
+        # Compute new singular values
+        Snew = torch.mm(torch.diag(S), torch.inverse(torch.diag(S) + math.pow(self.aperture, -2) * torch.eye(self.input_dim, dtype=self.dtype)))
 
-        self.C.data = torch.mm(self.R, inv_R).data
+        # Apply new SVs to get the conceptor
+        self.C.data = torch.mm(torch.mm(U, Snew), U.t()).data
 
         # Not in training mode anymore
         self.train(False)
@@ -288,7 +293,9 @@ class Conceptor(RRCell):
         Singular values
         :return:
         """
-        return self.w_out.diag()
+        # Compute SVD
+        (Ua, Sa, Va) = torch.svd(self.get_C())
+        return Ua, torch.diag(Sa), Va
     # end singular_values
 
     # Some of singular values
@@ -303,6 +310,56 @@ class Conceptor(RRCell):
     ###############################################
     # STATIC
     ###############################################
+
+    # Plot 2D ellipse
+    @staticmethod
+    def plot_ellipse_2D(A, colorstring, linewidth=3, resolution=200):
+        """
+        Plot 2D ellipse
+        :return:
+        """
+        # Plot cross and circle
+        plt.plot([-1, 1], [0, 0], '--', color='black', linewidth=1)
+        plt.plot([0, 0], [-1, 1], '--', color='black', linewidth=1)
+        plt.plot(
+            np.cos(2.0 * math.pi * np.arange(200) / 200.0),
+            np.sin(2.0 * math.pi * np.arange(200) / 200),
+            '-',
+            color='black',
+            linewidth=1
+        )
+
+        # Compute the ellipse representing the correlation matrix
+        circ_points = torch.from_numpy(np.array([
+            np.cos(2.0 * math.pi * np.arange(0, resolution) / resolution),
+            np.sin(2.0 * math.pi * np.arange(0, resolution) / resolution)
+        ]))
+
+        # Transform the circle
+        E1 = torch.mm(A, circ_points)
+
+        # SVD on A
+        (U, S, Ut) = torch.svd(A)
+
+        # Plot singular value 1
+        plt.plot(
+            S[0].item() * np.array([0., U[0, 0]]),
+            S[0].item() * np.array([0., U[1, 0]]),
+            linewidth=linewidth,
+            color=colorstring
+        )
+
+        # Plot singular value 2
+        plt.plot(
+            S[1].item() * np.array([0., U[0, 1]]),
+            S[1].item() * np.array([0., U[1, 1]]),
+            linewidth=linewidth,
+            color=colorstring
+        )
+
+        # Plot ellipse
+        plt.plot(E1[0, :].numpy(), E1[1, :].numpy(), linewidth=linewidth, color=colorstring)
+    # end plot_ellipse_2D
 
     # Multiply aperture matrix
     @staticmethod
@@ -340,6 +397,23 @@ class Conceptor(RRCell):
         # end for
         return M
     # end for
+
+    # Similarity between two conceptors
+    @staticmethod
+    def similarity(C1, C2):
+        """
+        Similarity between two conceptors
+        :param C1:
+        :param C2:
+        :return:
+        """
+        # Compute singular values
+        Ua, Sa, _ = torch.svd(C1.get_C())
+        Ub, Sb, _ = torch.svd(C2.get_C())
+
+        # Measure
+        return generalized_squared_cosine(Sa, Ua, Sb, Ub)
+    # end similarity
 
     ###############################################
     # OPERATORS
@@ -478,25 +552,75 @@ class Conceptor(RRCell):
     # end __invert__
 
     # AND
-    def logical_and(self, c):
+    def logical_and(self, C2):
         """
         Logical AND
         :param c:
         :return:
         """
-        # Matrices
-        C = self.C
-        B = c.get_C()
+        # Get conceptor matrix
+        A = self.get_C()
+        B = C2.get_C()
 
-        # Compute C1 /\ C2
-        conceptor_matrix = torch.inverse(torch.inverse(C) + torch.inverse(B) + torch.eye(self.conceptor_dim, dtype=self.dtype))
+        # Dimension
+        dim = A.shape[0]
+        tol = 1e-14
+
+        # SV on both conceptor
+        (UC, SC, UtC) = torch.svd(A)
+        (UB, SB, UtB) = torch.svd(B)
+
+        # Get singular values
+        dSC = SC
+        dSB = SB
+
+        # How many non-zero singular values
+        numRankC = int(torch.sum(1.0 * (dSC > tol)))
+        numRankB = int(torch.sum(1.0 * (dSB > tol)))
+
+        if numRankC < dim and numRankB < dim:
+            # Select zero singular vector
+            UC0 = UC[:, numRankC:]
+            UB0 = UB[:, numRankB:]
+
+            # SVD on UC0 + UB0
+            (W, Sigma, Wt) = torch.svd(torch.mm(UC0, UC0.t()) + torch.mm(UB0, UB0.t()))
+
+            # Number of non-zero SV
+            numRankSigma = int(torch.sum(1.0 * (Sigma > tol)))
+
+            # Select zero singular vector
+            Wgk = W[:, numRankSigma:]
+
+            # C and B
+            # Wgk * (Wgk^T * (C^-1 + B^-1 - I) * Wgk)^-1 * Wgk^T
+            CandB = np.dot(
+                np.dot(
+                    Wgk,
+                    torch.inverse(
+                        np.dot(
+                            np.dot(
+                                Wgk.T,
+                                (torch.pinverse(A, tol) + torch.pinverse(B, tol) - np.eye(dim))
+                            ),
+                            Wgk
+                        )
+                    )
+                ),
+                Wgk.T
+            )
+        else:
+            # C and B
+            # Wgk * (Wgk^T * (C^-1 + B^-1 - I) * Wgk)^-1 * Wgk^T
+            CandB = torch.pinverse(A, tol) + torch.pinverse(B, tol) - torch.eye(dim, dtype=self.dtype)
+        # end if
 
         # Set conceptor
         new_c = Conceptor(
             conceptor_dim=self.conceptor_dim,
-            conceptor_matrix=conceptor_matrix,
-            name="({} AND {})".format(self.name, c.name),
-            aperture=math.pow(math.pow(self.aperture, -2) + math.pow(c.aperture, -2), -0.5),
+            conceptor_matrix=CandB,
+            name="({} AND {})".format(self.name, C2.name),
+            aperture=math.pow(math.pow(self.aperture, -2) + math.pow(C2.aperture, -2), -0.5),
             dtype=self.dtype
         )
 

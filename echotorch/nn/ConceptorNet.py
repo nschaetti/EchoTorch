@@ -103,7 +103,7 @@ class ConceptorNet(nn.Module):
                 with_bias=False,
                 learning_algo=learning_algo,
                 softmax_output=False,
-                averaged=False,
+                averaged=True,
                 dtype=dtype
             )
         else:
@@ -219,7 +219,7 @@ class ConceptorNet(nn.Module):
     # end set_w
 
     # Forward
-    def forward(self, u=None, y=None, c=None, reset_state=True, length=None, mu=None, return_states=False):
+    def forward(self, u=None, y=None, c=None, reset_state=True, length=None, mu=None, return_states=False, x0=None):
         """
         Forward
         :param u: Input signal.
@@ -230,7 +230,8 @@ class ConceptorNet(nn.Module):
         if self.training:
             hidden_states = self.esn_cell(
                 u,
-                reset_state=reset_state
+                reset_state=reset_state,
+                x0=x0
             )
 
             # Batch size and time length
@@ -255,11 +256,12 @@ class ConceptorNet(nn.Module):
             # end if
 
             # Learning conceptor
-            return c(x, x)
+            return c(x)
         elif c is None:
             hidden_states = self.esn_cell(
                 u,
                 reset_state=reset_state,
+                x0=x0
             )
 
             # Return outputs or states
@@ -275,7 +277,8 @@ class ConceptorNet(nn.Module):
                 input_recreation=self.input_recreation,
                 conceptor=c,
                 length=length,
-                mu=mu
+                mu=mu,
+                x0=x0
             )
 
             # Return outputs of states

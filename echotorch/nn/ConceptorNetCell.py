@@ -53,7 +53,7 @@ class ConceptorNetCell(LiESNCell):
     ###############################################
 
     # Forward
-    def forward(self, u=None, y=None, w_out=None, reset_state=True, input_recreation=None, conceptor=None, length=None, mu=None):
+    def forward(self, u=None, y=None, w_out=None, reset_state=True, input_recreation=None, conceptor=None, length=None, mu=None, x0=None):
         """
         Forward execution
         :param u:
@@ -84,7 +84,9 @@ class ConceptorNetCell(LiESNCell):
         # For each batch
         for b in range(n_batches):
             # Reset hidden layer
-            if reset_state:
+            if x0 is not None:
+                self.set_hidden(x0)
+            elif reset_state:
                 self.reset_hidden()
             # end if
 
