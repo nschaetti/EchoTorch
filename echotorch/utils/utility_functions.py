@@ -5,6 +5,73 @@
 import torch
 import numpy as np
 from .error_measures import nrmse, generalized_squared_cosine
+from scipy.interpolate import interp1d
+import numpy.linalg as lin
+
+
+# Compute correlation matrix
+def compute_correlation_matrix(states):
+    """
+    Compute correlation matrix
+    :param states:
+    :return:
+    """
+    return states.t().mm(states) / float(states.size(0))
+# end compute_correlation_matrix
+
+
+# Align pattern
+def align_pattern(interpolation_rate, truth_pattern, generated_pattern):
+    """
+    Align pattern
+    :param interpolation_rate:
+    :param truth_pattern:
+    :param generated_pattern:
+    :return:
+    """
+    # Length
+    truth_length = truth_pattern.size(0)
+    generated_length = generated_pattern.size(0)
+
+    # Remove useless dimension
+    truth_pattern = truth_pattern.view(-1)
+    generated_pattern = generated_pattern.view(-1)
+
+    # Quadratic interpolation functions
+    truth_pattern_func = interp1d(np.arange(truth_length), truth_pattern.numpy(), kind='quadratic')
+    generated_pattern_func = interp1d(np.arange(generated_length), generated_pattern.numpy(), kind='quadratic')
+
+    # Get interpolated patterns
+    truth_pattern_int = truth_pattern_func(np.arange(0, truth_length - 1.0, 1.0 / interpolation_rate))
+    generated_pattern_int = generated_pattern_func(np.arange(0, generated_length - 1.0, 1.0 / interpolation_rate))
+
+    # Generated interpolated pattern length
+    L = generated_pattern_int.shape[0]
+
+    # Truth interpolated pattern length
+    M = truth_pattern_int.shape[0]
+
+    # Save L2 distance for each phase shift
+    phase_matches = np.zeros(L - M)
+
+    # For each phase shift
+    for phases_hift in range(L - M):
+        phase_matches[phases_hift] = lin.norm(truth_pattern_int - generated_pattern_int[phases_hift:phases_hift + M])
+    # end for
+
+    # Best match
+    max_ind = int(np.argmax(-phase_matches))
+
+    # Get the position in the original signal
+    coarse_max_ind = int(np.ceil(max_ind / interpolation_rate))
+
+    # Get the generated output matching the original signal
+    generated_aligned = generated_pattern_int[
+        np.arange(max_ind, max_ind + interpolation_rate * truth_length, interpolation_rate)
+    ]
+
+    return max_ind, coarse_max_ind, torch.from_numpy(generated_aligned).view(-1, 1)
+# end align_pattern
 
 
 # Find phase shift
@@ -88,9 +155,7 @@ def compute_singular_values(stats):
     R = stats.t().mm(stats) / stats.shape[0]
 
     # Compute singular values
-    U, S, V = torch.svd(R)
-
-    return S, U
+    return torch.svd(R)
 # end compute_singular_values
 
 
