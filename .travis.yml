@@ -1,3 +1,4 @@
+# Language description
 language: python
 python:
   - "3.3"
@@ -5,8 +6,11 @@ python:
   - "3.5"
   - "3.6"
 cache: pip
-# command to install dependencies
+
+# Command to install dependencies
 install:
   - pip install -r requirements.txt
+
+# Commands to run tests
 script:
   - python3 -m unittest test narma10_prediction.py
