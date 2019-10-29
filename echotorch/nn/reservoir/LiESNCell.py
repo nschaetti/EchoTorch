@@ -38,11 +38,10 @@ class LiESNCell(ESNCell):
     """
 
     # Constructor
-    def __init__(self, leaky_rate=1.0, train_leaky_rate=False, *args, **kwargs):
+    def __init__(self, leaky_rate=1.0, *args, **kwargs):
         """
         Constructor
         :param leaky_rate: Reservoir's leaky rate (default 1.0, normal ESN)
-        :param train_leaky_rate: Train leaky rate as parameter? (default: False)
         """
         super(LiESNCell, self).__init__(*args, **kwargs)
 
@@ -53,13 +52,8 @@ class LiESNCell(ESNCell):
             tensor_type = torch.DoubleTensor
         # end if
 
-        # Params
-        if train_leaky_rate:
-            self.leaky_rate = nn.Parameter(tensor_type(1).fill_(leaky_rate), requires_grad=True)
-        else:
-            # Initialize bias
-            self.register_buffer('leaky_rate', Variable(tensor_type(1).fill_(leaky_rate), requires_grad=False))
-        # end if
+        # Leak rate
+        self.register_buffer('leaky_rate', Variable(tensor_type(1).fill_(leaky_rate), requires_grad=False))
     # end __init__
 
     ###############################################
@@ -67,10 +61,12 @@ class LiESNCell(ESNCell):
     ###############################################
 
     # Forward
-    def forward(self, u, y=None, w_out=None, reset_state=True):
+    def forward(self, u, y=None, reset_state=True):
         """
         Forward
         :param u: Input signal.
+        :param y: Training target (None if prediction)
+        :param reset_state: Reset hidden state for each sample ?
         :return: Resulting hidden states.
         """
         # Time length
@@ -90,10 +86,16 @@ class LiESNCell(ESNCell):
                 self.reset_hidden()
             # end if
 
+                # Pre-update hook
+                u[b, :] = self._pre_update_hook(u[b, :], b)
+
             # For each steps
             for t in range(time_length):
                 # Current input
                 ut = u[b, t]
+
+                # Pre-hook
+                ut = self._pre_step_update_hook(ut, t)
 
                 # Compute input layer
                 u_win = self.w_in.mv(ut)
@@ -101,49 +103,27 @@ class LiESNCell(ESNCell):
                 # Apply W to x
                 x_w = self.w.mv(self.hidden)
 
-                # Feedback or not
-                if self.feedbacks and self.training and y is not None:
-                    # Current target
-                    yt = y[b, t]
-
-                    # Compute feedback layer
-                    y_wfdb = self.w_fdb.mv(yt)
-
-                    # Add everything
-                    x = u_win + x_w + y_wfdb + self.w_bias
-                elif self.feedbacks and not self.training and w_out is not None:
-                    # Add bias
-                    bias_hidden = torch.cat((Variable(torch.ones(1)), self.hidden), dim=0)
-
-                    # Compute past output
-                    yt = w_out.t().mv(bias_hidden)
-
-                    # Normalize
-                    if self.normalize_feedbacks:
-                        yt -= torch.min(yt)
-                        yt /= torch.max(yt) - torch.min(yt)
-                        yt /= torch.sum(yt)
-                    # end if
-
-                    # Compute feedback layer
-                    y_wfdb = self.w_fdb.mv(yt)
-
-                    # Add everything
-                    x = u_win + x_w + y_wfdb + self.w_bias
-                else:
-                    # Add everything
-                    x = u_win + x_w + self.w_bias
-                # end if
+                # Add everything
+                x = u_win + x_w + self.w_bias
 
                 # Apply activation function
                 x = self.nonlin_func(x)
 
+                # Leaky
+                x = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate))
+
+                # Post-hook
+                x = self._post_step_update_hook(x.view(self.output_dim), ut, t)
+
                 # Add to outputs
-                self.hidden.data = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate)).data
+                self.hidden.data = x.data
 
                 # New last state
                 outputs[b, t] = self.hidden
             # end for
+
+            # Post-update hook
+            outputs[b, :] = self._post_update_hook(outputs[b, :], u[b, :], b)
         # end for
 
         return outputs

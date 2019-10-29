@@ -57,9 +57,9 @@ class Test_NARMA10_Prediction(TestCase):
 
         # Check results
         self.assertAlmostEqual(train_mse, 0.0026, places=2)
-        self.assertAlmostEqual(train_nrmse, 0.4759, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.4759, places=1)
         self.assertAlmostEqual(test_mse, 0.0029, places=2)
-        self.assertAlmostEqual(test_nrmse, 0.4879, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.4879, places=1)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
@@ -75,9 +75,9 @@ class Test_NARMA10_Prediction(TestCase):
 
         # Check results
         self.assertAlmostEqual(train_mse, 0.0012, places=2)
-        self.assertAlmostEqual(train_nrmse, 0.3205, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.3205, places=1)
         self.assertAlmostEqual(test_mse, 0.0016, places=2)
-        self.assertAlmostEqual(test_nrmse, 0.3660, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.3660, places=1)
     # end test_narma10_prediction_500neurons
 
     ########################

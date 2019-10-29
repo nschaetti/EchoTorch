@@ -68,6 +68,7 @@ class ESN(Node):
 
         # Properties
         self._output_dim = output_dim
+        self._hidden_dim = hidden_dim
         self._with_bias = with_bias
         self._washout = washout
         self._w_generator = w_generator
@@ -75,32 +76,8 @@ class ESN(Node):
         self._wbias_generator = wbias_generator
         self._dtype = dtype
 
-        # Generate W matrix
-        if isinstance(w_generator, mg.MatrixGenerator):
-            w = w_generator.generate(size=(hidden_dim, hidden_dim))
-        elif callable(w_generator):
-            w = w_generator(size=(hidden_dim, hidden_dim))
-        else:
-            w = w_generator
-        # end if
-
-        # Generate Win matrix
-        if isinstance(win_generator, mg.MatrixGenerator):
-            w_in = win_generator.generate(size=(hidden_dim, input_dim))
-        elif callable(win_generator):
-            w_in = win_generator(size=(hidden_dim, input_dim))
-        else:
-            w_in = win_generator
-        # end if
-
-        # Generate Wbias matrix
-        if isinstance(wbias_generator, mg.MatrixGenerator):
-            w_bias = wbias_generator.generate(size=hidden_dim)
-        elif callable(wbias_generator):
-            w_bias = wbias_generator(size=hidden_dim)
-        else:
-            w_bias = wbias_generator
-        # end if
+        # Generate matrices
+        w, w_in, w_bias = self._generate_matrices(w_generator, win_generator, wbias_generator)
 
         # Recurrent layer
         self._esn_cell = ESNCell(
@@ -281,5 +258,48 @@ class ESN(Node):
         """
         self._esn_cell.reset_hidden()
     # end reset_hidden
+
+    ####################
+    # PRIVATE
+    ####################
+
+    # Generate matrices
+    def _generate_matrices(self, w_generator, win_generator, wbias_generator):
+        """
+        Generate matrices
+        :param w_generator: W matrix generator
+        :param win_generator: Win matrix generator
+        :param wbias_generator: Wbias matrix generator
+        :return: W, Win, Wbias
+        """
+        # Generate W matrix
+        if isinstance(w_generator, mg.MatrixGenerator):
+            w = w_generator.generate(size=(self._hidden_dim, self._hidden_dim))
+        elif callable(w_generator):
+            w = w_generator(size=(self._hidden_dim, self._hidden_dim))
+        else:
+            w = w_generator
+        # end if
+
+        # Generate Win matrix
+        if isinstance(win_generator, mg.MatrixGenerator):
+            w_in = win_generator.generate(size=(self._hidden_dim, self._input_dim))
+        elif callable(win_generator):
+            w_in = win_generator(size=(self._hidden_dim, self._input_dim))
+        else:
+            w_in = win_generator
+        # end if
+
+        # Generate Wbias matrix
+        if isinstance(wbias_generator, mg.MatrixGenerator):
+            w_bias = wbias_generator.generate(size=self._hidden_dim)
+        elif callable(wbias_generator):
+            w_bias = wbias_generator(size=self._hidden_dim)
+        else:
+            w_bias = wbias_generator
+        # end if
+
+        return w, w_in, w_bias
+    # end _generate_matrices
 
 # end ESNCell
