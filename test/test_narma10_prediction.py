@@ -56,10 +56,10 @@ class Test_NARMA10_Prediction(TestCase):
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0026, places=4)
-        self.assertAlmostEqual(train_nrmse, 0.4759, places=4)
-        self.assertAlmostEqual(test_mse, 0.0029, places=4)
-        self.assertAlmostEqual(test_nrmse, 0.4879, places=4)
+        self.assertAlmostEqual(train_mse, 0.0026, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.4759, places=2)
+        self.assertAlmostEqual(test_mse, 0.0029, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.4879, places=2)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
@@ -74,10 +74,10 @@ class Test_NARMA10_Prediction(TestCase):
         )
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0012, places=4)
-        self.assertAlmostEqual(train_nrmse, 0.3205, places=4)
-        self.assertAlmostEqual(test_mse, 0.0016, places=4)
-        self.assertAlmostEqual(test_nrmse, 0.3660, places=4)
+        self.assertAlmostEqual(train_mse, 0.0012, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.3205, places=2)
+        self.assertAlmostEqual(test_mse, 0.0016, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.3660, places=2)
     # end test_narma10_prediction_500neurons
 
     ########################
@@ -142,7 +142,7 @@ class Test_NARMA10_Prediction(TestCase):
             bias_scaling=bias_scaling,
             ridge_param=ridge_param
         )
-        print(matrix_generator.generate((20, 1)))
+
         # Transfer in the GPU if possible
         if use_cuda:
             esn.cuda()
