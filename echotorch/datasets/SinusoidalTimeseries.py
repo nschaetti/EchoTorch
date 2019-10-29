@@ -5,20 +5,17 @@
 import torch
 from torch.utils.data.dataset import Dataset
 import math
-from random import shuffle
 import numpy as np
 
 
 # Sinusoidal Timeseries
 class SinusoidalTimeseries(Dataset):
     """
-    The Rössler attractor is the attractor for the Rössler system, a system of three non-linear ordinary differential
-    equations originally studied by Otto Rössler. These differential equations define a continuous-time dynamical
-    system that exhibits chaotic dynamics associated with the fractal properties of the attractor.
+    Sinusoidal timeseries
     """
 
     # Constructor
-    def __init__(self, sample_len, n_samples, w, a=1, start=0, u=0.0, seed=None):
+    def __init__(self, sample_len, n_samples, period, a=1.0, m=0.0, start=1, dtype=torch.float64):
         """
         Constructor
         :param sample_len: Length of the time-series in time steps.
@@ -30,15 +27,8 @@ class SinusoidalTimeseries(Dataset):
         # Properties
         self.sample_len = sample_len
         self.n_samples = n_samples
-        self.w = w
-        self.a = a
-        self.start = start
-        self.u = u
-
-        # Seed
-        if seed is not None:
-            np.random.seed(seed)
-        # end if
+        self.dtype = dtype
+        self.func = lambda n: a * math.sin(2.0 * math.pi * (n + start) / period) + m
 
         # Generate data set
         self.outputs = self._generate()
@@ -107,11 +97,11 @@ class SinusoidalTimeseries(Dataset):
         # For each sample
         for i in range(self.n_samples):
             # Tensor
-            sample = torch.zeros(self.sample_len, 1)
+            sample = torch.zeros(self.sample_len, 1, dtype=self.dtype)
 
             # Time steps
             for t in range(self.sample_len):
-                sample[t, 0] = self.a * math.sin(2.0 * math.pi * ((t + self.start) / self.w)) + self.u
+                sample[t, 0] = self.func(i * self.sample_len + t)
             # end for
 
             # Append
