@@ -20,6 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+import unittest
 from unittest import TestCase
 
 
@@ -43,3 +44,9 @@ class Test_NARMA10_Prediction(TestCase):
     # end test_simple
 
 # end Test_NARMA10_Prediction
+
+
+# Run test
+if __name__ == '__main__':
+    unittest.main()
+# end if
