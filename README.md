@@ -41,6 +41,42 @@ This repository consists of:
 * echotorch.transforms : Data transformations specific to ESN.
 * echotorch.utils : Tools, functions and measures for ESN and Reservoir Computing.
 
+## Examples
+
+Here is some examples of what you can do with EchoTorch.
+
+* [Conceptors](https://github.com/nschaetti/EchoTorch/tree/dev/examples/conceptors)
+    * [Four patterns generation with Conceptors](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/conceptors_4_patterns_generation.py) : load into a reservoir four patterns and re-generate them with conceptor-based neural filtering.
+* [Datasets](https://github.com/nschaetti/EchoTorch/tree/dev/examples/datasets)
+    * [Logistic Map](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/logistic_map.py) : generate data from the logistic map function.
+* [Evaluation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation)
+    * [Fold cross-validation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation/fold_cross_validation.py) : how to perform 10-fold cross validation.
+    * [Grid search](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation/grid_search.py) : hyperparamaters optimization with grid-search.
+* [Generation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/generation)
+    * [NARMA-10 generation with feedbacks](https://github.com/nschaetti/EchoTorch/blob/dev/examples/generation/narma10_esn_feedbacks.py) : generate NARMA-10 timeseries with feedbacks.
+* [Memory](https://github.com/nschaetti/EchoTorch/tree/dev/examples/memory)
+    * [Memtest](https://github.com/nschaetti/EchoTorch/blob/dev/examples/memory/memtest.py) : test the capacity of an ESN to memorize random inputs.
+* [MNIST](https://github.com/nschaetti/EchoTorch/blob/dev/examples/MNIST/)
+    * [Image to timeseries conversion](https://github.com/nschaetti/EchoTorch/blob/dev/examples/MNIST/convert_images.py) : how to convert images to timeseries.
+* [Nodes](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes)
+    * [Independent Component Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/ica_tests.py) : how to do Independent Component Analysis (ICA) with EchoTorch.
+    * [Principal Component Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/pca_tests.py) : how to do Principal Component Analysis (PCA) with EchoTorch.
+    * [Slow Feature Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/sfa_tests.py) : how to do Slow Features Analysis (SFA) with EchoTorch.
+* [Switch between attractors](https://github.com/nschaetti/EchoTorch/blob/dev/examples/switch_attractor/switch_attractor_esn.py)
+    * [Switch Attractor](https://github.com/nschaetti/EchoTorch/blob/dev/examples/switch_attractor/switch_attractor_esn.py) : test the capacity of a simple ESN to switch between attractors.
+* [Timeseries prediction](https://github.com/nschaetti/EchoTorch/tree/dev/examples/timeserie_prediction)
+    * [Mackey Glass](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/mackey_glass_esn.py) : Mackey-Glass timeseries prediction with ESN.
+    * [NARMA-10](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/mackey_glass_esn.py) : NARMA-10 timeseries prediction with ESN and original training methods (ridge regression).
+    * [NARMA-10 for reservoir sizes](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/mackey_glass_esn.py) : NARMA-10 timeseries prediction with ESN and different reservoir sizes.
+    * [NARMA-10 with gradient descent](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/mackey_glass_esn.py) : NARMA-10 timeseries prediction with ESN and gradient descent (it doesn't work, see tutorials).
+    * [NARMA-10 with Gated-ESN](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/narma10_gated_esn.py) : NARMA-10 prediction with Gated-ESN (ESN + PCA + LSTM).
+    * [NARMA-10 with Stacked-ESN](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/narma10_stacked_esn.py) : NARMA-10 prediction with Stacked-ESN.
+* [Unsupervised Learning](https://github.com/nschaetti/EchoTorch/tree/dev/examples/unsupervised_learning)
+    
+## Tutorials
+
+In addition to examples, here are some Jupyter tutorials to learn how Reservoir Computing works.
+
 ## Getting started
 
 These instructions will get you a copy of the project up and running
@@ -51,8 +87,14 @@ See deployment for notes on how to deploy the project on a live system.
 
 You need to following package to install EchoTorch.
 
-* pyTorch
-* TorchVision
+* sphinx_bootstrap_theme
+* future
+* numpy
+* scipy
+* scikit-learn
+* matplotlib
+* torch==1.3.0
+* torchvision==0.4.1
 
 ### Installation
 
@@ -137,6 +179,4 @@ prediction.
 ```python
 predicted = esn(test_input)
 ```
-
-### ESN training with Stochastic Gradient Descent
 
