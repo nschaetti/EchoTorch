@@ -24,15 +24,22 @@ Join our community to create datasets and deep-learning models! Chat with us on 
 
 ### Builds
 
+#### Master
 [![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=master)](https://www.travis-ci.org/nschaetti/EchoTorch)
+
+#### Dev
 [![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=dev)](https://www.travis-ci.org/nschaetti/EchoTorch)
+
+### Index
 
 This repository consists of:
 
-* echotorch.datasets : Pre-built datasets for common ESN tasks
-* echotorch.models : Generic pretrained ESN models
-* echotorch.transforms : Data transformations specific to echo state networks
-* echotorch.utils : Tools, functions and measures for echo state networks
+* echotorch.datasets : Pre-built datasets for common ESN tasks.
+* echotorch.evaluation : Tools and functions to evaluate and compare ESN models.
+* echotorch.models : Ready to train models and generic pre-trained ESN models.
+* echotorch.nn : All neural network Torch components for ESN and Reservoir Computing.
+* echotorch.transforms : Data transformations specific to ESN.
+* echotorch.utils : Tools, functions and measures for ESN and Reservoir Computing.
 
 ## Getting started
 
