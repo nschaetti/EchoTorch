@@ -2,14 +2,11 @@
 
 --------------------------------------------------------------------------------
 
-EchoTorch is a python module based on pyTorch to implement and test
+EchoTorch is a python module based on PyTorch to implement and test
 various flavours of Echo State Network models. EchoTorch is not
 intended to be put into production but for research purposes. As it is
-based on pyTorch, EchoTorch's layers can be integrated into deep
-architectures.
-EchoTorch gives two possible ways to train models :
-* Classical ESN training with Moore Penrose pseudo-inverse or LU decomposition;
-* pyTorch gradient descent optimizer;
+based on PyTorch, EchoTorch's layers are designed to be integrated into deep
+architectures for future work and research.
 
 <a href="https://twitter.com/intent/tweet?text=EchoTorch%20is%20a%20python%20module%20based%20on%20pyTorch%20to%20implement%20and%20test%20various%20flavours%20of%20Echo%20State%20Network%20models&url=https://github.com/nschaetti/EchoTorch&hashtags=pytorch,reservoircomputing,research">
     <img style='vertical-align: text-bottom !important;' src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social" alt="Tweet">
