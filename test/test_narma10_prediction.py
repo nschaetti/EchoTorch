@@ -24,7 +24,7 @@ import unittest
 from unittest import TestCase
 
 
-# Test NARMA10 timeseries prediction.
+# Test case : NARMA10 timeseries prediction.
 class Test_NARMA10_Prediction(TestCase):
     """
     Test NARMA10 timeseries prediction

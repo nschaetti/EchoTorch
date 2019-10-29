@@ -17,10 +17,15 @@ EchoTorch gives two possible ways to train models :
 
 Join our community to create datasets and deep-learning models! Chat with us on [Gitter](https://gitter.im/EchoTorch/Lobby) and join the [Google Group](https://groups.google.com/forum/#!forum/echotorch/) to collaborate with us.
 
+### Development status
+
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/echotorch.svg?style=flat-square)
-[![Codecov](https://img.shields.io/codecov/c/github/nschaetti/echotorch/master.svg?style=flat-square)](https://codecov.io/gh/nschaetti/EchoTorch)
 [![Documentation Status](	https://img.shields.io/readthedocs/echotorch/latest.svg?style=flat-square)](http://echotorch.readthedocs.io/en/latest/?badge=latest&style=flat-square)
-[![Build Status](https://img.shields.io/travis/nschaetti/EchoTorch/master.svg?style=flat-square)](https://travis-ci.org/nschaetti/EchoTorch)
+
+### Builds
+
+[![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=master)](https://www.travis-ci.org/nschaetti/EchoTorch)
+[![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=dev)](https://www.travis-ci.org/nschaetti/EchoTorch)
 
 This repository consists of:
 
