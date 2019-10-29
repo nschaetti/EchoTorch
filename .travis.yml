@@ -12,4 +12,4 @@ install:
 
 # Commands to run tests
 script:
-  - python3 -m unittest test narma10_prediction.py
+  - python3 -m unittest
