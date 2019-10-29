@@ -14,10 +14,10 @@ architectures for future work and research.
 
 Join our community to create datasets and deep-learning models! Chat with us on [Gitter](https://gitter.im/EchoTorch/Lobby) and join the [Google Group](https://groups.google.com/forum/#!forum/echotorch/) to collaborate with us.
 
-### Development status
+## Development status
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/echotorch.svg?style=flat-square)
-[![Documentation Status](	https://img.shields.io/readthedocs/echotorch/latest.svg?style=flat-square)](http://echotorch.readthedocs.io/en/latest/?badge=latest&style=flat-square)
+[![Documentation Status](https://img.shields.io/readthedocs/echotorch/latest.svg?style=flat-square)](http://echotorch.readthedocs.io/en/latest/?badge=latest&style=flat-square)
 
 ### Builds
 
@@ -27,11 +27,11 @@ Join our community to create datasets and deep-learning models! Chat with us on 
 #### Dev
 [![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=dev)](https://www.travis-ci.org/nschaetti/EchoTorch)
 
-### Index
+## Index
 
 This repository consists of:
 
-* echotorch.datasets : Pre-built datasets for common ESN tasks.
+* [echotorch.datasets] : Pre-built datasets for common ESN tasks.
 * echotorch.evaluation : Tools and functions to evaluate and compare ESN models.
 * echotorch.models : Ready to train models and generic pre-trained ESN models.
 * echotorch.nn : All neural network Torch components for ESN and Reservoir Computing.
@@ -73,6 +73,13 @@ Here is some examples of what you can do with EchoTorch.
 ## Tutorials
 
 In addition to examples, here are some Jupyter tutorials to learn how Reservoir Computing works.
+
+## Code and papers
+
+Here are some experimences done with ESN and reproduced with EchoTorch :
+
+* [Echo State Networks-Based Reservoir Computing for MNIST Handwritten Digits Recognition](https://www.researchgate.net/publication/309033779_Echo_State_Networks-Based_Reservoir_Computing_for_MNIST_Handwritten_Digits_Recognition?_sg=8VjQVy9bx8MPtY_4yrKU7xk8FXFP2hsPO9VjaBOtWgZfrgC8UJ7jEcn8xQsmM4I5-i6UKy8-41NH4Q.56KECTRGged0v4XjR9CWZveO3MoY8-ZLPxF8V9rSezvvSIcyuUtSUy9sNDI-7l7dmsnnPDir1MhG5wVvbqUDrQ&_sgd%5Bnc%5D=2&_sgd%5Bncwor%5D=0)
+* Controlling RNNs by Conceptors (Herbert Jaeger) :
 
 ## Getting started
 
