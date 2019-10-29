@@ -69,31 +69,21 @@ class RRCell(Node):
         self._n_samples = 0
 
         # Size
-        if self.with_bias:
+        if self._with_bias:
             self._x_size = input_dim + 1
         else:
             self._x_size = input_dim
         # end if
 
         # Set it as buffer
-        self.register_buffer('xTx', Variable(torch.zeros(self.x_size, self.x_size, dtype=dtype), requires_grad=False))
-        self.register_buffer('xTy', Variable(torch.zeros(self.x_size, output_dim, dtype=dtype), requires_grad=False))
+        self.register_buffer('xTx', Variable(torch.zeros(self._x_size, self._x_size, dtype=dtype), requires_grad=False))
+        self.register_buffer('xTy', Variable(torch.zeros(self._x_size, output_dim, dtype=dtype), requires_grad=False))
         self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
     # end __init__
 
     #####################
     # PROPERTIES
     #####################
-
-    # Output matrix
-    @property
-    def w_out(self):
-        """
-        Output matrix
-        :return:
-        """
-        return self.w_out
-    # end w_out
 
     #####################
     # PUBLIC
@@ -108,6 +98,7 @@ class RRCell(Node):
         self.xTx.data.fill_(0.0)
         self.xTy.data.fill_(0.0)
         self.w_out.data.fill_(0.0)
+        self._n_samples = 0
 
         # Training mode again
         self.train(True)
@@ -135,7 +126,7 @@ class RRCell(Node):
         # Learning algo
         if self.training:
             for b in range(batch_size):
-                if not self.averaged:
+                if not self._averaged:
                     self.xTx.data.add_(x[b].t().mm(x[b]).data)
                     self.xTy.data.add_(x[b].t().mm(y[b]).data)
                 else:
@@ -172,10 +163,10 @@ class RRCell(Node):
         """
         Finalize training with inverse or pseudo-inverse
         """
-        if self.averaged:
+        if self._averaged:
             # Average
-            self.xTx = self.xTx / self.n_samples
-            self.xTy = self.xTy / self.n_samples
+            self.xTx = self.xTx / self._n_samples
+            self.xTy = self.xTy / self._n_samples
         # end if
 
         # We need to solve wout = (xTx)^(-1)xTy

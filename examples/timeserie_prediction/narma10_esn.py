@@ -48,7 +48,7 @@ batch_size = 1
 spectral_radius = 0.99
 leaky_rate = 1.0
 input_dim = 1
-reservoir_size = 100
+reservoir_size = 200
 connectivity = 0.1
 
 # Predicted/target plot length
@@ -73,9 +73,10 @@ testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=Fal
 # Get matrix generators
 matrix_generator = mg.matrix_factory.get_generator(
     name='normal',
-    connectivity=connectivity,
+    connectivity=0.1,
     mean=0.0,
-    std=1.0
+    std=1.0,
+    dtype=torch.float32
 )
 
 # Create a Leaky-integrated ESN,
@@ -88,7 +89,10 @@ esn = etrs.ESN(
     learning_algo='inv',
     w_generator=matrix_generator,
     win_generator=matrix_generator,
-    wbias_generator=matrix_generator
+    wbias_generator=matrix_generator,
+    input_scaling=1.0,
+    bias_scaling=0,
+    ridge_param=0.000001
 )
 
 # Transfer in the GPU if possible

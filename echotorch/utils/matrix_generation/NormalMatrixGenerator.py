@@ -32,20 +32,20 @@ class NormalMatrixGenerator(MatrixGenerator):
     """
 
     # Generate the matrix
-    def generate(self, size):
+    def generate(self, size, dtype=torch.float32):
         """
         Generate the matrix
         :param: Matrix size (row, column)
+        :param: Data type to generate
         :return: Generated matrix
         """
         # Params
         try:
             connectivity = self._parameters['connectivity']
-            dtype = self._parameters['dtype']
             mean = self._parameters['mean']
             std = self._parameters['std']
-        except KeyError:
-            raise Exception("Argument missing")
+        except KeyError as k:
+            raise Exception("Argument missing : {}".format(k))
         # end try
 
         # Full connectivity if none
@@ -56,7 +56,7 @@ class NormalMatrixGenerator(MatrixGenerator):
             w = torch.zeros(size, dtype=dtype)
             w = w.normal_(mean=mean, std=std)
             mask = torch.zeros(size, dtype=dtype)
-            mask.bernoulli_(p=1.0-connectivity)
+            mask.bernoulli_(p=connectivity)
             w *= mask
         # end if
         return w

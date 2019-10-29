@@ -57,9 +57,11 @@ class MatrixGenerator:
     ################
 
     # Generate the matrix
-    def generate(self, size):
+    def generate(self, size, dtype=torch.float32):
         """
         Generate the matrix
+        :param size: Matrix size
+        :param dtype: Data type
         :return: Generated matrix
         """
         return torch.randn(size)

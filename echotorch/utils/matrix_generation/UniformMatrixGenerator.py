@@ -33,7 +33,7 @@ class UniformMatrixGenerator(MatrixGenerator):
     """
 
     # Generate the matrix
-    def generate(self, size):
+    def generate(self, size, dtype=torch.float32):
         """
         Generate the matrix
         :param size: Matrix size
@@ -43,7 +43,6 @@ class UniformMatrixGenerator(MatrixGenerator):
         try:
             connectivity = self._parameters['connectivity']
             size = self._parameters['size']
-            dtype = self._parameters['dtype']
             input_set = self._parameters['input_set']
         except KeyError:
             raise Exception("Argument missing")

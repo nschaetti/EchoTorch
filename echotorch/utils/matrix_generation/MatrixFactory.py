@@ -62,11 +62,10 @@ class MatrixFactory:
     # Get a generator
     def get_generator(self, name, **kwargs):
         generator = self._generators[name]
-        print(generator)
         if not generator:
             raise ValueError(name)
         # end if
-        return generator(kwargs)
+        return generator(**kwargs)
     # end get_generator
 
     ##################

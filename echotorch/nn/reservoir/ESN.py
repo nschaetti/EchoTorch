@@ -40,7 +40,7 @@ class ESN(Node):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
-                 spectral_radius=0.9, bias_scaling=0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
+                 spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, dtype=torch.float32):
         """
         Constructor
@@ -227,18 +227,22 @@ class ESN(Node):
     #######################
 
     # Forward
-    def forward(self, u, y, reset_state=True):
+    def forward(self, u, y=None, reset_state=True):
         """
         Forward
         :param u: Input signal.
-        :param y: Target outputs
+        :param y: Target outputs (or None if prediction)
         :return: Output or hidden states
         """
         # Compute hidden states
         hidden_states = self._esn_cell(u, reset_state=reset_state)
 
         # Learning algo
-        return self._output(hidden_states[:, self.washout:], y[:, self.washout:])
+        if not self.training:
+            return self._output(hidden_states[:, self._washout:], None)
+        else:
+            return self._output(hidden_states[:, self._washout:], y[:, self._washout:])
+        # end if
     # end forward
 
     #######################

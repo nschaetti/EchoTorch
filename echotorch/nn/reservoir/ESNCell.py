@@ -74,13 +74,13 @@ class ESNCell(Node):
         self.register_buffer('hidden', self._init_hidden())
 
         # Initialize input weights
-        self.register_buffer('w_in', self._scale_w(w_in))
+        self.register_buffer('w_in', self._scale_win(w_in))
 
         # Initialize reservoir weights randomly
         self.register_buffer('w', self._scale_w(w))
 
         # Initialize bias
-        self.register_buffer('w_bias', self._scale_w(w_bias))
+        self.register_buffer('w_bias', self._scale_wbias(w_bias))
     # end __init__
 
     ######################
@@ -226,9 +226,9 @@ class ESNCell(Node):
         return outputs
     # end forward
 
-    ###############################################
+    ######################
     # PRIVATE
-    ###############################################
+    ######################
 
     # Init hidden layer
     def _init_hidden(self):
@@ -262,7 +262,7 @@ class ESNCell(Node):
     # end _scale_win
 
     # Scale Wbias matrix
-    def _scale_wbias(self, w_bias, seed=None):
+    def _scale_wbias(self, w_bias):
         """
         Scale Wbias matrix
         :return: Scaled bias matrix

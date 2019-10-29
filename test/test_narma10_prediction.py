@@ -24,7 +24,8 @@ import unittest
 from unittest import TestCase
 import torch
 from echotorch.datasets.NARMADataset import NARMADataset
-import echotorch.nn as etnn
+import echotorch.nn.reservoir as etrs
+import echotorch.utils.matrix_generation as mg
 import echotorch.utils
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
@@ -46,7 +47,7 @@ class Test_NARMA10_Prediction(TestCase):
     ##############################
 
     # Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
-    def test_narma10_prediction(self):
+    def test_narma10_prediction_esn(self):
         """
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
         :return:
@@ -55,14 +56,14 @@ class Test_NARMA10_Prediction(TestCase):
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0025, places=4)
-        self.assertAlmostEqual(train_nrmse, 0.4625, places=4)
-        self.assertAlmostEqual(test_mse, 0.0038, places=4)
-        self.assertAlmostEqual(test_nrmse, 0.5616, places=4)
+        self.assertAlmostEqual(train_mse, 0.0026, places=4)
+        self.assertAlmostEqual(train_nrmse, 0.4759, places=4)
+        self.assertAlmostEqual(test_mse, 0.0029, places=4)
+        self.assertAlmostEqual(test_nrmse, 0.4879, places=4)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
-    def test_narma10_prediction_500neurons(self):
+    def test_narma10_prediction_esn_500neurons(self):
         """
         Test NARMA-10 prediction with 500 neurons
         :return:
@@ -73,10 +74,10 @@ class Test_NARMA10_Prediction(TestCase):
         )
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0018, places=4)
-        self.assertAlmostEqual(train_nrmse, 0.4001, places=4)
-        self.assertAlmostEqual(test_mse, 0.0021, places=4)
-        self.assertAlmostEqual(test_nrmse, 0.4182, places=4)
+        self.assertAlmostEqual(train_mse, 0.0012, places=4)
+        self.assertAlmostEqual(train_nrmse, 0.3205, places=4)
+        self.assertAlmostEqual(test_mse, 0.0016, places=4)
+        self.assertAlmostEqual(test_nrmse, 0.3660, places=4)
     # end test_narma10_prediction_500neurons
 
     ########################
@@ -85,7 +86,8 @@ class Test_NARMA10_Prediction(TestCase):
 
     # Run NARMA-10 prediction with classic ESN
     def narma10_prediction(self, train_sample_length=5000, test_sample_length=1000, n_train_samples=1, n_test_samples=1,
-                           batch_size=1, reservoir_size=100, spectral_radius=0.99, leaky_rate=1.0, w_sparsity=0.05):
+                           batch_size=1, reservoir_size=100, spectral_radius=0.99, connectivity=0.05,
+                           input_scaling=1.0, bias_scaling=0.0, ridge_param=0.000001):
         """
         Run NARMA-10 prediction with classic ESN
         :param train_sample_length: Training sample length
@@ -95,8 +97,10 @@ class Test_NARMA10_Prediction(TestCase):
         :param batch_size: Batch-size
         :param reservoir_size: Reservoir size (how many units in the reservoir)
         :param spectral_radius: Spectral radius
-        :param leaky_rate: Leaky-rate
-        :param w_sparsity: ratio of zero in internal weight matrix W
+        :param connectivity: ratio of zero in internal weight matrix W
+        :param input_scaling: Input scaling
+        :param bias_scaling: Bias scaling
+        :param ridge_param: Ridge parameter (regularization)
         :return: train MSE, train NRMSE, test MSE, test NRMSE
         """
         # Use CUDA?
@@ -115,17 +119,35 @@ class Test_NARMA10_Prediction(TestCase):
         trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
         testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
+        # Get matrix generators
+        matrix_generator = mg.matrix_factory.get_generator(
+            name='normal',
+            connectivity=connectivity,
+            mean=0.0,
+            std=1.0,
+            dtype=torch.float32
+        )
+
         # Create a Leaky-integrated ESN,
         # with least-square training algo.
-        esn = etnn.LiESN(
+        esn = etrs.ESN(
             input_dim=1,
             hidden_dim=reservoir_size,
             output_dim=1,
             spectral_radius=spectral_radius,
             learning_algo='inv',
-            leaky_rate=leaky_rate,
-            w_sparsity=w_sparsity
+            w_generator=matrix_generator,
+            win_generator=matrix_generator,
+            wbias_generator=matrix_generator,
+            input_scaling=input_scaling,
+            bias_scaling=bias_scaling,
+            ridge_param=ridge_param
         )
+
+        # Transfer in the GPU if possible
+        if use_cuda:
+            esn.cuda()
+        # end if
 
         # Transfer in the GPU if possible
         if use_cuda:
