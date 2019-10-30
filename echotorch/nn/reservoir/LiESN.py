@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/nn/ESN.py
-# Description : An Echo State Network module.
+# File : echotorch/nn/LiESN.py
+# Description : An Leaky-Rate Echo State Network module.
 # Date : 26th of January, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -36,29 +36,24 @@ class LiESN(ESN):
     """
 
     # Constructor
-    def __init__(self, leaky_rate, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
+    def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate, w_generator, win_generator, wbias_generator,
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, dtype=torch.float32):
         """
         Constructor
-        :param input_dim:
-        :param hidden_dim:
-        :param output_dim:
-        :param spectral_radius:
-        :param bias_scaling:
-        :param input_scaling:
-        :param w:
-        :param w_in:
-        :param w_bias:
-        :param sparsity:
-        :param input_set:
-        :param w_sparsity:
-        :param nonlin_func:
-        :param learning_algo:
-        :param ridge_param:
-        :param leaky_rate:
-        :param train_leaky_rate:
-        :param feedbacks:
+        :param input_dim: Input feature space dimension
+        :param hidden_dim: Reservoir hidden space dimension
+        :param output_dim: Output space dimension
+        :param leaky_rate: Leaky-rate
+        :param spectral_radius: Spectral radius
+        :param bias_scaling: Bias scaling
+        :param input_scaling: Input scaling
+        :param w_generator: Internal weight matrix generator
+        :param win_generator: Input-reservoir weight matrix generator
+        :param wbias_generator: Bias weight matrix generator
+        :param nonlin_func: Non-linear function
+        :param learning_algo: Learning algorithm (inv, pinv)
+        :param ridge_param: Regularisation parameter
         """
         super(LiESN, self).__init__(
             input_dim=input_dim,
@@ -76,6 +71,8 @@ class LiESN(ESN):
             softmax_output=softmax_output,
             washout=washout,
             with_bias=with_bias,
+            create_rnn=False,
+            create_output=True,
             dtype=dtype
         )
 
@@ -83,7 +80,7 @@ class LiESN(ESN):
         w, w_in, w_bias = self._generate_matrices(w_generator, win_generator, wbias_generator)
 
         # Recurrent layer
-        self.esn_cell = LiESNCell(
+        self._esn_cell = LiESNCell(
             leaky_rate=leaky_rate,
             input_dim=input_dim,
             output_dim=hidden_dim,
@@ -94,6 +91,7 @@ class LiESN(ESN):
             w_in=w_in,
             w_bias=w_bias,
             nonlin_func=nonlin_func,
+            washout=washout,
             dtype=torch.float32
         )
     # end __init__
@@ -109,5 +107,16 @@ class LiESN(ESN):
     ###############################################
     # PRIVATE
     ###############################################
+
+    # Create recurrent layer
+    def _create_recurrent_layer(self, **kargs):
+        """
+        Create recurrent layer
+        :param args: Recurrent layer arguments
+        :return: Recurrent layer (Node)
+        """
+        # Recurrent layer
+        return LiESNCell(**kargs)
+    # end _create_recurrent_layer
 
 # end ESNCell

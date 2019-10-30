@@ -45,92 +45,26 @@ class LiESNCell(ESNCell):
         """
         super(LiESNCell, self).__init__(*args, **kwargs)
 
-        # Type
-        if self.dtype == torch.float32:
-            tensor_type = torch.FloatTensor
-        else:
-            tensor_type = torch.DoubleTensor
-        # end if
-
-        # Leak rate
-        self.register_buffer('leaky_rate', Variable(tensor_type(1).fill_(leaky_rate), requires_grad=False))
+        # Param
+        self._leary_rate = leaky_rate
     # end __init__
 
-    ###############################################
+    #####################
     # PUBLIC
-    ###############################################
+    #####################
 
-    # Forward
-    def forward(self, u, y=None, reset_state=True):
+    #####################
+    # OVERLOAD
+    #####################
+
+    # Compute post nonlinearity hook
+    def _post_nonlinearity(self, x):
         """
-        Forward
-        :param u: Input signal.
-        :param y: Training target (None if prediction)
-        :param reset_state: Reset hidden state for each sample ?
-        :return: Resulting hidden states.
+        Compute post nonlinearity hook
+        :param x: Reservoir state at time t
+        :return: Reservoir state
         """
-        # Time length
-        time_length = int(u.size()[1])
-
-        # Number of batches
-        n_batches = int(u.size()[0])
-
-        # Outputs
-        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype))
-        outputs = outputs.cuda() if self.hidden.is_cuda else outputs
-
-        # For each batch
-        for b in range(n_batches):
-            # Reset hidden layer
-            if reset_state:
-                self.reset_hidden()
-            # end if
-
-                # Pre-update hook
-                u[b, :] = self._pre_update_hook(u[b, :], b)
-
-            # For each steps
-            for t in range(time_length):
-                # Current input
-                ut = u[b, t]
-
-                # Pre-hook
-                ut = self._pre_step_update_hook(ut, t)
-
-                # Compute input layer
-                u_win = self.w_in.mv(ut)
-
-                # Apply W to x
-                x_w = self.w.mv(self.hidden)
-
-                # Add everything
-                x = u_win + x_w + self.w_bias
-
-                # Apply activation function
-                x = self.nonlin_func(x)
-
-                # Leaky
-                x = (self.hidden.mul(1.0 - self.leaky_rate) + x.view(self.output_dim).mul(self.leaky_rate))
-
-                # Post-hook
-                x = self._post_step_update_hook(x.view(self.output_dim), ut, t)
-
-                # Add to outputs
-                self.hidden.data = x.data
-
-                # New last state
-                outputs[b, t] = self.hidden
-            # end for
-
-            # Post-update hook
-            outputs[b, :] = self._post_update_hook(outputs[b, :], u[b, :], b)
-        # end for
-
-        return outputs
-    # end forward
-
-    ###############################################
-    # PRIVATE
-    ###############################################
+        return self.hidden.mul(1.0 - self._leaky_rate) + x.view(self.output_dim).mul(self._leaky_rate)
+    # end _post_nonlinearity
 
 # end LiESNCell

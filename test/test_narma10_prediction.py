@@ -50,23 +50,21 @@ class Test_NARMA10_Prediction(TestCase):
     def test_narma10_prediction_esn(self):
         """
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
-        :return:
         """
         # Run NARMA-10 prediction with default hyper-parameters
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0026, places=2)
-        self.assertAlmostEqual(train_nrmse, 0.4759, places=1)
-        self.assertAlmostEqual(test_mse, 0.0029, places=2)
-        self.assertAlmostEqual(test_nrmse, 0.4879, places=1)
+        self.assertAlmostEqual(train_mse, 0.0016224145656451583, places=3)
+        self.assertAlmostEqual(train_nrmse, 0.37577239599126994, places=2)
+        self.assertAlmostEqual(test_mse, 0.0017364174127578735, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.37969705310624363, places=2)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
     def test_narma10_prediction_esn_500neurons(self):
         """
         Test NARMA-10 prediction with 500 neurons
-        :return:
         """
         # Run NARMA-10 prediction with default hyper-parameters
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(
@@ -74,11 +72,26 @@ class Test_NARMA10_Prediction(TestCase):
         )
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0012, places=2)
-        self.assertAlmostEqual(train_nrmse, 0.3205, places=1)
-        self.assertAlmostEqual(test_mse, 0.0016, places=2)
-        self.assertAlmostEqual(test_nrmse, 0.3660, places=1)
+        self.assertAlmostEqual(train_mse, 0.0014108717441558838, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.35041906056435, places=1)
+        self.assertAlmostEqual(test_mse, 0.0016827284125611186, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.37378097125176085, places=1)
     # end test_narma10_prediction_500neurons
+
+    # Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
+    def test_narma10_prediction_liesn(self):
+        """
+        Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
+        """
+        # Run NARMA-10 prediction with default hyper-parameters
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(leaky_rate=0.5)
+
+        # Check results
+        self.assertAlmostEqual(train_mse, 0.004415912088006735, places=3)
+        self.assertAlmostEqual(train_nrmse, 0.6199464337604867, places=2)
+        self.assertAlmostEqual(test_mse, 0.004936832003295422, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.6402275201454957, places=2)
+    # end test_narma10_prediction
 
     ########################
     # PRIVATE
@@ -86,8 +99,8 @@ class Test_NARMA10_Prediction(TestCase):
 
     # Run NARMA-10 prediction with classic ESN
     def narma10_prediction(self, train_sample_length=5000, test_sample_length=1000, n_train_samples=1, n_test_samples=1,
-                           batch_size=1, reservoir_size=100, spectral_radius=0.99, connectivity=0.05,
-                           input_scaling=1.0, bias_scaling=0.0, ridge_param=0.000001):
+                           batch_size=1, reservoir_size=100, leaky_rate=1.0, spectral_radius=0.99, connectivity=0.1,
+                           input_scaling=1.0, bias_scaling=0.0, ridge_param=0.0000001):
         """
         Run NARMA-10 prediction with classic ESN
         :param train_sample_length: Training sample length
@@ -96,6 +109,7 @@ class Test_NARMA10_Prediction(TestCase):
         :param n_test_samples: Number of test samples
         :param batch_size: Batch-size
         :param reservoir_size: Reservoir size (how many units in the reservoir)
+        :param leaky_rate: Leary rate
         :param spectral_radius: Spectral radius
         :param connectivity: ratio of zero in internal weight matrix W
         :param input_scaling: Input scaling
@@ -129,11 +143,12 @@ class Test_NARMA10_Prediction(TestCase):
 
         # Create a Leaky-integrated ESN,
         # with least-square training algo.
-        esn = etrs.ESN(
+        esn = etrs.LiESN(
             input_dim=1,
             hidden_dim=reservoir_size,
             output_dim=1,
             spectral_radius=spectral_radius,
+            leaky_rate=leaky_rate,
             learning_algo='inv',
             w_generator=matrix_generator,
             win_generator=matrix_generator,

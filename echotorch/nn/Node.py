@@ -50,6 +50,9 @@ class Node(nn.Module):
         self._input_dim = input_dim
         self._output_dim = output_dim
         self._dtype = dtype
+
+        # Handlers
+        self._neural_filter_handler = None
     # end __init__
 
     #######################
@@ -138,6 +141,16 @@ class Node(nn.Module):
     # Forward/Backward/Init
     #######################
 
+    # Reset learning
+    def reset(self):
+        """
+        Reset learning
+        :return:
+        """
+        # Training mode again
+        self.train(True)
+    # end reset
+
     # Forward
     def forward(self, *input):
         """
@@ -148,6 +161,14 @@ class Node(nn.Module):
         pass
     # end forward
 
+    # Finish training
+    def finalize(self):
+        """
+        Finish training
+        """
+        pass
+    # end finalize
+
     # Initialization of the node
     def initialize(self):
         """
@@ -157,15 +178,31 @@ class Node(nn.Module):
     # end initialize
 
     #######################
+    # Public
+    #######################
+
+    # Connect handler
+    def connect(self, handler_name, handler_func):
+        """
+        Connect handler
+        :paramm handler_name: Handler name
+        :param handler_func: Handler function
+        """
+        if handler_name == "neural-filter":
+            self._neural_filter_handler = handler_func
+        # end if
+    # end connect
+
+    #######################
     # Private
     #######################
 
     # Hook which gets executed before the update state equation for every sample.
-    def _pre_update_hook(self, inputs, batch_i):
+    def _pre_update_hook(self, inputs, sample_i):
         """
         Hook which gets executed before the update equation for a batch
         :param inputs: Input signal.
-        :param batch_i: Batch position.
+        :param sample_i: Batch position.
         """
         return inputs
     # end _pre_update_hook
@@ -181,12 +218,12 @@ class Node(nn.Module):
     # end _pre_step_update_hook
 
     # Hook which gets executed after the update state equation for every sample.
-    def _post_update_hook(self, states, inputs, batch_i):
+    def _post_update_hook(self, states, inputs, sample_i):
         """
         Hook which gets executed after the update equation for a batch
         :param states: Reservoir's states.
         :param inputs: Input signal.
-        :param batch_i: Batch position.
+        :param sample_i: Batch position.
         """
         return states
     # end _post_update_hook
