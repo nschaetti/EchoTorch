@@ -219,7 +219,7 @@ class ESNCell(Node):
 
                 # Neural filter
                 if self._neural_filter_handler is not None:
-                    x = self._neural_filter_handler(x, ut, t)
+                    x = self._neural_filter_handler(x, ut, t, t < self._washout)
                 # end if
 
                 # New last state
