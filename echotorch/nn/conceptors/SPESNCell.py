@@ -85,6 +85,11 @@ class SPESNCell(ESNCell):
             self.xTy = self.xTy / self._n_samples
         # end if
 
+        # Debug W, Win, Wbias
+        self._call_debug_point("Wstar", self.w)
+        self._call_debug_point("Win", self.w_in)
+        self._call_debug_point("Wbias", self.w_bias)
+
         # Debug for xTx and xTy and ridge_param
         self._call_debug_point("xTx", self.xTx)
         self._call_debug_point("xTy", self.xTy)
@@ -92,7 +97,8 @@ class SPESNCell(ESNCell):
 
         # We need to solve w = (xTx)^(-1)xTy
         # Covariance matrix xTx
-        ridge_xTx = self.xTx + self._w_ridge_param * torch.eye(self._input_dim, dtype=self._dtype)
+        # ridge_xTx = self.xTx + self._w_ridge_param * torch.eye(self._input_dim, dtype=self._dtype)
+        ridge_xTx = self.xTx + self._w_ridge_param * torch.eye(self.output_dim, dtype=self._dtype)
 
         # Debug for ridge xTx
         self._call_debug_point("ridge_xTx", ridge_xTx)
@@ -110,7 +116,7 @@ class SPESNCell(ESNCell):
         self._call_debug_point("inv_xTx", inv_xTx)
 
         # w = (xTx)^(-1)xTy
-        self.w.data = torch.mm(inv_xTx, self.xTy).data
+        self.w.data = torch.mm(inv_xTx, self.xTy).t().data
 
         # Debug for W
         self._call_debug_point("w", self.w)
@@ -131,7 +137,7 @@ class SPESNCell(ESNCell):
         :param sample_i: Batch position.
         """
         # Call debug point for inputs
-        self._call_debug_point("u{}".format(self._n_samples), inputs)
+        self._call_debug_point("u{}".format(self._n_samples), inputs[self._washout:])
         return inputs
     # end _pre_update_hook
 
@@ -162,13 +168,10 @@ class SPESNCell(ESNCell):
             learn_length = X.size(0)
 
             # Xold (reservoir states at t - 1))
-            # Xold = torch.zeros(learn_length, self.output_dim, dtype=self._dtype)
-            # Xold[1:, :] = X[:-1]
             Xold = self.features(X)
             self._call_debug_point("Xold{}".format(self._n_samples), Xold)
 
             # Y (W*x + Win*u), what we want to predict
-            # Y = SPESNCell.arctanh(X) - self.w_bias.repeat(learn_length, 1)
             Y = self.targets(X)
             self._call_debug_point("Y{}".format(self._n_samples), Y)
 
@@ -177,8 +180,6 @@ class SPESNCell(ESNCell):
                 self.xTx.data.add_((Xold.t().mm(Xold) / learn_length).data)
                 self.xTy.data.add_((Xold.t().mm(Y) / learn_length).data)
             else:
-                # current_xTx = Xold.t().mm(Xold)
-                # print(current_xTx[0, 0])
                 self.xTx.data.add_(Xold.t().mm(Xold).data)
                 self.xTy.data.add_(Xold.t().mm(Y).data)
             # end if
