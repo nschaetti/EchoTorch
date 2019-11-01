@@ -35,12 +35,18 @@ class Node(nn.Module):
     Basis node for EchoTorch
     """
 
+    # Debug mode
+    NO_DEBUG = 0
+    DEBUG_TEST = 1
+    DEBUG_OUTPUT = 2
+
     # Constructor
-    def __init__(self, input_dim, output_dim, dtype=torch.float32):
+    def __init__(self, input_dim, output_dim, debug=NO_DEBUG, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Node's input dimension.
         :param output_dim: Node's output dimension.
+        :param debug: Set debug mode
         :param dtype: Node's type.
         """
         # Superclass
@@ -49,7 +55,11 @@ class Node(nn.Module):
         # Params
         self._input_dim = input_dim
         self._output_dim = output_dim
+        self._debug = debug
         self._dtype = dtype
+
+        # Debug points
+        self._debug_points = dict()
 
         # Handlers
         self._neural_filter_handler = None
@@ -181,6 +191,25 @@ class Node(nn.Module):
     # Public
     #######################
 
+    # Set debug mode
+    def debug(self, mode):
+        """
+        Set debug mode
+        :param mode: True/False
+        """
+        self._debug = mode
+    # end debug
+
+    # Set a debug point
+    def debug_point(self, name, value):
+        """
+        Set a debug point for comparison
+        :param name: Name of the debug point (corresponding to one given by the module)
+        :param value: Value of the debug point to compare (ex, matrix, scalar, etc)
+        """
+        self._debug_points[name] = value
+    # end debug_point
+
     # Connect handler
     def connect(self, handler_name, handler_func):
         """
@@ -194,8 +223,152 @@ class Node(nn.Module):
     # end connect
 
     #######################
+    # Numerical operations
+    #######################
+
+    # Matrix inverse
+    def _inverse(self, name, M):
+        """
+        Matrix inverse
+        :param name: Name associated with M
+        :param M: Matrix to inverse
+        :return: Inverse matrix
+        """
+        if self._debug == Node.DEBUG_TEST or self._debug == Node.DEBUG_OUTPUT:
+            # SVD of matrix
+            _, S, _ = torch.svd(M)
+
+            # Condition number
+            condition_number = torch.log10(S[0] / S[-1])
+
+            # Show condition number
+            if self._debug == Node.DEBUG_OUTPUT:
+                print(
+                    "DEBUG - INFO : Condition number while inversing {} : {}".format(
+                        name,
+                        condition_number
+                    )
+                )
+
+            # Bad condition number
+            if condition_number > 14:
+                print(
+                    "DEBUG - WARNING : High condition number while inversing {} : {}".format(
+                        name,
+                        condition_number
+                    )
+                )
+            # end if
+        # end if
+        return torch.inverse(M)
+    # end _inverse
+
+    # Matrix pseudo-inverse
+    def _pinverse(self, name, M):
+        """
+        Matrix pseudo-inverse
+        :param name: Name associated with M
+        :param M: Matrix to inverse
+        :return: Pseudo-inverse of matrix
+        """
+        if self._debug == Node.DEBUG_TEST or self._debug == Node.DEBUG_OUTPUT:
+            # SVD of matrix
+            _, S, _ = torch.svd(M)
+
+            # Condition number
+            condition_number = torch.log10(S[0] / S[-1])
+
+            # Show condition number
+            if self._debug == Node.DEBUG_OUTPUT:
+                print(
+                    "DEBUG - INFO : Condition number while pseudo-inversing {} : {}".format(
+                        name,
+                        condition_number
+                    )
+                )
+
+            # Bad condition number
+            if condition_number > 14:
+                print(
+                    "DEBUG - WARNING : High condition number while pseudo-inversing {} : {}".format(
+                        name,
+                        condition_number
+                    )
+                )
+            # end if
+        # end if
+        return torch.pinverse(M)
+    # end _pinverse
+
+    #######################
     # Private
     #######################
+
+    # Call debug point
+    def _call_debug_point(self, name, value):
+        """
+        Call a debug point from inside the module to compare with given values
+        :param name: Name of the debug point
+        :param value: Value of the debug point
+        """
+        # If debug point set
+        if self._debug > Node.NO_DEBUG and name in self._debug_points.keys():
+            # Get value
+            value_from_module = value
+            value_from_outside, precision = self._debug_points[name]
+
+            # Test same type
+            if type(value_from_module) == type(value_from_outside):
+                # Type scalar
+                if isinstance(value_from_module, int) or isinstance(value_from_module, float):
+                    # Test absolute difference
+                    abs_diff = torch.abs(value_from_module - value_from_outside)
+                    if abs_diff > precision:
+                        print(
+                            "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})".format(
+                                name,
+                                value_from_module,
+                                value_from_outside
+                            )
+                        )
+                    # end if
+                # Matrix/Tensor
+                elif isinstance(value_from_module, torch.Tensor):
+                    # Test size
+                    if value_from_module.size() == value_from_outside.size():
+                        # Test Forb norm diff
+                        norm_diff = torch.norm(value_from_module - value_from_outside)
+                        if norm_diff > precision:
+                            print(
+                                "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})".format(
+                                    name,
+                                    torch.norm(value_from_module),
+                                    torch.norm(value_from_outside)
+                                )
+                            )
+                        # end if
+                    else:
+                        print(
+                            "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{})".format(
+                                name,
+                                value_from_module.size(),
+                                value_from_outside.size()
+                            )
+                        )
+                        exit()
+                # end if
+            else:
+                print(
+                    "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{})".format(
+                        name,
+                        type(value_from_module),
+                        type(value_from_outside)
+                    )
+                )
+                exit()
+            # end if
+        # end if
+    # end _call_debug_point
 
     # Hook which gets executed before the update state equation for every sample.
     def _pre_update_hook(self, inputs, sample_i):

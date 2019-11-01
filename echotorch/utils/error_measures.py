@@ -17,8 +17,8 @@ def nrmse(outputs, targets):
     :return: Normalized root-mean square deviation
     """
     # Flatten tensors
-    outputs = outputs.view(outputs.nelement())
-    targets = targets.view(targets.nelement())
+    outputs = outputs.reshape(-1)
+    targets = targets.reshape(-1)
 
     # Check dim
     if outputs.size() != targets.size():

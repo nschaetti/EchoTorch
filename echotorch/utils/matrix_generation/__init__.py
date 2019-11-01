@@ -24,9 +24,10 @@ from .MatrixFactory import MatrixFactory, matrix_factory
 from .MatrixGenerator import MatrixGenerator
 from .MatloabLoader import MatlabLoader
 from .NormalMatrixGenerator import NormalMatrixGenerator
+from .NumpyLoader import NumpyLoader
 from .UniformMatrixGenerator import UniformMatrixGenerator
 
 # All
 __all__ = [
-    'MatrixFactory', 'MatrixGenerator', 'MatloabLoader', 'matrix_factory'
+    'MatrixFactory', 'MatrixGenerator', 'MatloabLoader', 'NumpyLoader', 'matrix_factory'
 ]

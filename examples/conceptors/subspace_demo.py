@@ -25,6 +25,7 @@ import torch
 import echotorch.nn.conceptors as ecnc
 import echotorch.utils.matrix_generation as mg
 import argparse
+import echotorch.utils
 import echotorch.datasets as etds
 from echotorch.datasets import DatasetComposer
 from torch.utils.data.dataloader import DataLoader
@@ -111,7 +112,7 @@ pattern2_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_
     dtype=dtype
 )
 pattern3_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
-    period=[0.9000000000000002, -0.11507714997817164, 0.17591170369788622, -0.9, -0.021065045054201592],
+    period=[0.900000000000000, -0.11507714997817164, 0.17591170369788622, -0.9, -0.021065045054201592],
     dtype=dtype
 )
 pattern4_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
@@ -146,22 +147,47 @@ spesn = ecnc.SPESN(
     dtype=dtype
 )
 
+# Xold and Y collectors
+Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
+Y_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
+
 # Go through dataset
 for i, data in enumerate(patterns_loader):
     # Inputs and labels
     inputs, outputs, labels = data
 
     # Feed SP-ESN
-    spesn(inputs, inputs)
+    X = spesn(inputs, inputs)
+
+    # Get targets
+    Y = spesn.cell.targets(X[0])
+
+    # Get features
+    Xold = spesn.cell.features(X[0])
+
+    # Save
+    Xold_collector[i*learn_length:i*learn_length+learn_length] = Xold
+    Y_collector[i*learn_length:i*learn_length+learn_length] = Y
 # end for
 
 # Finalize training
 spesn.finalize()
-print(spesn.w[0, :10])
+
+# Load
+wnew_generator = mg.matrix_factory.get_generator("numpy", file_name="data/W.npy")
+wnew = wnew_generator.generate(size=(reservoir_size, reservoir_size), dtype=torch.float64)
+
+# Predicted by W
+predY = torch.mm(spesn.cell.w, Xold_collector.t()).t()
+
+# Compute NRMSE
+training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
+print("Training NRMSE : {}".format(training_NRMSE))
+
 # Run trained ESN with empty inputs
 generated = spesn(torch.zeros(1, 2000, 1, dtype=dtype))
 
-for i in range(14):
+"""for i in range(14):
     plt.plot(generated[0, i*100:i*100+100, 0])
     plt.show()
-# end for
+# end for"""

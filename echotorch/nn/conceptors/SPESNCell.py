@@ -85,21 +85,35 @@ class SPESNCell(ESNCell):
             self.xTy = self.xTy / self._n_samples
         # end if
 
+        # Debug for xTx and xTy and ridge_param
+        self._call_debug_point("xTx", self.xTx)
+        self._call_debug_point("xTy", self.xTy)
+        self._call_debug_point("w_ridge_param", self._w_ridge_param)
+
         # We need to solve w = (xTx)^(-1)xTy
         # Covariance matrix xTx
         ridge_xTx = self.xTx + self._w_ridge_param * torch.eye(self._input_dim, dtype=self._dtype)
 
+        # Debug for ridge xTx
+        self._call_debug_point("ridge_xTx", ridge_xTx)
+
         # Inverse / pinverse
         if self._w_learning_algo == "inv":
-            inv_xTx = ridge_xTx.inverse()
+            inv_xTx = self._inverse("ridge_xTx", ridge_xTx)
         elif self._w_learning_algo == "pinv":
-            inv_xTx = ridge_xTx.pinverse()
+            inv_xTx = self._pinverse("ridge_xTx", ridge_xTx)
         else:
             raise Exception("Unknown learning method {}".format(self._learning_algo))
         # end if
 
+        # Debug for inv_xTx
+        self._call_debug_point("inv_xTx", inv_xTx)
+
         # w = (xTx)^(-1)xTy
         self.w.data = torch.mm(inv_xTx, self.xTy).data
+
+        # Debug for W
+        self._call_debug_point("w", self.w)
 
         # Not in training mode anymore
         self.train(False)
@@ -116,7 +130,8 @@ class SPESNCell(ESNCell):
         :param inputs: Input signal.
         :param sample_i: Batch position.
         """
-        pass
+        # Call debug point for inputs
+        self._call_debug_point("u{}".format(self._n_samples), inputs)
         return inputs
     # end _pre_update_hook
 
@@ -141,25 +156,36 @@ class SPESNCell(ESNCell):
         if self.training:
             # X (reservoir states)
             X = states[self._washout:]
+            self._call_debug_point("X{}".format(self._n_samples), X)
 
             # Learn length
             learn_length = X.size(0)
 
             # Xold (reservoir states at t - 1))
-            Xold = torch.zeros(learn_length, self.output_dim, dtype=self._dtype)
-            Xold[1:, :] = states[self._washout:-1]
+            # Xold = torch.zeros(learn_length, self.output_dim, dtype=self._dtype)
+            # Xold[1:, :] = X[:-1]
+            Xold = self.features(X)
+            self._call_debug_point("Xold{}".format(self._n_samples), Xold)
 
             # Y (W*x + Win*u), what we want to predict
-            Y = SPESNCell.arctanh(X) - self.w_bias.repeat(learn_length, 1)
+            # Y = SPESNCell.arctanh(X) - self.w_bias.repeat(learn_length, 1)
+            Y = self.targets(X)
+            self._call_debug_point("Y{}".format(self._n_samples), Y)
 
             # Covariance matrices
             if self._averaged:
                 self.xTx.data.add_((Xold.t().mm(Xold) / learn_length).data)
                 self.xTy.data.add_((Xold.t().mm(Y) / learn_length).data)
             else:
+                # current_xTx = Xold.t().mm(Xold)
+                # print(current_xTx[0, 0])
                 self.xTx.data.add_(Xold.t().mm(Xold).data)
                 self.xTy.data.add_(Xold.t().mm(Y).data)
             # end if
+
+            # Debug for xTx and xTy
+            self._call_debug_point("xTx{}".format(self._n_samples), Xold.t().mm(Xold))
+            self._call_debug_point("xTy{}".format(self._n_samples), Xold.t().mm(Y))
 
             # Inc
             self._n_samples += 1
@@ -177,6 +203,36 @@ class SPESNCell(ESNCell):
         """
         return states
     # end _post_step_update_hook
+
+    ##################
+    # TARGETS
+    ##################
+
+    # Features to learn from
+    def features(self, X):
+        """
+        Features
+        :param X:
+        :return:
+        """
+        # Xold (reservoir states at t - 1))
+        learn_length = X.size(0)
+        Xold = torch.zeros(learn_length, self.output_dim, dtype=self._dtype)
+        Xold[1:, :] = X[:-1, :]
+        return Xold
+    # end features
+
+    # Targets to be learn
+    def targets(self, X):
+        """
+        Returns targets to be learn
+        :param X: Reservoir states (L, Nx)
+        :return: Matrix Y to predict (L, Nx)
+        """
+        # Y (W*x + Win*u), what we want to predict
+        learn_length = X.size(0)
+        return SPESNCell.arctanh(X) - self.w_bias.repeat(learn_length, 1)
+    # end targets
 
     ##################
     # STATIC
