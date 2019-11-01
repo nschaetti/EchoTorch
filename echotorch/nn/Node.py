@@ -27,6 +27,7 @@ Created on 29 October 2019
 import torch
 import torch.sparse
 import torch.nn as nn
+import numpy as np
 
 
 # Basis node for EchoTorch
@@ -201,13 +202,14 @@ class Node(nn.Module):
     # end debug
 
     # Set a debug point
-    def debug_point(self, name, value):
+    def debug_point(self, name, value, precision):
         """
         Set a debug point for comparison
         :param name: Name of the debug point (corresponding to one given by the module)
         :param value: Value of the debug point to compare (ex, matrix, scalar, etc)
+        :param precision: Limit precision.
         """
-        self._debug_points[name] = value
+        self._debug_points[name] = (value, precision)
     # end debug_point
 
     # Connect handler
@@ -311,6 +313,13 @@ class Node(nn.Module):
         :param name: Name of the debug point
         :param value: Value of the debug point
         """
+        # String
+        error_precision = "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})"
+        info_precision_scalar = "DEBUG - INFO: {} (scalar) has an absolute difference of {}"
+        info_precision_matrix = "DEBUG - INFO: {} (matrix) has a norm-2 difference of {}"
+        fatal_size = "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{})"
+        fatal_type = "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{})"
+
         # If debug point set
         if self._debug > Node.NO_DEBUG and name in self._debug_points.keys():
             # Get value
@@ -322,15 +331,12 @@ class Node(nn.Module):
                 # Type scalar
                 if isinstance(value_from_module, int) or isinstance(value_from_module, float):
                     # Test absolute difference
-                    abs_diff = torch.abs(value_from_module - value_from_outside)
+                    abs_diff = np.abs(value_from_module - value_from_outside)
+                    if self._debug == Node.DEBUG_OUTPUT:
+                        print(info_precision_scalar.format(name, abs_diff))
+                    # end if
                     if abs_diff > precision:
-                        print(
-                            "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})".format(
-                                name,
-                                value_from_module,
-                                value_from_outside
-                            )
-                        )
+                        print(error_precision.format(name, value_from_module, value_from_outside))
                     # end if
                 # Matrix/Tensor
                 elif isinstance(value_from_module, torch.Tensor):
@@ -338,34 +344,19 @@ class Node(nn.Module):
                     if value_from_module.size() == value_from_outside.size():
                         # Test Forb norm diff
                         norm_diff = torch.norm(value_from_module - value_from_outside)
+                        if self._debug == Node.DEBUG_OUTPUT:
+                            print(info_precision_matrix.format(name, norm_diff))
+                        # end if
                         if norm_diff > precision:
-                            print(
-                                "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})".format(
-                                    name,
-                                    torch.norm(value_from_module),
-                                    torch.norm(value_from_outside)
-                                )
-                            )
+                            print(error_precision.format(name, torch.norm(value_from_module), torch.norm(value_from_outside)))
                         # end if
                     else:
-                        print(
-                            "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{})".format(
-                                name,
-                                value_from_module.size(),
-                                value_from_outside.size()
-                            )
-                        )
-                        exit()
+                        print(fatal_size.format(name, value_from_module.size(), value_from_outside.size()))
+                        raise Exception()
                 # end if
             else:
-                print(
-                    "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{})".format(
-                        name,
-                        type(value_from_module),
-                        type(value_from_outside)
-                    )
-                )
-                exit()
+                print(fatal_type.format(name, type(value_from_module), type(value_from_outside)))
+                raise Exception()
             # end if
         # end if
     # end _call_debug_point
