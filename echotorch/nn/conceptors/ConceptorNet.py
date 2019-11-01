@@ -36,7 +36,7 @@ class ConceptorNet(ESN):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, n_conceptors, dtype=torch.float32):
+    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -61,19 +61,33 @@ class ConceptorNet(ESN):
         self._input_dim = input_dim
         self._output_dim = output_dim
         self._hidden_dim = hidden_dim
-        self._n_conceptor = n_conceptors
         self._dtype = dtype
+
+        # Current conceptor
+        self._current_conceptor = None
 
         # Recurrent layer
         self._esn_cell = esn_cell
 
         # Neural filter
         self._esn_cell.connect("neural-filter", self._neural_filter)
+
+        # Forward hook to learn conceptor
+        self._esn_cell.register_forward_hook(self._)
     # end __init__
 
     ####################
     # PUBLIC
     ####################
+
+    # Set the current conceptor
+    def set_conceptor(self, C):
+        """
+        Set the current conceptor
+        :param C: The conceptor matrix
+        """
+        self._current_conceptor = C
+    # end set_conceptor
 
     # Finish training
     def finalize(self):
@@ -98,12 +112,22 @@ class ConceptorNet(ESN):
     def _neural_filter(self, x, ut, t):
         """
         Neural filter
-        :param x:
-        :param ut:
-        :param t:
-        :return:
+        :param x: States to filter
+        :param ut: Inputs
+        :param t: Time t
         """
-        print(t)
+        return self._current_conceptor(x)
     # end _neural_filter
+
+    # Hook executed to learn conceptors
+    def _forward_hook_conceptor_learning(self, module, inputs, outputs):
+        """
+        Hook executed to learn conceptors
+        :param module: Module hooked
+        :param inputs: Module's inputs
+        :param outputs: Module's outputs
+        """
+        self._current_conceptor(outputs)
+    # end _forward_hook_conceptor_learning
 
 # end ConceptorNet
