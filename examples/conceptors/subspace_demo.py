@@ -28,13 +28,18 @@ import argparse
 import echotorch.utils
 import echotorch.datasets as etds
 from echotorch.datasets import DatasetComposer
+from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
 
 # Debug ?
-debug = True
+debug = False
 if debug:
-    torch.set_printoptions(precision=14)
+    torch.set_printoptions(precision=16)
+    debug_mode = Node.DEBUG_OUTPUT
+    precision = 0.000001
+else:
+    debug_mode = Node.NO_DEBUG
 # end if
 
 # Random numb. init
@@ -112,7 +117,7 @@ pattern2_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_
     dtype=dtype
 )
 pattern3_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
-    period=[0.900000000000000, -0.11507714997817164, 0.17591170369788622, -0.9, -0.021065045054201592],
+    period=[0.9000000000000002, -0.11507714997817164, 0.17591170369788622, -0.9, -0.021065045054201592],
     dtype=dtype
 )
 pattern4_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
@@ -122,7 +127,6 @@ pattern4_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn
 
 # Composer
 dataset_training = DatasetComposer([pattern1_training, pattern2_training, pattern3_training, pattern4_training])
-# dataset_training = DatasetComposer([pattern1_training])
 
 # Data loader
 patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_workers=1)
@@ -144,8 +148,53 @@ spesn = ecnc.SPESN(
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
     washout=washout_length,
+    debug=debug_mode,
     dtype=dtype
 )
+
+if debug_mode > Node.NO_DEBUG:
+    # Load sample matrices
+    for i in range(4):
+        # Input patterns
+        spesn.cell.debug_point(
+            "u{}".format(i),
+            torch.reshape(torch.from_numpy(np.load("data/debug/subspace_demo/u{}.npy".format(i))), shape=(-1, 1)),
+            precision
+        )
+
+        # States
+        spesn.cell.debug_point(
+            "X{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/X{}.npy".format(i))),
+            precision
+        )
+
+        # Targets
+        spesn.cell.debug_point(
+            "Y{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/Y{}.npy".format(i))),
+            precision
+        )
+
+        # Xold
+        spesn.cell.debug_point(
+            "Xold{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/Xold{}.npy".format(i))),
+            precision
+        )
+    # end for
+
+    # Load debug W, xTx, xTy
+    spesn.cell.debug_point("Wstar", torch.from_numpy(np.load("data/debug/subspace_demo/Wstar.npy", allow_pickle=True)), precision)
+    spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/subspace_demo/Win.npy")), precision)
+    spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/subspace_demo/Wbias.npy")), precision)
+    spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/subspace_demo/xTx.npy")), precision)
+    spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")), precision)
+    spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
+    spesn.cell.debug_point("ridge_xTx", torch.from_numpy(np.load("data/debug/subspace_demo/ridge_xTx.npy")), precision)
+    spesn.cell.debug_point("inv_xTx", torch.from_numpy(np.load("data/debug/subspace_demo/inv_xTx.npy")), precision)
+    spesn.cell.debug_point("w", torch.from_numpy(np.load("data/debug/subspace_demo/W.npy")), precision)
+# end if
 
 # Xold and Y collectors
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
@@ -173,10 +222,6 @@ for i, data in enumerate(patterns_loader):
 # Finalize training
 spesn.finalize()
 
-# Load
-wnew_generator = mg.matrix_factory.get_generator("numpy", file_name="data/W.npy")
-wnew = wnew_generator.generate(size=(reservoir_size, reservoir_size), dtype=torch.float64)
-
 # Predicted by W
 predY = torch.mm(spesn.cell.w, Xold_collector.t()).t()
 
@@ -186,8 +231,10 @@ print("Training NRMSE : {}".format(training_NRMSE))
 
 # Run trained ESN with empty inputs
 generated = spesn(torch.zeros(1, 2000, 1, dtype=dtype))
-
+plt.plot(generated[0, :500])
+plt.show()
 """for i in range(14):
     plt.plot(generated[0, i*100:i*100+100, 0])
     plt.show()
-# end for"""
+# end for
+"""
