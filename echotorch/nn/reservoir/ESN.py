@@ -42,7 +42,7 @@ class ESN(Node):
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, create_rnn=True, create_output=True,
-                 debug=Node.NO_DEBUG, dtype=torch.float32):
+                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -63,12 +63,14 @@ class ESN(Node):
         :param create_rnn: Create RNN layer ?
         :param create_output: Create the output layer ?
         :param debug: Debug mode
+        :param test_case: Test case to call for test
         :param dtype: Data type
         """
         super(ESN, self).__init__(
             input_dim=input_dim,
             output_dim=output_dim,
-            debug=debug
+            debug=debug,
+            test_case=test_case
         )
 
         # Properties
@@ -98,6 +100,7 @@ class ESN(Node):
                 nonlin_func=nonlin_func,
                 washout=washout,
                 debug=debug,
+                test_case=test_case,
                 dtype=dtype
             )
         # end if
@@ -112,6 +115,7 @@ class ESN(Node):
                 learning_algo=learning_algo,
                 softmax_output=softmax_output,
                 debug=debug,
+                test_case=test_case,
                 dtype=dtype
             )
         # end if

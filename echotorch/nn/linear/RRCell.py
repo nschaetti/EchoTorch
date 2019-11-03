@@ -39,7 +39,7 @@ class RRCell(Node):
 
     # Constructor
     def __init__(self, input_dim, output_dim, ridge_param=0.0, with_bias=True, learning_algo='inv',
-                 softmax_output=False, averaged=True, debug=Node.NO_DEBUG, dtype=torch.float32):
+                 softmax_output=False, averaged=True, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Feature space dimension
@@ -50,6 +50,7 @@ class RRCell(Node):
         :param softmax_output: Add a softmax output (normalize outputs) ?
         :param averaged: Covariance matrix divided by the number of samples ?
         :param debug: Debug mode
+        :param test_case: Test case to call for test.
         :param dtype: Data type
         """
         # Superclass

@@ -27,6 +27,7 @@ Created on 26 January 2018
 import torch
 from .LiESNCell import LiESNCell
 from echotorch.nn.reservoir.ESN import ESN
+from ..Node import Node
 
 
 # Leaky-Integrated Echo State Network module
@@ -38,7 +39,8 @@ class LiESN(ESN):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate, w_generator, win_generator, wbias_generator,
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
-                 ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, dtype=torch.float32):
+                 ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None,
+                 dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -54,6 +56,12 @@ class LiESN(ESN):
         :param nonlin_func: Non-linear function
         :param learning_algo: Learning algorithm (inv, pinv)
         :param ridge_param: Regularisation parameter
+        :param with_bias: Add a bias to output ?
+        :param softmax_output: Add a softmax layer at the outputs ?
+        :param washout: Length of the washout period ?
+        :param debug: Debug mode
+        :param test_case: Test case to call for test
+        :param dtype: Data type
         """
         super(LiESN, self).__init__(
             input_dim=input_dim,
@@ -73,6 +81,8 @@ class LiESN(ESN):
             with_bias=with_bias,
             create_rnn=False,
             create_output=True,
+            debug=debug,
+            test_case=test_case,
             dtype=dtype
         )
 
@@ -92,6 +102,8 @@ class LiESN(ESN):
             w_bias=w_bias,
             nonlin_func=nonlin_func,
             washout=washout,
+            debug=debug,
+            test_case=test_case,
             dtype=torch.float32
         )
     # end __init__

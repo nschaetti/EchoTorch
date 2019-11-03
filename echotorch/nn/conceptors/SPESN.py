@@ -42,7 +42,7 @@ class SPESN(ESN):
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  w_learning_algo='inv', ridge_param=0.000001, w_ridge_param=0.0001, with_bias=True,
-                 softmax_output=False, washout=0, debug=Node.NO_DEBUG, dtype=torch.float32):
+                 softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -61,6 +61,7 @@ class SPESN(ESN):
         :param softmax_output: Add a softmax output layer
         :param washout: Washout period (ignore timesteps at the beginning of each sample)
         :param debug: Debug mode
+        :param test_case: Test case to call
         :param dtype: Data type
         """
         super(SPESN, self).__init__(
@@ -72,7 +73,8 @@ class SPESN(ESN):
             wbias_generator=wbias_generator,
             create_rnn=False,
             create_output=True,
-            debug=debug
+            debug=debug,
+            test_case=test_case
         )
 
         # Properties
@@ -103,6 +105,7 @@ class SPESN(ESN):
             w_ridge_param=w_ridge_param,
             washout=washout,
             debug=debug,
+            test_case=test_case,
             dtype=dtype
         )
 
@@ -115,6 +118,7 @@ class SPESN(ESN):
             learning_algo=learning_algo,
             softmax_output=softmax_output,
             debug=debug,
+            test_case=test_case,
             dtype=dtype
         )
     # end __init__

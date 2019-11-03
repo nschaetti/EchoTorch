@@ -42,7 +42,8 @@ class ESNCell(Node):
 
     # Constructor
     def __init__(self, input_dim, output_dim, w, w_in, w_bias, spectral_radius=0.9, bias_scaling=0,
-                 input_scaling=1.0, nonlin_func=torch.tanh, washout=0, debug=Node.NO_DEBUG, dtype=torch.float32):
+                 input_scaling=1.0, nonlin_func=torch.tanh, washout=0, debug=Node.NO_DEBUG, test_case=None,
+                 dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input dimension
@@ -56,6 +57,7 @@ class ESNCell(Node):
         :param nonlin_func: Non-linear function applied to the units
         :param washout: Period to ignore in training at the beginning
         :param debug: Debug mode
+        :param test_case: Test case to call for test.
         :param dtype: Data type used for vectors/matrices.
         """
         # Superclass
@@ -63,7 +65,8 @@ class ESNCell(Node):
             input_dim=input_dim,
             output_dim=output_dim,
             debug=debug,
-            dtype=dtype
+            dtype=dtype,
+            test_case=test_case
         )
 
         # Params
