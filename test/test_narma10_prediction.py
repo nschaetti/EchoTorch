@@ -22,18 +22,23 @@
 # Imports
 import unittest
 from unittest import TestCase
-import torch
+
 from echotorch.datasets.NARMADataset import NARMADataset
 import echotorch.nn.reservoir as etrs
 import echotorch.utils.matrix_generation as mg
 import echotorch.utils
+
+import torch
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
+
 import numpy as np
+
+from .EchoTorchTestCase import EchoTorchTestCase
 
 
 # Test case : NARMA10 timeseries prediction.
-class Test_NARMA10_Prediction(TestCase):
+class Test_NARMA10_Prediction(EchoTorchTestCase):
     """
     Test NARMA10 timeseries prediction
     """
