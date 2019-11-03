@@ -73,7 +73,7 @@ class ConceptorNet(ESN):
         self._esn_cell.connect("neural-filter", self._neural_filter)
 
         # Forward hook to learn conceptor
-        self._esn_cell.register_forward_hook(self._)
+        self._esn_cell.register_forward_hook(self._forward_hook_conceptor_learning)
     # end __init__
 
     ####################
