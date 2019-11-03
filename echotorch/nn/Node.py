@@ -40,14 +40,16 @@ class Node(nn.Module):
     NO_DEBUG = 0
     DEBUG_TEST = 1
     DEBUG_OUTPUT = 2
+    DEBUG_TEST_CASE = 3
 
     # Constructor
-    def __init__(self, input_dim, output_dim, debug=NO_DEBUG, dtype=torch.float32):
+    def __init__(self, input_dim, output_dim, debug=NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Node's input dimension.
         :param output_dim: Node's output dimension.
         :param debug: Set debug mode
+        :param test_case: Test case to call.
         :param dtype: Node's type.
         """
         # Superclass
@@ -59,8 +61,9 @@ class Node(nn.Module):
         self._debug = debug
         self._dtype = dtype
 
-        # Debug points
+        # Debug points and test
         self._debug_points = dict()
+        self._test_case = test_case
 
         # Handlers
         self._neural_filter_handler = None
@@ -330,23 +333,36 @@ class Node(nn.Module):
             if type(value_from_module) == type(value_from_outside):
                 # Type scalar
                 if isinstance(value_from_module, int) or isinstance(value_from_module, float):
-                    # Test absolute difference
+                    # Compute absolute difference
                     abs_diff = np.abs(value_from_module - value_from_outside)
-                    if self._debug == Node.DEBUG_OUTPUT:
+
+                    # In debug output, print difference
+                    if self._debug == Node.DEBUG_OUTPUT or self._debug == Node.DEBUG_TEST_CASE:
                         print(info_precision_scalar.format(name, abs_diff))
                     # end if
-                    if abs_diff > precision:
+
+                    # In debug test case, call test call for evaluation
+                    if self._debug == Node.DEBUG_TEST_CASE:
+                        self._test_case.assertAlmostEqual(value_from_module, value_from_outside, precision)
+                    # In debut test, test if precision is ok
+                    elif abs_diff > precision:
                         print(error_precision.format(name, value_from_module, value_from_outside))
                     # end if
                 # Matrix/Tensor
                 elif isinstance(value_from_module, torch.Tensor):
                     # Test size
                     if value_from_module.size() == value_from_outside.size():
-                        # Test Forb norm diff
+                        # Compute Frobenius norm difference
                         norm_diff = torch.norm(value_from_module - value_from_outside)
-                        if self._debug == Node.DEBUG_OUTPUT:
+
+                        # In debug output, print difference
+                        if self._debug == Node.DEBUG_OUTPUT or self._debug == Node.DEBUG_TEST_CASE:
                             print(info_precision_matrix.format(name, norm_diff))
                         # end if
+
+                        # In debug test case, call test case for evaluation
+                        if self._debug == Node.DEBUG_TEST_CASE:
+                            self._test_case.assertTensorAlmostEqual(value_from_module, value_from_outside, precision)
                         if norm_diff > precision:
                             print(error_precision.format(name, torch.norm(value_from_module), torch.norm(value_from_outside)))
                         # end if
