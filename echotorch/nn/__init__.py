@@ -23,6 +23,7 @@
 from .Node import Node
 
 # Import conceptor nodes
+from .conceptors.Conceptor import Conceptor
 from .conceptors.ConceptorNet import ConceptorNet
 
 # Import feature transformation nodes
@@ -52,7 +53,7 @@ from .utils.Identity import Identity
 
 # All
 __all__ = [
-    'ConceptorNet', 'ICACell', 'OnlinePCACell', 'PCACell', 'SFACell',
+    'Conceptor', 'ConceptorNet', 'ICACell', 'OnlinePCACell', 'PCACell', 'SFACell',
     'BDESN', 'BDESNPCA', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'Node', 'StackedESN',
     'RRCell', 'Identity'
 ]

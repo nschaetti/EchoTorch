@@ -20,10 +20,12 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+from .Conceptor import Conceptor
+from .ConceptorNet import ConceptorNet
 from .SPESN import SPESN
 from .SPESNCell import SPESNCell
 
 # All
 __all__ = [
-    'SPESNCell'
+    'Conceptor', 'ConceptorNet', 'SPESN', 'SPESNCell'
 ]

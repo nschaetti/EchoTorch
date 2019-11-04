@@ -152,6 +152,17 @@ spesn = ecnc.SPESN(
     dtype=dtype
 )
 
+# Create a conceptor network using
+# the self-predicting ESN which
+# will learn four conceptors.
+conceptor_net = ecnc.ConceptorNet(
+    input_dim=1,
+    hidden_dim=reservoir_size,
+    output_dim=1,
+    esn_cell=spesn.cell
+)
+
+# If in debug mode
 if debug_mode > Node.NO_DEBUG:
     # Load sample matrices
     for i in range(4):
@@ -200,19 +211,30 @@ if debug_mode > Node.NO_DEBUG:
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
 Y_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
 
+# Create four conceptors, one for each pattern
+conceptors = [
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha),
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha),
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha),
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha)
+]
+
 # Go through dataset
 for i, data in enumerate(patterns_loader):
     # Inputs and labels
     inputs, outputs, labels = data
 
+    # Set current conceptor
+    conceptor_net.set_conceptor(conceptors[i])
+
     # Feed SP-ESN
-    X = spesn(inputs, inputs)
+    X = conceptor_net(inputs, inputs)
 
     # Get targets
-    Y = spesn.cell.targets(X[0])
+    Y = conceptor_net.cell.targets(X[0])
 
     # Get features
-    Xold = spesn.cell.features(X[0])
+    Xold = conceptor_net.cell.features(X[0])
 
     # Save
     Xold_collector[i*learn_length:i*learn_length+learn_length] = Xold
@@ -220,21 +242,42 @@ for i, data in enumerate(patterns_loader):
 # end for
 
 # Finalize training
-spesn.finalize()
+conceptor_net.finalize()
 
 # Predicted by W
-predY = torch.mm(spesn.cell.w, Xold_collector.t()).t()
+predY = torch.mm(conceptor_net.cell.w, Xold_collector.t()).t()
 
 # Compute NRMSE
 training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
 print("Training NRMSE : {}".format(training_NRMSE))
 
-# Run trained ESN with empty inputs
-generated = spesn(torch.zeros(1, 2000, 1, dtype=dtype))
-plt.plot(generated[0, :500])
+# Run trained ESN with empty inputs and plot it
+generated = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
+plt.plot(generated[0])
 plt.show()
-"""for i in range(14):
-    plt.plot(generated[0, i*100:i*100+100, 0])
-    plt.show()
+
+# Save each generated pattern for display
+generated_samples = torch.zeros(4, conceptor_test_length)
+
+# Set conceptors in evaluation mode and generate a sample
+for i in range(4):
+    # Evaluation mode
+    conceptors[i].eval(True)
+
+    # Set it as current conceptor
+    conceptor_net.set_conceptor(conceptors[i])
+
+    # Generate sample
+    pattern_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
+
+    # Find the best matching position with cubic interpolation
+
+    # Save position for plotting
 # end for
-"""
+
+# Create plot for each pattern
+for i in range(4):
+    pass
+# end for
+
+
