@@ -67,6 +67,7 @@ class Node(nn.Module):
 
         # Handlers
         self._neural_filter_handler = None
+        self._neural_batch_filter_handlers = []
     # end __init__
 
     #######################
@@ -224,6 +225,10 @@ class Node(nn.Module):
         """
         if handler_name == "neural-filter":
             self._neural_filter_handler = handler_func
+        elif handler_name == "neural-batch-filter":
+            if handler_func not in self._neural_batch_filter_handlers:
+                self._neural_batch_filter_handlers.append(handler_func)
+            # end if
         # end if
     # end connect
 

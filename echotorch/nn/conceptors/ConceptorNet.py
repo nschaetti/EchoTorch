@@ -109,14 +109,19 @@ class ConceptorNet(ESN):
     ####################
 
     # Neural filter / training
-    def _neural_filter(self, x, ut, t):
+    def _neural_filter(self, x, ut, t, washout):
         """
         Neural filter
         :param x: States to filter
         :param ut: Inputs
         :param t: Time t
+        :param washout: In washout period
         """
-        return self._current_conceptor(x)
+        if not washout:
+            return self._current_conceptor(x)
+        else:
+            return x
+        # end if
     # end _neural_filter
 
     # Hook executed to learn conceptors

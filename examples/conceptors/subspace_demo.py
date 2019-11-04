@@ -269,7 +269,8 @@ for i in range(4):
 
     # Generate sample
     pattern_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
-
+    plt.plot(pattern_sample[0])
+    plt.show()
     # Find the best matching position with cubic interpolation
 
     # Save position for plotting

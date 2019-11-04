@@ -349,6 +349,7 @@ class Conceptor(Node):
         Increment correlation matrices
         :param X: Reservoir states
         """
+        print(X.size())
         # Learn length
         learn_length = X.size(1)
 
