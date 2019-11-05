@@ -82,6 +82,20 @@ class IncSPESNCell(SPESNCell):
     # OVERLOAD
     ##################
 
+    # Compute input layer
+    def _input_layer(self, ut):
+        """
+        Compute input layer
+        :param ut: Inputs
+        :return: Processed inputs
+        """
+        if not self.training:
+            return self.D.mv(self.hidden)
+        else:
+            return self.win.mv(ut)
+        # end if
+    # end _input_layer
+
     # Hook which gets executed after the update state equation for every sample.
     def _post_update_hook(self, states, inputs, sample_i):
         """
@@ -121,4 +135,4 @@ class IncSPESNCell(SPESNCell):
         return states
     # end _post_update_hook
 
-# end SPESNCell
+# end IncSPESNCell
