@@ -231,7 +231,7 @@ class Conceptor(Node):
 
         # SVD on UC0 + UB0
         # (W, Sigma, Wt) = lin.svd(np.dot(UC0, UC0.T) + np.dot(UB0, UB0.T))
-        (W, Sigma, Wt) = torch.svd(UC0 @ UC0.t() + UB0 @ UB0.t())
+        (W, Sigma, Wt) = torch.svd(torch.mm(UC0, UC0.t()) + torch.mm(UB0, UB0.t()))
 
         # Number of non-zero SV
         numRankSigma = int(sum(1.0 * (Sigma > tol)))
@@ -241,7 +241,8 @@ class Conceptor(Node):
 
         # C and B
         # Wgk * (Wgk^T * (C^-1 + B^-1 - I) * Wgk)^-1 * Wgk^T
-        CandB = Wgk @ torch.inverse(Wgk.t() @ (torch.pinverse(Cc, tol) + torch.pinverse(Bc, tol) - torch.eye(dim)) @ Wgk) @ Wgk.t()
+        # CandB = Wgk @ torch.inverse(Wgk.t() @ (torch.pinverse(Cc, tol) + torch.pinverse(Bc, tol) - torch.eye(dim)) @ Wgk) @ Wgk.t()
+        CandB = torch.mm(torch.mm(Wgk, torch.inverse(torch.mm(Wgk.t(), torch.mm((torch.pinverse(Cc, tol) + torch.pinverse(Bc, tol) - torch.eye(dim)), Wgk)))), Wgk.t())
 
         # New conceptor
         new_conceptor = Conceptor(
@@ -354,7 +355,7 @@ class Conceptor(Node):
         learn_length = X.size(1)
 
         # CoRrelation matrix of reservoir states
-        self.R += (X.t() @ X) / float(learn_length)
+        self.R += (torch.mm(X.t(), X)) / float(learn_length)
 
         # Inc. n samples
         self._n_samples += 1
