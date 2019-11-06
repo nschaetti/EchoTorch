@@ -153,6 +153,22 @@ class ESNCell(Node):
     # PUBLIC
     ######################
 
+    # Add an observer
+    def observe(self, observer_type, handle_func):
+        """
+        Add an observer
+        :param observer_type: Observer type (inputs, states)
+        :param handle_func: The handle function
+        """
+        if observer_type == "inputs":
+            self._cell_inputs_observers.append(handle_func)
+        elif observer_type == "states":
+            self._cell_states_observers.append(handle_func)
+        else:
+            raise Exception("Unknown observer type {}".format(observer_type))
+        # end if
+    # end observe
+
     # Reset hidden layer
     def reset_hidden(self):
         """
