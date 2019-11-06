@@ -59,6 +59,16 @@ class ConceptorSet:
         return self._A
     # end A
 
+    # NOT A
+    @property
+    def N(self):
+        """
+        NOT A - Subspace not populated by conceptors
+        :return: Matrix N (Conceptor)
+        """
+        return self._A.NOT()
+    # end N
+
     # Number of conceptors stored
     @property
     def count(self):
