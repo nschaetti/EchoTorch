@@ -19,6 +19,9 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
+# Imports
+import matplotlib.pyplot as plt
+
 
 # Observe an ESNCell object to visualise its activity afterward
 class ESNCellObserver:
@@ -52,14 +55,39 @@ class ESNCellObserver:
     # PUBLIC
     ##################
 
-    # Show neurons activities
-    def plot_neuron(self, ids):
+    # Plot neurons activities
+    def plot_neurons(self, sample_id, ids, start=0, length=-1):
         """
         Plot neuron activities
-        :param ids: Indices of the neurons to plot.
+        :param sample_id: Index of the sample to plot
+        :param ids: Indices of the neurons to plot
+        :param start: Index of the starting point to plot
+        :param length: Length of the plot
         """
-        pass
-    # end plot_neuron
+        # Plot neurons
+        if length == -1:
+            plt.plot(self._esn_cell_states[sample_id][start:, ids])
+        else:
+            plt.plot(self._esn_cell_states[sample_id][start:start+length, ids])
+        # end if
+    # end plot_neurons
+
+    # Plot inputs
+    def plot_inputs(self, sample_id, ids, start=0, length=-1):
+        """
+        Plot inputs
+        :param sample_id: Index of the inputs to plot
+        :param ids: Indices of the inputs to plot
+        :param start: Index of the starting point to plot
+        :param length: Length of the plot
+        """
+        # Plot inputs
+        if length == -1:
+            plt.plot(self._esn_cell_inputs[sample_id][start:, ids])
+        else:
+            plt.plot(self._esn_cell_inputs[sample_id][start:start+length, ids])
+        # end if
+    # end plot_inputs
 
     ##################
     # PRIVATE
