@@ -88,6 +88,10 @@ class ESNCell(Node):
 
         # Initialize bias
         self.register_buffer('w_bias', self._scale_wbias(w_bias))
+
+        # Observers
+        self._cell_inputs_observers = []
+        self._cell_states_observers = []
     # end __init__
 
     ######################
@@ -196,6 +200,11 @@ class ESNCell(Node):
             # Pre-update hook
             u[b, :] = self._pre_update_hook(u[b, :], b)
 
+            # Input observers
+            for observer in self._cell_inputs_observers:
+                observer(u[b, :])
+            # end for
+
             # For each steps
             for t in range(time_length):
                 # Current input
@@ -223,8 +232,8 @@ class ESNCell(Node):
                 x = self._post_step_update_hook(x.view(self.output_dim), ut, t)
 
                 # Neural filter
-                if self._neural_filter_handler is not None:
-                    x = self._neural_filter_handler(x, ut, t, t < self._washout)
+                for neural_filter_handler in self._neural_filter_handlers:
+                    x = neural_filter_handler(x, ut, t, t < self._washout)
                 # end if
 
                 # New last state
@@ -236,6 +245,11 @@ class ESNCell(Node):
 
             # Post-update hook
             outputs[b, :] = self._post_update_hook(outputs[b, :], u[b, :], b)
+
+            # States observers
+            for observer in self._cell_states_observers:
+                observer(outputs[b, :])
+            # end for
         # end for
 
         return outputs[:, self._washout:]

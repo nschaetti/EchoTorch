@@ -66,7 +66,7 @@ class Node(nn.Module):
         self._test_case = test_case
 
         # Handlers
-        self._neural_filter_handler = None
+        self._neural_filter_handlers = []
         self._neural_batch_filter_handlers = []
     # end __init__
 
@@ -224,7 +224,9 @@ class Node(nn.Module):
         :param handler_func: Handler function
         """
         if handler_name == "neural-filter":
-            self._neural_filter_handler = handler_func
+            if handler_func not in self._neural_filter_handlers:
+                self._neural_filter_handlers.append(handler_func)
+            # end if
         elif handler_name == "neural-batch-filter":
             if handler_func not in self._neural_batch_filter_handlers:
                 self._neural_batch_filter_handlers.append(handler_func)
