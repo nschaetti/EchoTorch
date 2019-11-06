@@ -20,6 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+import networkx as nx
 import matplotlib.pyplot as plt
 
 
@@ -54,6 +55,42 @@ class ESNCellObserver:
     ##################
     # PUBLIC
     ##################
+
+    # Draw matrix graph
+    def draw_matrix_graph(self, matrix_name, draw=True, with_labels=True, font_weight='bold'):
+        """
+        Draw matrix graph
+        :param matrix_name: Name of the ESNCell's parameter
+        :return NetworkX graph
+        """
+        # Get matrix
+        m = getattr(self._esn_cell, matrix_name)
+
+        # M size
+        m_dim = m.size(0)
+
+        # New graph
+        G = nx.Graph()
+
+        # Add each nodes
+        G.add_nodes_from(range(m.size(0)))
+
+        # For each entry in m
+        for i in range(m_dim):
+            for j in range(m_dim):
+                if m[i, j] != 0:
+                    G.add_edge(i, j)
+                # end if
+            # end for
+        # end for
+
+        # Draw
+        if draw:
+            nx.draw(G, with_labels=with_labels, font_weight=font_weight)
+        # end if
+
+        return G
+    # end draw_matrix_graph
 
     # Plot neurons activities
     def plot_neurons(self, sample_id, ids, start=0, length=-1):
