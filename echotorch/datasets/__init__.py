@@ -4,6 +4,7 @@
 # Imports
 from .DatasetComposer import DatasetComposer
 from .HenonAttractor import HenonAttractor
+from .ImageToTimeseries import ImageToTimeseries
 from .LambdaDataset import LambdaDataset
 from .LogisticMapDataset import LogisticMapDataset
 from .LorenzAttractor import LorenzAttractor
@@ -16,5 +17,6 @@ from .PeriodicSignalDataset import PeriodicSignalDataset
 
 __all__ = [
    'DatasetComposer', 'HenonAttractor', 'LambdaDataset', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset',
-   'MemTestDataset', 'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset'
+   'MemTestDataset', 'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset',
+   'ImageToTimeseries'
 ]
