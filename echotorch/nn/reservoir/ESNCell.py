@@ -29,12 +29,13 @@ import torch
 import torch.sparse
 from torch.autograd import Variable
 import echotorch.utils
+from echotorch.utils.visualisation import Observable
 from ..Node import Node
 
 
 # Echo State Network layer
 # Basis cell for ESN.
-class ESNCell(Node):
+class ESNCell(Node, Observable):
     """
     Echo State Network layer
     Basis cell for ESN
@@ -67,6 +68,12 @@ class ESNCell(Node):
             debug=debug,
             dtype=dtype,
             test_case=test_case
+        )
+
+        # Init. Observable super-class
+        Observable.__init__(
+            self,
+            observe_hooks=['w', 'hidden', 'w_in', 'w_bias', 'X', 'U']
         )
 
         # Params
@@ -216,10 +223,8 @@ class ESNCell(Node):
             # Pre-update hook
             u[b, :] = self._pre_update_hook(u[b, :], b)
 
-            # Input observers
-            for observer in self._cell_inputs_observers:
-                observer(u[b, :])
-            # end for
+            # Observe inputs
+            self.observation_point('U', u[b, :], 0, b, 0)
 
             # For each steps
             for t in range(time_length):

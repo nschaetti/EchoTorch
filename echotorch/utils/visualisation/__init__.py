@@ -20,3 +20,5 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+from .ESNCellObserver import ESNCellObserver
+from .Observable import Observable
