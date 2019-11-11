@@ -33,22 +33,35 @@ class ImageToTimeseries(Dataset):
     """
 
     # Constructor
-    def __init__(self, image_dataset, timeseries_length, time_axis=-1):
+    def __init__(self, image_dataset, n_images, transpose=True):
         """
         Constructor
         :param image_dataset: A Dataset object to transform
-        :param timeseries_length: How many images to join to compose a timeserie ?
+        :param n_images: How many images to join to compose a timeserie ?
         :param time_axis: Time dimension
+        :param transpose: Transpose image before concatenating (start from side if true, from top if false)
         """
         # Params
         self._image_dataset = image_dataset
-        self._timeseries_length = timeseries_length
-        self._time_axis = time_axis
+        self._n_images = n_images
+        self._tranpose = transpose
     # end __init__
 
     #################
     # OVERRIDE
     #################
+
+    # To string
+    def __str__(self):
+        """
+        To string
+        :return: String version of the object
+        """
+        str_object = "Dataset ImageToTimeseries\n"
+        str_object += "\tN. images : {}\n".format(self._n_images)
+        str_object += "\tDataset : {}".format(str(self._image_dataset))
+        return str_object
+    # end __str__
 
     # Length
     def __len__(self):
@@ -56,7 +69,7 @@ class ImageToTimeseries(Dataset):
         Length
         :return: How many samples
         """
-        return int(math.ceil(len(self._image_dataset) / self._timeseries_length))
+        return int(math.ceil(len(self._image_dataset) / self._n_images))
     # end __len__
 
     # Get item
@@ -71,21 +84,29 @@ class ImageToTimeseries(Dataset):
         timeseries_target = None
 
         # Get samples
-        for i in range(self._timeseries_length):
+        for i in range(self._n_images):
             # Get sample
-            sample_data, sample_target = next(self._image_dataset)
+            sample_data, sample_target = self._image_dataset[item * self._n_images + i]
+
+            # Transpose
+            if self._tranpose:
+                sample_data = sample_data.permute(0, 2, 1)
+            # end if
+
+            # To tensor if numeric
+            sample_target = torch.Tensor([sample_target])
 
             # Concat
             if i == 0:
                 timeseries_data = sample_data
                 timeseries_target = sample_target
             else:
-                timeseries_data = torch.cat((timeseries_data, sample_data), axis=self._time_axis)
-                timeseries_target = torch.cat((timeseries_target, sample_data), axis=self._time_axis)
+                timeseries_data = torch.cat((timeseries_data, sample_data), axis=1)
+                timeseries_target = torch.cat((timeseries_target, sample_target), axis=0)
             # end for
         # end for
 
-        return (timeseries_data, timeseries_target)
+        return timeseries_data, timeseries_target
     # end __getitem__
 
 # end ImageToTimeseries
