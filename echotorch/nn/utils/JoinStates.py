@@ -32,7 +32,7 @@ class JoinStates(nn.Module):
     """
 
     # Constructor
-    def __init__(self, hidden_dim, join_length):
+    def __init__(self, input_dim, join_length):
         """
         Constructor
         """
@@ -40,7 +40,7 @@ class JoinStates(nn.Module):
         super(JoinStates, self).__init__()
 
         # Length and hidden dim
-        self._hidden_dim = hidden_dim
+        self._input_dim = input_dim
         self._join_length = join_length
     # end __init__
 
