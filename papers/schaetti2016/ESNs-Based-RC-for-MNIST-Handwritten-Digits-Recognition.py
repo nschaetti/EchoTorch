@@ -23,7 +23,7 @@
 import torch.utils.data
 from torch.autograd import Variable
 import torchvision.datasets
-import echotorch.datasets
+import echotorch.utils.matrix_generation
 import echotorch.nn.reservoir
 import matplotlib.pyplot as plt
 
@@ -84,6 +84,9 @@ def to_one_hot(x):
 
 
 # Matrices generator
+"""w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(connectivity=0.1)
+win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(connectivity=0.1)
+wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(connectivity=0.1)
 
 # Instanciate ESN module
 esn = echotorch.nn.reservoir.LiESN(
@@ -91,8 +94,12 @@ esn = echotorch.nn.reservoir.LiESN(
     hidden_dim=reservoir_size,
     output_dim=10,
     leaky_rate=0.5,
-    spectral_radius=0.99
-)
+    spectral_radius=0.99,
+    input_scaling=0.5,
+    w_generator=w_generator,
+    win_generator=win_generator,
+    wbias_generator=wbias_generator
+)"""
 
 # For each training sample
 for batch_idx, (data, targets) in enumerate(train_loader):
@@ -103,5 +110,8 @@ for batch_idx, (data, targets) in enumerate(train_loader):
     inputs, targets = Variable(data, requires_grad=False), Variable(targets, requires_grad=False)
 
     # Feed ESN
-
+    # esn(inputs, targets)
 # end for
+
+# Finish training
+# esn.finalize()
