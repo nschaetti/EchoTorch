@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : papers/schaetti2016/transforms/__init__.py
-# Description : Transformations init file.
-# Date : 11th of November, 2019
+# File : echotorch/transforms/ToOneHot.py
+# Description : Transform integer targets to one-hot vectors.
+# Date : 21th of November, 2019
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,11 +19,6 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
-
 # Imports
-from .Concat import Concat
-from .CropResize import CropResize
-
-# All
-__all__ = ["Concat", "CropResize"]
+from .ToOneHot import ToOneHot
 

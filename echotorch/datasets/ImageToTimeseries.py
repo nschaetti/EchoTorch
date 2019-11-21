@@ -94,7 +94,11 @@ class ImageToTimeseries(Dataset):
             # end if
 
             # To tensor if numeric
-            sample_target = torch.Tensor([sample_target])
+            if isinstance(sample_target, int) or isinstance(sample_target, float):
+                sample_target = torch.LongTensor([[sample_target]])
+            elif isinstance(sample_target, torch.Tensor):
+                sample_target = sample_target.reshape((1, -1))
+            # end if
 
             # Concat
             if i == 0:

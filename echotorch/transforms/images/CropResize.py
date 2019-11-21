@@ -22,10 +22,11 @@
 # Imports
 import numpy as np
 import torchvision.transforms.functional as F
+from ..Transformer import Transformer
 
 
 # Image crop and resize
-class CropResize(object):
+class CropResize(Transformer):
     """
     Crop and resize images
     """
@@ -36,6 +37,13 @@ class CropResize(object):
         Constructor
         :param size: New image size
         """
+        # Super constructor
+        super(CropResize, self).__init__(
+            input_dim=0,
+            output_dim=0
+        )
+
+        # Properties
         self._size = size
     # end __init__
 

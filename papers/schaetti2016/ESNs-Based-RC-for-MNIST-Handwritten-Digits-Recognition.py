@@ -23,10 +23,8 @@
 import torch.utils.data
 from torch.autograd import Variable
 import torchvision.datasets
-import echotorch.utils.matrix_generation
 import echotorch.nn.reservoir
 import matplotlib.pyplot as plt
-from transforms import CropResize
 
 
 # Experiment parameters
@@ -43,15 +41,31 @@ train_loader = torch.utils.data.DataLoader(
             train=True,
             download=True,
             transform=torchvision.transforms.Compose([
-                CropResize(size=16),
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Normalize((0.1307,), (0.3081,))
-            ])
+                echotorch.transforms.images.Concat([
+                    echotorch.transforms.images.CropResize(size=15),
+                    torchvision.transforms.Compose([
+                        echotorch.transforms.images.Rotate(degree=30),
+                        echotorch.transforms.images.CropResize(size=15)
+                    ]),
+                    torchvision.transforms.Compose([
+                        echotorch.transforms.images.Rotate(degree=60),
+                        echotorch.transforms.images.CropResize(size=15)
+                    ]),
+                    torchvision.transforms.Compose([
+                        echotorch.transforms.images.Rotate(degree=60),
+                        echotorch.transforms.images.CropResize(size=15)
+                    ])
+                ],
+                    sequential=True
+                ),
+                torchvision.transforms.ToTensor()
+            ]),
+            target_transform=echotorch.transforms.targets.ToOneHot(class_size=10)
         ),
         n_images=10
     ),
     batch_size=batch_size,
-    shuffle=True
+    shuffle=False
 )
 
 # MNIST data set test
@@ -62,35 +76,36 @@ test_loader = torch.utils.data.DataLoader(
             train=False,
             download=True,
             transform=torchvision.transforms.Compose([
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Normalize((0.1307,), (0.3081,))
-            ])
+                echotorch.transforms.images.Concat([
+                    echotorch.transforms.images.CropResize(size=15),
+                    torchvision.transforms.Compose([
+                        echotorch.transforms.images.Rotate(degree=30),
+                        echotorch.transforms.images.CropResize(size=15)
+                    ]),
+                    torchvision.transforms.Compose([
+                        echotorch.transforms.images.Rotate(degree=60),
+                        echotorch.transforms.images.CropResize(size=15)
+                    ]),
+                    torchvision.transforms.Compose([
+                        echotorch.transforms.images.Rotate(degree=60),
+                        echotorch.transforms.images.CropResize(size=15)
+                    ])
+                ],
+                    sequential=True
+                ),
+                torchvision.transforms.ToTensor()
+            ]),
+            target_transform=echotorch.transforms.targets.ToOneHot(class_size=10)
         ),
         n_images=10
     ),
     batch_size=batch_size,
-    shuffle=True
+    shuffle=False
 )
 
-
-# Tranpose class index to one-hot vector
-def to_one_hot(x):
-    """
-    Transpose class index to one-hot vector
-    :param x:
-    :return:
-    """
-    x = x.long()
-    return torch.eye(10).index_select(0, x.data)
-# end to_one_hot
-
-
 # Matrices generator
-"""w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(connectivity=0.1)
-win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(connectivity=0.1)
-wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(connectivity=0.1)
-
-# Instanciate ESN module
+"""
+# New ESN-JS module
 esn = echotorch.nn.reservoir.LiESN(
     input_dim=28,
     hidden_dim=reservoir_size,
@@ -105,14 +120,15 @@ esn = echotorch.nn.reservoir.LiESN(
 
 # For each training sample
 for batch_idx, (data, targets) in enumerate(train_loader):
+    print(data.size())
     # Remove channel
-    data = data.reshape(batch_size, 160, 16)
+    data = data.reshape(batch_size, 150, 60)
 
     # To Variable
     inputs, targets = Variable(data, requires_grad=False), Variable(targets, requires_grad=False)
 
     # Plot
-    plt.imshow(data[0].t(), cmap='Greys')
+    plt.imshow(data[0].t(), cmap='gray')
     plt.show()
     if batch_idx == 1:
         break
