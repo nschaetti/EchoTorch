@@ -64,29 +64,29 @@ class CropResize(object):
 
         # From the top
         for y in range(height):
-            if np.sum(img_array[y, :] > 0) > 0:
-                height_start = y
+            if np.sum(img_array[y, :]) > 0:
+                height_end = y
             # end if
         # end while
 
         # From the bottom
         for y in range(height - 1, 0, -1):
-            if np.sum(img_array[y, :] > 0) > 0:
-                height_end = y
+            if np.sum(img_array[y, :]) > 0:
+                height_start = y
             # end if
         # end for
 
         # From the left
         for x in range(width):
-            if np.sum(img_array[:, x] > 0) > 0:
-                width_start = x
+            if np.sum(img_array[:, x]) > 0:
+                width_end = x
             # end if
         # end for
 
         # From the right
         for x in range(width - 1, 0, -1):
-            if np.sum(img_array[:, x] > 0) > 0:
-                width_end =  x
+            if np.sum(img_array[:, x]) > 0:
+                width_start = x
             # end if
         # end for
 
@@ -137,7 +137,7 @@ class CropResize(object):
         # end if
 
         # Crop image
-        cropped_image = img.crop((ws, hs, we, ws))
+        cropped_image = img.crop((ws, hs, we, he))
 
         # Resize
         return F.resize(cropped_image, (self._size, self._size))

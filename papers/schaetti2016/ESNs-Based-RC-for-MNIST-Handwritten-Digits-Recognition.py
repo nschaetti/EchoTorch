@@ -26,6 +26,7 @@ import torchvision.datasets
 import echotorch.utils.matrix_generation
 import echotorch.nn.reservoir
 import matplotlib.pyplot as plt
+from transforms import CropResize
 
 
 # Experiment parameters
@@ -42,6 +43,7 @@ train_loader = torch.utils.data.DataLoader(
             train=True,
             download=True,
             transform=torchvision.transforms.Compose([
+                CropResize(size=16),
                 torchvision.transforms.ToTensor(),
                 torchvision.transforms.Normalize((0.1307,), (0.3081,))
             ])
@@ -104,11 +106,17 @@ esn = echotorch.nn.reservoir.LiESN(
 # For each training sample
 for batch_idx, (data, targets) in enumerate(train_loader):
     # Remove channel
-    data = data.reshape(batch_size, 280, 28)
+    data = data.reshape(batch_size, 160, 16)
 
     # To Variable
     inputs, targets = Variable(data, requires_grad=False), Variable(targets, requires_grad=False)
 
+    # Plot
+    plt.imshow(data[0].t(), cmap='Greys')
+    plt.show()
+    if batch_idx == 1:
+        break
+    # end if
     # Feed ESN
     # esn(inputs, targets)
 # end for

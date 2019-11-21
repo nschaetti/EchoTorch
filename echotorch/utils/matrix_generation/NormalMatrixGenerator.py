@@ -21,6 +21,7 @@
 
 # Import
 import torch
+import echotorch.utils
 from .MatrixGenerator import MatrixGenerator
 from .MatrixFactory import matrix_factory
 
@@ -59,6 +60,17 @@ class NormalMatrixGenerator(MatrixGenerator):
             mask.bernoulli_(p=connectivity)
             w *= mask
         # end if
+
+        # Set spectral radius
+        if 'spectral_radius' in self._parameters.keys():
+            w = w / echotorch.utils.spectral_radius(w) * self._parameters['spectral_radius']
+        # end if
+
+        # Scale
+        if 'scale' in self._parameters.keys():
+            w *= self._parameters['scale']
+        # end if
+
         return w
     # end generate
 

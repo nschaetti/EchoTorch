@@ -65,6 +65,9 @@ class Node(nn.Module):
         self._debug_points = dict()
         self._test_case = test_case
 
+        # Finalized elements
+        self._finalized_elements = list()
+
         # Handlers
         self._neural_filter_handlers = []
         self._neural_batch_filter_handlers = []
@@ -181,7 +184,12 @@ class Node(nn.Module):
         """
         Finish training
         """
-        pass
+        for e in self._finalized_elements:
+            e.finalize()
+        # end for
+
+        # In eval mode
+        self.train(False)
     # end finalize
 
     # Initialization of the node
@@ -195,6 +203,17 @@ class Node(nn.Module):
     #######################
     # Public
     #######################
+
+    # Add to elements to finalize
+    def finalized_element(self, e):
+        """
+        Add to elements to finalize
+        :param e: Node to finalize
+        """
+        if isinstance(e, Node):
+            self._finalized_elements.append(e)
+        # end if
+    # end finalized_element
 
     # Set debug mode
     def debug(self, mode):
