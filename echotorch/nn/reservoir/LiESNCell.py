@@ -46,7 +46,7 @@ class LiESNCell(ESNCell):
         super(LiESNCell, self).__init__(*args, **kwargs)
 
         # Param
-        self._leary_rate = leaky_rate
+        self._leaky_rate = leaky_rate
     # end __init__
 
     #####################
@@ -66,5 +66,15 @@ class LiESNCell(ESNCell):
         """
         return self.hidden.mul(1.0 - self._leaky_rate) + x.view(self.output_dim).mul(self._leaky_rate)
     # end _post_nonlinearity
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        """
+        s = super(LiESNCell, self).extra_repr()
+        s += ', leaky-rate={_leaky_rate}'
+        return s.format(**self.__dict__)
+    # end extra_repr
 
 # end LiESNCell

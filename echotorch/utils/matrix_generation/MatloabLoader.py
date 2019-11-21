@@ -47,19 +47,15 @@ class MatlabLoader(MatrixGenerator):
         :return: Generated matrix
         """
         # Params
-        try:
-            file_name = self._parameters['file_name']
-            entity_name = self._parameters['entity_name']
-        except KeyError as k:
-            raise Exception("Argument missing : {}".format(k))
-        # end try
+        file_name = self.get_parameter('file_name')
+        entity_name = self.get_parameter('entity_name')
 
         # Load matrix
         loaded_matrix = io.loadmat(file_name)[entity_name]
 
         # Reshape
         if 'shape' in self._parameters.keys():
-            loaded_matrix = np.reshape(loaded_matrix, self._parameters['shape'])
+            loaded_matrix = np.reshape(loaded_matrix, self.get_parameter('shape'))
         # end if
 
         # Dense or not

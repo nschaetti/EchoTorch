@@ -22,6 +22,7 @@
 # Import
 import torch
 import numpy as np
+import echotorch.utils
 from .MatrixGenerator import MatrixGenerator
 from .MatrixFactory import matrix_factory
 
@@ -32,21 +33,35 @@ class UniformMatrixGenerator(MatrixGenerator):
     Generate matrix it uniformly distributed weights.
     """
 
+    # Constructor
+    def __init__(self, **kwargs):
+        """
+        Constructor
+        :param kwargs: Parameters of the generator
+        """
+        super(UniformMatrixGenerator, self).__init__(
+            connectivity=1.0,
+            spectral_radius=0.99,
+            apply_spectral_radius=True,
+            scale=1.0,
+            input_set=[1.0, -1.0]
+        )
+
+        # Set parameters
+        self._set_parameters(args=kwargs)
+
+    # end __init__
+
     # Generate the matrix
-    def generate(self, size, dtype=torch.float32):
+    def generate(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param size: Matrix size
         :return: Generated matrix
         """
         # Params
-        try:
-            connectivity = self._parameters['connectivity']
-            size = self._parameters['size']
-            input_set = self._parameters['input_set']
-        except KeyError:
-            raise Exception("Argument missing")
-        # end try
+        connectivity = self.get_parameter('connectivity')
+        input_set = self.get_parameter('input_set')
 
         # Generate
         if connectivity is None:
@@ -65,6 +80,14 @@ class UniformMatrixGenerator(MatrixGenerator):
             w = torch.from_numpy(w.astype(np.float32))
         else:
             w = torch.from_numpy(w.astype(np.float64))
+        # end if
+
+        # Scale
+        w *= self.get_parameter('scale')
+
+        # Set spectral radius
+        if w.ndimension() == 2 and w.size(0) == w.size(1) and self.get_parameter('apply_spectral_radius'):
+            w = (w / echotorch.utils.spectral_radius(w)) * self.get_parameter('spectral_radius')
         # end if
 
         return w

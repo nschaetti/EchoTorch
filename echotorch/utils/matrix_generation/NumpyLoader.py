@@ -39,7 +39,7 @@ class NumpyLoader(MatrixGenerator):
     ################
 
     # Generate the matrix
-    def generate(self, size, dtype=torch.float32):
+    def generate(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param size: Matrix size (ignored)
@@ -47,18 +47,14 @@ class NumpyLoader(MatrixGenerator):
         :return: Generated matrix
         """
         # Params
-        try:
-            file_name = self._parameters['file_name']
-        except KeyError as k:
-            raise Exception("Argument missing : {}".format(k))
-        # end try
+        file_name = self.get_parameter('file_name')
 
         # Load matrix
         loaded_matrix = np.load(file_name)
 
         # Reshape
         if 'shape' in self._parameters.keys():
-            loaded_matrix = np.reshape(loaded_matrix, self._parameters['shape'])
+            loaded_matrix = np.reshape(loaded_matrix, self.get_parameter('shape'))
         # end if
 
         # Dense or not

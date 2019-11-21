@@ -170,7 +170,7 @@ class Node(nn.Module):
     # end reset
 
     # Forward
-    def forward(self, *input):
+    def forward(self, *input, **kwargs):
         """
         Forward
         :param input:
@@ -444,5 +444,19 @@ class Node(nn.Module):
         """
         return states
     # end _post_step_update_hook
+
+    ###################
+    # OVERLOAD
+    ###################
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = '{_input_dim}, {_output_dim}'
+        return s.format(**self.__dict__)
+    # end extra_repr
 
 # end Node

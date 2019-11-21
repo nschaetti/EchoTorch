@@ -364,4 +364,19 @@ class ESNCell(Node, Observable):
         return Variable(w_bias, requires_grad=False)
     # end _scale_wbias
 
+    #################
+    # OVERLOAD
+    #################
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = super(ESNCell, self).extra_repr()
+        s += ', nonlin_func={_nonlin_func}, washout={_washout}'
+        return s.format(**self.__dict__)
+    # end extra_repr
+
 # end ESNCell

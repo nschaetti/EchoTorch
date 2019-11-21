@@ -23,24 +23,30 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from ..Node import Node
 
 
 # Join States Layer
-class JoinStates(nn.Module):
+class JoinStates(Node):
     """
     Join States Layer
     """
 
     # Constructor
-    def __init__(self, input_dim, join_length):
+    def __init__(self, input_dim, join_length, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float64):
         """
         Constructor
         """
         # Super
-        super(JoinStates, self).__init__()
+        super(JoinStates, self).__init__(
+            input_dim=input_dim,
+            output_dim=input_dim * join_length,
+            debug=debug,
+            test_case=test_case,
+            dtype=dtype
+        )
 
         # Length and hidden dim
-        self._input_dim = input_dim
         self._join_length = join_length
     # end __init__
 
@@ -63,7 +69,22 @@ class JoinStates(nn.Module):
         # New time length
         new_time_length = int(time_length / self._join_length)
 
-        return x.reshape(batch_size, new_time_length, self._hidden_dim * self._join_length)
+        return x.reshape(batch_size, new_time_length, self._output_dim)
     # end forward
+
+    ##################
+    # OVERRIDE
+    ##################
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = super(JoinStates, self).extra_repr()
+        s += ', join-length={_join_length}'
+        return s.format(**self.__dict__)
+    # end extra_repr
 
 # end JoinStates

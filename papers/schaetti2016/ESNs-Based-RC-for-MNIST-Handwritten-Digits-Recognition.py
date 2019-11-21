@@ -20,18 +20,33 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+import sys
 import torch.utils.data
 from torch.autograd import Variable
 import torchvision.datasets
 import echotorch.nn.reservoir
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+import modules
 
 
 # Experiment parameters
-reservoir_size = 500
-spectral_radius = 0.99
-leaky_rate = 0.5
-batch_size = 8
+reservoir_size = 1000
+connectivity = 0.1
+spectral_radius = 1.3
+leaky_rate = 0.2
+batch_size = 10
+input_scaling = 0.6
+ridge_param = 0.0
+bias_scaling = 1.0
+image_size = 15
+degrees = [30, 60, 60]
+n_digits = 10
+block_size = 100
+input_size = (len(degrees) + 1) * image_size
+training_size = 60000
+test_size = 10000
+use_cuda = False and torch.cuda.is_available()
 
 # MNIST data set train
 train_loader = torch.utils.data.DataLoader(
@@ -42,27 +57,27 @@ train_loader = torch.utils.data.DataLoader(
             download=True,
             transform=torchvision.transforms.Compose([
                 echotorch.transforms.images.Concat([
-                    echotorch.transforms.images.CropResize(size=15),
+                    echotorch.transforms.images.CropResize(size=image_size),
                     torchvision.transforms.Compose([
-                        echotorch.transforms.images.Rotate(degree=30),
-                        echotorch.transforms.images.CropResize(size=15)
+                        echotorch.transforms.images.Rotate(degree=degrees[0]),
+                        echotorch.transforms.images.CropResize(size=image_size)
                     ]),
                     torchvision.transforms.Compose([
-                        echotorch.transforms.images.Rotate(degree=60),
-                        echotorch.transforms.images.CropResize(size=15)
+                        echotorch.transforms.images.Rotate(degree=degrees[1]),
+                        echotorch.transforms.images.CropResize(size=image_size)
                     ]),
                     torchvision.transforms.Compose([
-                        echotorch.transforms.images.Rotate(degree=60),
-                        echotorch.transforms.images.CropResize(size=15)
+                        echotorch.transforms.images.Rotate(degree=degrees[2]),
+                        echotorch.transforms.images.CropResize(size=image_size)
                     ])
                 ],
                     sequential=True
                 ),
                 torchvision.transforms.ToTensor()
             ]),
-            target_transform=echotorch.transforms.targets.ToOneHot(class_size=10)
+            target_transform=echotorch.transforms.targets.ToOneHot(class_size=n_digits)
         ),
-        n_images=10
+        n_images=block_size
     ),
     batch_size=batch_size,
     shuffle=False
@@ -77,65 +92,128 @@ test_loader = torch.utils.data.DataLoader(
             download=True,
             transform=torchvision.transforms.Compose([
                 echotorch.transforms.images.Concat([
-                    echotorch.transforms.images.CropResize(size=15),
+                    echotorch.transforms.images.CropResize(size=image_size),
                     torchvision.transforms.Compose([
-                        echotorch.transforms.images.Rotate(degree=30),
-                        echotorch.transforms.images.CropResize(size=15)
+                        echotorch.transforms.images.Rotate(degree=degrees[0]),
+                        echotorch.transforms.images.CropResize(size=image_size)
                     ]),
                     torchvision.transforms.Compose([
-                        echotorch.transforms.images.Rotate(degree=60),
-                        echotorch.transforms.images.CropResize(size=15)
+                        echotorch.transforms.images.Rotate(degree=degrees[1]),
+                        echotorch.transforms.images.CropResize(size=image_size)
                     ]),
                     torchvision.transforms.Compose([
-                        echotorch.transforms.images.Rotate(degree=60),
-                        echotorch.transforms.images.CropResize(size=15)
+                        echotorch.transforms.images.Rotate(degree=degrees[2]),
+                        echotorch.transforms.images.CropResize(size=image_size)
                     ])
                 ],
                     sequential=True
                 ),
                 torchvision.transforms.ToTensor()
             ]),
-            target_transform=echotorch.transforms.targets.ToOneHot(class_size=10)
+            target_transform=echotorch.transforms.targets.ToOneHot(class_size=n_digits)
         ),
-        n_images=10
+        n_images=block_size
     ),
     batch_size=batch_size,
     shuffle=False
 )
 
-# Matrices generator
-"""
+# Internal matrix
+w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    spetral_radius=spectral_radius
+)
+
+# Input weights
+win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    scale=input_scaling,
+    apply_spectral_radius=False
+)
+
+# Bias vector
+wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    scale=bias_scaling,
+    apply_spectral_radius=False
+)
+
 # New ESN-JS module
-esn = echotorch.nn.reservoir.LiESN(
-    input_dim=28,
+esn = modules.ESNJS(
+    input_dim=input_size,
+    image_size=image_size,
     hidden_dim=reservoir_size,
-    output_dim=10,
-    leaky_rate=0.5,
-    spectral_radius=0.99,
-    input_scaling=0.5,
+    leaky_rate=leaky_rate,
+    ridge_param=ridge_param,
     w_generator=w_generator,
     win_generator=win_generator,
     wbias_generator=wbias_generator
-)"""
+)
+
+# Show the model
+print(esn)
+
+# Use cuda ?
+if use_cuda:
+    esn.cuda()
+# end if
 
 # For each training sample
-for batch_idx, (data, targets) in enumerate(train_loader):
-    print(data.size())
-    # Remove channel
-    data = data.reshape(batch_size, 150, 60)
+with tqdm(total=training_size) as pbar:
+    for batch_idx, (data, targets) in enumerate(train_loader):
+        # Remove channel
+        data = data.reshape(batch_size, 1500, 60)
 
-    # To Variable
-    inputs, targets = Variable(data, requires_grad=False), Variable(targets, requires_grad=False)
+        # To Variable
+        inputs, targets = Variable(data.double()), Variable(targets.double())
 
-    # Plot
-    plt.imshow(data[0].t(), cmap='gray')
-    plt.show()
-    if batch_idx == 1:
-        break
-    # end if
-    # Feed ESN
-    # esn(inputs, targets)
-# end for
+        # CUDA
+        if use_cuda:
+            inputs, targets = inputs.cuda(), targets.cuda()
+        # end if
+
+        # Feed ESN
+        states = esn(inputs, targets)
+
+        # Update bar
+        pbar.update(batch_size * block_size)
+    # end for
+# end with
 
 # Finish training
-# esn.finalize()
+esn.finalize()
+
+# Total number of right prediction
+true_positives = 0.0
+
+# For each test batch
+with tqdm(total=test_size) as pbar:
+    for batch_idx, (data, targets) in enumerate(test_loader):
+        # Remove channel
+        data = data.reshape(batch_size, 1500, 60)
+
+        # To Variable
+        inputs, targets = Variable(data.double()), Variable(targets.double())
+
+        # CUDA
+        if use_cuda:
+            inputs, targets = inputs.cuda(), targets.cuda()
+        # end if
+
+        # Feed ESN
+        prediction = esn(inputs, None)
+
+        # Predicted and truth
+        _, predicted_class = prediction.max(2)
+        _, true_class = targets.max(2)
+
+        # Matching prediction
+        true_positives += torch.sum(predicted_class == true_class)
+
+        # Update bar
+        pbar.update(batch_size * block_size)
+    # end for
+# end with
+
+# Show accuracy
+print("Error rate : {}".format(100.0 - (true_positives / float(test_size) * 100.0)))

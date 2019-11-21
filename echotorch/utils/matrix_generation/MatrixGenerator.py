@@ -56,8 +56,36 @@ class MatrixGenerator:
     # PUBLIC
     ################
 
+    # Get a parameter value
+    def get_parameter(self, key):
+        """
+        Get a parameter value
+        :param key: Parameter name
+        :return: Parameter value
+        """
+        try:
+            return self._parameters[key]
+        except KeyError:
+            raise Exception("Unknown parameter : {}".format(key))
+        # end try
+    # end get_parameter
+
+    # Set a parameter value
+    def set_parameter(self, key, value):
+        """
+        Set a parameter value
+        :param key: Parameter name
+        :param value: Parameter value
+        """
+        try:
+            self._parameters[key] = value
+        except KeyError:
+            raise Exception("Unknown parameter : {}".format(key))
+        # end try
+    # end set_parameter
+
     # Generate the matrix
-    def generate(self, size, dtype=torch.float32):
+    def generate(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param size: Matrix size
@@ -66,5 +94,20 @@ class MatrixGenerator:
         """
         return torch.randn(size)
     # end generate
+
+    ################
+    # PRIVATE
+    ################
+
+    # Set parameters
+    def _set_parameters(self, args):
+        """
+        Set parameters
+        :param args: Parameters as dict
+        """
+        for key, value in args.items():
+            self.set_parameter(key, value)
+        # end for
+    # end _set_parameters
 
 # end MatrixGenerator

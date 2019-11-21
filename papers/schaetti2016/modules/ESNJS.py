@@ -35,11 +35,12 @@ class ESNJS(etnn.Node):
     """
 
     # Constructor
-    def __init__(self, image_size, hidden_dim, spectral_radius, leaky_rate, ridge_param, input_scaling,
-                 debug=etnn.Node.NO_DEBUG, test_case=None):
+    def __init__(self, image_size, input_dim, hidden_dim, leaky_rate, ridge_param, w_generator, win_generator,
+                 wbias_generator, debug=etnn.Node.NO_DEBUG, test_case=None, dtype=torch.float64):
         """
         Constructor
         :param image_size: Input image size
+        :param input_dim: Input dimension
         :param hidden_dim: Reservoir size
         :param spectral_radius: Reservoir's spectral radius
         :param leaky_rate:
@@ -49,55 +50,43 @@ class ESNJS(etnn.Node):
         """
         # Super
         super(ESNJS, self).__init__(
-            input_dim=image_size,
+            input_dim=input_dim,
             output_dim=10,
             debug=debug,
             test_case=test_case,
-            dtype=torch.float64
-        )
-
-        # Internal matrix
-        w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
-            connectivity=0.1,
-            spetral_radius=spectral_radius
-        )
-
-        # Input weights
-        win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
-            connectivity=0.1,
-            scale=input_scaling
-        )
-
-        # Bias vector
-        wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
-            connectivity=0.1
+            dtype=dtype
         )
 
         # Create ESN
         self.esn = echotorch.nn.reservoir.LiESNCell(
-            input_dim=image_size,
-            output_dim=10,
-            spectral_radius=spectral_radius,
+            input_dim=input_dim,
+            output_dim=hidden_dim,
+            spectral_radius=1.0,
             leaky_rate=leaky_rate,
+            input_scaling=1.0,
+            bias_scaling=1.0,
             w=w_generator.generate(size=(hidden_dim, hidden_dim)),
-            w_in=win_generator.generate(size=(hidden_dim, image_size)),
+            w_in=win_generator.generate(size=(hidden_dim, input_dim)),
             w_bias=wbias_generator.generate(size=hidden_dim),
+            dtype=dtype
         )
 
         # Join states
         self.js = echotorch.nn.utils.JoinStates(
             input_dim=hidden_dim,
-            join_length=image_size
+            join_length=image_size,
+            dtype=dtype
         )
 
         # Ridge regression output
         self.output = echotorch.nn.linear.RRCell(
-            input_dim=hidden_dim,
+            input_dim=hidden_dim * image_size,
             output_dim=10,
             ridge_param=ridge_param,
             with_bias=True,
             softmax_output=True,
-            averaged=True
+            averaged=True,
+            dtype=dtype
         )
 
         # We train the RR layer
@@ -105,12 +94,15 @@ class ESNJS(etnn.Node):
     # end __init__
 
     # Forward
-    def forward(self, u):
+    def forward(self, *input, **kwargs):
         """
         Forward
         :param u:
         :return:
         """
+        # Inputs and targets
+        u, yh = input
+
         # Reservoir layer
         x = self.esn(u)
 
@@ -118,7 +110,7 @@ class ESNJS(etnn.Node):
         x = self.js(x)
 
         # Output RR
-        return self.output(x)
+        return self.output(x, yh)
     # end forward
 
 # end ESNJS

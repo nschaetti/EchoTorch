@@ -32,8 +32,27 @@ class NormalMatrixGenerator(MatrixGenerator):
     Generate matrix it normally distributed weights.
     """
 
+    # Constructor
+    def __init__(self, **kwargs):
+        """
+        Constructor
+        :param kwargs: Parameters of the generator
+        """
+        super(NormalMatrixGenerator, self).__init__(
+            connectivity=1.0,
+            spectral_radius=0.99,
+            apply_spectral_radius=True,
+            scale=1.0,
+            mean=0.0,
+            std=1.0
+        )
+
+        # Set parameters
+        self._set_parameters(args=kwargs)
+    # end __init__
+
     # Generate the matrix
-    def generate(self, size, dtype=torch.float32):
+    def generate(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param: Matrix size (row, column)
@@ -41,13 +60,9 @@ class NormalMatrixGenerator(MatrixGenerator):
         :return: Generated matrix
         """
         # Params
-        try:
-            connectivity = self._parameters['connectivity']
-            mean = self._parameters['mean']
-            std = self._parameters['std']
-        except KeyError as k:
-            raise Exception("Argument missing : {}".format(k))
-        # end try
+        connectivity = self.get_parameter('connectivity')
+        mean = self.get_parameter('mean')
+        std = self.get_parameter('std')
 
         # Full connectivity if none
         if connectivity is None:
@@ -61,14 +76,12 @@ class NormalMatrixGenerator(MatrixGenerator):
             w *= mask
         # end if
 
-        # Set spectral radius
-        if 'spectral_radius' in self._parameters.keys():
-            w = w / echotorch.utils.spectral_radius(w) * self._parameters['spectral_radius']
-        # end if
-
         # Scale
-        if 'scale' in self._parameters.keys():
-            w *= self._parameters['scale']
+        w *= self.get_parameter('scale')
+
+        # Set spectral radius
+        if w.ndimension() == 2 and w.size(0) == w.size(1) and self.get_parameter('apply_spectral_radius'):
+            w = (w / echotorch.utils.spectral_radius(w)) * self.get_parameter('spectral_radius')
         # end if
 
         return w

@@ -83,6 +83,7 @@ class RRCell(Node):
         self.register_buffer('xTx', Variable(torch.zeros(self._x_size, self._x_size, dtype=dtype), requires_grad=False))
         self.register_buffer('xTy', Variable(torch.zeros(self._x_size, output_dim, dtype=dtype), requires_grad=False))
         self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
+
     # end __init__
 
     #####################
@@ -106,6 +107,7 @@ class RRCell(Node):
 
         # Training mode again
         self.train(True)
+
     # end reset
 
     # Forward
@@ -147,7 +149,8 @@ class RRCell(Node):
             # end if
         elif not self.training:
             # Outputs
-            outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype), requires_grad=False)
+            outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype),
+                               requires_grad=False)
             outputs = outputs.cuda() if self.w_out.is_cuda else outputs
 
             # For each batch
@@ -156,10 +159,11 @@ class RRCell(Node):
             # end for
 
             if self._softmax_output:
-                return self.softmax(outputs)
+                return self._softmax(outputs)
             else:
                 return outputs
         # end if
+
     # end forward
 
     # Finish training
@@ -191,11 +195,12 @@ class RRCell(Node):
 
         # Not in training mode anymore
         self.train(False)
+
     # end finalize
 
-    ###############################################
+    #####################
     # PRIVATE
-    ###############################################
+    #####################
 
     # Add constant
     def _add_constant(self, x):
@@ -210,6 +215,22 @@ class RRCell(Node):
             bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype), requires_grad=False)
         # end if
         return torch.cat((bias, x), dim=2)
+
     # end _add_constant
+
+    #####################
+    # OVERLOAD
+    #####################
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        """
+        s = super(RRCell, self).extra_repr()
+        s += (', ridge_param={_ridge_param}, with_bias={_with_bias}, '
+              'learning_algo={_learning_algo}, softmax_output={_softmax_output}, averaged={_averaged}')
+        return s.format(**self.__dict__)
+    # end extra_repr
 
 # end RRCell
