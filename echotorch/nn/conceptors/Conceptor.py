@@ -122,11 +122,23 @@ class Conceptor(Node):
             # Increment correlation matrices
             self._increment_correlation_matrices(X)
         else:
-            return torch.mm(X, self.C)
+            return self.C.mv(X)
         # end if
 
         return X
     # end forward
+
+    # Finalise
+    def finalize(self):
+        """
+        Finalize training (learn C from R)
+        """
+        # Train conceptor
+        self._update_conceptor_matrix()
+
+        # Out of training mode
+        self.train(False)
+    # end finalize
 
     # Reset
     def reset(self):
@@ -329,8 +341,11 @@ class Conceptor(Node):
         # Compute SVD on R
         U, S, V = torch.svd(self.R)
 
+        # S as matrix
+        Sm = torch.diag(S)
+
         # Compute new singular values in the unit circle
-        Snew = torch.mm(S, torch.inverse(S + math.pow(self._aperture, -2) * torch.eye(self.input_dim)))
+        Snew = torch.mm(Sm, torch.inverse(Sm + math.pow(self._aperture, -2) * torch.eye(self.input_dim)))
 
         # Compute conceptor matrix
         self.C.data = torch.mm(torch.mm(U, Snew), U.t()).data
@@ -350,18 +365,39 @@ class Conceptor(Node):
         Increment correlation matrices
         :param X: Reservoir states
         """
-        print(X.size())
-        # Learn length
-        learn_length = X.size(1)
+        if X.ndim == 3:
+            # Learn length
+            learn_length = X.size(1)
 
-        # CoRrelation matrix of reservoir states
-        self.R += (torch.mm(X.t(), X)) / float(learn_length)
+            # Batch size
+            batch_size = X.size(0)
 
-        # Inc. n samples
-        self._n_samples += 1
+            # Increment R for each sample
+            for batch_i in range(batch_size):
+                # CoRrelation matrix of reservoir states
+                self.R += (torch.mm(X[batch_i].t(), X[batch_i])) / float(learn_length)
 
-        # Update conceptor matrix
-        self._update_conceptor_matrix()
+                # Inc. n samples
+                self._n_samples += 1
+            # end for
+        elif X.ndim == 2:
+            # Learn length
+            learn_length = X.size(0)
+
+            # CoRrelation matrix of reservoir states
+            self.R += (torch.mm(X.t(), X)) / float(learn_length)
+
+            # Inc. n samples
+            self._n_samples += 1
+        elif X.ndim == 0:
+            # CoRrelation matrix of reservoir states
+            self.R += (torch.mm(X, X.t()))
+
+            # Inc. n samples
+            self._n_samples += 1
+        else:
+            raise Exception("Unknown number of dimension for states (X) {}".format(X.size()))
+    # end if
     # end _increment_correlation_matrices
 
     ######################

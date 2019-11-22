@@ -27,10 +27,14 @@ import echotorch.utils.matrix_generation as mg
 import argparse
 import echotorch.utils
 import echotorch.datasets as etds
+import echotorch.utils.visualisation as ecvs
 from echotorch.datasets import DatasetComposer
 from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
+from torch.autograd import Variable
+from scipy.interpolate import interp1d
+import numpy.linalg as lin
 
 # Debug ?
 debug = False
@@ -61,6 +65,7 @@ signal_plot_length = 20
 conceptor_test_length = 200
 singular_plot_length = 50
 free_run_length = 100000
+interpolation_rate = 20
 
 # Regularization
 ridge_param_wstar = 0.0001
@@ -138,13 +143,11 @@ spesn = ecnc.SPESN(
     input_dim=1,
     hidden_dim=reservoir_size,
     output_dim=1,
-    spectral_radius=spectral_radius,
     learning_algo='inv',
     w_generator=w_generator,
     win_generator=win_generator,
     wbias_generator=wbias_generator,
     input_scaling=input_scaling,
-    bias_scaling=bias_scaling,
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
     washout=washout_length,
@@ -159,8 +162,13 @@ conceptor_net = ecnc.ConceptorNet(
     input_dim=1,
     hidden_dim=reservoir_size,
     output_dim=1,
-    esn_cell=spesn.cell
+    esn_cell=spesn.cell,
+    dtype=dtype
 )
+
+# We create an outside observer to plot
+# internal states and SVD afterwards
+observer = ecvs.ESNCellObserver(spesn.cell)
 
 # If in debug mode
 if debug_mode > Node.NO_DEBUG:
@@ -210,19 +218,28 @@ if debug_mode > Node.NO_DEBUG:
 # Xold and Y collectors
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
 Y_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
+P_collector = torch.empty(4, signal_plot_length, dtype=dtype)
 
 # Create four conceptors, one for each pattern
 conceptors = [
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha),
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha),
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha),
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha)
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype),
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype),
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype),
+    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype)
 ]
+
+# Conceptors ON
+conceptor_net.conceptor_active(True)
 
 # Go through dataset
 for i, data in enumerate(patterns_loader):
     # Inputs and labels
     inputs, outputs, labels = data
+
+    # To Variable
+    if dtype == torch.float64:
+        inputs, outputs = Variable(inputs.double()), Variable(outputs.double())
+    # end if
 
     # Set current conceptor
     conceptor_net.set_conceptor(conceptors[i])
@@ -239,9 +256,10 @@ for i, data in enumerate(patterns_loader):
     # Save
     Xold_collector[i*learn_length:i*learn_length+learn_length] = Xold
     Y_collector[i*learn_length:i*learn_length+learn_length] = Y
+    P_collector[i] = inputs[0, washout_length:washout_length+signal_plot_length, 0]
 # end for
 
-# Finalize training
+# Learn internal weights
 conceptor_net.finalize()
 
 # Predicted by W
@@ -251,30 +269,116 @@ predY = torch.mm(conceptor_net.cell.w, Xold_collector.t()).t()
 training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
 print("Training NRMSE : {}".format(training_NRMSE))
 
-# Run trained ESN with empty inputs and plot it
+# Conceptors OFF
+conceptor_net.conceptor_active(False)
+
+# No washout this time
+conceptor_net.washout = 0
+
+# Run trained ESN with empty inputs (no conceptor learning)
 generated = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
-plt.plot(generated[0])
+
+# Plot the generated signal
+plt.title("Messy output after loading W")
+plt.plot(generated[0], color='r', linewidth=2)
 plt.show()
+
+# Conceptors ON
+conceptor_net.conceptor_active(True)
 
 # Save each generated pattern for display
 generated_samples = torch.zeros(4, conceptor_test_length)
 
+# NRMSE between original and aligned pattern
+NRMSEs_aligned = torch.zeros(4)
+
+# Figure (square size)
+plt.figure(figsize=(12, 8))
+
 # Set conceptors in evaluation mode and generate a sample
 for i in range(4):
-    # Evaluation mode
-    conceptors[i].eval(True)
+    # Train conceptors
+    conceptors[i].finalize()
 
     # Set it as current conceptor
     conceptor_net.set_conceptor(conceptors[i])
 
     # Generate sample
-    pattern_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
-    plt.plot(pattern_sample[0])
-    plt.show()
-    # Find the best matching position with cubic interpolation
+    generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
 
-    # Save position for plotting
+    # Find best phase shift
+    generated_sample_aligned, _, NRMSE_aligned = echotorch.utils.pattern_interpolation(P_collector[i], generated_sample[0], interpolation_rate)
+
+    # Plot 1 : original pattern and recreated pattern
+    plt.subplot(4, 4, i * 4 + 1)
+    plt.plot(generated_sample_aligned, color='r', linewidth=5)
+    plt.plot(P_collector[i], color='b', linewidth=1.5)
+
+    # Title
+    if i == 0:
+        plt.title('p vs y')
+    # end if
+
+    # X labels
+    if i == 3:
+        plt.xticks([0, 10, 20])
+    else:
+        plt.xticks([])
+    # end if
+
+    # Y limits
+    plt.ylim([-1, 1])
+    plt.yticks([-1, 0, 1])
+
+    # Plot 2 : neurons
+    plt.subplot(4, 4, i * 4 + 2)
+    observer.plot_neurons(
+        sample_id=i,
+        idxs=[0, 1, 2],
+        length=signal_plot_length,
+        color='g',
+        linewidth=1.5,
+        show_title=(i==0),
+        title="Two neurons",
+        xticks=[0, 10, 20] if i == 3 else None,
+        ylim=[-1, 1],
+        yticks=[-1, 0, 1]
+    )
+
+    # Plot 3 : Log10 of singular values (PC energy)
+    plt.subplot(4, 4, i * 4 + 3)
+    observer.plot_state_singular_values(
+        sample_id=i,
+        color='r',
+        linewidth=2,
+        show_title=(i == 0),
+        title="Log10 PC Energy",
+        xticks=[0, 50, 100] if i == 3 else None,
+        ylim=[-20, 10],
+        log10=True
+    )
+
+    # Plot 4 : Learning PC energy
+    plt.subplot(4, 4, i * 4 + 4)
+    observer.plot_state_singular_values(
+        sample_id=i,
+        color='r',
+        length=10,
+        linewidth=2,
+        show_title=(i == 0),
+        title="Leading PC energy",
+        ylim=[0, 40.0]
+    )
+
+    # Save NRMSE
+    NRMSEs_aligned[i] = NRMSE_aligned
 # end for
+
+# Show
+plt.show()
+
+# Show NRMSE
+print("NRMSEs aligned : {}".format(torch.mean(NRMSEs_aligned)))
 
 # Create plot for each pattern
 for i in range(4):

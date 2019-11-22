@@ -27,17 +27,17 @@ class Observable:
     """
 
     # Constructor
-    def __init__(self, observe_hooks):
+    def __init__(self, observation_points):
         """
         Constructor
         """
         # Keep the name of hooks
-        self._observe_hooks = observe_hooks
+        self._observation_points = observation_points
 
         # We save handlers for each hook
         self._observe_handlers = dict()
-        for hook in observe_hooks:
-            self._observe_handlers[hook] = list()
+        for point in self._observation_points:
+            self._observe_handlers[point] = list()
         # end for
     # end __init__
 
@@ -52,7 +52,7 @@ class Observable:
         Observation point
         :return: List of observation points (string)
         """
-        return self._observe_hooks
+        return self._observation_points
     # end observation_points
 
     ###############
@@ -60,22 +60,31 @@ class Observable:
     ###############
 
     # Add an handler for observation
-    def observe(self, hook, handler):
+    def observe(self, point, handler):
         """
         Add an handler for observation
-        :param hook: The name of the hook to observe
+        :param point: The name of the point to observe
         :param handler: The function to call
         """
-        if hook in self._observe_hooks:
-            self._observe_handlers[hook] = handler
+        if point in self._observation_points:
+            self._observe_handlers[point].append(handler)
         else:
-            raise Exception("No observation hook named {}".format(hook))
+            raise Exception("No observation point named {}".format(point))
         # end if
     # end observe
 
     ###############
     # PRIVATE
     ###############
+
+    # Add observation point(
+    def _add_observation_point(self, name):
+        """
+        Add observation point
+        :param name: Point name
+        """
+        self._observation_points.append(name)
+    # end _add_observation_point
 
     # Send item for observation point
     def observation_point(self, hook_name, item, batch, sample, t):

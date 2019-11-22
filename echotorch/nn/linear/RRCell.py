@@ -107,7 +107,6 @@ class RRCell(Node):
 
         # Training mode again
         self.train(True)
-
     # end reset
 
     # Forward
@@ -214,8 +213,8 @@ class RRCell(Node):
         else:
             bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype), requires_grad=False)
         # end if
-        return torch.cat((bias, x), dim=2)
 
+        return torch.cat((bias, x), dim=2)
     # end _add_constant
 
     #####################

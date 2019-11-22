@@ -36,17 +36,21 @@ class ESNJS(etnn.Node):
 
     # Constructor
     def __init__(self, image_size, input_dim, hidden_dim, leaky_rate, ridge_param, w_generator, win_generator,
-                 wbias_generator, debug=etnn.Node.NO_DEBUG, test_case=None, dtype=torch.float64):
+                 wbias_generator, input_scaling=1.0, debug=etnn.Node.NO_DEBUG, test_case=None, dtype=torch.float64):
         """
         Constructor
-        :param image_size: Input image size
-        :param input_dim: Input dimension
-        :param hidden_dim: Reservoir size
-        :param spectral_radius: Reservoir's spectral radius
+        :param image_size:
+        :param input_dim:
+        :param hidden_dim:
         :param leaky_rate:
         :param ridge_param:
+        :param w_generator:
+        :param win_generator:
+        :param wbias_generator:
+        :param input_scaling:
         :param debug:
         :param test_case:
+        :param dtype:
         """
         # Super
         super(ESNJS, self).__init__(
@@ -61,10 +65,8 @@ class ESNJS(etnn.Node):
         self.esn = echotorch.nn.reservoir.LiESNCell(
             input_dim=input_dim,
             output_dim=hidden_dim,
-            spectral_radius=1.0,
             leaky_rate=leaky_rate,
-            input_scaling=1.0,
-            bias_scaling=1.0,
+            input_scaling=input_scaling,
             w=w_generator.generate(size=(hidden_dim, hidden_dim)),
             w_in=win_generator.generate(size=(hidden_dim, input_dim)),
             w_bias=wbias_generator.generate(size=hidden_dim),
@@ -90,7 +92,7 @@ class ESNJS(etnn.Node):
         )
 
         # We train the RR layer
-        self.finalized_element(self.output)
+        self.add_trainable(self.output)
     # end __init__
 
     # Forward

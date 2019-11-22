@@ -31,7 +31,7 @@ import modules
 
 
 # Experiment parameters
-reservoir_size = 1000
+reservoir_size = 100
 connectivity = 0.1
 spectral_radius = 1.3
 leaky_rate = 0.2

@@ -53,14 +53,17 @@ class ConceptorNet(ESN):
             w_generator=None,
             win_generator=None,
             wbias_generator=None,
+            washout=esn_cell.washout,
             create_rnn=False,
-            create_output=True
+            create_output=True,
+            dtype=dtype
         )
 
         # Properties
         self._input_dim = input_dim
         self._output_dim = output_dim
         self._hidden_dim = hidden_dim
+        self._conceptor_active = False
         self._dtype = dtype
 
         # Current conceptor
@@ -71,9 +74,13 @@ class ConceptorNet(ESN):
 
         # Neural filter
         self._esn_cell.connect("neural-filter", self._neural_filter)
+        self._esn_cell.connect("post-states-update", self._post_update_states)
 
         # Forward hook to learn conceptor
-        self._esn_cell.register_forward_hook(self._forward_hook_conceptor_learning)
+        # self._esn_cell.register_forward_hook(self._forward_hook_conceptor_learning)
+
+        # Trainable elements
+        self.add_trainable(self._esn_cell)
     # end __init__
 
     ####################
@@ -89,20 +96,14 @@ class ConceptorNet(ESN):
         self._current_conceptor = C
     # end set_conceptor
 
-    # Finish training
-    def finalize(self):
+    # Use conceptor ?
+    def conceptor_active(self, value):
         """
-        Finish training
+        Use conceptors ?
+        :param value: True/False
         """
-        # Finalize internal training
-        self._esn_cell.finalize()
-
-        # Finalize output training
-        self._output.finalize()
-
-        # Not in training mode anymore
-        self.train(False)
-    # end finalize
+        self._conceptor_active = value
+    # end conceptor_active
 
     ####################
     # PRIVATE
@@ -117,12 +118,25 @@ class ConceptorNet(ESN):
         :param t: Time t
         :param washout: In washout period
         """
-        if not washout:
+        if self._conceptor_active and self._current_conceptor is not None and not self._current_conceptor.training:
             return self._current_conceptor(x)
         else:
             return x
         # end if
     # end _neural_filter
+
+    # Get states after batch update to train conceptors
+    def _post_update_states(self, states, inputs, b):
+        """
+        Get states after batch update to train conceptors
+        :param states: Reservoir states (without washout)
+        :param inputs: Input signal
+        :param b: Batch position
+        """
+        if self._conceptor_active and self._current_conceptor is not None and self._current_conceptor.training:
+            self._current_conceptor(states)
+        # end if
+    # end _post_update_states
 
     # Hook executed to learn conceptors
     def _forward_hook_conceptor_learning(self, module, inputs, outputs):

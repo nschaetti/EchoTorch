@@ -42,15 +42,12 @@ class ESNCell(Node, Observable):
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, w, w_in, w_bias, spectral_radius=0.9, bias_scaling=0,
-                 input_scaling=1.0, nonlin_func=torch.tanh, washout=0, debug=Node.NO_DEBUG, test_case=None,
-                 dtype=torch.float32):
+    def __init__(self, input_dim, output_dim, w, w_in, w_bias, input_scaling=1.0, nonlin_func=torch.tanh, washout=0,
+                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input dimension
         :param output_dim: Reservoir size
-        :param spectral_radius: Spectral radius
-        :param bias_scaling: Bias scaling
         :param input_scaling: Input scaling
         :param w: Internal weight matrix W
         :param w_in: Input-internal weight matrix Win
@@ -73,12 +70,10 @@ class ESNCell(Node, Observable):
         # Init. Observable super-class
         Observable.__init__(
             self,
-            observe_hooks=['w', 'hidden', 'w_in', 'w_bias', 'X', 'U']
+            observation_points=['w', 'w_in', 'w_bias', 'X', 'U']
         )
 
         # Params
-        self._spectral_radius = spectral_radius
-        self._bias_scaling = bias_scaling
         self._input_scaling = input_scaling
         self._nonlin_func = nonlin_func
         self._washout = washout
@@ -88,22 +83,47 @@ class ESNCell(Node, Observable):
         self.register_buffer('hidden', self._init_hidden())
 
         # Initialize input weights
-        self.register_buffer('w_in', self._scale_win(w_in))
+        self.register_buffer('w_in', Variable(w_in, requires_grad=False))
 
         # Initialize reservoir weights randomly
-        self.register_buffer('w', self._scale_w(w))
+        self.register_buffer('w', Variable(w, requires_grad=False))
 
         # Initialize bias
-        self.register_buffer('w_bias', self._scale_wbias(w_bias))
+        self.register_buffer('w_bias', Variable(w_bias, requires_grad=False))
 
         # Observers
         self._cell_inputs_observers = []
         self._cell_states_observers = []
+
+        # Observe W, Win, Wbias
+        self.observation_point('w', self.w, 0, 0, 0)
+        self.observation_point('w_in', self.w_in, 0, 0, 0)
+        self.observation_point('w_bias', self.w_bias, 0, 0, 0)
     # end __init__
 
     ######################
     # PROPERTIES
     ######################
+
+    # Get washout
+    @property
+    def washout(self):
+        """
+        Get washout
+        :return: Washout length
+        """
+        return self._washout
+    # end washout
+
+    # Set washout
+    @washout.setter
+    def washout(self, washout):
+        """
+        Washout
+        :param washout: New washout
+        """
+        self._washout = washout
+    # end washout
 
     # Get W's spectral radius
     @property
@@ -123,18 +143,7 @@ class ESNCell(Node, Observable):
         :param sp: New spectral radius
         """
         self.w *= sp / echotorch.utils.spectral_radius(self.w)
-        self._spectral_radius = sp
     # end spectral_radius
-
-    # Get bias scaling
-    @property
-    def bias_scaling(self):
-        """
-        Get bias scaling
-        :return: Bias scaling parameter
-        """
-        return self._bias_scaling
-    # end bias_scaling
 
     # Get input scaling
     @property
@@ -159,22 +168,6 @@ class ESNCell(Node, Observable):
     ######################
     # PUBLIC
     ######################
-
-    # Add an observer
-    def observe(self, observer_type, handle_func):
-        """
-        Add an observer
-        :param observer_type: Observer type (inputs, states)
-        :param handle_func: The handle function
-        """
-        if observer_type == "inputs":
-            self._cell_inputs_observers.append(handle_func)
-        elif observer_type == "states":
-            self._cell_states_observers.append(handle_func)
-        else:
-            raise Exception("Unknown observer type {}".format(observer_type))
-        # end if
-    # end observe
 
     # Reset hidden layer
     def reset_hidden(self):
@@ -229,7 +222,7 @@ class ESNCell(Node, Observable):
             # For each steps
             for t in range(time_length):
                 # Current input
-                ut = u[b, t]
+                ut = u[b, t] * self._input_scaling
 
                 # Pre-hook
                 ut = self._pre_step_update_hook(ut, t)
@@ -267,10 +260,13 @@ class ESNCell(Node, Observable):
             # Post-update hook
             outputs[b, :] = self._post_update_hook(outputs[b, :], u[b, :], b)
 
-            # States observers
-            for observer in self._cell_states_observers:
-                observer(outputs[b, :])
+            # Post states update handlers
+            for handler in self._post_states_update_handlers:
+                handler(outputs[b, self._washout:], u[b, self._washout:], b)
             # end for
+
+            # Observe states
+            self.observation_point('X', outputs[b, self._washout:], 0, b, 0)
         # end for
 
         return outputs[:, self._washout:]
@@ -329,40 +325,6 @@ class ESNCell(Node, Observable):
         """
         return Variable(torch.zeros(self.output_dim, dtype=self.dtype), requires_grad=False)
     # end _init_hidden
-
-    # Scale W matrix
-    def _scale_w(self, w):
-        """
-        Scale W matrix
-        :return: Scaled W matrix
-        """
-        # Scale it to spectral radius
-        # w *= self._spectral_radius / echotorch.utils.spectral_radius(w)
-        w *= self._spectral_radius
-        return Variable(w, requires_grad=False)
-    # end _scale_w
-
-    # Scale Win matrix
-    def _scale_win(self, w_in):
-        """
-        Scale Win matrix
-        :return: Scaled Win
-        """
-        # Initialize input weight matrix
-        w_in *= self._input_scaling
-        return Variable(w_in, requires_grad=False)
-    # end _scale_win
-
-    # Scale Wbias matrix
-    def _scale_wbias(self, w_bias):
-        """
-        Scale Wbias matrix
-        :return: Scaled bias matrix
-        """
-        # Initialize bias matrix
-        w_bias *= self._bias_scaling
-        return Variable(w_bias, requires_grad=False)
-    # end _scale_wbias
 
     #################
     # OVERLOAD

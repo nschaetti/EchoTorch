@@ -74,49 +74,66 @@ def align_pattern(interpolation_rate, truth_pattern, generated_pattern):
 # end align_pattern
 
 
-# Find phase shift
-def find_phase_shift(p, y, interpolation_rate, error_measure=nrmse):
+# Pattern interpolation
+def pattern_interpolation(p, y, interpolation_rate, error_measure=nrmse):
     """
-    Find phase shift
-    :param s1:
-    :param s2:
-    :param window_size:
+    Pattern interpolation
+    :param p:
+    :param y:
+    :param interpolation_rate:
+    :param error_measure:
     :return:
     """
-    # Size
-    p_length = p.size(0)
-    y_length = y.size(0)
+    # Length
+    CL = y.size(0)
+    PL = p.size(0)
 
-    # 1D
-    p = p.view(-1)
-    y = y.view(-1)
+    # Interpolation of generated sample
+    interpolated_func = interp1d(np.arange(CL), y[:, 0].numpy(), kind='quadratic')
+    interpolated_generated = interpolated_func(np.arange(0, CL - 1.0, 1.0 / interpolation_rate))
 
-    # Interpolate p and y
-    p_int = torch.from_numpy(np.interp(np.arange(0, p_length, 1.0 / interpolation_rate), np.arange(p_length), p.numpy()))
-    y_int = torch.from_numpy(np.interp(np.arange(0, y_length, 1.0 / interpolation_rate), np.arange(y_length), y.numpy()))
+    # Interpolation of target sample
+    interpolated_func = interp1d(np.arange(PL), p.numpy(), kind='quadratic')
+    interpolated_pattern = interpolated_func(np.arange(0, PL - 1.0, 1.0 / interpolation_rate))
 
-    # New shape
-    L = y_int.shape[0]
-    M = p_int.shape[0]
+    # Length of generated (interpolated)
+    L = interpolated_generated.shape[0]
 
-    # Find best phase
-    phasematches = torch.zeros(L - M)
-    for phaseshift in range(L - M):
-        phasematches[phaseshift] = torch.norm(p_int - y_int[phaseshift:phaseshift + M], p=2)
+    # Length of original (interpolated)
+    M = interpolated_pattern.shape[0]
+
+    # Save norm-2 for each phase shift
+    norm_phase_shift = np.zeros(L - M)
+
+    # Phase shift
+    for shift in range(L - M):
+        # Norm-2 between generated an original
+        norm_phase_shift[shift] = lin.norm(interpolated_generated[shift:shift + M] - interpolated_pattern)
     # end for
 
-    # Best phase
-    max_index = torch.argmax(-phasematches)
-    # Matching phase
-    y_aligned = y_int[np.arange(max_index, max_index + interpolation_rate * p_length, interpolation_rate)]
+    # Find minimum distance
+    min_norm = int(np.argmax(-norm_phase_shift))
+
+    # Generated signal aligned
+    generated_sample_aligned = interpolated_generated[
+        np.arange(min_norm, min_norm + PL * interpolation_rate, interpolation_rate)
+    ]
 
     # Original phase
-    original_phase = np.ceil(max_index / interpolation_rate)
+    original_phase = np.ceil(min_norm / interpolation_rate)
+
+    # To Tensor
+    generated_sample_aligned = torch.Tensor(generated_sample_aligned)
+
+    # Double ?
+    if isinstance(generated_sample_aligned, torch.DoubleTensor):
+        generated_sample_aligned = generated_sample_aligned.double()
+    # end if
 
     # Error after alignment
-    error_aligned = error_measure(y_aligned.reshape(1, -1), p.reshape(1, -1))
+    error_aligned = error_measure(generated_sample_aligned.reshape(1, -1), p.reshape(1, -1))
 
-    return p, y_aligned, original_phase, error_aligned
+    return generated_sample_aligned, original_phase, error_aligned
 # end find_phase_shift
 
 

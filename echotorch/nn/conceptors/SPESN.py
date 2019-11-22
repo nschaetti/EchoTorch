@@ -40,7 +40,7 @@ class SPESN(ESN):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
-                 spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
+                 input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  w_learning_algo='inv', ridge_param=0.000001, w_ridge_param=0.0001, with_bias=True,
                  softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
@@ -51,8 +51,6 @@ class SPESN(ESN):
         :param w_generator: Internal weight matrix generator
         :param win_generator: Input-output weight matrix generator
         :param wbias_generator: Bias matrix generator
-        :param spectral_radius: Spectral radius
-        :param bias_scaling: Bias scaling
         :param input_scaling: Input scaling
         :param nonlin_func: Non-linear function
         :param learning_algo: Learning method (inv, pinv)
@@ -74,7 +72,8 @@ class SPESN(ESN):
             create_rnn=False,
             create_output=True,
             debug=debug,
-            test_case=test_case
+            test_case=test_case,
+            dtype=dtype
         )
 
         # Properties
@@ -97,8 +96,6 @@ class SPESN(ESN):
             w=w,
             w_in=w_in,
             w_bias=w_bias,
-            spectral_radius=spectral_radius,
-            bias_scaling=bias_scaling,
             input_scaling=input_scaling,
             nonlin_func=nonlin_func,
             w_learning_algo=w_learning_algo,
@@ -121,6 +118,10 @@ class SPESN(ESN):
             test_case=test_case,
             dtype=dtype
         )
+
+        # Trainable elements
+        self.add_trainable(self._esn_cell)
+        self.add_trainable(self._output)
     # end __init__
 
     #######################
@@ -134,21 +135,6 @@ class SPESN(ESN):
     #######################
     # PUBLIC
     #######################
-
-    # Finish training
-    def finalize(self):
-        """
-        Finish training
-        """
-        # Finalize internal training
-        self._esn_cell.finalize()
-
-        # Finalize output training
-        self._output.finalize()
-
-        # Not in training mode anymore
-        self.train(False)
-    # end finalize
 
     #######################
     # PRIVATE

@@ -97,7 +97,6 @@ class SPESNCell(ESNCell):
 
         # We need to solve w = (xTx)^(-1)xTy
         # Covariance matrix xTx
-        # ridge_xTx = self.xTx + self._w_ridge_param * torch.eye(self._input_dim, dtype=self._dtype)
         ridge_xTx = self.xTx + self._w_ridge_param * torch.eye(self.output_dim, dtype=self._dtype)
 
         # Debug for ridge xTx

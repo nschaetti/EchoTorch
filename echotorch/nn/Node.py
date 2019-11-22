@@ -65,12 +65,13 @@ class Node(nn.Module):
         self._debug_points = dict()
         self._test_case = test_case
 
-        # Finalized elements
-        self._finalized_elements = list()
+        # Trainable elements
+        self._trainable_elements = list()
 
         # Handlers
         self._neural_filter_handlers = []
         self._neural_batch_filter_handlers = []
+        self._post_states_update_handlers = []
     # end __init__
 
     #######################
@@ -184,7 +185,7 @@ class Node(nn.Module):
         """
         Finish training
         """
-        for e in self._finalized_elements:
+        for e in self._trainable_elements:
             e.finalize()
         # end for
 
@@ -205,15 +206,15 @@ class Node(nn.Module):
     #######################
 
     # Add to elements to finalize
-    def finalized_element(self, e):
+    def add_trainable(self, e):
         """
         Add to elements to finalize
         :param e: Node to finalize
         """
         if isinstance(e, Node):
-            self._finalized_elements.append(e)
+            self._trainable_elements.append(e)
         # end if
-    # end finalized_element
+    # end add_trainable
 
     # Set debug mode
     def debug(self, mode):
@@ -249,6 +250,10 @@ class Node(nn.Module):
         elif handler_name == "neural-batch-filter":
             if handler_func not in self._neural_batch_filter_handlers:
                 self._neural_batch_filter_handlers.append(handler_func)
+            # end if
+        elif handler_name == "post-states-update":
+            if handler_func not in self._post_states_update_handlers:
+                self._post_states_update_handlers.append(handler_func)
             # end if
         # end if
     # end connect

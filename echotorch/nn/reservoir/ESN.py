@@ -77,7 +77,6 @@ class ESN(Node):
         self._output_dim = output_dim
         self._hidden_dim = hidden_dim
         self._with_bias = with_bias
-        self._washout = washout
         self._w_generator = w_generator
         self._win_generator = win_generator
         self._wbias_generator = wbias_generator
@@ -94,8 +93,6 @@ class ESN(Node):
                 w=w,
                 w_in=w_in,
                 w_bias=w_bias,
-                spectral_radius=spectral_radius,
-                bias_scaling=bias_scaling,
                 input_scaling=input_scaling,
                 nonlin_func=nonlin_func,
                 washout=washout,
@@ -118,12 +115,33 @@ class ESN(Node):
                 test_case=test_case,
                 dtype=dtype
             )
+            self.add_trainable(self._output)
         # end if
     # end __init__
 
     ###########################
     # PROPERTIES
     ###########################
+
+    # Get washout
+    @property
+    def washout(self):
+        """
+        Get washout
+        :return: Washout length
+        """
+        return self._esn_cell.washout
+    # end washout
+
+    # Set washout
+    @washout.setter
+    def washout(self, washout):
+        """
+        Washout
+        :param washout: New washout
+        """
+        self._esn_cell.washout = washout
+    # end washout
 
     # ESN cell
     @property
@@ -154,16 +172,6 @@ class ESN(Node):
         """
         self._esn_cell.spectral_radius = sp
     # end spectral_radius
-
-    # Get bias scaling
-    @property
-    def bias_scaling(self):
-        """
-        Get bias scaling
-        :return: Bias scaling parameter
-        """
-        return self._esn_cell.bias_scaling
-    # end bias_scaling
 
     # Get input scaling
     @property
@@ -244,7 +252,7 @@ class ESN(Node):
         if not self.training:
             return self._output(hidden_states, None)
         else:
-            return self._output(hidden_states, y[:, self._washout:])
+            return self._output(hidden_states, y[:, self._esn_cell.washout:])
         # end if
     # end forward
 
@@ -263,18 +271,6 @@ class ESN(Node):
         # Training mode again
         self.train(True)
     # end reset
-
-    # Finish training
-    def finalize(self):
-        """
-        Solve the linear system
-        """
-        # Finalize output training
-        self._output.finalize()
-
-        # Not in training mode anymore
-        self.train(False)
-    # end finalize
 
     # Reset hidden layer
     def reset_hidden(self):
