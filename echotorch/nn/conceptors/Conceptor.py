@@ -29,11 +29,11 @@ import torch
 from torch.autograd import Variable
 import math
 
-from ..Node import Node
+from ..NeuralFilter import NeuralFilter
 
 
 # Conceptor base class
-class Conceptor(Node):
+class Conceptor(NeuralFilter):
     """
     Conceptor base class
     """
@@ -111,22 +111,26 @@ class Conceptor(Node):
     # PUBLIC
     ######################
 
-    # Forward
-    def forward(self, X):
+    # Filter signal
+    def filter_fit(self, X):
         """
-        Forward
+        Filter signal
         :param X: Reservoir states
         """
-        # Not training
-        if self.training:
-            # Increment correlation matrices
-            self._increment_correlation_matrices(X)
-        else:
-            return self.C.mv(X)
-        # end if
-
+        # Increment correlation matrices
+        self._increment_correlation_matrices(X)
         return X
-    # end forward
+    # end filter_fit
+
+    # Filter transform
+    def filter_transform(self, X):
+        """
+        Filter transform
+        :param X: Input signal to filter
+        :return: Filtered signal
+        """
+        return self.C.mv(X)
+    # end filter_transform
 
     # Finalise
     def finalize(self):
@@ -399,6 +403,21 @@ class Conceptor(Node):
             raise Exception("Unknown number of dimension for states (X) {}".format(X.size()))
     # end if
     # end _increment_correlation_matrices
+
+    ######################
+    # OVERRIDE
+    ######################
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = super(Conceptor, self).extra_repr()
+        s += ', nonlin_func={_nonlin_func}, washout={_washout}'
+        return s.format(**self.__dict__)
+    # end extra_repr
 
     ######################
     # STATIC

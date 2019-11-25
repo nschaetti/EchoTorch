@@ -21,25 +21,33 @@
 
 # Imports
 import torch
+from ..NeuralFilter import NeuralFilter
 
 
 # Set of conceptors : store and manipulate conceptors safely
-class ConceptorSet:
+class ConceptorSet(NeuralFilter):
     """
     Set of conceptors
     """
 
     # Constructor
-    def __init__(self, conceptor_dim):
+    def __init__(self, *args, **kwargs):
         """
         Constructor
-        :param conceptor_dim: Dimension of stored conceptors.
+        :param args: Arguments
+        :param kwargs: Positional arguments
         """
+        # Super constructor
+        super(ConceptorSet, self).__init__(
+            args,
+            kwargs
+        )
+
         # Dimension
-        self._conceptor_dim = conceptor_dim
+        self._conceptor_dim = self._input_dim
 
         # We link conceptors to names
-        self._conceptors = dict()
+        self.conceptors = dict()
 
         # OR of all conceptors stored
         self._reset_A()
@@ -83,13 +91,38 @@ class ConceptorSet:
     # PUBLIC
     #################
 
+    # Learn filter
+    def filter_fit(self, X, Cn):
+        """
+        Filter signal
+        :param X: Signal to filter
+        :param Cn: Conceptor index
+        :return: Original signal
+        """
+        #
+
+        # Give vector to conceptor
+        return self.conceptors[Cn](X)
+    # end filter_fit
+
+    # Filter signal
+    def filter_transform(self, X, M):
+        """
+        Filter signal
+        :param X: Signal to filter
+        :param M: Morphing signal
+        :return: Filtered signal
+        """
+        return X
+    # end filter_transform
+
     # Reset the set (empty list, reset A)
     def reset(self):
         """
         Reset the set
         """
         # Empty dict
-        self._conceptors = dict()
+        self.conceptors = dict()
 
         # Reset A
         self._reset_A()
@@ -104,7 +137,7 @@ class ConceptorSet:
         :return: New matrix A, the OR of all stored conceptors
         """
         # Add
-        self._conceptors[name] = c
+        self.conceptors[name] = c
 
         # Init A if needed
         if self.count == 1:
@@ -124,10 +157,10 @@ class ConceptorSet:
         :return: New matrix A, the OR of all stored conceptors
         """
         # Conceptor matrix
-        c = self._conceptors[name]
+        c = self.conceptors[name]
 
         # Remove
-        del self._conceptors[name]
+        del self.conceptors[name]
 
         # Recompute A
         if self.count == 0:
@@ -150,5 +183,9 @@ class ConceptorSet:
         """
         self._A = torch.zeros(self._conceptor_dim, self._conceptor_dim)
     # end _reset_A
+
+    ###################
+    # OVERRIDE
+    ###################
 
 # end ConceptorSet

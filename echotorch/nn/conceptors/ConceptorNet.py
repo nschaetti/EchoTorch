@@ -36,14 +36,14 @@ class ConceptorNet(ESN):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, dtype=torch.float32):
+    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, conceptor, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
         :param hidden_dim: Hidden space dimension
         :param output_dim: Output space dimension
         :param esn_cell: ESN cell
-        :param n_conceptors: Number of conceptor to create.
+        :param conceptor: Neural filter
         :param dtype: Data type
         """
         super(ConceptorNet, self).__init__(
@@ -67,20 +67,17 @@ class ConceptorNet(ESN):
         self._dtype = dtype
 
         # Current conceptor
-        self._current_conceptor = None
+        self.conceptor = conceptor
 
         # Recurrent layer
-        self._esn_cell = esn_cell
+        self.esn_cell = esn_cell
 
         # Neural filter
-        self._esn_cell.connect("neural-filter", self._neural_filter)
-        self._esn_cell.connect("post-states-update", self._post_update_states)
-
-        # Forward hook to learn conceptor
-        # self._esn_cell.register_forward_hook(self._forward_hook_conceptor_learning)
+        self.esn_cell.connect("neural-filter", self._neural_filter)
+        self.esn_cell.connect("post-states-update", self._post_update_states)
 
         # Trainable elements
-        self.add_trainable(self._esn_cell)
+        self.add_trainable(self.esn_cell)
     # end __init__
 
     ####################
@@ -93,7 +90,7 @@ class ConceptorNet(ESN):
         Set the current conceptor
         :param C: The conceptor matrix
         """
-        self._current_conceptor = C
+        self.conceptor = C
     # end set_conceptor
 
     # Use conceptor ?
@@ -118,8 +115,8 @@ class ConceptorNet(ESN):
         :param t: Time t
         :param washout: In washout period
         """
-        if self._conceptor_active and self._current_conceptor is not None and not self._current_conceptor.training:
-            return self._current_conceptor(x)
+        if self._conceptor_active and self.conceptor is not None and not self.conceptor.training:
+            return self.conceptor(x)
         else:
             return x
         # end if
@@ -133,8 +130,8 @@ class ConceptorNet(ESN):
         :param inputs: Input signal
         :param b: Batch position
         """
-        if self._conceptor_active and self._current_conceptor is not None and self._current_conceptor.training:
-            self._current_conceptor(states)
+        if self._conceptor_active and self.conceptor is not None and self.conceptor.training:
+            self.conceptor(states)
         # end if
     # end _post_update_states
 
@@ -146,7 +143,21 @@ class ConceptorNet(ESN):
         :param inputs: Module's inputs
         :param outputs: Module's outputs
         """
-        self._current_conceptor(outputs)
+        self.conceptor(outputs)
     # end _forward_hook_conceptor_learning
+
+    ###############
+    # OVERRIDE
+    ###############
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = super(ConceptorNet, self).extra_repr()
+        return s.format(**self.__dict__)
+    # end extra_repr
 
 # end ConceptorNet
