@@ -44,7 +44,7 @@ class FreeRunESNCell(LiESNCell, Observable):
     """
 
     # Constructor
-    def __init__(self, *args, **kwargs):
+    def __init__(self, feedback_noise, *args, **kwargs):
         """
         Constructor
         :param args: Arguments
@@ -54,6 +54,7 @@ class FreeRunESNCell(LiESNCell, Observable):
         super(FreeRunESNCell, self).__init__(*args, **kwargs)
 
         # Feedbacks matrix
+        self._feedback_noise = feedback_noise
         self._w_fdb = None
     # end __init__
 
@@ -92,7 +93,7 @@ class FreeRunESNCell(LiESNCell, Observable):
         :param t: Timestep.
         """
         if self._w_fdb is not None:
-            return torch.mv(self._w_fdb, self.hidden)
+            return torch.mv(self._w_fdb, self.hidden) + self._feedback_noise(self._output_dim)
         else:
             return inputs
         # end if

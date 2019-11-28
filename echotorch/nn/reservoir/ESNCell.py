@@ -44,7 +44,7 @@ class ESNCell(Node, Observable):
 
     # Constructor
     def __init__(self, input_dim, output_dim, w, w_in, w_bias, input_scaling=1.0, nonlin_func=torch.tanh, washout=0,
-                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 noise_generator=None, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input dimension
@@ -55,6 +55,7 @@ class ESNCell(Node, Observable):
         :param w_bias: Internal units bias vector Wbias
         :param nonlin_func: Non-linear function applied to the units
         :param washout: Period to ignore in training at the beginning
+        :param noise_generator: Noise generator used to add noise to states before non-linearity
         :param debug: Debug mode
         :param test_case: Test case to call for test.
         :param dtype: Data type used for vectors/matrices.
@@ -75,6 +76,7 @@ class ESNCell(Node, Observable):
         self._input_scaling = input_scaling
         self._nonlin_func = nonlin_func
         self._washout = washout
+        self._noise_generator = noise_generator
         self._dtype = dtype
 
         # Init hidden state
@@ -296,9 +298,13 @@ class ESNCell(Node, Observable):
         Compute reservoir layer
         :param u_win: Processed inputs
         :param x_w: Processed states
-        :return: States before nonlinearity
+        :return: States before non-linearity
         """
-        return u_win + x_w + self.w_bias
+        if self._noise_generator is None:
+            return u_win + x_w + self.w_bias
+        else:
+            return u_win + x_w + self.w_bias + self._noise_generator(self._output_dim)
+        # end if
     # end _reservoir_layer
 
     # Compute recurrent layer
