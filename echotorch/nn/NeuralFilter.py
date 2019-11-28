@@ -44,7 +44,7 @@ class NeuralFilter(Node):
     """
 
     # Constructor
-    def __init__(self, input_dim, *args, **kwargs):
+    def __init__(self, input_dim, output_dim=0, *args, **kwargs):
         """
         Constructor
         :param input_dim: Filter's dimension.

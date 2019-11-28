@@ -28,6 +28,7 @@ Created on 26 January 2018
 import torch
 import torch.sparse
 from torch.autograd import Variable
+
 import echotorch.utils
 from echotorch.utils.visualisation import Observable
 from ..Node import Node
@@ -68,10 +69,7 @@ class ESNCell(Node, Observable):
         )
 
         # Init. Observable super-class
-        Observable.__init__(
-            self,
-            observation_points=['w', 'w_in', 'w_bias', 'X', 'U']
-        )
+        Observable.__init__(self)
 
         # Params
         self._input_scaling = input_scaling
@@ -91,9 +89,12 @@ class ESNCell(Node, Observable):
         # Initialize bias
         self.register_buffer('w_bias', Variable(w_bias, requires_grad=False))
 
-        # Observers
-        self._cell_inputs_observers = []
-        self._cell_states_observers = []
+        # Add observation point
+        self.add_observation_point("w", unique=True)
+        self.add_observation_point("w_in", unique=True)
+        self.add_observation_point("w_bias", unique=True)
+        self.add_observation_point("X", unique=False)
+        self.add_observation_point("U", unique=False)
 
         # Observe W, Win, Wbias
         self.observation_point('w', self.w, 0, 0, 0)
@@ -206,7 +207,7 @@ class ESNCell(Node, Observable):
         outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype))
         outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
-        # For each batch
+        # For each sample
         for b in range(n_batches):
             # Reset hidden layer
             if reset_state:
@@ -214,7 +215,7 @@ class ESNCell(Node, Observable):
             # end if
 
             # Pre-update hook
-            u[b, :] = self._pre_update_hook(u[b, :], b)
+            u[b, :] = self._pre_update_hook(u[b, :], self._forward_calls, b)
 
             # Observe inputs
             self.observation_point('U', u[b, :], 0, b, 0)
@@ -225,7 +226,7 @@ class ESNCell(Node, Observable):
                 ut = u[b, t] * self._input_scaling
 
                 # Pre-hook
-                ut = self._pre_step_update_hook(ut, t)
+                ut = self._pre_step_update_hook(ut, self._forward_calls, b, t)
 
                 # Compute input layer
                 u_win = self._input_layer(ut)
@@ -243,7 +244,7 @@ class ESNCell(Node, Observable):
                 x = self._post_nonlinearity(x)
 
                 # Post-hook
-                x = self._post_step_update_hook(x.view(self.output_dim), ut, t)
+                x = self._post_step_update_hook(x.view(self.output_dim), ut, self._forward_calls, b, t)
 
                 # Neural filter
                 for neural_filter_handler in self._neural_filter_handlers:
@@ -258,16 +259,19 @@ class ESNCell(Node, Observable):
             # end for
 
             # Post-update hook
-            outputs[b, :] = self._post_update_hook(outputs[b, :], u[b, :], b)
+            outputs[b, :] = self._post_update_hook(outputs[b, :], u[b, :], self._forward_calls, b)
 
             # Post states update handlers
             for handler in self._post_states_update_handlers:
-                handler(outputs[b, self._washout:], u[b, self._washout:], b)
+                handler(outputs[b, self._washout:], u[b, self._washout:], self._forward_calls, b)
             # end for
 
             # Observe states
-            self.observation_point('X', outputs[b, self._washout:], 0, b, 0)
+            self.observation_point('X', outputs[b, self._washout:], self._forward_calls, b, 0)
         # end for
+
+        # Count calls to forward
+        self._forward_calls += 1
 
         return outputs[:, self._washout:]
     # end forward

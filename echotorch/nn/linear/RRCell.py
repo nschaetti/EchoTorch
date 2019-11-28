@@ -82,8 +82,7 @@ class RRCell(Node):
         # Set it as buffer
         self.register_buffer('xTx', Variable(torch.zeros(self._x_size, self._x_size, dtype=dtype), requires_grad=False))
         self.register_buffer('xTy', Variable(torch.zeros(self._x_size, output_dim, dtype=dtype), requires_grad=False))
-        self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
-
+        self.register_buffer('w_out', Variable(torch.zeros(output_dim, input_dim, dtype=dtype), requires_grad=False))
     # end __init__
 
     #####################
@@ -194,7 +193,6 @@ class RRCell(Node):
 
         # Not in training mode anymore
         self.train(False)
-
     # end finalize
 
     #####################

@@ -33,8 +33,6 @@ from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
 from torch.autograd import Variable
-from scipy.interpolate import interp1d
-import numpy.linalg as lin
 
 # Debug ?
 debug = False
@@ -155,6 +153,15 @@ spesn = ecnc.SPESN(
     dtype=dtype
 )
 
+# Create a set of conceptors
+conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
+
+# Create four conceptors, one for each pattern
+conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+
 # Create a conceptor network using
 # the self-predicting ESN which
 # will learn four conceptors.
@@ -163,12 +170,13 @@ conceptor_net = ecnc.ConceptorNet(
     hidden_dim=reservoir_size,
     output_dim=1,
     esn_cell=spesn.cell,
+    conceptor=conceptors,
     dtype=dtype
 )
 
 # We create an outside observer to plot
 # internal states and SVD afterwards
-observer = ecvs.ESNCellObserver(spesn.cell)
+observer = ecvs.NodeObserver(spesn.cell)
 
 # If in debug mode
 if debug_mode > Node.NO_DEBUG:
@@ -219,14 +227,6 @@ if debug_mode > Node.NO_DEBUG:
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
 Y_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
 P_collector = torch.empty(4, signal_plot_length, dtype=dtype)
-
-# Create four conceptors, one for each pattern
-conceptors = [
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype),
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype),
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype),
-    ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype)
-]
 
 # Conceptors ON
 conceptor_net.conceptor_active(True)

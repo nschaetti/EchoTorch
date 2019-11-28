@@ -30,19 +30,15 @@ class ObservationPoint:
     """
 
     # Constructor
-    def __init__(self, unique, input_dim, batch_dim, time_dim):
+    def __init__(self, name, unique):
         """
         Constructor
+        :param name: Point's name
         :param unique: Data is set only one time (model's parameter for example)
-        :param input_dim: Input dimension (of observed data)
-        :param batch_dim: Batch dimension (-1 if no batch)
-        :param time_dim: Time dimension (-1 if timeless data)
         """
         # Properties
+        self._name = name
         self._unique = unique
-        self._input_dim = input_dim
-        self._batch_size = batch_dim
-        self._time_dim = time_dim
 
         # Handlers
         self._handlers = list()
@@ -51,6 +47,16 @@ class ObservationPoint:
     #################
     # PROPERTIES
     #################
+
+    # Point's name
+    @property
+    def name(self):
+        """
+        Point's name
+        :return: Point's name
+        """
+        return self._name
+    # end name
 
     # Unique data ?
     @property
@@ -93,7 +99,10 @@ class ObservationPoint:
         :param kwargs:
         :return:
         """
-        pass
+        # For each handling function
+        for handle_func in self._handlers:
+            handle_func(*args, **kwargs)
+        # end for
     # end __call__
 
 # end ObservablePoint

@@ -61,6 +61,9 @@ class Node(nn.Module):
         self._debug = debug
         self._dtype = dtype
 
+        # Count calls to forward
+        self._forward_calls = 0
+
         # Debug points and test
         self._debug_points = dict()
         self._test_case = test_case
@@ -168,6 +171,9 @@ class Node(nn.Module):
         """
         # Training mode again
         self.train(True)
+
+        # Count calls to forward
+        self._forward_calls = 0
     # end reset
 
     # Forward
@@ -409,43 +415,49 @@ class Node(nn.Module):
     # end _call_debug_point
 
     # Hook which gets executed before the update state equation for every sample.
-    def _pre_update_hook(self, inputs, sample_i):
+    def _pre_update_hook(self, inputs, forward_i, sample_i):
         """
         Hook which gets executed before the update equation for a batch
         :param inputs: Input signal.
-        :param sample_i: Batch position.
+        :param forward_i: Index of forward call
+        :param sample_i: Position of the sample in the batch.
         """
         return inputs
     # end _pre_update_hook
 
     # Hook which gets executed before the update state equation for every timesteps.
-    def _pre_step_update_hook(self, inputs, t):
+    def _pre_step_update_hook(self, inputs, forward_i, sample_i, t):
         """
         Hook which gets executed before the update equation for every timesteps
         :param inputs: Input signal.
+        :param forward_i: Index of forward call
+        :param sample_i: Position of the sample in the batch.
         :param t: Timestep.
         """
         return inputs
     # end _pre_step_update_hook
 
     # Hook which gets executed after the update state equation for every sample.
-    def _post_update_hook(self, states, inputs, sample_i):
+    def _post_update_hook(self, states, inputs, forward_i, sample_i):
         """
         Hook which gets executed after the update equation for a batch
         :param states: Reservoir's states.
-        :param inputs: Input signal.
-        :param sample_i: Batch position.
+        :param inputs: Input signal
+        :param forward_i: Index of forward call
+        :param sample_i: Batch position
         """
         return states
     # end _post_update_hook
 
     # Hook which gets executed after the update state equation for every timesteps.
-    def _post_step_update_hook(self, states, inputs, t):
+    def _post_step_update_hook(self, states, inputs, forward_i, sample_i, t):
         """
         Hook which gets executed after the update equation for every timesteps
         :param states: Reservoir's states.
         :param inputs: Input signal.
-        :param t: Timestep.
+        :param forward_i: Index of forward call
+        :param sample_i: Position of the sample in the batch
+        :param t: Timestep
         """
         return states
     # end _post_step_update_hook

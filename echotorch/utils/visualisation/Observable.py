@@ -20,6 +20,10 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 
+# Import
+from .ObservationPoint import ObservationPoint
+
+
 # Define a class of object with observable properties for visualisation
 class Observable:
     """
@@ -27,18 +31,12 @@ class Observable:
     """
 
     # Constructor
-    def __init__(self, observation_points):
+    def __init__(self):
         """
         Constructor
         """
         # Keep the name of hooks
-        self._observation_points = observation_points
-
-        # We save handlers for each hook
-        self._observe_handlers = dict()
-        for point in self._observation_points:
-            self._observe_handlers[point] = list()
-        # end for
+        self._observation_points = list()
     # end __init__
 
     ###############
@@ -60,46 +58,58 @@ class Observable:
     ###############
 
     # Add an handler for observation
-    def observe(self, point, handler):
+    def observe(self, point_name, handler):
         """
         Add an handler for observation
-        :param point: The name of the point to observe
+        :param point_name: The name of the point to observe
         :param handler: The function to call
         """
-        if point in self._observation_points:
-            self._observe_handlers[point].append(handler)
-        else:
+        # Point found
+        point_found = False
+
+        # For each point
+        for point in self.observation_points:
+            if point.name == point_name:
+                point.register(handler)
+                point_found = True
+            # end if
+        # end for
+
+        if not point_found:
             raise Exception("No observation point named {}".format(point))
         # end if
     # end observe
 
-    ###############
-    # PRIVATE
-    ###############
-
-    # Add observation point(
-    def _add_observation_point(self, name):
-        """
-        Add observation point
-        :param name: Point name
-        """
-        self._observation_points.append(name)
-    # end _add_observation_point
-
     # Send item for observation point
-    def observation_point(self, hook_name, item, batch, sample, t):
+    def observation_point(self, point_name, data, forward_i, sample_i, t):
         """
         Send item for observation point
-        :param hook_name: The name of the observation hook
-        :param item: Item to send
-        :param batch: Batch index
-        :param sample: Sample index
+        :param point_name: The name of the observation hook
+        :param data: Observed data
+        :param forward_i: Forward call index
+        :param sample_i: Sample index
         :param t: time position
         """
         # For each handlers
-        for handler in self._observe_handlers[hook_name]:
-            handler(item, batch, sample, t)
+        for point in self.observation_points:
+            if point.name == point_name:
+                point(data, forward_i, sample_i, t)
+            # end if
         # end for
     # end observation_point
+
+    # Add observation point(
+    def add_observation_point(self, name, unique):
+        """
+        Add observation point
+        :param name: Point name
+        :param unique: The point is called one-time ?
+        """
+        self._observation_points.append(ObservationPoint(name=name, unique=unique))
+    # end _add_observation_point
+
+    ###############
+    # PRIVATE
+    ###############
 
 # end Observable

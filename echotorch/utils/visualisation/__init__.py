@@ -21,4 +21,6 @@
 
 # Imports
 from .ESNCellObserver import ESNCellObserver
+from .NodeObserver import NodeObserver
 from .Observable import Observable
+from .ObservationPoint import ObservationPoint

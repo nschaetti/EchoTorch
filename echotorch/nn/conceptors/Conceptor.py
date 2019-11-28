@@ -30,6 +30,7 @@ from torch.autograd import Variable
 import math
 
 from ..NeuralFilter import NeuralFilter
+from echotorch.utils.utility_functions import generalized_squared_cosine
 
 
 # Conceptor base class
@@ -39,9 +40,13 @@ class Conceptor(NeuralFilter):
     """
 
     # Constructor
-    def __init__(self, input_dim, aperture, C=None, R=None, *args, **kwargs):
+    def __init__(self, input_dim, aperture, *args, **kwargs):
         """
         Constructor
+        :param input_dim: Conceptor dimension
+        :param aperture: Aperture parameter
+        :param args: Arguments
+        :param kwargs: Propositional arguments
         """
         # Superclass
         super(Conceptor, self).__init__(
@@ -56,21 +61,11 @@ class Conceptor(NeuralFilter):
         self._n_samples = 0
         c_size = input_dim
 
-        # Initialize correlation matrix
-        if R is None:
-            self.register_buffer('R', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
-        else:
-            self.register_buffer('R', R)
-            self._update_conceptor_matrix()
-        # end if
+        # Initialize correlation matrix R
+        self.register_buffer('R', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
 
-        # Initialize conceptor matrix
-        if C is None:
-            self.register_buffer('C', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
-        else:
-            self.register_buffer('C', C)
-            self._update_correlation_matrix()
-        # end if
+        # Initialize Conceptor matrix C
+        self.register_buffer('C', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
     # end __init__
 
     ######################
@@ -94,7 +89,7 @@ class Conceptor(NeuralFilter):
         Change aperture
         """
         self._aperture = ap
-        self._update_conceptor_matrix()
+        self.update_C()
     # end aperture
 
     # Dimension
@@ -106,6 +101,27 @@ class Conceptor(NeuralFilter):
         """
         return self.C.size(0)
     # end dim
+
+    # Singular values
+    @property
+    def SV(self):
+        """
+        Singular values
+        :return: Singular values as a vector
+        """
+        (U, S, V) = torch.svd(self.C)
+        return torch.diag(S)
+    # end SV
+
+    # Quota
+    @property
+    def quota(self):
+        """
+        Space occupied by C
+        :return: Space occupied by C ([0, 1])
+        """
+        return float(torch.sum(self.SV()))
+    # end quota
 
     ######################
     # PUBLIC
@@ -137,8 +153,11 @@ class Conceptor(NeuralFilter):
         """
         Finalize training (learn C from R)
         """
-        # Train conceptor
-        self._update_conceptor_matrix()
+        # Average R
+        self.R /= self._n_samples
+
+        # Compute Conceptor matrix C from R
+        self.update_C()
 
         # Out of training mode
         self.train(False)
@@ -153,6 +172,7 @@ class Conceptor(NeuralFilter):
         # No samples
         self._n_samples = 0
         self.R.fill_(0.0)
+        self.C.fill_(0.0)
     # end reset
 
     # Set correlation matrix
@@ -161,25 +181,53 @@ class Conceptor(NeuralFilter):
         Set correlation matrix
         :param R: Correlation matrix
         """
+        # New R
         self.R = R
+
+        # New input
         self.input_dim = R.size(0)
         self.output_dim = R.size(0)
-        self._update_conceptor_matrix()
+
+        # Update Conceptor matrix C
+        self.update_C()
     # end set_R
 
-    # Set conceptor matrix
+    # Set Conceptor matrix C
     def set_C(self, C, aperture):
         """
-        Set conceptor matrix
-        :param C: Conceptor matrix
+        Set Conceptor matrix C
+        :param C: Conceptor matrix C
         :param aperture: Conceptor's aperture
         """
+        # New C
         self.C = C
+
+        # New input / output dimensions
         self.input_dim = C.size(0)
         self.output_dim = C.size(0)
+
+        # New aperture
         self._aperture = aperture
-        self._update_correlation_matrix()
+
+        # Update R
+        self.update_R()
     # end set_C
+
+    # Update Conceptor matrix C
+    def update_C(self):
+        """
+        Update Conceptor matrix C
+        """
+        self.C = Conceptor.C(self.R, self.aperture)
+    # end update_C
+
+    # Update correlation matrix R
+    def update_R(self):
+        """
+        Update correlation matrix R
+        """
+        self.R = Conceptor.R(self.C, self.aperture)
+    # end update_R
 
     # Multiply aperture by a factor
     def PHI(self, gamma):
@@ -330,38 +378,41 @@ class Conceptor(NeuralFilter):
         self.set_R(torch.eye(self.input_dim) - self.R)
     # end NOT_
 
+    # Similarity
+    def sim(self, other, sim_func=generalized_squared_cosine):
+        """
+        Generalized Cosine Similarity
+        :param other: Second operand
+        :param sim_func: Similarity function (default: generalized_squared_cosine)
+        :return: Similarity between self and other ([0, 1])
+        """
+        return Conceptor.similarity(self, other, sim_func)
+    # end sim
+
+    # Delta measure (sensibility of Frobenius norm to change of aperture)
+    def delta(self, gamma, epsilon=0.01):
+        """
+        Delta measure (sensibility of Frobenius norm to change of aperture)
+        :param gamma: Gamma
+        :param epsilon: Epsilon
+        :return: Delta measure
+        """
+        return Conceptor.delta_measure(self, gamma, epsilon)
+    # end delta
+
+    # Evidence (how X fits in Conceptor ellipsoid)
+    def E(self, x):
+        """
+        Evidence (how X fits in Conceptor ellipsoid)
+        :param x: Reservoir states
+        :return:
+        """
+        return Conceptor.evidence(self, x)
+    # end E
+
     ######################
     # PRIVATE
     ######################
-
-    # Update conceptor matrix
-    def _update_conceptor_matrix(self):
-        """
-        Update conceptor matrix
-        """
-        # Normalize
-        self.R /= self._n_samples
-
-        # Compute SVD on R
-        U, S, V = torch.svd(self.R)
-
-        # S as matrix
-        Sm = torch.diag(S)
-
-        # Compute new singular values in the unit circle
-        Snew = torch.mm(Sm, torch.inverse(Sm + math.pow(self._aperture, -2) * torch.eye(self.input_dim)))
-
-        # Compute conceptor matrix
-        self.C.data = torch.mm(torch.mm(U, Snew), U.t()).data
-    # end _update_conceptor_matrix
-
-    # Update correlation matrix
-    def _update_correlation_matrix(self):
-        """
-        Update correlation matrix
-        """
-        self.R = math.pow(self._aperture, -2) * torch.mm(self.C, torch.inverse(torch.eye(self.dim) - self.C))
-    # end _update_correlation_matrix
 
     # Increment correlation matrices
     def _increment_correlation_matrices(self, X):
@@ -420,6 +471,142 @@ class Conceptor(NeuralFilter):
     # end extra_repr
 
     ######################
+    # OPERATORS
+    ######################
+
+    # Equal operator
+    # TODO: Test
+    def __eq__(self, other):
+        """
+        Equal operator
+        :param other:
+        :return:
+        """
+        return self.C == other.C and self.aperture == other.aperture
+    # end __eq__
+
+    # Greater than (abstraction relationship)
+    # TODO: Test
+    def __gt__(self, other):
+        """
+        Greater than (abstraction relationship
+        :param other: Second operand
+        :return: True/False
+        """
+        # Eigen values of C - D
+        eigv = torch.eig(other.C - self.C, eigenvectors=False)
+        return float(torch.max(eigv)) > 0.0
+    # end __gt__
+
+    # Greater or equal (abstraction relationship)
+    # TODO: Test
+    def __ge__(self, other):
+        """
+        Greater or equal (abstraction relationship)
+        :param other: Second operand
+        :return: True/False
+        """
+        # Eigen values of C - D
+        eigv = torch.eig(other.C - self.C, eigenvectors=False)
+        return float(torch.max(eigv)) >= 0.0
+    # end __ge__
+
+    # Less than (abstraction relationship)
+    # TODO: Test
+    def __lt__(self, other):
+        """
+        Less than (abstraction relationship)
+        :param other: Second operand
+        :return: True/False
+        """
+        # Eigen value of C - D
+        eigv = torch.eig(other.C - self.C, eigenvectors=False)
+        return float(torch.max(eigv)) < 0.0
+    # end __lt__
+
+    # Less or equal than (abstraction relationship)
+    # TODO: Test
+    def __le__(self, other):
+        """
+        Less or equal than (abstraction relatioship)
+        :param other: Second operand
+        :return: True/False
+        """
+        eigv = torch.eig(other.C - self.C, eigenvectors=False)
+        return float(torch.max(eigv)) <= 0.0
+    # end __le__
+
+    # Addition (+)
+    # TODO: Test
+    def __add__(self, other):
+        """
+        Addition
+        :param other: Second operand
+        :return: self + other
+        """
+        # New Conceptor
+        CplusB = Conceptor(self.input_dim, 1.0)
+
+        # Set Conceptor matrix C
+        # TODO: Check how aperture behave under C addition
+        CplusB.set_C(self.C + other.C, 1.0)
+        return CplusB
+    # end __add__
+
+    # Substraction (-)
+    # TODO: Test
+    def __sub__(self, other):
+        """
+        Substraction (-)
+        :param other: Second operand
+        :return: self - other
+        """
+        # New Conceptor
+        CsubB = Conceptor(self.input_dim, 1.0)
+
+        # Set Conceptor matrix C
+        # TODO: Check how aperture behave under C substraction
+        CsubB.set_C(self.C - other.C, 1.0)
+        return CsubB
+    # end __sub__
+
+    # Right multiplication (other * C)
+    # TODO: Test
+    def __rmul__(self, other):
+        """
+        Right multiplication (other * C)
+        :param other: Second operand
+        :return: other * C
+        """
+        # Copy this conceptor
+        new_C = self.copy()
+
+        # Multiply
+        # TODO: Check how aperture behave under C multiplication
+        new_C.set_C(self.C * other, 1.0)
+
+        return new_C
+    # end __rmul__
+
+    # Left multiplication (C * other)
+    # TODO: Test
+    def __mul__(self, other):
+        """
+        Left multiplication (C * other)
+        :param other: Second operand
+        :return: C * other
+        """
+        # Copy this conceptor
+        new_C = self.copy()
+
+        # Multiply
+        # TODO: Check how aperture behave under C multiplication
+        new_C.set(self.C * other)
+
+        return new_C
+    # end __mul__
+
+    ######################
     # STATIC
     ######################
 
@@ -459,5 +646,156 @@ class Conceptor(NeuralFilter):
         # C AND B
         return C.AND(B)
     # end operator_AND
+
+    # PHI in Conceptor Logic
+    @staticmethod
+    def operator_PHI(C, gamma):
+        """
+        PHI in Conceptor Logic
+        :param C: Conceptor object
+        :param gamma: Aperture multiplication parameter
+        :return: Scaled conceptor
+        """
+        return C.PHI(gamma)
+    # end operator_PHI
+
+    # Compute C from correlation matrix R
+    # TODO: Test
+    @staticmethod
+    def C(R, aperture, inv_algo=torch.inv):
+        """
+        Compute C from correlation matrix R
+        :param R: Correlation matrix
+        :param aperture: Aperture parameter
+        :param inv_algo: Matrix inversion function (default: torch.inv)
+        :return: C matrix (as torch tensor)
+        """
+        R_dim = R.size(0)
+        return torch.mm(inv_algo(R + math.pow(aperture, -2) * torch.eye(R_dim)), R)
+    # end C
+
+    # Compute R from conceptor matrix C
+    # TODO: Test
+    @staticmethod
+    def R(C, aperture, inv_algo=torch.inv):
+        """
+        Compute R from conceptor matrix C
+        :param C: Conceptor matrix C
+        :param aperture: Aperture parameter
+        :param inv_algo: Matrix inversion function (default: torch.inv)
+        :return: R matrix (as torch tensor)
+        """
+        C_dim = C.size(0)
+        return math.pow(aperture, -2) * torch.mm(C, inv_algo(torch.eye(C_dim) - C))
+    # end R
+
+    # Return empty conceptor
+    # TODO: Test
+    @staticmethod
+    def empty(input_dim):
+        """
+        Return an empty conceptor
+        :param input_dim: Conceptor dimension
+        :return: Empty conceptor (zero)
+        """
+        return Conceptor.min(input_dim)
+    # end empty
+
+    # Return identity conceptor
+    # TODO: Test
+    @staticmethod
+    def identity(input_dim):
+        """
+        Return identity conceptor (no filtering)
+        :param input_dim: Input dimension
+        :return: Identity conceptor
+        """
+        return Conceptor.max(input_dim)
+    # end identity
+
+    # Global minimal element
+    # TODO: Test
+    @staticmethod
+    def min(input_dim):
+        """
+        Global minimal element
+        :param input_dim: Conceptor dimension
+        :return: Global minimal element (with 0 as C matrix)
+        """
+        # GME conceptor
+        return Conceptor(input_dim, aperture=0.0)
+    # end min
+
+    # Global maximal element
+    # TODO: Test
+    @staticmethod
+    def max(input_dim):
+        """
+        Global maximal element
+        :param input_dim: Conceptor dimension
+        :return: Global maximal element (with I as C matrix)
+        """
+        # GME conceptor
+        gme = Conceptor(input_dim, aperture=1.0)
+        gme.set_C(torch.eye(input_dim), 1.0)
+        return gme
+    # end max
+
+    # Similarity between conceptors
+    # TODO: Test
+    @staticmethod
+    def similarity(c1, c2, sim_func=generalized_squared_cosine):
+        """
+        Similarity between conceptors
+        :param c1: First conceptor
+        :param c2: Second conceptor
+        :param sim_func: Similarity function
+        :return: Similarity
+        """
+        # Compute singular values
+        Ua, Sa, _ = torch.svd(c1.C)
+        Ub, Sb, _ = torch.svd(c2.C)
+
+        # Measure
+        return sim_func(Sa, Ua, Sb, Ub)
+    # end sim
+
+    # Delta measure (sensibility of Frobenius norm to change of aperture)
+    # TODO: Test
+    @staticmethod
+    def delta_measure(self, C, gamma, epsilon=0.01):
+        """
+        Delta measure (sensibility of Frobenius norm to change of aperture)
+        :param C: Conceptor object
+        :param gamma: Gamma
+        :param epsilon: Epsilon
+        :return: Delta measure
+        """
+        # Conceptors with two gammas
+        A = Conceptor.operator_PHI(C, gamma - epsilon)
+        B = Conceptor.operator_PHI(C, gamma + epsilon)
+
+        # Gradient of Frobenius norm
+        A_norm = math.pow(torch.norm(A, p=2), 2)
+        B_norm = math.pow(torch.norm(B, p=2), 2)
+        d_C_norm = B_norm - A_norm
+
+        # Change in log (gamma)
+        d_log_gamma = torch.log(gamma + epsilon) - torch.log(gamma - epsilon)
+        return d_C_norm / d_log_gamma, d_C_norm
+    # end delta
+
+    # How x fits in Conceptor ellipsoid (Evidence)
+    # TODO: Test
+    @staticmethod
+    def evidence(C, x):
+        """
+        How x fits in Conceptor ellipsoid (Evidence)
+        :param C: Conceptor object
+        :param x: Reservoir states
+        :return:
+        """
+        return x.mm(C.C).mm(x.t())
+    # end E
 
 # end Conceptor

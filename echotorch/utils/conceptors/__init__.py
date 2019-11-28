@@ -21,9 +21,9 @@
 
 
 # Import
-from echotorch.nn.conceptors.ConceptorFactory import ConceptorFactory
+from .ConceptorBuilder import ConceptorBuilder
 
 # ALL
-__all__ = ['ConceptorFactory']
+__all__ = ['ConceptorBuilder']
 
 
