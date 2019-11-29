@@ -38,6 +38,7 @@ class NormalMatrixGenerator(MatrixGenerator):
         Constructor
         :param kwargs: Parameters of the generator
         """
+        # Set default parameter values
         super(NormalMatrixGenerator, self).__init__(
             connectivity=1.0,
             spectral_radius=0.99,

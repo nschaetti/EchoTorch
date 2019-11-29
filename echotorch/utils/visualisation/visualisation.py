@@ -4,6 +4,7 @@
 # Imports
 import torch
 import numpy as np
+from echotorch.nn.conceptors import Conceptor
 import matplotlib.pyplot as plt
 
 
@@ -43,47 +44,25 @@ def show_sv_for_increasing_aperture(conceptor, factor, title):
 # end show_sv_for_increasing_aperture
 
 
-# Show conceptors similarity matrix
-def show_conceptors_similarity_matrix(conceptors, title):
-    """
-    Show conceptors similarity matrix
-    :param conceptors:
-    :param title:
-    :return:
-    """
-    # Labels
-    labels = list()
-
-    # Similarity matrix
-    sim_matrix = torch.zeros(len(conceptors), len(conceptors))
-    for i, ca in enumerate(conceptors):
-        labels.append(ca.name)
-        for j, cb in enumerate(conceptors):
-            sim_matrix[i, j] = ca.sim(cb)
-        # end for
-    # end for
-    show_similarity_matrix(sim_matrix, title, labels, labels)
-# end conceptors_similarity_matrix
-
-
 # Show similarity matrix
-def show_similarity_matrix(sim_matrix, title, column_labels=None, row_labels=None):
+def show_similarity_matrix(sim_matrix, title):
     """
     Show similarity matrix
     :param sim_matrix:
     :return:
     """
-    # Get cmap
-    cmap = plt.cm.get_cmap('Greens')
-    fig = plt.figure()
+    # Show similarity matrices
+    fig, ax = plt.subplots(figsize=(8, 8))
+    cax = ax.matshow(sim_matrix, interpolation='nearest', cmap='Greys_r')
     plt.title(title)
-    ax = fig.add_subplot(111)
-    cax = ax.matshow(sim_matrix, interpolation='nearest', cmap=cmap)
-    fig.colorbar(cax)
-    ax.set_xticks(np.arange(len(row_labels)))
-    ax.set_yticks(np.arange(len(column_labels)))
-    ax.set_xticklabels(row_labels, rotation=90)
-    ax.set_yticklabels(column_labels)
+    fig.colorbar(cax, ticks=np.arange(0.1, 1.1, 0.1))
+    for (i, j), z in np.ndenumerate(sim_matrix):
+        if (i < 2 and j < 2) or (i > 1 and j > 1):
+            plt.text(j, i, '{:0.2f}'.format(z), ha='center', va='center')
+        else:
+            plt.text(j, i, '{:0.2f}'.format(z), ha='center', va='center', color='white')
+        # end if
+    # end for
     plt.show()
 # end show_similarity_matrix
 

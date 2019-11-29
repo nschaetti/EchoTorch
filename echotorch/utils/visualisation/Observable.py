@@ -81,19 +81,16 @@ class Observable:
     # end observe
 
     # Send item for observation point
-    def observation_point(self, point_name, data, forward_i, sample_i, t):
+    def observation_point(self, point_name, data):
         """
         Send item for observation point
         :param point_name: The name of the observation hook
         :param data: Observed data
-        :param forward_i: Forward call index
-        :param sample_i: Sample index
-        :param t: time position
         """
         # For each handlers
         for point in self.observation_points:
             if point.name == point_name:
-                point(data, forward_i, sample_i, t)
+                point(data)
             # end if
         # end for
     # end observation_point

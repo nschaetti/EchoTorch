@@ -40,7 +40,7 @@ class ESN(Node):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
-                 spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
+                 input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, create_rnn=True, create_output=True,
                  debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """

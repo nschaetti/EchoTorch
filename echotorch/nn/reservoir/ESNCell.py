@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch
 import torch.sparse
 from torch.autograd import Variable
-
 import echotorch.utils
 from echotorch.utils.visualisation import Observable
 from ..Node import Node
@@ -99,9 +98,9 @@ class ESNCell(Node, Observable):
         self.add_observation_point("U", unique=False)
 
         # Observe W, Win, Wbias
-        self.observation_point('w', self.w, 0, 0, 0)
-        self.observation_point('w_in', self.w_in, 0, 0, 0)
-        self.observation_point('w_bias', self.w_bias, 0, 0, 0)
+        self.observation_point('w', self.w)
+        self.observation_point('w_in', self.w_in)
+        self.observation_point('w_bias', self.w_bias)
     # end __init__
 
     ######################
@@ -220,7 +219,7 @@ class ESNCell(Node, Observable):
             u[b, :] = self._pre_update_hook(u[b, :], self._forward_calls, b)
 
             # Observe inputs
-            self.observation_point('U', u[b, :], 0, b, 0)
+            self.observation_point('U', u[b, :])
 
             # For each steps
             for t in range(time_length):
@@ -250,7 +249,7 @@ class ESNCell(Node, Observable):
 
                 # Neural filter
                 for neural_filter_handler in self._neural_filter_handlers:
-                    x = neural_filter_handler(x, ut, t, t < self._washout)
+                    x = neural_filter_handler(x, ut, self._forward_calls, b, t, t < self._washout)
                 # end if
 
                 # New last state
@@ -269,7 +268,7 @@ class ESNCell(Node, Observable):
             # end for
 
             # Observe states
-            self.observation_point('X', outputs[b, self._washout:], self._forward_calls, b, 0)
+            self.observation_point('X', outputs[b, self._washout:])
         # end for
 
         # Count calls to forward

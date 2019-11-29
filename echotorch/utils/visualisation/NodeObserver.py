@@ -24,6 +24,7 @@ import torch
 import networkx as nx
 import matplotlib.pyplot as plt
 from .Observable import Observable
+from .ObservationPoint import ObservationPoint
 
 
 # Observe a Observable object to visualise its activity afterward
@@ -33,10 +34,12 @@ class NodeObserver:
     """
 
     # Constructor
-    def __init__(self, node):
+    def __init__(self, node, initial_state=None, active=True):
         """
         Constructor
         :param node: Observable object to observe.
+        :param initial_state: Observer's initial state
+        :param active: Observing ?
         """
         # Save node
         self._node = node
@@ -45,15 +48,63 @@ class NodeObserver:
         self._input_dim = node.input_dim
         self._hidden_dim = node.output_dim
 
+        # From name to observation point
+        self._observation_points = dict()
+        self._observation_data = dict()
+
         # For each observation point
         for obp in node.observation_points:
             obp.register(self._observation_point_handler)
+            self._observation_points[obp.name] = obp
+            self._observation_data[obp] = dict()
         # end for
+
+        # Current state
+        self._current_state = initial_state
+
+        # Active
+        self._active = active
     # end __init__
 
     ##################
     # PUBLIC
     ##################
+
+    # Set active/inactive
+    def set_active(self, active_state):
+        """
+        Set active/inactive
+        :param active_state: Active state
+        """
+        self._active = active_state
+    # end set_active
+
+    # Get active/inactive state
+    def get_active(self):
+        """
+        Get active
+        :return: True/False
+        """
+        return self._active
+    # end get_active
+
+    # Set state
+    def set_state(self, new_state):
+        """
+        Set state of the observer
+        :param new_state: State of the observer
+        """
+        self._current_state = new_state
+    # end set_state
+
+    # Get state
+    def get_state(self):
+        """
+        Get state
+        :return: Get current state of the observer
+        """
+        return self._current_state
+    # end get_state
 
     # Draw matrix graph
     def draw_matrix_graph(self, matrix_name, draw=True, with_labels=True, font_weight='bold'):
@@ -89,45 +140,7 @@ class NodeObserver:
         # end if
 
         return G
-
     # end draw_matrix_graph
-
-    # Plot neurons activities
-    def plot_neurons(self, sample_id, idxs, color, linewidth=1, start=0, length=-1, show_title=True, title="",
-                     xticks=None, yticks=None, ylim=None, xlim=None):
-        """
-        Plot neuron activities
-        :param sample_id: Index of the sample to plot
-        :param idxs: Indices of the neurons to plot
-        :param start: Index of the starting point to plot
-        :param length: Length of the plot
-        :param show_title:
-        :param title:
-        :param xticks:
-        :param yticks:
-        :param ylim:
-        :param xlim:
-        """
-        # Plot neurons
-        if length == -1:
-            plt.plot(self._esn_cell_states[sample_id][start:, idxs], color=color, linewidth=linewidth)
-        else:
-            plt.plot(self._esn_cell_states[sample_id][start:start + length, idxs], color=color, linewidth=linewidth)
-        # end if
-
-        # Title
-        if show_title:
-            plt.title(title)
-        # end if
-
-        # X labels
-        if xlim is not None: plt.xlim(xlim)
-        if xticks is not None: plt.xticks(xticks)
-
-        # Y limits
-        if ylim is not None: plt.ylim(ylim)
-        if yticks is not None: plt.yticks(yticks)
-    # end plot_neurons
 
     # Plot inputs
     def plot_inputs(self, sample_id, idxs, color, linewidth=1, start=0, length=-1, show_title=True, title="",
@@ -158,73 +171,74 @@ class NodeObserver:
         # Y limits
         if ylim is not None: plt.ylim(ylim)
         if yticks is not None: plt.yticks(yticks)
+
     # end plot_inputs
 
-    # Plot states singular values
-    def plot_state_singular_values(self, sample_id, color, linewidth=1, length=-1, show_title=True, title="",
-                                   xticks=None, yticks=None, ylim=None, xlim=None, log10=False):
+    # Get data in the observer
+    def get_data(self, point, states, idxs):
         """
-        Plot states singular values
-        :param sample_id:
-        :param color:
-        :param linewidth:
-        :param ylim:
-        :param length:
-        :param show_title:
-        :param title:
-        :param log10:
-        :return:
+        Get data in the observer
+        :param point: Observation point (point name or NodeObserver object)
+        :param states: Observer states to retrieve (state or list of state), or None for all
+        :param idxs: An index (int), a list of indexes, a list of list (indexes for each states), or None for all
+        :return: A list of tuple (data, forward index, sample index, time position)
         """
-        # State sample
-        state_sample = self._esn_cell_states[sample_id]
-
-        # Correlation matrix R
-        R = torch.mm(state_sample.t(), state_sample) / state_sample.size(0)
-
-        # SVD on state
-        _, S, _ = torch.svd(R)
-
-        # Log10?
-        if log10:
-            S = torch.log10(S)
-        # end if
-
-        # Learning PC energy
-        if length != -1:
-            plt.plot(S[:length], color=color, linewidth=linewidth)
+        # Get observation point
+        if isinstance(point, ObservationPoint):
+            point_obj = point
         else:
-            plt.plot(S, color=color, linewidth=linewidth)
+            point_obj = self._observation_points[point]
         # end if
 
-        # Title
-        if show_title:
-            plt.title(title)
-        # end if
+        # List of observations
+        list_of_observations = list()
 
-        # X labels
-        if xlim is not None: plt.xlim(xlim)
-        if xticks is not None: plt.xticks(xticks)
+        # For each observed states
+        for state in self._observation_data[point_obj].keys():
+            # List of data
+            list_of_data = self._observation_data[point_obj][state]
 
-        # Y limits
-        if ylim is not None: plt.ylim(ylim)
-        if yticks is not None: plt.yticks(yticks)
-    # end plot_state_singular_values
+            # State elligible for retrievale
+            if (isinstance(states, str) and state == states) or (isinstance(states, list) and state in states) or states is None:
+                # One simple index
+                if isinstance(idxs, int) or isinstance(idxs, list):
+                    list_of_observations.append((list_of_data[idxs], state, idxs))
+                elif isinstance(idxs, list):
+                    for idx in idxs:
+                        list_of_observations.append((list_of_data[idx], state, idx))
+                    # end for
+                elif idxs is None:
+                    for data_i in range(len(list_of_data)):
+                        list_of_observations.append((list_of_data[data_i], state, data_i))
+                    # end for
+                # end if
+            # end if
+        # end for
+
+        return list_of_observations
+    # end get_data
 
     ##################
     # PRIVATE
     ##################
 
     # Observation point handler
-    def _observation_point_handler(self, observation_point, data, batch_i, sample_i, t):
+    def _observation_point_handler(self, observation_point, data):
         """
         Observation point handler
         :param observation_point: Source observation point
         :param data: Data observed
-        :param batch_i: Batch index (Call to forward)
-        :param sample_i: Sample index
-        :param t: Timestep
         """
-        pass
-    # end
+        # If active
+        if self._active:
+            # Create list for state if necessary
+            if self._current_state not in self._observation_data[observation_point].keys():
+                self._observation_data[observation_point][self._current_state] = list()
+            # end if
+
+            # Save data
+            self._observation_data[observation_point][self._current_state].append(data)
+        # end if
+    # end _observation_point_handler
 
 # end NodeObserver

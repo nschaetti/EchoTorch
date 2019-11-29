@@ -70,14 +70,14 @@ class ConceptorNet(ESN):
         self.conceptor = conceptor
 
         # Recurrent layer
-        self.esn_cell = esn_cell
+        self._esn_cell = esn_cell
 
         # Neural filter
-        self.esn_cell.connect("neural-filter", self._neural_filter)
-        self.esn_cell.connect("post-states-update", self._post_update_states)
+        self._esn_cell.connect("neural-filter", self._neural_filter)
+        self._esn_cell.connect("post-states-update", self._post_update_states)
 
         # Trainable elements
-        self.add_trainable(self.esn_cell)
+        self.add_trainable(self._esn_cell)
     # end __init__
 
     ####################
@@ -107,11 +107,13 @@ class ConceptorNet(ESN):
     ####################
 
     # Neural filter / training
-    def _neural_filter(self, x, ut, t, washout):
+    def _neural_filter(self, x, ut, forward_i, sample_i, t, washout):
         """
         Neural filter
         :param x: States to filter
         :param ut: Inputs
+        :param forward_i: Forward call
+        :param sample_i: Sample index
         :param t: Time t
         :param washout: In washout period
         """
@@ -123,12 +125,13 @@ class ConceptorNet(ESN):
     # end _neural_filter
 
     # Get states after batch update to train conceptors
-    def _post_update_states(self, states, inputs, b):
+    def _post_update_states(self, states, inputs, forward_i, sample_i):
         """
         Get states after batch update to train conceptors
         :param states: Reservoir states (without washout)
         :param inputs: Input signal
-        :param b: Batch position
+        :param forward_i: Forward call
+        :param sample_i: Position in the batch
         """
         if self._conceptor_active and self.conceptor is not None and self.conceptor.training:
             self.conceptor(states)
@@ -136,14 +139,14 @@ class ConceptorNet(ESN):
     # end _post_update_states
 
     # Hook executed to learn conceptors
-    def _forward_hook_conceptor_learning(self, module, inputs, outputs):
+    # def _forward_hook_conceptor_learning(self, module, inputs, outputs):
         """
         Hook executed to learn conceptors
         :param module: Module hooked
         :param inputs: Module's inputs
         :param outputs: Module's outputs
         """
-        self.conceptor(outputs)
+    #    self.conceptor(outputs)
     # end _forward_hook_conceptor_learning
 
     ###############

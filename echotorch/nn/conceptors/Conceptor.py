@@ -218,7 +218,7 @@ class Conceptor(NeuralFilter):
         """
         Update Conceptor matrix C
         """
-        self.C = Conceptor.C(self.R, self.aperture)
+        self.C = Conceptor.computeC(self.R, self.aperture)
     # end update_C
 
     # Update correlation matrix R
@@ -226,7 +226,7 @@ class Conceptor(NeuralFilter):
         """
         Update correlation matrix R
         """
-        self.R = Conceptor.R(self.C, self.aperture)
+        self.R = Conceptor.computeR(self.C, self.aperture)
     # end update_R
 
     # Multiply aperture by a factor
@@ -466,7 +466,7 @@ class Conceptor(NeuralFilter):
         :return: String
         """
         s = super(Conceptor, self).extra_repr()
-        s += ', nonlin_func={_nonlin_func}, washout={_washout}'
+        s += ', aperture={_aperture}'
         return s.format(**self.__dict__)
     # end extra_repr
 
@@ -662,7 +662,7 @@ class Conceptor(NeuralFilter):
     # Compute C from correlation matrix R
     # TODO: Test
     @staticmethod
-    def C(R, aperture, inv_algo=torch.inv):
+    def computeC(R, aperture, inv_algo=torch.inverse):
         """
         Compute C from correlation matrix R
         :param R: Correlation matrix
@@ -677,7 +677,7 @@ class Conceptor(NeuralFilter):
     # Compute R from conceptor matrix C
     # TODO: Test
     @staticmethod
-    def R(C, aperture, inv_algo=torch.inv):
+    def computeR(C, aperture, inv_algo=torch.inverse):
         """
         Compute R from conceptor matrix C
         :param C: Conceptor matrix C

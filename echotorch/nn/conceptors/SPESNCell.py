@@ -129,11 +129,12 @@ class SPESNCell(ESNCell):
     ##################
 
     # Hook which gets executed before the update state equation for every sample.
-    def _pre_update_hook(self, inputs, sample_i):
+    def _pre_update_hook(self, inputs, forward_i, sample_i):
         """
         Hook which gets executed before the update equation for a batch
         :param inputs: Input signal.
-        :param sample_i: Batch position.
+        :param forward_i: Index of forward call
+        :param sample_i: Position of the sample in the batch.
         """
         # Call debug point for inputs
         self._call_debug_point("u{}".format(self._n_samples), inputs[self._washout:])
@@ -141,17 +142,19 @@ class SPESNCell(ESNCell):
     # end _pre_update_hook
 
     # Hook which gets executed before the update state equation for every timesteps.
-    def _pre_step_update_hook(self, inputs, t):
+    def _pre_step_update_hook(self, inputs, forward_i, sample_i, t):
         """
         Hook which gets executed before the update equation for every timesteps
         :param inputs: Input signal.
+        :param forward_i: Index of forward call
+        :param sample_i: Position of the sample in the batch.
         :param t: Timestep.
         """
         return inputs
     # end _pre_step_update_hook
 
     # Hook which gets executed after the update state equation for every sample.
-    def _post_update_hook(self, states, inputs, sample_i):
+    def _post_update_hook(self, states, inputs, forward_i, sample_i):
         """
         Hook which gets executed after the update equation for a batch
         :param states: Reservoir's states.
@@ -194,12 +197,14 @@ class SPESNCell(ESNCell):
     # end _post_update_hook
 
     # Hook which gets executed after the update state equation for every timesteps.
-    def _post_step_update_hook(self, states, inputs, t):
+    def _post_step_update_hook(self, states, inputs, forward_i, sample_i, t):
         """
         Hook which gets executed after the update equation for every timesteps
         :param states: Reservoir's states.
         :param inputs: Input signal.
-        :param t: Timestep.
+        :param forward_i: Index of forward call
+        :param sample_i: Position of the sample in the batch
+        :param t: Timestep
         """
         return states
     # end _post_step_update_hook

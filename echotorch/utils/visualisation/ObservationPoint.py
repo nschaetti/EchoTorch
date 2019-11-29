@@ -92,16 +92,14 @@ class ObservationPoint:
     ################
 
     # Call the observation point
-    def __call__(self, *args, **kwargs):
+    def __call__(self, data):
         """
         Call the observation point
-        :param args:
-        :param kwargs:
-        :return:
+        :param data: Observed data
         """
         # For each handling function
         for handle_func in self._handlers:
-            handle_func(*args, **kwargs)
+            handle_func(self, data)
         # end for
     # end __call__
 

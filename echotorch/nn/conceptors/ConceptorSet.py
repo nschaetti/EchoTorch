@@ -23,6 +23,7 @@
 import torch
 from ..NeuralFilter import NeuralFilter
 from .Conceptor import Conceptor
+from echotorch.utils.utility_functions import generalized_squared_cosine
 
 
 # Set of conceptors : store and manipulate conceptors safely
@@ -96,6 +97,16 @@ class ConceptorSet(NeuralFilter):
         return self._conceptors
     # end conceptors
 
+    # Current selected conceptor
+    @property
+    def current_conceptor(self):
+        """
+        Current selected conceptor
+        :return: Selected conceptor
+        """
+        return self.conceptors[self._current_conceptor_index]
+    # end current_conceptor
+
     # Number of conceptors stored
     @property
     def count(self):
@@ -109,6 +120,48 @@ class ConceptorSet(NeuralFilter):
     #################
     # PUBLIC
     #################
+
+    # Multiply aperture of each conceptor by a factor gamma
+    def PHI(self, gamma):
+        """
+        Multiply aperture of each conceptor by a factor gamma
+        :param gamma: Multiplicative factor
+        """
+        for conceptor_i in range(self.count):
+            self.conceptors[conceptor_i].PHI(gamma)
+        # end for
+    # end PHI
+
+    # Similarity between two conceptors
+    def similarity(self, conceptor_i, conceptor_j, sim_func=generalized_squared_cosine):
+        """
+        Similarity between two conceptors
+        :param conceptor_i: First conceptor index
+        :param conceptor_j: Second coneptor index
+        :param sim_func: Simularity function (default: generalized squared cosine)
+        :return: Similarity
+        """
+        return Conceptor.similarity(self.conceptors[conceptor_i], self.conceptors[conceptor_j], sim_func=sim_func)
+    # end similarity
+
+    # Compute similarity matrix between conceptors
+    def similarity_matrix(self, sim_func=generalized_squared_cosine):
+        """
+        Compute similarity matrix between conceptors
+        :param sim_func: Similarity function (default: generalized squared cosine)
+        :return: Similarity matrix as torch tensor
+        """
+        # Similarity matrix
+        sim_matrix = torch.zeros(self.count, self.count)
+
+        # For each pair of conceptor
+        for i in range(self.count):
+            for j in range(self.count):
+                sim_matrix[i, j] = self.similarity(i, j, sim_func)
+            # end for
+        # end for
+        return sim_matrix
+    # end similarity_matrix
 
     # Set conceptor index to use
     def set(self, conceptor_i):
@@ -135,14 +188,14 @@ class ConceptorSet(NeuralFilter):
     # end filter_fit
 
     # Filter signal
-    def filter_transform(self, X, M):
+    def filter_transform(self, X):
         """
         Filter signal
         :param X: State to filter
         :param M: Morphing vector
         :return: Filtered signal
         """
-        return X
+        return self.current_conceptor(X)
     # end filter_transform
 
     # Reset the set (empty list, reset A)
@@ -163,17 +216,19 @@ class ConceptorSet(NeuralFilter):
         """
         # Add
         self._conceptors[idx] = c
+        self.add_trainable(c)
     # end add
 
     # Delete a conceptor from the set
-    def delete(self, name):
+    def delete(self, idx):
         """
         Delete a conceptor from the set
-        :param name: Name associated with the conceptor removed
+        :param idx: Index associated with the conceptor removed
         :return: New matrix A, the OR of all stored conceptors
         """
         # Remove
-        del self._conceptors[name]
+        self.remove_trainable(self._conceptors[idx])
+        del self._conceptors[idx]
     # end delete
 
     # Negative evidence for a Conceptor
@@ -234,5 +289,16 @@ class ConceptorSet(NeuralFilter):
     ###################
     # OVERRIDE
     ###################
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = super(ConceptorSet, self).extra_repr()
+        s += ', count=' + str(self.count) + ', current={_current_conceptor_index}, conceptors={_conceptors}'
+        return s.format(**self.__dict__)
+    # end extra_repr
 
 # end ConceptorSet

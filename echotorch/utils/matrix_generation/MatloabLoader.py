@@ -23,6 +23,7 @@
 import torch
 import scipy.io as io
 import numpy as np
+import echotorch.utils
 from .MatrixGenerator import MatrixGenerator
 from .MatrixFactory import matrix_factory
 import scipy.sparse
@@ -33,6 +34,23 @@ class MatlabLoader(MatrixGenerator):
     """
     Load matrix from matlab file
     """
+
+    # Constructor
+    def __init__(self, **kwargs):
+        """
+        Constructor
+        :param kwargs: Parameters of the generator
+        """
+        # Set default parameter values
+        super(MatlabLoader, self).__init__(
+            spectral_radius=1.0,
+            apply_spectral_radius=False,
+            scale=1.0
+        )
+
+        # Set parameters
+        self._set_parameters(args=kwargs)
+    # end __init__
 
     ################
     # PUBLIC
@@ -51,19 +69,29 @@ class MatlabLoader(MatrixGenerator):
         entity_name = self.get_parameter('entity_name')
 
         # Load matrix
-        loaded_matrix = io.loadmat(file_name)[entity_name]
+        m = io.loadmat(file_name)[entity_name]
 
         # Reshape
         if 'shape' in self._parameters.keys():
-            loaded_matrix = np.reshape(loaded_matrix, self.get_parameter('shape'))
+            m = np.reshape(m, self.get_parameter('shape'))
         # end if
 
         # Dense or not
-        if isinstance(loaded_matrix, scipy.sparse.csc_matrix):
-            return torch.from_numpy(loaded_matrix.todense()).type(dtype)
+        if isinstance(m, scipy.sparse.csc_matrix):
+            m = torch.from_numpy(m.todense()).type(dtype)
         else:
-            return torch.from_numpy(loaded_matrix).type(dtype)
+            m = torch.from_numpy(m).type(dtype)
         # end if
+
+        # Scale
+        m *= self.get_parameter('scale')
+
+        # Set spectral radius
+        if m.ndimension() == 2 and m.size(0) == m.size(1) and self.get_parameter('apply_spectral_radius'):
+            m = (m / echotorch.utils.spectral_radius(m)) * self.get_parameter('spectral_radius')
+        # end if
+
+        return m
     # end generate
 
 # end MatlabLoader

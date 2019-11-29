@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
 # Debug ?
-debug = False
+debug = True
 if debug:
     torch.set_printoptions(precision=16)
     debug_mode = Node.DEBUG_OUTPUT
@@ -71,7 +71,7 @@ ridge_param_wout = 0.01
 
 # Aperture
 alpha = 10
-alphas = [1.0, 10.0, 100.0, 1000.0, 10000.0]
+gamma = 10.0
 
 # Argument parsing
 parser = argparse.ArgumentParser(prog="subspace_demo", description=u"Fig. 1 BC subspace first demo")
@@ -88,7 +88,7 @@ args = parser.parse_args()
 # Load W from matlab file and random init ?
 if args.w != "":
     # Load internal weights
-    w_generator = mg.matrix_factory.get_generator("matlab", file_name=args.w, entity_name=args.w_name)
+    w_generator = mg.matrix_factory.get_generator("matlab", file_name=args.w, entity_name=args.w_name, scale=spectral_radius)
 else:
     # Generate internal weights
     w_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=connectivity)
@@ -97,7 +97,7 @@ else:
 # Load Win from matlab file or init randomly
 if args.win != "":
     # Load internal weights
-    win_generator = mg.matrix_factory.get_generator("matlab", file_name=args.win, entity_name=args.win_name)
+    win_generator = mg.matrix_factory.get_generator("matlab", file_name=args.win, entity_name=args.win_name, scale=input_scaling)
 else:
     # Generate Win
     win_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
@@ -105,7 +105,7 @@ else:
 
 # Load Wbias from matlab from or init randomly
 if args.wbias != "":
-    wbias_generator = mg.matrix_factory.get_generator("matlab", file_name=args.wbias, entity_name=args.wbias_name, shape=reservoir_size)
+    wbias_generator = mg.matrix_factory.get_generator("matlab", file_name=args.wbias, entity_name=args.wbias_name, shape=reservoir_size, scale=bias_scaling)
 else:
     wbias_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
 # end if
@@ -176,7 +176,7 @@ conceptor_net = ecnc.ConceptorNet(
 
 # We create an outside observer to plot
 # internal states and SVD afterwards
-observer = ecvs.NodeObserver(spesn.cell)
+observer = ecvs.NodeObserver(spesn.cell, initial_state='init')
 
 # If in debug mode
 if debug_mode > Node.NO_DEBUG:
@@ -241,8 +241,11 @@ for i, data in enumerate(patterns_loader):
         inputs, outputs = Variable(inputs.double()), Variable(outputs.double())
     # end if
 
-    # Set current conceptor
-    conceptor_net.set_conceptor(conceptors[i])
+    # Set conceptor to use
+    conceptors.set(i)
+
+    # Set state of the observer
+    observer.set_state("pattern{}".format(i))
 
     # Feed SP-ESN
     X = conceptor_net(inputs, inputs)
@@ -258,6 +261,10 @@ for i, data in enumerate(patterns_loader):
     Y_collector[i*learn_length:i*learn_length+learn_length] = Y
     P_collector[i] = inputs[0, washout_length:washout_length+signal_plot_length, 0]
 # end for
+
+# Observer set as inactive, it will stop observing
+# reservoir states and inputs.
+observer.set_active(False)
 
 # Learn internal weights
 conceptor_net.finalize()
@@ -292,16 +299,16 @@ generated_samples = torch.zeros(4, conceptor_test_length)
 # NRMSE between original and aligned pattern
 NRMSEs_aligned = torch.zeros(4)
 
+# Train conceptors (Compute C from R)
+conceptors.finalize()
+
 # Figure (square size)
 plt.figure(figsize=(12, 8))
 
 # Set conceptors in evaluation mode and generate a sample
 for i in range(4):
-    # Train conceptors
-    conceptors[i].finalize()
-
     # Set it as current conceptor
-    conceptor_net.set_conceptor(conceptors[i])
+    conceptors.set(i)
 
     # Generate sample
     generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
@@ -309,7 +316,9 @@ for i in range(4):
     # Find best phase shift
     generated_sample_aligned, _, NRMSE_aligned = echotorch.utils.pattern_interpolation(P_collector[i], generated_sample[0], interpolation_rate)
 
+    #
     # Plot 1 : original pattern and recreated pattern
+    #
     plt.subplot(4, 4, i * 4 + 1)
     plt.plot(generated_sample_aligned, color='r', linewidth=5)
     plt.plot(P_collector[i], color='b', linewidth=1.5)
@@ -330,29 +339,46 @@ for i in range(4):
     plt.ylim([-1, 1])
     plt.yticks([-1, 0, 1])
 
+    # We use StateVisualiser to plot neural activities of
+    # two reservoir units, the log10 of singular values
+    # of reservoir states, and their 10 leading SV.
+    state_visualiser = ecvs.StateVisualiser(observer=observer)
+
+    #
     # Plot 2 : neurons
+    #
     plt.subplot(4, 4, i * 4 + 2)
-    observer.plot_neurons(
-        sample_id=i,
-        idxs=[0, 1, 2],
+
+    # Plot neurons
+    state_visualiser.plot_neurons(
+        point_name='X',
+        states="pattern{}".format(i),
+        idxs=None,
+        neuron_idxs=[0, 1, 2],
         length=signal_plot_length,
         color='g',
         linewidth=1.5,
         show_title=(i==0),
         title="Two neurons",
         xticks=[0, 10, 20] if i == 3 else None,
-        ylim=[-1, 1],
-        yticks=[-1, 0, 1]
+        yticks=[-1, 0, 1],
+        ylim=[-1, 1]
     )
 
+    #
     # Plot 3 : Log10 of singular values (PC energy)
+    #
     plt.subplot(4, 4, i * 4 + 3)
-    observer.plot_state_singular_values(
-        sample_id=i,
+
+    # Plot log10 of SV
+    state_visualiser.plot_singular_values(
+        point_name='X',
+        states="pattern{}".format(i),
+        idxs=None,
         color='r',
         linewidth=2,
         show_title=(i == 0),
-        title="Log10 PC Energy",
+        title="Log 10 PC Energy",
         xticks=[0, 50, 100] if i == 3 else None,
         ylim=[-20, 10],
         log10=True
@@ -360,8 +386,12 @@ for i in range(4):
 
     # Plot 4 : Learning PC energy
     plt.subplot(4, 4, i * 4 + 4)
-    observer.plot_state_singular_values(
-        sample_id=i,
+
+    # Plot learning SV
+    state_visualiser.plot_singular_values(
+        point_name='X',
+        states="pattern{}".format(i),
+        idxs=None,
         color='r',
         length=10,
         linewidth=2,
@@ -380,9 +410,25 @@ plt.show()
 # Show NRMSE
 print("NRMSEs aligned : {}".format(torch.mean(NRMSEs_aligned)))
 
-# Create plot for each pattern
+# R-based similarity matrix
+ecvs.show_similarity_matrix(
+    sim_matrix=state_visualiser.compute_R_similarity_matrix(
+        point_name="X",
+        states=["pattern0", "pattern1", "pattern2", "pattern3"],
+        idxs=None
+    ),
+    title="R base similarities"
+)
+
+# For aperture 10, 100, 1000 and 10000
 for i in range(4):
-    pass
+    # Plot conceptors similarity matrix
+    ecvs.show_similarity_matrix(
+        sim_matrix=conceptors.similarity_matrix(),
+        title="C based similarities, aperture = {}".format(alpha)
+    )
+
+    # Multiply aperture
+    conceptors.PHI(gamma)
+    alpha *= gamma
 # end for
-
-

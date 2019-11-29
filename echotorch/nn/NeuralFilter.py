@@ -97,9 +97,9 @@ class NeuralFilter(Node):
         :return: Filtered neural activity
         """
         if self.training:
-            return self.filter_fit(x, kwargs)
+            return self.filter_fit(*x, **kwargs)
         else:
-            return self.filter_transform(x, kwargs)
+            return self.filter_transform(*x, **kwargs)
         # end if
     # end forward
 

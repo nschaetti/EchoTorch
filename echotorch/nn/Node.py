@@ -211,7 +211,7 @@ class Node(nn.Module):
     # Public
     #######################
 
-    # Add to elements to finalize
+    # Add to elements to train when "finalize" is called
     def add_trainable(self, e):
         """
         Add to elements to finalize
@@ -221,6 +221,17 @@ class Node(nn.Module):
             self._trainable_elements.append(e)
         # end if
     # end add_trainable
+
+    # Remove element to train when "finalize" is called
+    def remove_trainable(self, e):
+        """
+        Remove element to train when "finalize" is called
+        :param e: Node to remove
+        """
+        if e in self._trainable_elements:
+            self._trainable_elements.remove(e)
+        # end if
+    # end remove_trainable
 
     # Set debug mode
     def debug(self, mode):
