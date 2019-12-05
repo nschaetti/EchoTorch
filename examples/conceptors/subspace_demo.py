@@ -39,7 +39,7 @@ debug = True
 if debug:
     torch.set_printoptions(precision=16)
     debug_mode = Node.DEBUG_OUTPUT
-    precision = 0.000001
+    precision = 0.0001
 else:
     debug_mode = Node.NO_DEBUG
 # end if
@@ -145,7 +145,7 @@ spesn = ecnc.SPESN(
     w_generator=w_generator,
     win_generator=win_generator,
     wbias_generator=wbias_generator,
-    input_scaling=input_scaling,
+    input_scaling=1.0,
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
     washout=washout_length,
@@ -310,8 +310,11 @@ for i in range(4):
     # Set it as current conceptor
     conceptors.set(i)
 
+    # Randomly generated initial state (x0)
+    conceptor_net.cell.set_hidden(0.5 * torch.randn(reservoir_size, dtype=dtype))
+
     # Generate sample
-    generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype))
+    generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype), reset_state=False)
 
     # Find best phase shift
     generated_sample_aligned, _, NRMSE_aligned = echotorch.utils.pattern_interpolation(P_collector[i], generated_sample[0], interpolation_rate)
@@ -356,7 +359,7 @@ for i in range(4):
         idxs=None,
         neuron_idxs=[0, 1, 2],
         length=signal_plot_length,
-        color='g',
+        colors=['b', 'orange', 'g'],
         linewidth=1.5,
         show_title=(i==0),
         title="Two neurons",

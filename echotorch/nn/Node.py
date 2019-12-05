@@ -42,6 +42,16 @@ class Node(nn.Module):
     DEBUG_OUTPUT = 2
     DEBUG_TEST_CASE = 3
 
+    # Colors
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
     # Constructor
     def __init__(self, input_dim, output_dim, debug=NO_DEBUG, test_case=None, dtype=torch.float32):
         """
@@ -365,11 +375,11 @@ class Node(nn.Module):
         :param value: Value of the debug point
         """
         # String
-        error_precision = "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})"
+        error_precision = Node.WARNING + "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})" + Node.ENDC
         info_precision_scalar = "DEBUG - INFO: {} (scalar) has an absolute difference of {}"
         info_precision_matrix = "DEBUG - INFO: {} (matrix) has a norm-2 difference of {}"
-        fatal_size = "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{})"
-        fatal_type = "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{})"
+        fatal_size = Node.FAIL + "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{})" + Node.ENDC
+        fatal_type = Node.FAIL + "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{})" + Node.ENDC
 
         # If debug point set
         if self._debug > Node.NO_DEBUG and name in self._debug_points.keys():

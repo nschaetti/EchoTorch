@@ -7,6 +7,7 @@ import numpy as np
 from .error_measures import nrmse, generalized_squared_cosine
 from scipy.interpolate import interp1d
 import numpy.linalg as lin
+import matplotlib.pyplot as plt
 
 
 # Compute correlation matrix

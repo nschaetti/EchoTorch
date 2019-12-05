@@ -4,7 +4,7 @@
 # Imports
 import torch
 import numpy as np
-from echotorch.nn.conceptors import Conceptor
+# from echotorch.nn.conceptors import Conceptor
 import matplotlib.pyplot as plt
 
 

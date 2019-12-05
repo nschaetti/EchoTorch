@@ -83,7 +83,7 @@ class StateVisualiser(Visualiser):
     # end compute_R_similarity_matrix
 
     # Plot neurons activities
-    def plot_neurons(self, point_name, states, idxs, neuron_idxs, color, linewidth=1, start=0, length=-1,
+    def plot_neurons(self, point_name, states, idxs, neuron_idxs, colors, linewidth=1, start=0, length=-1,
                      show_title=True, title="", xticks=None, yticks=None, ylim=None, xlim=None):
         """
         Plot neuronal activities
@@ -92,7 +92,7 @@ class StateVisualiser(Visualiser):
         :param idxs: Sample indices in the state collection
         :param neuron_idxs: Indices of the neurons to plot
         :param linewidth: Line width
-        :param color: Line color
+        :param colors: Line color
         :param start: Index of the starting point to plot
         :param length: Length of the plot
         :param show_title: Add title to the plot ?
@@ -106,11 +106,14 @@ class StateVisualiser(Visualiser):
         cell_states = self._get_observer_data(point_name, states, idxs, concat=True, concat_dim=2)
 
         # Plot neurons
-        if length == -1:
-            plt.plot(cell_states[start:, neuron_idxs], color=color, linewidth=linewidth)
-        else:
-            plt.plot(cell_states[start:start + length, neuron_idxs], color=color, linewidth=linewidth)
-        # end if
+        for neuron_i, neuron_idx in enumerate(neuron_idxs):
+            n_color = colors[neuron_i] if type(colors) == list else colors
+            if length == -1:
+                plt.plot(cell_states[start:, neuron_idx], color=n_color, linewidth=linewidth)
+            else:
+                plt.plot(cell_states[start:start + length, neuron_idx], color=n_color, linewidth=linewidth)
+            # end if
+        # end for
 
         # Title
         if show_title:
