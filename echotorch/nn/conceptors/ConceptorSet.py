@@ -31,6 +31,7 @@ class ConceptorSet(NeuralFilter):
     """
     Set of conceptors
     """
+    # region BODY
 
     # Constructor
     def __init__(self, input_dim, *args, **kwargs):
@@ -55,9 +56,7 @@ class ConceptorSet(NeuralFilter):
         self._conceptors = dict()
     # end __init__
 
-    #################
-    # PROPERTIES
-    #################
+    # region PROPERTIES
 
     # OR of all conceptors stored
     @property
@@ -117,9 +116,9 @@ class ConceptorSet(NeuralFilter):
         return len(self._conceptors)
     # end count
 
-    #################
-    # PUBLIC
-    #################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Multiply aperture of each conceptor by a factor gamma
     def PHI(self, gamma):
@@ -282,13 +281,13 @@ class ConceptorSet(NeuralFilter):
         return self.Eplus(conceptor_i, x) + self.Eneg(conceptor_i, x)
     # end E
 
-    ###################
-    # PRIVATE
-    ###################
+    # endregion PUBLIC
 
-    ###################
-    # OVERRIDE
-    ###################
+    # region PRIVATE
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Extra-information
     def extra_repr(self):
@@ -300,5 +299,23 @@ class ConceptorSet(NeuralFilter):
         s += ', count=' + str(self.count) + ', current={_current_conceptor_index}, conceptors={_conceptors}'
         return s.format(**self.__dict__)
     # end extra_repr
+
+    # Get item
+    def __getitem__(self, item):
+        """
+        Get item
+        """
+        return self._conceptors[item]
+    # end __getitem__
+
+    # Set item
+    def __setitem__(self, key, value):
+        """
+        Set item
+        """
+        self._conceptors[key] = value
+    # end __setitem__
+
+    # endregion OVERRIDE
 
 # end ConceptorSet

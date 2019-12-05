@@ -110,7 +110,7 @@ class Conceptor(NeuralFilter):
         :return: Singular values as a vector
         """
         (U, S, V) = torch.svd(self.C)
-        return torch.diag(S)
+        return S
     # end SV
 
     # Quota
@@ -158,6 +158,9 @@ class Conceptor(NeuralFilter):
 
         # Compute Conceptor matrix C from R
         self.update_C()
+
+        # Debug for C
+        self._call_debug_point("C", self.C)
 
         # Out of training mode
         self.train(False)

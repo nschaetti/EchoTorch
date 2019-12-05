@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : examples/conceptors/subspace_demo.py
-# Description : Conceptor first subspace demo
-# Date : 5th of December, 2019
+# File : examples/conceptors/subspace_demo_debug.py
+# Description : First subspace demo with conceptors (debug mode).
+# Date : 26th of January, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -33,6 +33,16 @@ from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
 from torch.autograd import Variable
+
+# Debug ?
+debug = True
+if debug:
+    torch.set_printoptions(precision=16)
+    debug_mode = Node.DEBUG_OUTPUT
+    precision = 0.0001
+else:
+    debug_mode = Node.NO_DEBUG
+# end if
 
 # Random numb. init
 torch.random.manual_seed(1)
@@ -139,6 +149,7 @@ spesn = ecnc.SPESN(
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
     washout=washout_length,
+    debug=debug_mode,
     dtype=dtype
 )
 
@@ -146,10 +157,10 @@ spesn = ecnc.SPESN(
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
 
 # Create four conceptors, one for each pattern
-conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
+conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
+conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
+conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
 
 # Create a conceptor network using
 # the self-predicting ESN which
@@ -166,6 +177,58 @@ conceptor_net = ecnc.ConceptorNet(
 # We create an outside observer to plot
 # internal states and SVD afterwards
 observer = ecvs.NodeObserver(spesn.cell, initial_state='init')
+
+# If in debug mode
+if debug_mode > Node.NO_DEBUG:
+    # Load sample matrices
+    for i in range(4):
+        # Input patterns
+        spesn.cell.debug_point(
+            "u{}".format(i),
+            torch.reshape(torch.from_numpy(np.load("data/debug/subspace_demo/u{}.npy".format(i))), shape=(-1, 1)),
+            precision
+        )
+
+        # States
+        spesn.cell.debug_point(
+            "X{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/X{}.npy".format(i))),
+            precision
+        )
+
+        # Targets
+        spesn.cell.debug_point(
+            "Y{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/Y{}.npy".format(i))),
+            precision
+        )
+
+        # Xold
+        spesn.cell.debug_point(
+            "Xold{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/Xold{}.npy".format(i))),
+            precision
+        )
+
+        # Conceptor
+        conceptors[i].debug_point(
+            "C",
+            torch.from_numpy(np.load("data/debug/subspace_demo/C{}.npy".format(i))),
+            precision
+        )
+    # end for
+
+    # Load debug W, xTx, xTy
+    spesn.cell.debug_point("Wstar", torch.from_numpy(np.load("data/debug/subspace_demo/Wstar.npy", allow_pickle=True)), precision)
+    spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/subspace_demo/Win.npy")), precision)
+    spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/subspace_demo/Wbias.npy")), precision)
+    spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/subspace_demo/xTx.npy")), precision)
+    spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")), precision)
+    spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
+    spesn.cell.debug_point("ridge_xTx", torch.from_numpy(np.load("data/debug/subspace_demo/ridge_xTx.npy")), precision)
+    spesn.cell.debug_point("inv_xTx", torch.from_numpy(np.load("data/debug/subspace_demo/inv_xTx.npy")), precision)
+    spesn.cell.debug_point("w", torch.from_numpy(np.load("data/debug/subspace_demo/W.npy")), precision)
+# end if
 
 # Xold and Y collectors
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
