@@ -36,7 +36,7 @@ class ConceptorNet(ESN):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, conceptor, dtype=torch.float32):
+    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, conceptor, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -56,6 +56,7 @@ class ConceptorNet(ESN):
             washout=esn_cell.washout,
             create_rnn=False,
             create_output=True,
+            test_case=test_case,
             dtype=dtype
         )
 

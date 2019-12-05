@@ -21,25 +21,20 @@
 
 # Imports
 import os
-import unittest
-from unittest import TestCase
-
-from echotorch.datasets.NARMADataset import NARMADataset
-import echotorch.nn.reservoir as etrs
-import echotorch.nn.conceptors as etnc
+import echotorch.utils
+from .EchoTorchTestCase import EchoTorchTestCase
+import numpy as np
+import torch
+import echotorch.nn.conceptors as ecnc
 import echotorch.utils.matrix_generation as mg
 import echotorch.utils
 import echotorch.datasets as etds
+import echotorch.utils.visualisation as ecvs
 from echotorch.datasets import DatasetComposer
-
-import torch
-from torch.autograd import Variable
-from torch.utils.data.dataloader import DataLoader
-
-import numpy as np
-
 from echotorch.nn.Node import Node
-from .EchoTorchTestCase import EchoTorchTestCase
+from torch.utils.data.dataloader import DataLoader
+import matplotlib.pyplot as plt
+from torch.autograd import Variable
 
 
 # Test case : Subspace first demo.
@@ -55,7 +50,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
     # Subspace first demo
     def subspace_first_demo(self, data_dir, reservoir_size=100, spectral_radius=1.5, input_scaling=1.5, bias_scaling=0.2,
                             connectivity=10.0, washout_length=500, learn_length=1000, ridge_param_wstar=0.0001,
-                            ridge_param_wout=0.01, aperture=10, precision=0.000001, torch_seed=1, np_seed=1):
+                            ridge_param_wout=0.01, aperture=10, precision=0.001, torch_seed=1, np_seed=1):
         """
         Subspace first demo
         :param data_dir: Directory in the test directory
@@ -82,31 +77,33 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # Debug ?
         debug_mode = Node.DEBUG_TEST_CASE
 
+        # Precision decimal
+        precision_decimals = -np.log10(precision)
+
         # Init random number generators
         torch.random.manual_seed(torch_seed)
         np.random.seed(np_seed)
 
         # Parameters
-        connectivity = connectivity / reservoir_size
         signal_plot_length = 20
         conceptor_test_length = 200
-        singular_plot_length = 50
-        free_run_length = 100000
-        apertures = [1.0, 10.0, 100.0, 1000.0, 10000.0]
+        interpolation_rate = 20
         dtype = torch.float64
 
         # Load internal weights W*
         wstar_generator = mg.matrix_factory.get_generator(
             "matlab",
             file_name=os.path.join(TEST_PATH, "WstarRaw.mat"),
-            entity_name="WstarRaw"
+            entity_name="WstarRaw",
+            scale=spectral_radius
         )
 
         # Load input-internal weights
         win_generator = mg.matrix_factory.get_generator(
             "matlab",
             file_name=os.path.join(TEST_PATH, "WinRaw.mat"),
-            entity_name="WinRaw"
+            entity_name="WinRaw",
+            scale=input_scaling
         )
 
         # Load bias
@@ -114,19 +111,18 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             "matlab",
             file_name=os.path.join(TEST_PATH, "Wbias.mat"),
             entity_name="Wbias",
-            shape=reservoir_size
+            shape=reservoir_size,
+            scale=bias_scaling
         )
 
-        # First sine pattern
+        # Four pattern (two sine, two periodic)
         pattern1_training = etds.SinusoidalTimeseries(
             sample_len=washout_length + learn_length,
-            n_samples=1,
-            a=1,
+            n_samples=1, a=1,
             period=8.8342522,
             dtype=dtype
         )
 
-        # Second sine pattern
         pattern2_training = etds.SinusoidalTimeseries(
             sample_len=washout_length + learn_length,
             n_samples=1,
@@ -135,7 +131,6 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             dtype=dtype
         )
 
-        # First periodic pattern
         pattern3_training = etds.PeriodicSignalDataset(
             sample_len=washout_length + learn_length,
             n_samples=1,
@@ -143,7 +138,6 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             dtype=dtype
         )
 
-        # Second periodic pattern
         pattern4_training = etds.PeriodicSignalDataset(
             sample_len=washout_length + learn_length,
             n_samples=1,
@@ -160,21 +154,41 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # Create a self-predicting ESN
         # which will be loaded with the
         # four patterns.
-        spesn = etnc.SPESN(
+        spesn = ecnc.SPESN(
             input_dim=1,
             hidden_dim=reservoir_size,
             output_dim=1,
-            spectral_radius=spectral_radius,
             learning_algo='inv',
             w_generator=wstar_generator,
             win_generator=win_generator,
             wbias_generator=wbias_generator,
-            input_scaling=input_scaling,
-            bias_scaling=bias_scaling,
+            input_scaling=1.0,
             ridge_param=ridge_param_wout,
             w_ridge_param=ridge_param_wstar,
             washout=washout_length,
             debug=debug_mode,
+            test_case=self,
+            dtype=dtype
+        )
+
+        # Create a set of conceptors
+        conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
+
+        # Create four conceptors, one for each pattern
+        conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=aperture, debug=debug_mode, test_case=self, dtype=dtype))
+        conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=aperture, debug=debug_mode, test_case=self, dtype=dtype))
+        conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=aperture, debug=debug_mode, test_case=self, dtype=dtype))
+        conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=aperture, debug=debug_mode, test_case=self, dtype=dtype))
+
+        # Create a conceptor network using
+        # the self-predicting ESN which
+        # will learn four conceptors.
+        conceptor_net = ecnc.ConceptorNet(
+            input_dim=1,
+            hidden_dim=reservoir_size,
+            output_dim=1,
+            esn_cell=spesn.cell,
+            conceptor=conceptors,
             test_case=self,
             dtype=dtype
         )
@@ -184,28 +198,36 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             # Input patterns
             spesn.cell.debug_point(
                 "u{}".format(i),
-                torch.reshape(torch.from_numpy(np.load(os.path.join(TEST_PATH, "u{}.npy".format(i)))), shape=(-1, 1)),
+                torch.reshape(torch.from_numpy(np.load("data/debug/subspace_demo/u{}.npy".format(i))),
+                              shape=(-1, 1)),
                 precision
             )
 
             # States
             spesn.cell.debug_point(
                 "X{}".format(i),
-                torch.from_numpy(np.load(os.path.join(TEST_PATH, "X{}.npy".format(i)))),
+                torch.from_numpy(np.load("data/debug/subspace_demo/X{}.npy".format(i))),
                 precision
             )
 
             # Targets
             spesn.cell.debug_point(
                 "Y{}".format(i),
-                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Y{}.npy".format(i)))),
+                torch.from_numpy(np.load("data/debug/subspace_demo/Y{}.npy".format(i))),
                 precision
             )
 
             # Xold
             spesn.cell.debug_point(
                 "Xold{}".format(i),
-                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Xold{}.npy".format(i)))),
+                torch.from_numpy(np.load("data/debug/subspace_demo/Xold{}.npy".format(i))),
+                precision
+            )
+
+            # Conceptor
+            conceptors[i].debug_point(
+                "C",
+                torch.from_numpy(np.load("data/debug/subspace_demo/C{}.npy".format(i))),
                 precision
             )
         # end for
@@ -213,58 +235,110 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # Load debug W, xTx, xTy
         spesn.cell.debug_point(
             "Wstar",
-            torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wstar.npy"), allow_pickle=True)),
+            torch.from_numpy(np.load("data/debug/subspace_demo/Wstar.npy", allow_pickle=True)),
             precision
         )
-        spesn.cell.debug_point("Win", torch.from_numpy(np.load(os.path.join(TEST_PATH, "Win.npy"))), precision)
-        spesn.cell.debug_point("Wbias", torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wbias.npy"))), precision)
-        spesn.cell.debug_point("xTx", torch.from_numpy(np.load(os.path.join(TEST_PATH, "xTx.npy"))), precision)
-        spesn.cell.debug_point("xTy", torch.from_numpy(np.load(os.path.join(TEST_PATH, "xTy.npy"))), precision)
+        spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/subspace_demo/Win.npy")), precision)
+        spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/subspace_demo/Wbias.npy")), precision)
+        spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/subspace_demo/xTx.npy")), precision)
+        spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")), precision)
         spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
         spesn.cell.debug_point(
             "ridge_xTx",
-            torch.from_numpy(np.load(os.path.join(TEST_PATH, "ridge_xTx.npy"))),
+            torch.from_numpy(np.load("data/debug/subspace_demo/ridge_xTx.npy")),
             precision
         )
-        spesn.cell.debug_point("inv_xTx",  torch.from_numpy(np.load(os.path.join(TEST_PATH, "inv_xTx.npy"))), 0.001)
-        spesn.cell.debug_point("w", torch.from_numpy(np.load(os.path.join(TEST_PATH, "W.npy"))), 0.00001)
+        spesn.cell.debug_point(
+            "inv_xTx",
+            torch.from_numpy(np.load("data/debug/subspace_demo/inv_xTx.npy")),
+            precision
+        )
+        spesn.cell.debug_point("w", torch.from_numpy(np.load("data/debug/subspace_demo/W.npy")), precision)
 
         # Xold and Y collectors
         Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
         Y_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
+        P_collector = torch.empty(4, signal_plot_length, dtype=dtype)
+
+        # Conceptors ON
+        conceptor_net.conceptor_active(True)
 
         # Go through dataset
         for i, data in enumerate(patterns_loader):
             # Inputs and labels
             inputs, outputs, labels = data
 
+            # To Variable
+            if dtype == torch.float64:
+                inputs, outputs = Variable(inputs.double()), Variable(outputs.double())
+            # end if
+
+            # Set conceptor to use
+            conceptors.set(i)
+
             # Feed SP-ESN
-            X = spesn(inputs, inputs)
+            X = conceptor_net(inputs, inputs)
 
             # Get targets
-            Y = spesn.cell.targets(X[0])
+            Y = conceptor_net.cell.targets(X[0])
 
             # Get features
-            Xold = spesn.cell.features(X[0])
+            Xold = conceptor_net.cell.features(X[0])
 
             # Save
             Xold_collector[i * learn_length:i * learn_length + learn_length] = Xold
             Y_collector[i * learn_length:i * learn_length + learn_length] = Y
+            P_collector[i] = inputs[0, washout_length:washout_length + signal_plot_length, 0]
         # end for
 
-        # Finalize training
-        spesn.finalize()
+        # Learn internal weights
+        conceptor_net.finalize()
 
         # Predicted by W
-        predY = torch.mm(spesn.cell.w, Xold_collector.t()).t()
+        predY = torch.mm(conceptor_net.cell.w, Xold_collector.t()).t()
 
-        # Compute and test NRMSE
+        # Compute NRMSE
         training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
-        self.assertAlmostEqual(training_NRMSE, 0.029126309017399498, places=4)
-        print("DEBUG - INFO: Training NRMSE : {}".format(training_NRMSE))
 
-        # Run trained ESN with empty inputs
-        generated = spesn(torch.zeros(1, 2000, 1, dtype=dtype))
+        # Check training NRMSE
+        self.assertAlmostEqual(training_NRMSE, 0.029126309017397423, precision_decimals)
+
+        # No washout this time
+        conceptor_net.washout = 0
+
+        # Conceptors ON
+        conceptor_net.conceptor_active(True)
+
+        # NRMSE between original and aligned pattern
+        NRMSEs_aligned = torch.zeros(4)
+
+        # Train conceptors (Compute C from R)
+        conceptors.finalize()
+
+        # Set conceptors in evaluation mode and generate a sample
+        for i in range(4):
+            # Set it as current conceptor
+            conceptors.set(i)
+
+            # Randomly generated initial state (x0)
+            conceptor_net.cell.set_hidden(0.5 * torch.randn(reservoir_size, dtype=dtype))
+
+            # Generate sample
+            generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype), reset_state=False)
+
+            # Find best phase shift
+            generated_sample_aligned, _, NRMSE_aligned = echotorch.utils.pattern_interpolation(
+                P_collector[i],
+                generated_sample[0],
+                interpolation_rate
+            )
+
+            # Save NRMSE
+            NRMSEs_aligned[i] = NRMSE_aligned
+        # end for
+
+        # Check NRMSE
+        self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), 0.008172502741217613, precision_decimals)
     # subspace_first_demo
 
     ##############################
