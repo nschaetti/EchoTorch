@@ -230,6 +230,27 @@ class ConceptorSet(NeuralFilter):
         del self._conceptors[idx]
     # end delete
 
+    # Morph conceptors in the set
+    def morphing(self, morphing_vector):
+        """
+        Morph conceptors in the set
+        """
+        # Not on trained set of conceptor
+        if self.training:
+            raise Exception("Cannot morph untrained conceptors")
+        # end if
+
+        # Add each conceptor
+        for m in range(self.count):
+            if m == 0:
+                Cm = morphing_vector[m].item() * self[m]
+            else:
+                Cm = Cm + morphing_vector[m].item() * self[m]
+            # end if
+        # end for
+        return Cm
+    # end morphing
+
     # Negative evidence for a Conceptor
     # TODO: Test
     def Eneg(self, conceptor_i, x):

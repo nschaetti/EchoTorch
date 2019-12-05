@@ -68,9 +68,7 @@ class Conceptor(NeuralFilter):
         self.register_buffer('C', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
     # end __init__
 
-    ######################
-    # PROPERTIES
-    ######################
+    # region PROPERTIES
 
     # Get aperture
     @property
@@ -123,9 +121,9 @@ class Conceptor(NeuralFilter):
         return float(torch.sum(self.SV()))
     # end quota
 
-    ######################
-    # PUBLIC
-    ######################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Filter signal
     def filter_fit(self, X):
@@ -179,7 +177,7 @@ class Conceptor(NeuralFilter):
     # end reset
 
     # Set correlation matrix
-    def set_R(self, R):
+    def set_R(self, R, compute_C=True):
         """
         Set correlation matrix
         :param R: Correlation matrix
@@ -192,11 +190,13 @@ class Conceptor(NeuralFilter):
         self.output_dim = R.size(0)
 
         # Update Conceptor matrix C
-        self.update_C()
+        if compute_C:
+            self.update_C()
+        # end if
     # end set_R
 
     # Set Conceptor matrix C
-    def set_C(self, C, aperture):
+    def set_C(self, C, aperture, compute_R=True):
         """
         Set Conceptor matrix C
         :param C: Conceptor matrix C
@@ -213,7 +213,9 @@ class Conceptor(NeuralFilter):
         self._aperture = aperture
 
         # Update R
-        self.update_R()
+        if compute_R:
+            self.update_R()
+        # end if
     # end set_C
 
     # Update Conceptor matrix C
@@ -222,6 +224,7 @@ class Conceptor(NeuralFilter):
         Update Conceptor matrix C
         """
         self.C = Conceptor.computeC(self.R, self.aperture)
+        self.train(False)
     # end update_C
 
     # Update correlation matrix R
@@ -230,6 +233,7 @@ class Conceptor(NeuralFilter):
         Update correlation matrix R
         """
         self.R = Conceptor.computeR(self.C, self.aperture)
+        self.train(False)
     # end update_R
 
     # Multiply aperture by a factor
@@ -413,9 +417,20 @@ class Conceptor(NeuralFilter):
         return Conceptor.evidence(self, x)
     # end E
 
-    ######################
-    # PRIVATE
-    ######################
+    # Make a copy of the conceptor
+    def copy(self):
+        """
+        Make a copy of the conceptor
+        """
+        new_C = Conceptor(self.input_dim, self.aperture)
+        new_C.set_R(self.R, compute_C=False)
+        new_C.set_C(self.C, self.aperture, compute_R=False)
+        return new_C
+    # end copy
+
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Increment correlation matrices
     def _increment_correlation_matrices(self, X):
@@ -455,12 +470,12 @@ class Conceptor(NeuralFilter):
             self._n_samples += 1
         else:
             raise Exception("Unknown number of dimension for states (X) {}".format(X.size()))
-    # end if
+        # end if
     # end _increment_correlation_matrices
 
-    ######################
-    # OVERRIDE
-    ######################
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Extra-information
     def extra_repr(self):
@@ -473,9 +488,9 @@ class Conceptor(NeuralFilter):
         return s.format(**self.__dict__)
     # end extra_repr
 
-    ######################
-    # OPERATORS
-    ######################
+    # endregion OVERRIDE
+
+    # region OPERATORS
 
     # Equal operator
     # TODO: Test
@@ -604,14 +619,14 @@ class Conceptor(NeuralFilter):
 
         # Multiply
         # TODO: Check how aperture behave under C multiplication
-        new_C.set(self.C * other)
+        new_C.set(self.C * other, 1.0)
 
         return new_C
     # end __mul__
 
-    ######################
-    # STATIC
-    ######################
+    # endregion OPERATORS
+
+    # region STATIC
 
     # NOT operator
     @staticmethod
@@ -800,5 +815,7 @@ class Conceptor(NeuralFilter):
         """
         return x.mm(C.C).mm(x.t())
     # end E
+
+    # endregion STATIC
 
 # end Conceptor
