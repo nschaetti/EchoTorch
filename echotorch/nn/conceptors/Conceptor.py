@@ -126,7 +126,7 @@ class Conceptor(NeuralFilter):
     # region PUBLIC
 
     # Filter signal
-    def filter_fit(self, X):
+    def filter_fit(self, X, *args, **kwargs):
         """
         Filter signal
         :param X: Reservoir states
@@ -137,7 +137,7 @@ class Conceptor(NeuralFilter):
     # end filter_fit
 
     # Filter transform
-    def filter_transform(self, X):
+    def filter_transform(self, X, *args, **kwargs):
         """
         Filter transform
         :param X: Input signal to filter

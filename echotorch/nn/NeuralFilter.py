@@ -67,25 +67,25 @@ class NeuralFilter(Node):
     #######################
 
     # Filter
-    def filter_transform(self, *x, **kwargs):
+    def filter_transform(self, X, *args, **kwargs):
         """
         Filter signal
-        :param x: Signal to filter
+        :param X: Signal to filter
         :param kwargs: Options
         :return: Filtered signal
         """
-        return x
+        return X
     # end filter_transform
 
     # Train the filter
-    def filter_fit(self, *x, **kwards):
+    def filter_fit(self, X, *args, **kwards):
         """
         Train filter
-        :param x: Signal to learn from
+        :param X: Signal to learn from
         :param kwards: Options
         :return: Original signal
         """
-        return x
+        return X
     # end filter_fit
 
     # Forward

@@ -100,6 +100,13 @@ else:
     wbias_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
 # end if
 
+# Load x0 from matlab from or init randomly
+if args.x0 != "":
+    x0_generator = mg.matrix_factory.get_generator("matlab", file_name=args.x0, entity_name=args.x0_name, shape=reservoir_size)
+else:
+    x0_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
+# end if
+
 # Four pattern (two sine, two periodic)
 pattern1_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_length, n_samples=1, a=1,
     period=8.8342522,

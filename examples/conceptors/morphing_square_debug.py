@@ -38,6 +38,16 @@ from torch.autograd import Variable
 torch.random.manual_seed(2)
 np.random.seed(2)
 
+# Debug ?
+debug = True
+if debug:
+    torch.set_printoptions(precision=16)
+    debug_mode = Node.DEBUG_OUTPUT
+    precision = 0.0001
+else:
+    debug_mode = Node.NO_DEBUG
+# end if
+
 # ESN params
 reservoir_size = 100
 spectral_radius = 1.5
@@ -114,7 +124,6 @@ else:
 
 # Load x0 from matlab from or init randomly
 if args.x0 != "":
-    print("x0!")
     x0_generator = mg.matrix_factory.get_generator("matlab", file_name=args.x0, entity_name=args.x0_name, shape=reservoir_size)
 else:
     x0_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
@@ -159,6 +168,7 @@ spesn = ecnc.SPESN(
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
     washout=washout_length,
+    debug=debug_mode,
     dtype=dtype
 )
 
@@ -166,10 +176,10 @@ spesn = ecnc.SPESN(
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size, dtype=dtype)
 
 # Create four conceptors, one for each pattern
-conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
+conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
+conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
+conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, debug=debug_mode, dtype=dtype))
 
 # Create a conceptor network using
 # the self-predicting ESN which
@@ -186,6 +196,58 @@ conceptor_net = ecnc.ConceptorNet(
 # We create an outside observer to plot
 # internal states and SVD afterwards
 observer = ecvs.NodeObserver(spesn.cell, initial_state='init')
+
+# If in debug mode
+if debug_mode > Node.NO_DEBUG:
+    # Load sample matrices
+    for i in range(4):
+        # Input patterns
+        spesn.cell.debug_point(
+            "u{}".format(i),
+            torch.reshape(torch.from_numpy(np.load("data/debug/morphing_square/u{}.npy".format(i))), shape=(-1, 1)),
+            precision
+        )
+
+        # States
+        spesn.cell.debug_point(
+            "X{}".format(i),
+            torch.from_numpy(np.load("data/debug/morphing_square/X{}.npy".format(i))),
+            precision
+        )
+
+        # Targets
+        spesn.cell.debug_point(
+            "Y{}".format(i),
+            torch.from_numpy(np.load("data/debug/morphing_square/Y{}.npy".format(i))),
+            precision
+        )
+
+        # Xold
+        spesn.cell.debug_point(
+            "Xold{}".format(i),
+            torch.from_numpy(np.load("data/debug/subspace_demo/Xold{}.npy".format(i))),
+            precision
+        )
+
+        # Conceptor
+        conceptors[i].debug_point(
+            "C",
+            torch.from_numpy(np.load("data/debug/morphing_square/C{}.npy".format(i))),
+            precision
+        )
+    # end for
+
+    # Load debug W, xTx, xTy
+    spesn.cell.debug_point("Wstar", torch.from_numpy(np.load("data/debug/morphing_square/Wstar.npy", allow_pickle=True)), precision)
+    spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/morphing_square/Win.npy")), precision)
+    spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/morphing_square/Wbias.npy")), precision)
+    spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/morphing_square/xTx.npy")), precision)
+    spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/morphing_square/xTy.npy")), precision)
+    spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
+    spesn.cell.debug_point("ridge_xTx", torch.from_numpy(np.load("data/debug/morphing_square/ridge_xTx.npy")), precision)
+    spesn.cell.debug_point("inv_xTx", torch.from_numpy(np.load("data/debug/morphing_square/inv_xTx.npy")), precision)
+    spesn.cell.debug_point("w", torch.from_numpy(np.load("data/debug/morphing_square/W.npy")), precision)
+# end if
 
 # Xold and Y collectors
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
@@ -322,7 +384,7 @@ for i in range(n_plots):
     for j in range(n_plots):
         # Mixture vector
         mixture_vector = mixture_vectors[i, j]
-        print(x0)
+
         # Randomly generated initial state (x0)
         conceptor_net.cell.set_hidden(x0)
 
@@ -394,4 +456,3 @@ for i in range(n_plots):
 
 # Show
 plt.show()
-

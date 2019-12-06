@@ -171,32 +171,6 @@ class ConceptorSet(NeuralFilter):
         self._current_conceptor_index = conceptor_i
     # end set
 
-    # Learn filter
-    def filter_fit(self, X):
-        """
-        Filter signal
-        :param X: Signal to filter
-        :return: Original signal
-        """
-        # Give vector to conceptor
-        if self.count > 0:
-            return self._conceptors[self._current_conceptor_index](X)
-        else:
-            raise Exception("Conceptor set is empty!")
-        # end if
-    # end filter_fit
-
-    # Filter signal
-    def filter_transform(self, X):
-        """
-        Filter signal
-        :param X: State to filter
-        :param M: Morphing vector
-        :return: Filtered signal
-        """
-        return self.current_conceptor(X)
-    # end filter_transform
-
     # Reset the set (empty list, reset A)
     def reset(self):
         """
@@ -235,21 +209,29 @@ class ConceptorSet(NeuralFilter):
         """
         Morph conceptors in the set
         """
-        # Not on trained set of conceptor
-        if self.training:
-            raise Exception("Cannot morph untrained conceptors")
-        # end if
-
-        # Add each conceptor
-        for m in range(self.count):
-            if m == 0:
-                Cm = morphing_vector[m].item() * self[m]
-            else:
-                Cm = Cm + morphing_vector[m].item() * self[m]
-            # end if
-        # end for
-        return Cm
+        # Get morphed C
+        Cm = self.morphed_C(morphing_vector)
+        new_C = Conceptor(self._input_dim, aperture=1)
+        new_C.set_C(Cm)
+        return new_C
     # end morphing
+
+    # Get morphed conceptor matrix
+    def morphed_C(self, morphing_vector):
+        """
+        Get morphed conceptor matrix
+        """
+        # Start with zero
+        Cm = torch.zeros(self.input_dim, self.input_dim, dtype=self.dtype)
+
+        # For each conceptor
+        for c_i, c_name in enumerate(self.conceptors.keys()):
+            Cc = self.conceptors[c_name]
+            Cm += morphing_vector[c_i] * Cc.C
+        # end for
+
+        return Cm
+    # end morphed_C
 
     # Negative evidence for a Conceptor
     # TODO: Test
@@ -309,6 +291,45 @@ class ConceptorSet(NeuralFilter):
     # endregion PRIVATE
 
     # region OVERRIDE
+
+    # Learn filter
+    def filter_fit(self, X, *args, **kwargs):
+        """
+        Filter signal
+        :param X: Signal to filter
+        :return: Original signal
+        """
+        # Give vector to conceptor
+        if self.count > 0:
+            return self._conceptors[self._current_conceptor_index](X)
+        else:
+            raise Exception("Conceptor set is empty!")
+        # end if
+
+    # end filter_fit
+
+    # Filter signal
+    def filter_transform(self, X, *args, **kwargs):
+        """
+        Filter signal
+        :param X: State to filter
+        :param M: Morphing vector
+        :return: Filtered signal
+        """
+        # Morphing vector present ?
+        if "morphing_vector" in kwargs.keys():
+            # Morphing vector
+            morphing_vector = kwargs["morphing_vector"]
+
+            # Morph conceptors
+            Cm = self.morphed_C(morphing_vector)
+
+            # Filter with morphed conceptor
+            return Cm.mv(X)
+        else:
+            return self.current_conceptor(X)
+        # end if
+    # end filter_transform
 
     # Extra-information
     def extra_repr(self):
