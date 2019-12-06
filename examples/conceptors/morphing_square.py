@@ -308,7 +308,7 @@ for i in range(n_plots):
     # end for
 # end for
 
-# No washout this time
+# Morphing washout
 conceptor_net.washout = morphing_washout
 
 # Output for each mixture
@@ -322,7 +322,7 @@ for i in range(n_plots):
     for j in range(n_plots):
         # Mixture vector
         mixture_vector = mixture_vectors[i, j]
-        print(x0)
+
         # Randomly generated initial state (x0)
         conceptor_net.cell.set_hidden(x0)
 
