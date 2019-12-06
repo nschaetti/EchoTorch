@@ -166,15 +166,17 @@ def cumperplexity(output_probs, targets, log=False):
 
 
 # Generalized squared cosine
-def generalized_squared_cosine(Sa, Ua, Sb, Ub):
+def generalized_squared_cosine(m1, m2):
     """
     Generalized square cosine
-    :param Sa:
-    :param Ua:
-    :param Sb:
-    :param Ub:
+    :param m1: First matrix
+    :param m2: Second matrix
     :return:
     """
+    # SVD
+    Ua, Sa, _ = torch.svd(m1)
+    Ub, Sb, _ = torch.svd(m2)
+
     # Diag
     Sa = torch.diag(Sa)
     Sb = torch.diag(Sb)

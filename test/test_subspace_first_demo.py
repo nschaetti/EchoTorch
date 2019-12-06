@@ -198,7 +198,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             # Input patterns
             spesn.cell.debug_point(
                 "u{}".format(i),
-                torch.reshape(torch.from_numpy(np.load("data/debug/subspace_demo/u{}.npy".format(i))),
+                torch.reshape(torch.from_numpy(np.load("data/tests/subspace_first_demo/u{}.npy".format(i))),
                               shape=(-1, 1)),
                 precision
             )
@@ -206,28 +206,28 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             # States
             spesn.cell.debug_point(
                 "X{}".format(i),
-                torch.from_numpy(np.load("data/debug/subspace_demo/X{}.npy".format(i))),
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/X{}.npy".format(i))),
                 precision
             )
 
             # Targets
             spesn.cell.debug_point(
                 "Y{}".format(i),
-                torch.from_numpy(np.load("data/debug/subspace_demo/Y{}.npy".format(i))),
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/Y{}.npy".format(i))),
                 precision
             )
 
             # Xold
             spesn.cell.debug_point(
                 "Xold{}".format(i),
-                torch.from_numpy(np.load("data/debug/subspace_demo/Xold{}.npy".format(i))),
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/Xold{}.npy".format(i))),
                 precision
             )
 
             # Conceptor
             conceptors[i].debug_point(
                 "C",
-                torch.from_numpy(np.load("data/debug/subspace_demo/C{}.npy".format(i))),
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/C{}.npy".format(i))),
                 precision
             )
         # end for
@@ -235,25 +235,25 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # Load debug W, xTx, xTy
         spesn.cell.debug_point(
             "Wstar",
-            torch.from_numpy(np.load("data/debug/subspace_demo/Wstar.npy", allow_pickle=True)),
+            torch.from_numpy(np.load("data/tests/subspace_first_demo/Wstar.npy", allow_pickle=True)),
             precision
         )
-        spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/subspace_demo/Win.npy")), precision)
-        spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/subspace_demo/Wbias.npy")), precision)
-        spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/subspace_demo/xTx.npy")), precision)
-        spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")), precision)
+        spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/tests/subspace_first_demo/Win.npy")), precision)
+        spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/tests/subspace_first_demo/Wbias.npy")), precision)
+        spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTx.npy")), precision)
+        spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTy.npy")), precision)
         spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
         spesn.cell.debug_point(
             "ridge_xTx",
-            torch.from_numpy(np.load("data/debug/subspace_demo/ridge_xTx.npy")),
+            torch.from_numpy(np.load("data/tests/subspace_first_demo/ridge_xTx.npy")),
             precision
         )
         spesn.cell.debug_point(
             "inv_xTx",
-            torch.from_numpy(np.load("data/debug/subspace_demo/inv_xTx.npy")),
+            torch.from_numpy(np.load("data/tests/subspace_first_demo/inv_xTx.npy")),
             precision
         )
-        spesn.cell.debug_point("w", torch.from_numpy(np.load("data/debug/subspace_demo/W.npy")), precision)
+        spesn.cell.debug_point("w", torch.from_numpy(np.load("data/tests/subspace_first_demo/W.npy")), precision)
 
         # Xold and Y collectors
         Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
@@ -339,6 +339,18 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
 
         # Check NRMSE
         self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), 0.008172502741217613, precision_decimals)
+
+        # Compute similarity matrices
+        Rsim_test = conceptors.similarity_matrix(based_on='R')
+        Csim_test = conceptors.similarity_matrix(based_on='C')
+
+        # Load similarity matrices
+        Rsim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Rsim.npy"))
+        Csim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Csim.npy"))
+
+        # Test similarity matrices
+        self.assertTensorAlmostEqual(Rsim_test, Rsim, precision)
+        self.assertTensorAlmostEqual(Csim_test, Csim, precision)
     # subspace_first_demo
 
     ##############################

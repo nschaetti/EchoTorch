@@ -386,14 +386,15 @@ class Conceptor(NeuralFilter):
     # end NOT_
 
     # Similarity
-    def sim(self, other, sim_func=generalized_squared_cosine):
+    def sim(self, other, based_on='C', sim_func=generalized_squared_cosine):
         """
         Generalized Cosine Similarity
         :param other: Second operand
+        :param based_on: Similarity based on C ('C') or R ('R)
         :param sim_func: Similarity function (default: generalized_squared_cosine)
         :return: Similarity between self and other ([0, 1])
         """
-        return Conceptor.similarity(self, other, sim_func)
+        return Conceptor.similarity(self, other, based_on, sim_func)
     # end sim
 
     # Delta measure (sensibility of Frobenius norm to change of aperture)
@@ -762,20 +763,25 @@ class Conceptor(NeuralFilter):
     # Similarity between conceptors
     # TODO: Test
     @staticmethod
-    def similarity(c1, c2, sim_func=generalized_squared_cosine):
+    def similarity(c1, c2, based_on='C', sim_func=generalized_squared_cosine):
         """
         Similarity between conceptors
         :param c1: First conceptor
         :param c2: Second conceptor
+        :param based_on: Similarity based on C ('C') or R ('R)
         :param sim_func: Similarity function
         :return: Similarity
         """
         # Compute singular values
-        Ua, Sa, _ = torch.svd(c1.C)
-        Ub, Sb, _ = torch.svd(c2.C)
+        # Ua, Sa, _ = torch.svd(c1.C)
+        # Ub, Sb, _ = torch.svd(c2.C)
 
         # Measure
-        return sim_func(Sa, Ua, Sb, Ub)
+        # return sim_func(Sa, Ua, Sb, Ub)
+        if based_on == 'C':
+            return sim_func(c1.C, c2.C)
+        else:
+            return sim_func(c1.R, c2.R)
     # end sim
 
     # Delta measure (sensibility of Frobenius norm to change of aperture)

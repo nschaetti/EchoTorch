@@ -132,21 +132,28 @@ class ConceptorSet(NeuralFilter):
     # end PHI
 
     # Similarity between two conceptors
-    def similarity(self, conceptor_i, conceptor_j, sim_func=generalized_squared_cosine):
+    def similarity(self, conceptor_i, conceptor_j, based_on='C', sim_func=generalized_squared_cosine):
         """
         Similarity between two conceptors
         :param conceptor_i: First conceptor index
         :param conceptor_j: Second coneptor index
+        :param based_on: Similarity based on C ('C') or R ('R)
         :param sim_func: Simularity function (default: generalized squared cosine)
         :return: Similarity
         """
-        return Conceptor.similarity(self.conceptors[conceptor_i], self.conceptors[conceptor_j], sim_func=sim_func)
+        return Conceptor.similarity(
+            self.conceptors[conceptor_i],
+            self.conceptors[conceptor_j],
+            based_on=based_on,
+            sim_func=sim_func
+        )
     # end similarity
 
     # Compute similarity matrix between conceptors
-    def similarity_matrix(self, sim_func=generalized_squared_cosine):
+    def similarity_matrix(self, based_on='C', sim_func=generalized_squared_cosine):
         """
         Compute similarity matrix between conceptors
+        :param based_on: Similarity based on C ('C') or R ('R)
         :param sim_func: Similarity function (default: generalized squared cosine)
         :return: Similarity matrix as torch tensor
         """
@@ -156,7 +163,7 @@ class ConceptorSet(NeuralFilter):
         # For each pair of conceptor
         for i in range(self.count):
             for j in range(self.count):
-                sim_matrix[i, j] = self.similarity(i, j, sim_func)
+                sim_matrix[i, j] = self.similarity(i, j, based_on, sim_func)
             # end for
         # end for
         return sim_matrix

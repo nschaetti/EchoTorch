@@ -364,13 +364,9 @@ plt.show()
 # Show NRMSE
 print("NRMSEs aligned : {}".format(torch.mean(NRMSEs_aligned)))
 
-# R-based similarity matrix
+# Plot R similarity matrix
 ecvs.show_similarity_matrix(
-    sim_matrix=state_visualiser.compute_R_similarity_matrix(
-        point_name="X",
-        states=["pattern0", "pattern1", "pattern2", "pattern3"],
-        idxs=None
-    ),
+    sim_matrix=conceptors.similarity_matrix(based_on='R'),
     title="R base similarities"
 )
 
