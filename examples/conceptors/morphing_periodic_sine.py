@@ -66,10 +66,10 @@ ridge_param_wout = 0.01
 n_plots = 9
 
 # Morphing
-morphing_range = [-2, 3]
-morphing_length = 100
+morphing_range = [0, 1]
+morphing_length = 50
 morphing_washout = 500
-morphing_pre_record_length = 0
+morphing_pre_record_length = 25
 morphing_delay_time = 500
 morphing_delay_plot_points = 25
 morphing_total_length = morphing_washout + morphing_pre_record_length * 2 + morphing_length
@@ -260,27 +260,27 @@ morphing_vectors = torch.zeros(1, morphing_total_length, 4)
 # Morphing vectors for the washout and pre-morphing periods
 for t in range(morphing_washout + morphing_pre_record_length):
     morphing_vectors[0, t, 2] = 1.0 - morphing_scales[0]
-    morphing_vectors[0, t, 3] = morphing_scales[0]
+    morphing_vectors[0, t, 1] = morphing_scales[0]
 # end for
 
 # Morphing vectors for the morphing period
 for t in range(morphing_length):
     add_time = morphing_washout + morphing_pre_record_length
     morphing_vectors[0, t + add_time, 2] = 1.0 - morphing_scales[t]
-    morphing_vectors[0, t + add_time, 3] = morphing_scales[t]
+    morphing_vectors[0, t + add_time, 1] = morphing_scales[t]
 # end for
 
 # Morphing vectors for the post-morphing period
 for t in range(morphing_pre_record_length):
     add_time = morphing_washout + morphing_pre_record_length + morphing_length
     morphing_vectors[0, t + add_time, 2] = 1.0 - morphing_scales[-1]
-    morphing_vectors[0, t + add_time, 3] = morphing_scales[-1]
+    morphing_vectors[0, t + add_time, 1] = morphing_scales[-1]
 # end for
 
 # Length to plot
 morphing_plot_length = morphing_length + morphing_pre_record_length * 2
 
-# Randomly generated initial state (x0)
+# Randomly generated initial state (x0) or loaded
 x0 = x0_generator.generate(size=reservoir_size, dtype=dtype)
 conceptor_net.cell.set_hidden(x0)
 
@@ -294,7 +294,9 @@ morphed_outputs = conceptor_net(
     morphing_vectors=morphing_vectors
 )
 
+# Plot morphed outputs
 plt.plot(morphed_outputs[0, :, 0].numpy(), color='r')
+plt.title("Morphed outputs")
 plt.show()
 
 # We compute a quadratic interpolation of the output
@@ -308,7 +310,9 @@ morphed_outputs_interpolated = interp1d(
     kind='quadratic'
 )(interpolation_points)
 
+# Plot morphed outputs interpolated
 plt.plot(morphed_outputs_interpolated, color='r')
+plt.title("Morphed outputs interpolated")
 plt.show()
 
 # We compute the length of each period (number of timesteps)
@@ -330,7 +334,9 @@ for i in range(interpolation_length-1):
     # end if
 # end for
 
+# Plot the outputs
 plt.plot(x_crossing_discounts, color='pink')
+plt.title("X crossing discounts")
 plt.show()
 
 # We get periods length back to the sampling rate
@@ -342,11 +348,17 @@ x_crossing_discounts *= interpolation_increment
 x_crossing_discounts[:20] = np.ones(20) * x_crossing_discounts[19]
 x_crossing_discounts[-1] = x_crossing_discounts[-2]
 
+# Plot crossing discounts
+plt.plot(x_crossing_discounts, color='pink')
+plt.title("X crossing discounts")
+plt.show()
+
 # We compute expected period lengths at the start of the morphing
 # and at the end
-sines_period_diffs = sine2_period_length - sine1_period_length
-period_length_start = sine1_period_length + morphing_range[0] * sines_period_diffs
-period_length_end = sine1_period_length + morphing_range[1] * sines_period_diffs
+pattern1_period = 5
+sines_period_diffs = sine2_period_length - pattern1_period
+period_length_start = pattern1_period + morphing_range[0] * sines_period_diffs
+period_length_end = pattern1_period + morphing_range[1] * sines_period_diffs
 
 # We compute a reference to display the expected period length on future plots
 period_lengths_plotting = np.zeros(morphing_plot_length)
@@ -358,6 +370,11 @@ period_lengths_plotting[morphing_pre_record_length:morphing_pre_record_length+mo
     )
 period_lengths_plotting[morphing_pre_record_length+morphing_length:] = \
     period_length_end * np.ones(morphing_pre_record_length)
+
+# Plot period lengths
+plt.plot(period_lengths_plotting, color='b')
+plt.title("Period lengths plotting")
+plt.show()
 
 # Two points to show the period lengths of the two patterns used in the training phase
 morphing_point_sine1 = morphing_pre_record_length + morphing_length * \
@@ -375,7 +392,7 @@ conceptor_net.washout = morphing_washout
 # For each morphing value
 for i in range(morphing_n_top_plots):
     # Morphing vector
-    morphing_vector = torch.DoubleTensor([0.0, 0.0, 1.0 - morphing_delay_ms[i], morphing_delay_ms[i]])
+    morphing_vector = torch.DoubleTensor([0.0, morphing_delay_ms[i], 1.0 - morphing_delay_ms[i], 0.0])
     morphing_vector = morphing_vector.reshape(1, 4)
 
     # Randomly generated initial state (x0) or loaded
@@ -426,7 +443,7 @@ plt.show()
 plt.figure(figsize=(14, 6))
 
 # Subplot 1
-plt.subplot(1, 1, 1)
+plt.subplot(2, 1, 1)
 plt.plot(morphed_outputs[0, :, 0].numpy(), '-', color='red', linewidth=2)
 plt.plot([morphing_point_sine1, morphing_point_sine2], [-1, -1], 'o', color='green', markersize=15)
 plt.plot(morphing_top_plots_points, 1.1 * np.ones(morphing_n_top_plots), 'x', color='blue', markersize=10)
@@ -434,7 +451,14 @@ plt.grid(color='grey', linestyle='--', linewidth=1, axis='x')
 plt.xlim([0, morphing_plot_length])
 plt.ylim([-1.3, 1.3])
 
+# Subplot 2
+plt.subplot(2, 1, 2)
+plt.plot(x_crossing_discounts, linewidth=6, color='magenta')
+plt.plot(period_lengths_plotting, color='blue')
+plt.plot([morphing_point_sine1, morphing_point_sine2], np.array([5, 5]), 'o', color='green', markersize=15)
+plt.xlim([0, morphing_plot_length])
+plt.ylim([4.5, 12.5])
+plt.xticks([])
+
 # Show
 plt.show()
-
-# end
