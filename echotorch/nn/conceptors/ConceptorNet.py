@@ -41,7 +41,8 @@ class ConceptorNet(ESN):
     MORPHING_TYPE_TIME = 1
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, conceptor, test_case=None, dtype=torch.float32):
+    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, conceptor, test_case=None,
+                 create_output=True, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -60,7 +61,7 @@ class ConceptorNet(ESN):
             wbias_generator=None,
             washout=esn_cell.washout,
             create_rnn=False,
-            create_output=True,
+            create_output=create_output,
             test_case=test_case,
             dtype=dtype
         )

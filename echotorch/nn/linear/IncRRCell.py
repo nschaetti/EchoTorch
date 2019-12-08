@@ -59,6 +59,7 @@ class IncRRCell(Node):
             input_dim=input_dim,
             output_dim=output_dim,
             debug=debug,
+            test_case=test_case,
             dtype=dtype
         )
 
@@ -144,8 +145,15 @@ class IncRRCell(Node):
             # Filter training states to get what is new in the reservoir space
             S = torch.mm(F, x)
 
-            # SS pseudo-inverse
-            inv_sTs = torch.pinverse(torch.mm(S, S.t()) / time_length + self._ridge_param * torch.eye(self.input_dim))
+            # SS inverse
+            if self._learning_algo == 'inv':
+                inv_func = torch.inverse
+            else:
+                inv_func = torch.pinverse
+            # end if
+
+            # Compute inverse of sTs
+            inv_sTs = inv_func(torch.mm(S, S.t()) / time_length + self._ridge_param * torch.eye(self.input_dim))
 
             # Compute increment for Wout
             Wout_inc = (

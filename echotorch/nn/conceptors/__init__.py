@@ -23,11 +23,12 @@
 from .Conceptor import Conceptor
 from .ConceptorNet import ConceptorNet
 from .ConceptorSet import ConceptorSet
+from .IncSPESN import IncSPESN
 from .IncSPESNCell import IncSPESNCell
 from .SPESN import SPESN
 from .SPESNCell import SPESNCell
 
 # All
 __all__ = [
-    'Conceptor', 'ConceptorNet', 'ConceptorSet', 'IncSPESNCell', 'SPESN', 'SPESNCell'
+    'Conceptor', 'ConceptorNet', 'ConceptorSet', 'IncSPESN', 'IncSPESNCell', 'SPESN', 'SPESNCell'
 ]

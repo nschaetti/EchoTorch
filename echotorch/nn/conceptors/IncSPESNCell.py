@@ -97,7 +97,7 @@ class IncSPESNCell(SPESNCell):
     # end _input_layer
 
     # Hook which gets executed after the update state equation for every sample.
-    def _post_update_hook(self, states, inputs, sample_i):
+    def _post_update_hook(self, states, inputs, forward_i, sample_i):
         """
         Hook which gets executed after the update equation for a batch
         :param states: Reservoir's states.

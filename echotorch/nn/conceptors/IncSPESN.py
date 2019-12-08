@@ -26,7 +26,7 @@ Created on 5th November 2019
 
 # Imports
 import torch
-from echotorch.nn.linear.RRCell import RRCell
+from ..linear import IncRRCell
 from .SPESN import SPESN
 from .IncSPESNCell import IncSPESNCell
 from ..reservoir import ESN
@@ -42,7 +42,7 @@ class IncSPESN(SPESN):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
-                 w_learning_algo='inv', ridge_param=0.000001, aperture=0.0001, with_bias=True,
+                 w_learning_algo='inv', ridge_param=0.000001, aperture=1, with_bias=True,
                  softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
@@ -98,6 +98,20 @@ class IncSPESN(SPESN):
             w_learning_algo=w_learning_algo,
             aperture=aperture,
             washout=washout,
+            debug=debug,
+            test_case=test_case,
+            dtype=dtype
+        )
+
+        # Output layer
+        self._output = IncRRCell(
+            input_dim=hidden_dim,
+            output_dim=output_dim,
+            ridge_param=ridge_param,
+            with_bias=with_bias,
+            learning_algo=learning_algo,
+            softmax_output=softmax_output,
+            conceptors=conceptors,
             debug=debug,
             test_case=test_case,
             dtype=dtype

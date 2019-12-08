@@ -29,7 +29,6 @@ import echotorch.utils
 import echotorch.datasets as etds
 import echotorch.utils.visualisation as ecvs
 from echotorch.datasets import DatasetComposer
-from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
 from torch.autograd import Variable

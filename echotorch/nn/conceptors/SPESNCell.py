@@ -124,9 +124,7 @@ class SPESNCell(ESNCell):
         self.train(False)
     # end finalize
 
-    ##################
-    # OVERLOAD
-    ##################
+    # region OVERRIDE
 
     # Hook which gets executed before the update state equation for every sample.
     def _pre_update_hook(self, inputs, forward_i, sample_i):
@@ -209,9 +207,9 @@ class SPESNCell(ESNCell):
         return states
     # end _post_step_update_hook
 
-    ##################
-    # TARGETS
-    ##################
+    # endregion OVERRIDE
+
+    # region TARGETS
 
     # Features to learn from
     def features(self, X):
@@ -239,9 +237,9 @@ class SPESNCell(ESNCell):
         return SPESNCell.arctanh(X) - self.w_bias.repeat(learn_length, 1)
     # end targets
 
-    ##################
-    # STATIC
-    ##################
+    # endregion TARGETS
+
+    # region STATIC
 
     # Arctanh (tanh^-1)
     @staticmethod
@@ -253,5 +251,7 @@ class SPESNCell(ESNCell):
         """
         return 0.5 * torch.log((1 + x) / (1 - x))
     # end arctanh
+
+    # endregion STATIC
 
 # end SPESNCell
