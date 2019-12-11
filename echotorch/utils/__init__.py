@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 #
 
-# Import
+# Matrix generation
 from .matrix_generation import MatlabLoader, MatrixFactory, MatrixGenerator, NormalMatrixGenerator, NumpyLoader
 from .matrix_generation import UniformMatrixGenerator
+
+# Error measure
 from .error_measures import nrmse, nmse, rmse, mse, perplexity, cumperplexity, generalized_squared_cosine
+
+# Utility function
 from .utility_functions import align_pattern, compute_correlation_matrix, spectral_radius, deep_spectral_radius, \
     normalize, average_prob, max_average_through_time, compute_singular_values, compute_similarity_matrix, \
     pattern_interpolation
+
+# Visualisation
 from .visualisation import ESNCellObserver, Observable
 
 __all__ = [
