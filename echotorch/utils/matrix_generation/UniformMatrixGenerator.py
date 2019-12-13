@@ -60,7 +60,7 @@ class UniformMatrixGenerator(MatrixGenerator):
         :return: Generated matrix
         """
         # Params
-        connectivity = self.get_parameter('connectivity')
+        connectivity = 1.0 - self.get_parameter('connectivity')
         input_set = self.get_parameter('input_set')
 
         # Generate

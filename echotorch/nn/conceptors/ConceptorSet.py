@@ -58,34 +58,6 @@ class ConceptorSet(NeuralFilter):
 
     # region PROPERTIES
 
-    # OR of all conceptors stored
-    @property
-    def A(self):
-        """
-        OR of all conceptors stored
-        :return: OR (Conceptor) of all conceptors stored
-        """
-        # Start at 0
-        A = Conceptor(input_dim=self._conceptor_dim, aperture=1)
-
-        # For each conceptor
-        for C in self._conceptors:
-            A.OR_(C)
-        # end for
-
-        return A
-    # end A
-
-    # NOT A
-    @property
-    def N(self):
-        """
-        NOT A - Subspace not populated by conceptors
-        :return: Matrix N (Conceptor)
-        """
-        return self._A.NOT()
-    # end N
-
     # Access list of conceptors
     @property
     def conceptors(self):
@@ -119,6 +91,42 @@ class ConceptorSet(NeuralFilter):
     # endregion PROPERTIES
 
     # region PUBLIC
+
+    # NOT A
+    def N(self):
+        """
+        NOT A - Subspace not populated by conceptors
+        :return: Matrix N (Conceptor)
+        """
+        return self.A().NOT()
+    # end N
+
+    # OR of all conceptors stored
+    def A(self):
+        """
+        OR of all conceptors stored
+        :return: OR (Conceptor) of all conceptors stored
+        """
+        # Start at 0
+        A = Conceptor(input_dim=self._conceptor_dim, aperture=1)
+
+        # For each conceptor
+        for kc, C in self._conceptors.items():
+            A.OR_(C)
+        # end for
+
+        return A
+    # end A
+
+    # Quota of the set of Conceptors
+    def quota(self):
+        """
+        Quota of the set of Conceptors.
+        The space taken by the Conceptors
+        in the reservoir space.
+        """
+        return self.A().quota
+    # end quota
 
     # Multiply aperture of each conceptor by a factor gamma
     def PHI(self, gamma):

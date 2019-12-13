@@ -118,7 +118,7 @@ class Conceptor(NeuralFilter):
         Space occupied by C
         :return: Space occupied by C ([0, 1])
         """
-        return float(torch.sum(self.SV()))
+        return float(torch.sum(self.SV) / self.input_dim)
     # end quota
 
     # endregion PROPERTIES
@@ -273,7 +273,7 @@ class Conceptor(NeuralFilter):
         :return: Self AND B
         """
         # Dimension
-        dim = self.dim()
+        dim = self.input_dim
         tol = 1e-14
 
         # Conceptor matrices
@@ -318,9 +318,15 @@ class Conceptor(NeuralFilter):
         # New conceptor
         new_conceptor = Conceptor(
             input_dim=dim,
-            aperture=1.0 / math.sqrt(math.pow(C_aperture, -2) + math.pow(B_aperture, -2)),
-            C=CandB
+            aperture=1
         )
+
+        # Cet C
+        new_conceptor.set_C(
+            C=CandB,
+            aperture=1.0 / math.sqrt(math.pow(C_aperture, -2) + math.pow(B_aperture, -2))
+        )
+
         return new_conceptor
     # end AND
 
@@ -370,9 +376,12 @@ class Conceptor(NeuralFilter):
         # New conceptor
         new_conceptor = Conceptor(
             input_dim=self.input_dim,
-            aperture=1.0 / self._aperture,
-            R=not_R
+            aperture=1.0 / self._aperture
         )
+
+        # Set R
+        new_conceptor.set_R(not_R)
+
         return new_conceptor
     # end NOT
 
