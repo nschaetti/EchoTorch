@@ -103,8 +103,6 @@ class IncSPESN(ESN):
             w=w,
             w_in=w_in,
             w_bias=w_bias,
-            spectral_radius=spectral_radius,
-            bias_scaling=bias_scaling,
             input_scaling=input_scaling,
             nonlin_func=nonlin_func,
             w_learning_algo=w_learning_algo,

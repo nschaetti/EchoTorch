@@ -272,7 +272,7 @@ for p in range(n_patterns):
 
 # Create a conceptor network using
 # an incrementing self-predicting ESN which
-# will learn sixteen conceptors.
+# will learn sixteen conceptors
 conceptor_net = ecnc.IncConceptorNet(
     input_dim=1,
     hidden_dim=reservoir_size,
