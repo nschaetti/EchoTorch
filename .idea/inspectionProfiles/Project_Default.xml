@@ -1,0 +1,20 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="50" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="gi.repository.Gdk.EventMask.ALL_EVENTS_MASK" />
+          <option value="gi.repository.Gtk.Builder.get_object" />
+          <option value="gi.repository.Gtk.Builder.add_from_file" />
+          <option value="gi.repository.Gtk.Builder.connect_signals" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

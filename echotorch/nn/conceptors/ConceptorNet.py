@@ -27,10 +27,11 @@ Created on 26 January 2018
 # Imports
 import torch
 from ..reservoir import ESN
+from .SPESN import SPESN
 
 
 # Conceptor Network
-class ConceptorNet(ESN):
+class ConceptorNet(SPESN):
     """
     Conceptor Network
     """
@@ -41,37 +42,20 @@ class ConceptorNet(ESN):
     MORPHING_TYPE_TIME = 1
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, esn_cell, conceptor, test_case=None,
-                 create_output=True, dtype=torch.float32):
+    def __init__(self, conceptor, *args, **kwargs):
         """
         Constructor
-        :param input_dim: Input feature space dimension
-        :param hidden_dim: Hidden space dimension
-        :param output_dim: Output space dimension
-        :param esn_cell: ESN cell
-        :param conceptor: Neural filter
-        :param dtype: Data type
+        :param conceptor: Conceptor or ConceptorSet object
+        :param args: Arguments
+        :param kwargs: Additional arguments
         """
         super(ConceptorNet, self).__init__(
-            input_dim=input_dim,
-            hidden_dim=hidden_dim,
-            output_dim=output_dim,
-            w_generator=None,
-            win_generator=None,
-            wbias_generator=None,
-            washout=esn_cell.washout,
-            create_rnn=False,
-            create_output=create_output,
-            test_case=test_case,
-            dtype=dtype
+            *args,
+            **kwargs
         )
 
         # Properties
-        self._input_dim = input_dim
-        self._output_dim = output_dim
-        self._hidden_dim = hidden_dim
         self._conceptor_active = False
-        self._dtype = dtype
 
         # Morphing vectors and counters
         self._morphing_type = None
@@ -81,15 +65,9 @@ class ConceptorNet(ESN):
         # Current conceptor
         self.conceptor = conceptor
 
-        # Recurrent layer
-        self._esn_cell = esn_cell
-
         # Neural filter
         self._esn_cell.connect("neural-filter", self._neural_filter)
         self._esn_cell.connect("post-states-update", self._post_update_states)
-
-        # Trainable elements
-        self.add_trainable(self._esn_cell)
     # end __init__
 
     # region PUBLIC

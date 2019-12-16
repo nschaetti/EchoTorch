@@ -261,8 +261,7 @@ class Conceptor(NeuralFilter):
         # end
 
         # Set aperture and C
-        self.C = Cnew
-        self._aperture *= gamma
+        self.set_C(Cnew, self._aperture * gamma)
     # end PHI
 
     # AND in Conceptor Logic

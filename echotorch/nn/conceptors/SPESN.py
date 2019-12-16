@@ -37,6 +37,7 @@ class SPESN(ESN):
     """
     Echo State Network module.
     """
+    # region BODY
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
@@ -69,8 +70,9 @@ class SPESN(ESN):
             w_generator=w_generator,
             win_generator=win_generator,
             wbias_generator=wbias_generator,
+            ridge_param=ridge_param,
             create_rnn=False,
-            create_output=True,
+            create_output=False,
             debug=debug,
             test_case=test_case,
             dtype=dtype
@@ -124,20 +126,14 @@ class SPESN(ESN):
         self.add_trainable(self._output)
     # end __init__
 
-    #######################
-    # PROPERTIES
-    #######################
+    # region PROPERTIES
+    # endregion PROPERTIES
 
-    #######################
-    # Forward/Backward
-    #######################
+    # region PUBLIC
+    # endregion PUBLIC
 
-    #######################
-    # PUBLIC
-    #######################
+    # region PRIVATE
+    # endregion PRIVATE
 
-    #######################
-    # PRIVATE
-    #######################
-
+    # endregion BODY
 # end SPESN
