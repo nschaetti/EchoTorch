@@ -84,8 +84,8 @@ else:
 # end if
 
 # Generate X and Y
-X = x_generator.generate(size=(1, reservoir_size, reservoir_size), dtype=dtype)
-Y = y_generator.generate(size=(1, reservoir_size, reservoir_size), dtype=dtype)
+X = x_generator.generate(size=(reservoir_size, reservoir_size), dtype=dtype)
+Y = y_generator.generate(size=(reservoir_size, reservoir_size), dtype=dtype)
 
 # Transpose on time dim / reservoir dim
 X = X.t()
