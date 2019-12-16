@@ -34,7 +34,7 @@ from ..Node import Node
 
 
 # Self-Predicting Echo State Network module with incremental learning
-class IncSPESN(SPESN):
+class IncSPESN(ESN):
     """
     Self-Predicting Echo State Network module with incremental learning
     """
@@ -42,7 +42,7 @@ class IncSPESN(SPESN):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
-                 w_learning_algo='inv', ridge_param=0.000001, aperture=1, with_bias=True,
+                 w_learning_algo='inv', ridge_param=0.000001, aperture=1, with_bias=False,
                  softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
@@ -74,11 +74,23 @@ class IncSPESN(SPESN):
             win_generator=win_generator,
             wbias_generator=wbias_generator,
             ridge_param=ridge_param,
-            learning_algo=learning_algo,
-            softmax_output=softmax_output,
+            create_rnn=False,
+            create_output=False,
             debug=debug,
-            test_case=test_case
+            washout=washout,
+            test_case=test_case,
+            dtype=dtype
         )
+
+        # Properties
+        self._output_dim = output_dim
+        self._hidden_dim = hidden_dim
+        self._with_bias = with_bias
+        self._washout = washout
+        self._w_generator = w_generator
+        self._win_generator = win_generator
+        self._wbias_generator = wbias_generator
+        self._dtype = dtype
 
         # Generate matrices
         w, w_in, w_bias = self._generate_matrices(w_generator, win_generator, wbias_generator)

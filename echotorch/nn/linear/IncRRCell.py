@@ -38,7 +38,7 @@ class IncRRCell(Node):
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, conceptors, ridge_param=0.0, with_bias=True, learning_algo='inv',
+    def __init__(self, input_dim, output_dim, conceptors, ridge_param=0.0, with_bias=False, learning_algo='inv',
                  softmax_output=False, averaged=True, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
@@ -136,7 +136,8 @@ class IncRRCell(Node):
         for b in range(batch_size):
             # Targets to be learn : what is not predicted
             # by current Wout matrix
-            Tout = y - torch.mm(self.w_out, x)
+            # by current Wout matrix
+            Y = y - torch.mm(self.w_out, x)
 
             # The linear subspace of the reservoir state space that are not yet
             # occupied by any pattern.
@@ -152,13 +153,34 @@ class IncRRCell(Node):
                 inv_func = torch.pinverse
             # end if
 
-            # Compute inverse of sTs
-            inv_sTs = inv_func(torch.mm(S, S.t()) / time_length + self._ridge_param * torch.eye(self.input_dim))
+            # sTs
+            if self._averaged:
+                sTs = torch.mm(S.t(), S) / time_length
+            else:
+                sTs = torch.mm(S.t(), S)
+            # end if
+
+            # sTy
+            if self._averaged:
+                sTy = torch.mm(S.t(), Y) / time_length
+            else:
+                sTy = torch.mm(S.t(), Y)
+            # end if
+
+            # Ridge sTs
+            ridge_sTs = sTs + self._ridge_param * torch.eye(self._input_dim)
+
+            # Inverse of sTs
+            if self._learning_algo == "inv":
+                inv_sTs = ridge_sTs.inverse()
+            elif self._learning_algo == "pinv":
+                inv_sTs = ridge_sTs.pinverse()
+            else:
+                raise Exception("Unknown learning method {}".format(self._learning_algo))
+            # end if
 
             # Compute increment for Wout
-            Wout_inc = (
-                torch.mm(torch.mm(inv_sTs, S), Tout.t()) / time_length
-            ).t()
+            Wout_inc = (torch.mm(inv_sTs, sTy)).t()
 
             # Increment Wout
             self.w_out += Wout_inc

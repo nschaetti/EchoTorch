@@ -23,6 +23,8 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import numpy.linalg as lin
+import math
 
 
 # Show singular values increasing aperture
@@ -296,3 +298,34 @@ def show_1d_timeseries(ts, title, xmin, xmax, ymin, ymax, start=0, timesteps=-1)
     plt.show()
     plt.close()
 # end show_1d_timeseries
+
+def plot_2D_ellipse(A, colorstring, linewidth, resolution):
+    """
+    Plots a 2D ellipse centered on 0 whose shape matrix is given by the
+    positive semidefinite matrix A. colorstring is a Matlab color symbol in string
+    format. resolution is number of points used to draw ellipse.
+    :param A:
+    :param colorstring:
+    :param linewidth:
+    :param resolution:
+    :return:
+    """
+    # Compute the ellipse representing the correlation matrix
+    circPoints = np.array([
+        np.cos(2.0 * math.pi * np.arange(0, resolution) / resolution),
+        np.sin(2.0 * math.pi * np.arange(0, resolution) / resolution)
+    ])
+
+    # Transform the circle
+    E1 = np.dot(A, circPoints)
+
+    # SVD on A
+    (U, S, Ut) = lin.svd(A)
+
+    # Plot singular values and vectors
+    plt.plot(S[0] * np.array([0, U[0, 0]]), S[0] * np.array([0, U[1, 0]]), linewidth=linewidth, color=colorstring)
+    plt.plot(S[1] * np.array([0, U[0, 1]]), S[1] * np.array([0, U[1, 1]]), linewidth=linewidth, color=colorstring)
+
+    # Plot ellipse
+    plt.plot(E1[0, :], E1[1, :], linewidth=linewidth, color=colorstring)
+# end plot_2D_ellipse

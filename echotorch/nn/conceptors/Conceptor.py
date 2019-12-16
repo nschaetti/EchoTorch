@@ -111,6 +111,16 @@ class Conceptor(NeuralFilter):
         return S
     # end SV
 
+    # Singular values decomposition on C
+    @property
+    def SVD(self):
+        """
+        Singular values decomposition on C
+        :return: Singular values as a vector
+        """
+        return torch.svd(self.C)
+    # end SVD
+
     # Quota
     @property
     def quota(self):
@@ -124,6 +134,22 @@ class Conceptor(NeuralFilter):
     # endregion PROPERTIES
 
     # region PUBLIC
+
+    # Get conceptor matrix
+    def conceptor_matrix(self):
+        """
+        Get conceptor matrix
+        """
+        return self.C
+    # end conceptor_matrix
+
+    # Get correlation matrix
+    def correlation_matrix(self):
+        """
+        Get correlation matrix
+        """
+        return self.R
+    # end correlation_matrix
 
     # Filter signal
     def filter_fit(self, X, *args, **kwargs):
@@ -370,7 +396,7 @@ class Conceptor(NeuralFilter):
         :return: ~C
         """
         # NOT correlation matrix
-        not_R = torch.eye(self.input_dim) - self.R
+        not_C = torch.eye(self.input_dim) - self.C
 
         # New conceptor
         new_conceptor = Conceptor(
@@ -378,8 +404,8 @@ class Conceptor(NeuralFilter):
             aperture=1.0 / self._aperture
         )
 
-        # Set R
-        new_conceptor.set_R(not_R)
+        # Set R and C
+        new_conceptor.set_C(not_C, aperture=1.0 / self._aperture, compute_R=True)
 
         return new_conceptor
     # end NOT
@@ -389,7 +415,6 @@ class Conceptor(NeuralFilter):
         """
         NOT (in-place)
         """
-        self._aperture = 1.0 / self._aperture
         self.set_R(torch.eye(self.input_dim) - self.R)
     # end NOT_
 
@@ -699,7 +724,7 @@ class Conceptor(NeuralFilter):
         """
         R_dim = R.size(0)
         return torch.mm(inv_algo(R + math.pow(aperture, -2) * torch.eye(R_dim)), R)
-    # end C
+    # end computeC
 
     # Compute R from conceptor matrix C
     # TODO: Test

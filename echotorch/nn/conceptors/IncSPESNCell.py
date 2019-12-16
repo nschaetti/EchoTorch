@@ -122,11 +122,34 @@ class IncSPESNCell(SPESNCell):
             # Filter old state to get only what is new
             S_old = torch.mm(F, X_old)
 
-            # Inverse of sTs
-            inv_sTs = torch.pinverse(torch.mm(S_old, S_old.t()) / learn_length + math.pow(self._aperture, -2) * torch.eye(self._output_dim))
+            # Targets
+            if self._averaged:
+                sTd = torch.mm(S_old.t(), Td) / learn_length
+            else:
+                sTd = torch.mm(S_old.t(), Td)
+            # end if
+
+            # sTs
+            if self._averaged:
+                sTs = torch.mm(S_old.t(), S_old) / learn_length
+            else:
+                sTs = torch.mm(S_old.t(), S_old)
+            # end if
+
+            # Ridge sTs
+            ridge_sTs = sTs + math.pow(self._aperture, -2) * torch.eye(self._output_dim)
+
+            # Inverse / pinverse
+            if self._w_learning_algo == "inv":
+                inv_sTs = self._inverse("ridge_xTx", ridge_sTs)
+            elif self._w_learning_algo == "pinv":
+                inv_sTs = self._pinverse("ridge_xTx", ridge_sTs)
+            else:
+                raise Exception("Unknown learning method {}".format(self._learning_algo))
+            # end if
 
             # Compute the increment for matrix D
-            Dinc = torch.mm(torch.mm(inv_sTs, S_old), Td.t()) / learn_length
+            Dinc = torch.mm(inv_sTs, sTd).t()
 
             # Increment D
             self.D += Dinc

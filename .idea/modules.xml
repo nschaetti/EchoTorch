@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/../../Recherches/Conceptors/Conceptor-Incremental-Forgetting/.idea/Conceptors-Incremental-Forgetting.iml" filepath="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptor-Incremental-Forgetting/.idea/Conceptors-Incremental-Forgetting.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-MNIST/.idea/Conceptors-MNIST.iml" filepath="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-MNIST/.idea/Conceptors-MNIST.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning/.idea/Conceptors-Sequence-Learning.iml" filepath="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning/.idea/Conceptors-Sequence-Learning.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors/.idea/Controlling-Recurrent-Neural-Networks-by-Conceptors.iml" filepath="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors/.idea/Controlling-Recurrent-Neural-Networks-by-Conceptors.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/EchoTorch.iml" filepath="$PROJECT_DIR$/.idea/EchoTorch.iml" />
     </modules>
   </component>

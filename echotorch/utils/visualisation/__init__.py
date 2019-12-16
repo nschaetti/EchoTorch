@@ -25,9 +25,9 @@ from .NodeObserver import NodeObserver
 from .Observable import Observable
 from .ObservationPoint import ObservationPoint
 from .StateVisualiser import StateVisualiser
-from .visualisation import show_similarity_matrix
+from .visualisation import show_similarity_matrix, plot_2D_ellipse
 from .Visualiser import Visualiser
 
 # ALL
 __all__ = ['ESNCellObserver', 'NodeObserver', 'Observable', 'ObservationPoint', 'StateVisualiser',
-           'show_similarity_matrix', 'Visualiser']
+           'show_similarity_matrix', 'Visualiser', 'plot_2D_ellipse']

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : examples/conceptors/subspace_demo.py
-# Description : Conceptor first subspace demo
+# File : examples/conceptors/memory_management.py
+# Description : Conceptor memory management demo
 # Date : 5th of December, 2019
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -37,29 +37,43 @@ from torch.autograd import Variable
 torch.random.manual_seed(1)
 np.random.seed(1)
 
-# ESN params
+# region PARAMS
+
+# Type params
+dtype=torch.float64
+
+# Reservoir params
 reservoir_size = 100
 spectral_radius = 1.5
-input_scaling = 1.5
 bias_scaling = 0.2
 connectivity = 10.0 / reservoir_size
-dtype=torch.float64
+
+# Inputs params
+input_scaling = 1.5
 
 # Sequence lengths
 washout_length = 100
 learn_length = 100
-signal_plot_length = 20
-conceptor_test_length = 200
-singular_plot_length = 50
-free_run_length = 100000
-interpolation_rate = 20
-n_patterns = 16
 
-# Regularization
+# Test params
+interpolation_rate = 20
+conceptor_test_length = 200
+conceptor_test_washout = 200
+
+# Regularization params
 ridge_param_wout = 0.01
+
+# Plot params
+signal_plot_length = 20
+n_plot_singular_values = 100
 
 # Aperture
 aperture = 1000
+
+# Pattern params
+n_patterns = 16
+
+# endregion PARAMS
 
 # Argument parsing
 parser = argparse.ArgumentParser(prog="subspace_demo", description=u"Fig. 1 BC subspace first demo")
@@ -73,37 +87,87 @@ parser.add_argument("--x0", type=str, default="", required=False)
 parser.add_argument("--x0-name", type=str, default="", required=False)
 args = parser.parse_args()
 
+# region MATRICES_INIT
+
 # Load W from matlab file and random init ?
 if args.w != "":
     # Load internal weights
-    w_generator = mg.matrix_factory.get_generator("matlab", file_name=args.w, entity_name=args.w_name, scale=spectral_radius)
+    w_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.w,
+        entity_name=args.w_name,
+        scale=spectral_radius
+    )
 else:
     # Generate internal weights
-    w_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=connectivity)
+    w_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=connectivity,
+        spectral_radius=spectral_radius
+    )
 # end if
 
 # Load Win from matlab file or init randomly
 if args.win != "":
     # Load internal weights
-    win_generator = mg.matrix_factory.get_generator("matlab", file_name=args.win, entity_name=args.win_name, scale=input_scaling)
+    win_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.win,
+        entity_name=args.win_name,
+        scale=input_scaling
+    )
 else:
     # Generate Win
-    win_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
+    win_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=1.0,
+        scale=input_scaling
+    )
 # end if
 
 # Load Wbias from matlab from or init randomly
 if args.wbias != "":
-    wbias_generator = mg.matrix_factory.get_generator("matlab", file_name=args.wbias, entity_name=args.wbias_name, shape=reservoir_size, scale=bias_scaling)
+    wbias_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.wbias,
+        entity_name=args.wbias_name,
+        shape=reservoir_size,
+        scale=bias_scaling
+    )
 else:
-    wbias_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
+    wbias_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=1.0,
+        scale=bias_scaling
+    )
 # end if
 
 # Load x0 from matlab from or init randomly
 if args.x0 != "":
-    x0_generator = mg.matrix_factory.get_generator("matlab", file_name=args.x0, entity_name=args.x0_name, shape=reservoir_size)
+    x0_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.x0,
+        entity_name=args.x0_name,
+        shape=reservoir_size
+    )
 else:
-    x0_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
+    x0_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=1.0
+    )
 # end if
+
+# endregion MATRICES_INIT
+
+# region CREATE_PATTERNS
 
 # Pattern 1 (sine p=10)
 pattern1_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_length, n_samples=1, a=1,
@@ -194,13 +258,22 @@ dataset_training = DatasetComposer([
 # Data loader
 patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_workers=1)
 
+# endregion CREATE_PATTERNS
+
+# region CREATE_CONCEPTORS
+
 # Create a set of conceptors
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
 
-# Create a self-predicting ESN
-# which will be loaded with the
-# four patterns.
-spesn = ecnc.IncSPESN(
+# Create sixteen conceptors
+for p in range(n_patterns):
+    conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=1, dtype=dtype))
+# end for
+
+# Create a conceptor network using
+# an incrementing self-predicting ESN which
+# will learn sixteen conceptors.
+conceptor_net = ecnc.IncConceptorNet(
     input_dim=1,
     hidden_dim=reservoir_size,
     output_dim=1,
@@ -211,27 +284,28 @@ spesn = ecnc.IncSPESN(
     input_scaling=1.0,
     ridge_param=ridge_param_wout,
     washout=washout_length,
-    conceptors=conceptors,
-    dtype=dtype
-)
-
-# Create a conceptor network using
-# the self-predicting ESN which
-# will learn four conceptors.
-conceptor_net = ecnc.ConceptorNet(
-    input_dim=1,
-    hidden_dim=reservoir_size,
-    output_dim=1,
-    esn_cell=spesn.cell,
     conceptor=conceptors,
     dtype=dtype
 )
 
+# endregion CREATE_CONCEPTORS
+
+# region INCREMENTAL_LOADING
+
 # Save pattern for plotting
 P_collector = torch.empty(n_patterns, signal_plot_length, dtype=dtype)
 
+# Save last state
+last_states = torch.empty(n_patterns, reservoir_size, dtype=dtype)
+
+# Save A after each loading
+A_collector = torch.empty(n_patterns, reservoir_size, reservoir_size, dtype=dtype)
+
+# Save quota after each loading
+quota_collector = torch.zeros(n_patterns)
+
 # Go through dataset
-for i, data in enumerate(patterns_loader):
+for p, data in enumerate(patterns_loader):
     # Inputs and labels
     inputs, outputs, labels = data
 
@@ -240,11 +314,59 @@ for i, data in enumerate(patterns_loader):
         inputs, outputs = Variable(inputs.double()), Variable(outputs.double())
     # end if
 
+    # Set conceptor to use
+    conceptors.set(p)
 
+    # Feed SP-ESN
+    X = conceptor_net(inputs, inputs)
 
     # Save
-    P_collector[i] = inputs[0, washout_length:washout_length+signal_plot_length, 0]
+    P_collector[p] = inputs[0, washout_length:washout_length+signal_plot_length, 0]
+    last_states[p] = X[0, -1]
+    A_collector[p] = conceptors.A()
+    quota_collector[p] = conceptors.quota()
 # end for
+
+# endregion INCREMENTAL_LOADING
+
+# region TEST
+
+# Generated patterns aligned
+generated_samples_aligned = np.zeros((n_patterns, signal_plot_length))
+
+# Save NRMSE of aligned patterns
+NRMSE_aligned = torch.zeros(n_patterns)
+
+# Set conceptors in evaluation mode and generate a sample
+for p in range(n_patterns):
+    # Set it as current conceptor
+    conceptors.set(p)
+
+    # Set last state in training phase as initial
+    # state here
+    conceptor_net.cell.set_hidden(last_states)
+
+    # Generate sample
+    generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype), reset_state=False)
+
+    # Find best phase shift
+    generated_sample_aligned, _, NRMSE_aligned = echotorch.utils.pattern_interpolation(
+        P_collector[p],
+        generated_sample[0],
+        interpolation_rate
+    )
+
+    # Save
+    generated_samples_aligned[p] = generated_sample_aligned
+    NRMSE_aligned[p] = NRMSE_aligned
+# end for
+
+# Show NRMSE
+print(u"Average NRMSE except last : {}".format(torch.mean(NRMSE_aligned)))
+
+# endregion TEST
+
+# region PLOT
 
 # Figure (square size)
 plt.figure(figsize=(16, 16))
@@ -259,15 +381,15 @@ for p in range(n_patterns):
     plot_index += 1
 
     # C(all) after learning the pattern
-    # all_conceptor = all_conceptors[p]
-    # Ux, Sx, Vx = svd(all_conceptor)
+    A = A_collector[p]
+    _, Sx, _ = A.SV()
 
     # Plot singular values of C(all)
-    # plt.fill(np.linspace(0, signal_plot_length, n_plot_singular_values), 2.0 * Sx - 1.0, color='red', alpha=0.75)
-    # plt.fill_between(np.linspace(0, signal_plot_length, n_plot_singular_values), 2.0 * Sx - 1.0, -1, color='red', alpha=0.75)
+    plt.fill(np.linspace(0, signal_plot_length, n_plot_singular_values), 2.0 * Sx - 1.0, color='red', alpha=0.75)
+    plt.fill_between(np.linspace(0, signal_plot_length, n_plot_singular_values), 2.0 * Sx - 1.0, -1, color='red', alpha=0.75)
 
     # Plot generated pattern and original
-    # plt.plot(conceptor_test_output_aligned[p], color='lime', linewidth=10)
+    plt.plot(generated_samples_aligned[p], color='lime', linewidth=10)
     plt.plot(P_collector[p], color='black', linewidth=1.5)
 
     # Square properties
@@ -277,13 +399,36 @@ for p in range(n_patterns):
     props = dict(boxstyle='square', facecolor='white', alpha=0.75)
 
     # Pattern number
-    plt.text(plot_width - 0.7, plot_top - 0.1, u"p = {}".format(p), fontsize=14, verticalalignment='top', horizontalalignment='right', bbox=props)
+    plt.text(
+        plot_width - 0.7,
+        plot_top - 0.1,
+        "p = {}".format(p),
+        fontsize=14,
+        verticalalignment='top',
+        horizontalalignment='right',
+        bbox=props
+    )
 
     # Aligned NRMSE
-    # plt.text(plot_width - 0.7, plot_bottom + 0.1, round(NRMSE_aligned[p], 4), fontsize=14, verticalalignment='bottom', horizontalalignment='right', bbox=props)
+    plt.text(
+        plot_width - 0.7,
+        plot_bottom + 0.1,
+        round(NRMSE_aligned[p], 4),
+        fontsize=14,
+        verticalalignment='bottom',
+        horizontalalignment='right',
+        bbox=props
+    )
 
     # Show C(all) size
-    # plt.text(0.7, plot_bottom + 0.1, round(sizes_call[p], 2), fontsize=14, verticalalignment='bottom', horizontalalignment='left', bbox=props)
+    plt.text(
+        0.7, plot_bottom + 0.1,
+        round(quota_collector[p].item(), 2),
+        fontsize=14,
+        verticalalignment='bottom',
+        horizontalalignment='left',
+        bbox=props
+    )
 
     # Title
     if p == 0:
@@ -310,3 +455,5 @@ for p in range(n_patterns):
 
 # Show figure
 plt.show()
+
+# endregion PLOT

@@ -9,6 +9,7 @@
     <orderEntry type="module" module-name="Conceptors-Incremental-Forgetting" />
     <orderEntry type="module" module-name="Conceptors-MNIST" />
     <orderEntry type="module" module-name="Conceptors-Sequence-Learning" />
+    <orderEntry type="module" module-name="Controlling-Recurrent-Neural-Networks-by-Conceptors" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="renderExternalDocumentation" value="true" />

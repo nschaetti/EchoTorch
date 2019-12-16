@@ -4,5 +4,6 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-MNIST" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" vcs="Git" />
   </component>
 </project>

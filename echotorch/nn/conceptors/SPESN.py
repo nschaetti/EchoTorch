@@ -73,6 +73,7 @@ class SPESN(ESN):
             ridge_param=ridge_param,
             create_rnn=False,
             create_output=False,
+            washout=washout,
             debug=debug,
             test_case=test_case,
             dtype=dtype
