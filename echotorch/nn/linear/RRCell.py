@@ -83,6 +83,7 @@ class RRCell(Node):
         self.register_buffer('xTx', Variable(torch.zeros(self._x_size, self._x_size, dtype=dtype), requires_grad=False))
         self.register_buffer('xTy', Variable(torch.zeros(self._x_size, output_dim, dtype=dtype), requires_grad=False))
         self.register_buffer('w_out', Variable(torch.zeros(output_dim, input_dim, dtype=dtype), requires_grad=False))
+        print("Constructor w_out: {}".format(self.w_out.size()))
     # end __init__
 
     #####################
@@ -153,7 +154,7 @@ class RRCell(Node):
 
             # For each batch
             for b in range(batch_size):
-                outputs[b] = torch.mm(x[b], self.w_out)
+                outputs[b] = torch.mm(self.w_out, x[b].t()).t()
             # end for
 
             if self._softmax_output:
@@ -189,8 +190,7 @@ class RRCell(Node):
         # end if
 
         # wout = (xTx)^(-1)xTy
-        self.w_out.data = torch.mm(inv_xTx, self.xTy).data
-
+        self.w_out = torch.mm(inv_xTx, self.xTy).t()
         # Not in training mode anymore
         self.train(False)
     # end finalize
