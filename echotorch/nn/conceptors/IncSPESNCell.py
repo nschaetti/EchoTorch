@@ -49,7 +49,11 @@ class IncSPESNCell(SPESNCell):
         :param kwargs: Key arguments
         """
         # Superclass
-        super(IncSPESNCell, self).__init__(*args, **kwargs)
+        super(IncSPESNCell, self).__init__(
+            w_ridge_param=0,
+            *args,
+            **kwargs
+        )
 
         # Parameter
         self._conceptors = conceptors
@@ -92,7 +96,7 @@ class IncSPESNCell(SPESNCell):
         if not self.training:
             return self.D.mv(self.hidden)
         else:
-            return self.win.mv(ut)
+            return self.w_in.mv(ut)
         # end if
     # end _input_layer
 
