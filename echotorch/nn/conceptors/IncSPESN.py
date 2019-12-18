@@ -27,7 +27,6 @@ Created on 5th November 2019
 # Imports
 import torch
 from ..linear import IncRRCell
-from .SPESN import SPESN
 from .IncSPESNCell import IncSPESNCell
 from ..reservoir import ESN
 from ..Node import Node
@@ -38,12 +37,13 @@ class IncSPESN(ESN):
     """
     Self-Predicting Echo State Network module with incremental learning
     """
+    # region BODY
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
-                 input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
-                 w_learning_algo='inv', ridge_param=0.000001, aperture=1, with_bias=False,
-                 softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 input_scaling=1.0, nonlin_func=torch.tanh, learning_algo_wout='pinv', learning_algo_w='inv',
+                 ridge_param_wout=0.000001, aperture=1, with_bias=False, softmax_output=False, washout=0,
+                 cell_averaged=True, output_averaged=True, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -57,7 +57,8 @@ class IncSPESN(ESN):
         :param bias_scaling: Bias scaling
         :param input_scaling: Input scaling
         :param nonlin_func: Non-linear function
-        :param learning_algo: Learning method (inv, pinv)
+        :param learning_algo_wout: Output learning method (inv, pinv)
+        :param learning_algo_w: Loading method (inv, pinv)
         :param ridge_param: Ridge parameter
         :param with_bias: Add a bias to the output layer ?
         :param softmax_output: Add a softmax output layer
@@ -73,7 +74,7 @@ class IncSPESN(ESN):
             w_generator=w_generator,
             win_generator=win_generator,
             wbias_generator=wbias_generator,
-            ridge_param=ridge_param,
+            ridge_param=ridge_param_wout,
             create_rnn=False,
             create_output=False,
             debug=debug,
@@ -105,28 +106,30 @@ class IncSPESN(ESN):
             w_bias=w_bias,
             input_scaling=input_scaling,
             nonlin_func=nonlin_func,
-            w_learning_algo=w_learning_algo,
+            w_learning_algo=learning_algo_w,
             aperture=aperture,
             washout=washout,
+            averaged=cell_averaged,
             debug=debug,
             test_case=test_case,
             dtype=dtype
         )
 
         # Output layer
-        # TODO: Add a parameter for averaged output
         self._output = IncRRCell(
             input_dim=hidden_dim,
             output_dim=output_dim,
-            ridge_param=ridge_param,
+            ridge_param=ridge_param_wout,
             with_bias=with_bias,
-            learning_algo=learning_algo,
+            learning_algo=learning_algo_wout,
             softmax_output=softmax_output,
             conceptors=conceptors,
+            averaged=output_averaged,
             debug=debug,
             test_case=test_case,
             dtype=dtype
         )
     # end __init__
 
+    # endregion BODY
 # end IncSPESN
