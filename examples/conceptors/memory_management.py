@@ -34,8 +34,8 @@ from torch.autograd import Variable
 from echotorch.nn import Node
 
 # Random numb. init
-torch.random.manual_seed(1)
-np.random.seed(1)
+torch.random.manual_seed(5)
+np.random.seed(5)
 
 # region PARAMS
 
@@ -68,7 +68,7 @@ ridge_param_wout = 0.01
 
 # Ploting parameters
 signal_plot_length = 20
-n_plot_singular_values = 100
+n_plot_singular_values = reservoir_size
 
 # Aperture parameter
 aperture = 1000
