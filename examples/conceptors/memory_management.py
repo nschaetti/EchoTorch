@@ -38,7 +38,7 @@ torch.random.manual_seed(5)
 np.random.seed(5)
 
 # region PARAMS
-
+torch.set_printoptions(precision=16)
 # 1. In this section, we set all the different parameters
 # used in this experiment.
 
@@ -61,7 +61,6 @@ learn_length = 100
 # Testing parameters
 interpolation_rate = 20
 conceptor_test_length = 200
-conceptor_test_washout = 200
 
 # Regularization parameters
 ridge_param_wout = 0.01

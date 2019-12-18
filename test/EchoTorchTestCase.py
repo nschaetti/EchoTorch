@@ -23,6 +23,7 @@
 from unittest import TestCase
 import torch
 import numpy as np
+import numpy.linalg as lin
 
 
 # Test case base class.
@@ -31,9 +32,29 @@ class EchoTorchTestCase(TestCase):
     Test case base class
     """
 
-    #########################
-    # PUBLIC
-    #########################
+    # region PUBLIC
+
+    # Numpy array almost equal with Frobenius norm
+    def assertArrayAlmostEqual(self, array1, array2, precision):
+        """
+        Numpy array almost equal
+        :param array1: First array to test
+        :param array2: Second array to test
+        :param precision: Minimum precision
+        """
+        # Frob. norm difference
+        norm_diff = float(lin.norm(array1 - array2))
+
+        # Places
+        places = int(-np.log10(precision))
+
+        # Test precision
+        self.assertAlmostEqual(
+            norm_diff,
+            0.0,
+            places
+        )
+    # end assertArrayAlmostEqual
 
     # Tensor almost equal with Frobenius norm
     def assertTensorAlmostEqual(self, tensor1, tensor2, precision):
@@ -56,5 +77,7 @@ class EchoTorchTestCase(TestCase):
             places
         )
     # end assertTensorAlmostEqual
+
+    # endregion PUBLIC
 
 # end EchoTorchTestCase

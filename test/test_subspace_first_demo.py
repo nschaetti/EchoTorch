@@ -44,9 +44,11 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
     # region PUBLIC
 
     # Subspace first demo
-    def subspace_first_demo(self, data_dir, reservoir_size=100, spectral_radius=1.5, input_scaling=1.5, bias_scaling=0.2,
-                            connectivity=10.0, washout_length=500, learn_length=1000, ridge_param_wstar=0.0001,
-                            ridge_param_wout=0.01, aperture=10, precision=0.001, torch_seed=1, np_seed=1):
+    def subspace_first_demo(self, data_dir, expected_training_NRMSE, expected_average_NRMSEs, reservoir_size=100,
+                            spectral_radius=1.5, input_scaling=1.5, bias_scaling=0.2, washout_length=500,
+                            learn_length=1000, ridge_param_wstar=0.0001, ridge_param_wout=0.01, aperture=10,
+                            connectivity=10.0, precision=0.001, torch_seed=1, np_seed=1, use_matlab_params=True,
+                            expected_RSim=None, expected_CSim=None):
         """
         Subspace first demo
         :param data_dir: Directory in the test directory
@@ -74,42 +76,80 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         debug_mode = Node.DEBUG_TEST_CASE
 
         # Precision decimal
-        precision_decimals = -np.log10(precision)
+        precision_decimals = int(-np.log10(precision))
+
+        # Precision parameter
+        dtype = torch.float64
 
         # Init random number generators
         torch.random.manual_seed(torch_seed)
         np.random.seed(np_seed)
 
-        # Parameters
+        # Reservoir parameters
+        connectivity = connectivity / reservoir_size
+
+        # Patterns parameters
+        n_patterns = 4
+
+        # Test parameters
         signal_plot_length = 20
         conceptor_test_length = 200
         interpolation_rate = 20
-        dtype = torch.float64
 
-        # Load internal weights W*
-        wstar_generator = mg.matrix_factory.get_generator(
-            "matlab",
-            file_name=os.path.join(TEST_PATH, "WstarRaw.mat"),
-            entity_name="WstarRaw",
-            scale=spectral_radius
-        )
+        # Load W from matlab file and random init ?
+        if use_matlab_params:
+            # Load internal weights W*
+            wstar_generator = mg.matrix_factory.get_generator(
+                "matlab",
+                file_name=os.path.join(TEST_PATH, "WstarRaw.mat"),
+                entity_name="WstarRaw",
+                scale=spectral_radius
+            )
 
-        # Load input-internal weights
-        win_generator = mg.matrix_factory.get_generator(
-            "matlab",
-            file_name=os.path.join(TEST_PATH, "WinRaw.mat"),
-            entity_name="WinRaw",
-            scale=input_scaling
-        )
+            # Load input-internal weights
+            win_generator = mg.matrix_factory.get_generator(
+                "matlab",
+                file_name=os.path.join(TEST_PATH, "WinRaw.mat"),
+                entity_name="WinRaw",
+                scale=input_scaling
+            )
 
-        # Load bias
-        wbias_generator = mg.matrix_factory.get_generator(
-            "matlab",
-            file_name=os.path.join(TEST_PATH, "Wbias.mat"),
-            entity_name="Wbias",
-            shape=reservoir_size,
-            scale=bias_scaling
-        )
+            # Load bias
+            wbias_generator = mg.matrix_factory.get_generator(
+                "matlab",
+                file_name=os.path.join(TEST_PATH, "Wbias.mat"),
+                entity_name="Wbias",
+                shape=reservoir_size,
+                scale=bias_scaling
+            )
+        else:
+            # Generate internal weights
+            wstar_generator = mg.matrix_factory.get_generator(
+                "normal",
+                mean=0.0,
+                std=1.0,
+                connectivity=connectivity,
+                spectral_radius=spectral_radius
+            )
+
+            # Generate Win
+            win_generator = mg.matrix_factory.get_generator(
+                "normal",
+                mean=0.0,
+                std=1.0,
+                connectivity=1.0,
+                scale=input_scaling
+            )
+
+            # Load Wbias from matlab from or init randomly
+            wbias_generator = mg.matrix_factory.get_generator(
+                "normal",
+                mean=0.0,
+                std=1.0,
+                connectivity=1.0,
+                scale=bias_scaling
+            )
+        # end if
 
         # Four pattern (two sine, two periodic)
         pattern1_training = etds.SinusoidalTimeseries(
@@ -147,26 +187,6 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # Data loader
         patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_workers=1)
 
-        # Create a self-predicting ESN
-        # which will be loaded with the
-        # four patterns.
-        spesn = ecnc.SPESN(
-            input_dim=1,
-            hidden_dim=reservoir_size,
-            output_dim=1,
-            learning_algo='inv',
-            w_generator=wstar_generator,
-            win_generator=win_generator,
-            wbias_generator=wbias_generator,
-            input_scaling=1.0,
-            ridge_param=ridge_param_wout,
-            w_ridge_param=ridge_param_wstar,
-            washout=washout_length,
-            debug=debug_mode,
-            test_case=self,
-            dtype=dtype
-        )
-
         # Create a set of conceptors
         conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
 
@@ -183,78 +203,89 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             input_dim=1,
             hidden_dim=reservoir_size,
             output_dim=1,
-            esn_cell=spesn.cell,
             conceptor=conceptors,
             test_case=self,
+            learning_algo='inv',
+            w_generator=wstar_generator,
+            win_generator=win_generator,
+            wbias_generator=wbias_generator,
+            input_scaling=1.0,
+            ridge_param=ridge_param_wout,
+            w_ridge_param=ridge_param_wstar,
+            washout=washout_length,
+            debug=debug_mode,
             dtype=dtype
         )
 
-        # Load sample matrices
-        for i in range(4):
-            # Input patterns
-            spesn.cell.debug_point(
-                "u{}".format(i),
-                torch.reshape(torch.from_numpy(np.load("data/tests/subspace_first_demo/u{}.npy".format(i))),
-                              shape=(-1, 1)),
+        # Use matlab data ?
+        if use_matlab_params:
+            # Load sample matrices
+            for i in range(n_patterns):
+                # Input patterns
+                conceptor_net.cell.debug_point(
+                    "u{}".format(i),
+                    torch.reshape(torch.from_numpy(np.load("data/tests/subspace_first_demo/u{}.npy".format(i))),
+                                  shape=(-1, 1)),
+                    precision
+                )
+
+                # States
+                conceptor_net.cell.debug_point(
+                    "X{}".format(i),
+                    torch.from_numpy(np.load("data/tests/subspace_first_demo/X{}.npy".format(i))),
+                    precision
+                )
+
+                # Targets
+                conceptor_net.cell.debug_point(
+                    "Y{}".format(i),
+                    torch.from_numpy(np.load("data/tests/subspace_first_demo/Y{}.npy".format(i))),
+                    precision
+                )
+
+                # Xold
+                conceptor_net.cell.debug_point(
+                    "Xold{}".format(i),
+                    torch.from_numpy(np.load("data/tests/subspace_first_demo/Xold{}.npy".format(i))),
+                    precision
+                )
+
+                # Conceptor
+                conceptors[i].debug_point(
+                    "C",
+                    torch.from_numpy(np.load("data/tests/subspace_first_demo/C{}.npy".format(i))),
+                    precision
+                )
+            # end for
+
+            # Load debug W, xTx, xTy
+            conceptor_net.cell.debug_point(
+                "Wstar",
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/Wstar.npy", allow_pickle=True)),
                 precision
             )
-
-            # States
-            spesn.cell.debug_point(
-                "X{}".format(i),
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/X{}.npy".format(i))),
+            conceptor_net.cell.debug_point("Win", torch.from_numpy(np.load("data/tests/subspace_first_demo/Win.npy")), precision)
+            conceptor_net.cell.debug_point("Wbias", torch.from_numpy(np.load("data/tests/subspace_first_demo/Wbias.npy")), precision)
+            conceptor_net.cell.debug_point("xTx", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTx.npy")), precision)
+            conceptor_net.cell.debug_point("xTy", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTy.npy")), precision)
+            conceptor_net.cell.debug_point("w_ridge_param", 0.0001, precision)
+            conceptor_net.cell.debug_point(
+                "ridge_xTx",
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/ridge_xTx.npy")),
                 precision
             )
-
-            # Targets
-            spesn.cell.debug_point(
-                "Y{}".format(i),
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/Y{}.npy".format(i))),
+            conceptor_net.cell.debug_point(
+                "inv_xTx",
+                torch.from_numpy(np.load("data/tests/subspace_first_demo/inv_xTx.npy")),
                 precision
             )
-
-            # Xold
-            spesn.cell.debug_point(
-                "Xold{}".format(i),
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/Xold{}.npy".format(i))),
-                precision
-            )
-
-            # Conceptor
-            conceptors[i].debug_point(
-                "C",
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/C{}.npy".format(i))),
-                precision
-            )
-        # end for
-
-        # Load debug W, xTx, xTy
-        spesn.cell.debug_point(
-            "Wstar",
-            torch.from_numpy(np.load("data/tests/subspace_first_demo/Wstar.npy", allow_pickle=True)),
-            precision
-        )
-        spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/tests/subspace_first_demo/Win.npy")), precision)
-        spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/tests/subspace_first_demo/Wbias.npy")), precision)
-        spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTx.npy")), precision)
-        spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTy.npy")), precision)
-        spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
-        spesn.cell.debug_point(
-            "ridge_xTx",
-            torch.from_numpy(np.load("data/tests/subspace_first_demo/ridge_xTx.npy")),
-            precision
-        )
-        spesn.cell.debug_point(
-            "inv_xTx",
-            torch.from_numpy(np.load("data/tests/subspace_first_demo/inv_xTx.npy")),
-            precision
-        )
-        spesn.cell.debug_point("w", torch.from_numpy(np.load("data/tests/subspace_first_demo/W.npy")), precision)
+            conceptor_net.cell.debug_point("w", torch.from_numpy(np.load("data/tests/subspace_first_demo/W.npy")), precision)
+        # end if
 
         # Xold and Y collectors
-        Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
-        Y_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
-        P_collector = torch.empty(4, signal_plot_length, dtype=dtype)
+        Xold_collector = torch.empty(n_patterns * learn_length, reservoir_size, dtype=dtype)
+        Y_collector = torch.empty(n_patterns * learn_length, reservoir_size, dtype=dtype)
+        P_collector = torch.empty(n_patterns, signal_plot_length, dtype=dtype)
 
         # Conceptors ON
         conceptor_net.conceptor_active(True)
@@ -297,7 +328,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
 
         # Check training NRMSE
-        self.assertAlmostEqual(training_NRMSE, 0.029126309017397423, precision_decimals)
+        self.assertAlmostEqual(training_NRMSE, expected_training_NRMSE, precision_decimals)
 
         # No washout this time
         conceptor_net.washout = 0
@@ -306,13 +337,13 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         conceptor_net.conceptor_active(True)
 
         # NRMSE between original and aligned pattern
-        NRMSEs_aligned = torch.zeros(4)
+        NRMSEs_aligned = torch.zeros(n_patterns)
 
         # Train conceptors (Compute C from R)
         conceptors.finalize()
 
         # Set conceptors in evaluation mode and generate a sample
-        for i in range(4):
+        for i in range(n_patterns):
             # Set it as current conceptor
             conceptors.set(i)
 
@@ -334,15 +365,20 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # end for
 
         # Check NRMSE
-        self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), 0.008172502741217613, precision_decimals)
+        self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), expected_average_NRMSEs, precision_decimals)
 
         # Compute similarity matrices
         Rsim_test = conceptors.similarity_matrix(based_on='R')
         Csim_test = conceptors.similarity_matrix(based_on='C')
 
         # Load similarity matrices
-        Rsim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Rsim.npy"))
-        Csim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Csim.npy"))
+        if use_matlab_params:
+            Rsim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Rsim.npy"))
+            Csim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Csim.npy"))
+        else:
+            Rsim = expected_RSim
+            Csim = expected_CSim
+        # end if
 
         # Test similarity matrices
         self.assertTensorAlmostEqual(Rsim_test, Rsim, precision)
@@ -353,13 +389,48 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
 
     # region TEST
 
-    # Subspace first demo
-    def test_subspace_first_demo(self):
+    # Subspace first demo with matlab
+    def test_subspace_first_demo_matlab(self):
         """
         Subspace first demo
         """
-        self.subspace_first_demo(data_dir="subspace_first_demo")
-    # end test_subspace_first_demo
+        self.subspace_first_demo(
+            data_dir="subspace_first_demo",
+            use_matlab_params=True,
+            expected_training_NRMSE=0.029126309017397423,
+            expected_average_NRMSEs=0.011282548308372498
+        )
+    # end test_subspace_first_demo_matlab
+
+    # Subspace first demo with 100 neurons
+    def test_subspace_first_demo_100neurons(self):
+        """
+        Subspace first demo with 100 neurons
+        """
+        self.subspace_first_demo(
+            data_dir="subspace_first_demo",
+            use_matlab_params=False,
+            expected_training_NRMSE=0.0302901821039379,
+            expected_average_NRMSEs=0.014060717076063156,
+            torch_seed=1,
+            np_seed=1,
+            expected_RSim=torch.tensor(
+                [
+                    [1.0000, 0.9955, 0.6086, 0.6500],
+                    [0.9955, 1.0000, 0.5908, 0.6286],
+                    [0.6086, 0.5908, 1.0000, 0.9736],
+                    [0.6500, 0.6286, 0.9736, 1.0000]
+                ]),
+            expected_CSim=torch.tensor(
+                [
+                    [1.0000, 0.8578, 0.3633, 0.3793],
+                    [0.8578, 1.0000, 0.3715, 0.3875],
+                    [0.3633, 0.3715, 1.0000, 0.9667],
+                    [0.3793, 0.3875, 0.9667, 1.0000]
+                ]
+            )
+        )
+    # end test_subspace_first_demo_100neurons
 
     # endregion TEST
 

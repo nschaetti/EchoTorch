@@ -153,25 +153,6 @@ dataset_training = DatasetComposer([pattern1_training, pattern2_training, patter
 # Data loader
 patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_workers=1)
 
-# Create a self-predicting ESN
-# which will be loaded with the
-# four patterns.
-spesn = ecnc.SPESN(
-    input_dim=1,
-    hidden_dim=reservoir_size,
-    output_dim=1,
-    learning_algo='inv',
-    w_generator=w_generator,
-    win_generator=win_generator,
-    wbias_generator=wbias_generator,
-    input_scaling=1.0,
-    ridge_param=ridge_param_wout,
-    w_ridge_param=ridge_param_wstar,
-    washout=washout_length,
-    debug=debug_mode,
-    dtype=dtype
-)
-
 # Create a set of conceptors
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size, dtype=dtype)
 
@@ -188,44 +169,53 @@ conceptor_net = ecnc.ConceptorNet(
     input_dim=1,
     hidden_dim=reservoir_size,
     output_dim=1,
-    esn_cell=spesn.cell,
     conceptor=conceptors,
+    learning_algo='inv',
+    w_generator=w_generator,
+    win_generator=win_generator,
+    wbias_generator=wbias_generator,
+    input_scaling=1.0,
+    ridge_param=ridge_param_wout,
+    w_ridge_param=ridge_param_wstar,
+    washout=washout_length,
+    fill_left=True,
+    debug=debug_mode,
     dtype=dtype
 )
 
 # We create an outside observer to plot
 # internal states and SVD afterwards
-observer = ecvs.NodeObserver(spesn.cell, initial_state='init')
+observer = ecvs.NodeObserver(conceptor_net.cell, initial_state='init')
 
 # If in debug mode
 if debug_mode > Node.NO_DEBUG:
     # Load sample matrices
     for i in range(4):
         # Input patterns
-        spesn.cell.debug_point(
+        conceptor_net.cell.debug_point(
             "u{}".format(i),
             torch.reshape(torch.from_numpy(np.load("data/debug/morphing_square/u{}.npy".format(i))), shape=(-1, 1)),
             precision
         )
 
         # States
-        spesn.cell.debug_point(
+        conceptor_net.cell.debug_point(
             "X{}".format(i),
             torch.from_numpy(np.load("data/debug/morphing_square/X{}.npy".format(i))),
             precision
         )
 
         # Targets
-        spesn.cell.debug_point(
+        conceptor_net.cell.debug_point(
             "Y{}".format(i),
             torch.from_numpy(np.load("data/debug/morphing_square/Y{}.npy".format(i))),
             precision
         )
 
         # Xold
-        spesn.cell.debug_point(
+        conceptor_net.cell.debug_point(
             "Xold{}".format(i),
-            torch.from_numpy(np.load("data/debug/subspace_demo/Xold{}.npy".format(i))),
+            torch.from_numpy(np.load("data/debug/morphing_square/Xold{}.npy".format(i))),
             precision
         )
 
@@ -238,15 +228,15 @@ if debug_mode > Node.NO_DEBUG:
     # end for
 
     # Load debug W, xTx, xTy
-    spesn.cell.debug_point("Wstar", torch.from_numpy(np.load("data/debug/morphing_square/Wstar.npy", allow_pickle=True)), precision)
-    spesn.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/morphing_square/Win.npy")), precision)
-    spesn.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/morphing_square/Wbias.npy")), precision)
-    spesn.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/morphing_square/xTx.npy")), precision)
-    spesn.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/morphing_square/xTy.npy")), precision)
-    spesn.cell.debug_point("w_ridge_param", 0.0001, precision)
-    spesn.cell.debug_point("ridge_xTx", torch.from_numpy(np.load("data/debug/morphing_square/ridge_xTx.npy")), precision)
-    spesn.cell.debug_point("inv_xTx", torch.from_numpy(np.load("data/debug/morphing_square/inv_xTx.npy")), precision)
-    spesn.cell.debug_point("w", torch.from_numpy(np.load("data/debug/morphing_square/W.npy")), precision)
+    conceptor_net.cell.debug_point("Wstar", torch.from_numpy(np.load("data/debug/morphing_square/Wstar.npy", allow_pickle=True)), precision)
+    conceptor_net.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/morphing_square/Win.npy")), precision)
+    conceptor_net.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/morphing_square/Wbias.npy")), precision)
+    conceptor_net.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/morphing_square/xTx.npy")), precision)
+    conceptor_net.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/morphing_square/xTy.npy")), precision)
+    conceptor_net.cell.debug_point("w_ridge_param", 0.0001, precision)
+    conceptor_net.cell.debug_point("ridge_xTx", torch.from_numpy(np.load("data/debug/morphing_square/ridge_xTx.npy")), precision)
+    conceptor_net.cell.debug_point("inv_xTx", torch.from_numpy(np.load("data/debug/morphing_square/inv_xTx.npy")), precision)
+    conceptor_net.cell.debug_point("w", torch.from_numpy(np.load("data/debug/morphing_square/W.npy")), precision)
 # end if
 
 # Xold and Y collectors
@@ -343,12 +333,6 @@ plt.show()
 
 # Conceptors ON
 conceptor_net.conceptor_active(True)
-
-# Save each generated pattern for display
-generated_samples = torch.zeros(4, conceptor_test_length)
-
-# NRMSE between original and aligned pattern
-NRMSEs_aligned = torch.zeros(4)
 
 # Train conceptors (Compute C from R)
 conceptors.finalize()

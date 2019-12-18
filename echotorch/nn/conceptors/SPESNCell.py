@@ -38,7 +38,7 @@ class SPESNCell(ESNCell):
     """
 
     # Constructor
-    def __init__(self, w_ridge_param, w_learning_algo='inv', averaged=False, *args, **kwargs):
+    def __init__(self, w_ridge_param, w_learning_algo='inv', averaged=False, fill_left=False, *args, **kwargs):
         """
         Constructor
         """
@@ -50,6 +50,7 @@ class SPESNCell(ESNCell):
         self._averaged = averaged
         self._w_learning_algo = w_learning_algo
         self._n_samples = 0
+        self._fill_left = fill_left
 
         # Set it as buffer
         self.register_buffer('xTx', Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
@@ -104,9 +105,9 @@ class SPESNCell(ESNCell):
 
         # Inverse / pinverse
         if self._w_learning_algo == "inv":
-            inv_xTx = self._inverse("ridge_xTx", ridge_xTx)
+            inv_xTx = self._inverse("ridge_xTx", ridge_xTx, "SPESNCell", "finalize")
         elif self._w_learning_algo == "pinv":
-            inv_xTx = self._pinverse("ridge_xTx", ridge_xTx)
+            inv_xTx = self._pinverse("ridge_xTx", ridge_xTx, "SPESNCell", "finalize")
         else:
             raise Exception("Unknown learning method {}".format(self._learning_algo))
         # end if
@@ -168,7 +169,13 @@ class SPESNCell(ESNCell):
             learn_length = X.size(0)
 
             # Xold (reservoir states at t - 1))
-            Xold = self.features(X, fill_left=states[self._washout-1] if self._washout > 0 else None)
+            if self._fill_left:
+                Xold = self.features(X, fill_left=states[self._washout-1] if self._washout > 0 else None)
+            else:
+                Xold = self.features(X)
+            # end if
+
+            # Debug Xold
             self._call_debug_point("Xold{}".format(self._n_samples), Xold, "SPESNCell", "_post_update_hook")
 
             # Y (W*x + Win*u), what we want to predict

@@ -44,8 +44,8 @@ else:
 # end if
 
 # Random numb. init
-torch.random.manual_seed(1)
-np.random.seed(1)
+torch.random.manual_seed(5)
+np.random.seed(5)
 
 # region PARAMS
 
@@ -71,7 +71,6 @@ learn_length = 100
 # Testing parameters
 interpolation_rate = 20
 conceptor_test_length = 200
-conceptor_test_washout = 200
 
 # Regularization parameters
 ridge_param_wout = 0.01
@@ -340,6 +339,7 @@ conceptor_net = ecnc.IncConceptorNet(
     ridge_param_wout=ridge_param_wout,
     aperture=aperture,
     washout=washout_length,
+    fill_left=True,
     debug=debug_mode,
     dtype=dtype
 )

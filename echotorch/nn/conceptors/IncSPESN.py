@@ -43,7 +43,8 @@ class IncSPESN(ESN):
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo_wout='pinv', learning_algo_w='inv',
                  ridge_param_wout=0.000001, aperture=1, with_bias=False, softmax_output=False, washout=0,
-                 cell_averaged=True, output_averaged=True, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 cell_averaged=True, output_averaged=True, fill_left=False, debug=Node.NO_DEBUG, test_case=None,
+                 dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -109,6 +110,7 @@ class IncSPESN(ESN):
             w_learning_algo=learning_algo_w,
             aperture=aperture,
             washout=washout,
+            fill_left=fill_left,
             averaged=cell_averaged,
             debug=debug,
             test_case=test_case,

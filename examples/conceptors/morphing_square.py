@@ -35,8 +35,8 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
 # Random numb. init
-torch.random.manual_seed(2)
-np.random.seed(2)
+torch.random.manual_seed(1)
+np.random.seed(1)
 
 # ESN params
 reservoir_size = 100
@@ -90,26 +90,60 @@ args = parser.parse_args()
 # Load W from matlab file and random init ?
 if args.w != "":
     # Load internal weights
-    w_generator = mg.matrix_factory.get_generator("matlab", file_name=args.w, entity_name=args.w_name, scale=spectral_radius)
+    w_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.w,
+        entity_name=args.w_name,
+        scale=spectral_radius
+    )
 else:
     # Generate internal weights
-    w_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=connectivity)
+    w_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=connectivity,
+        spectral_radius=spectral_radius
+    )
 # end if
 
 # Load Win from matlab file or init randomly
 if args.win != "":
     # Load internal weights
-    win_generator = mg.matrix_factory.get_generator("matlab", file_name=args.win, entity_name=args.win_name, scale=input_scaling)
+    win_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.win,
+        entity_name=args.win_name,
+        scale=input_scaling
+    )
 else:
     # Generate Win
-    win_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
+    win_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=1.0,
+        scale=input_scaling
+    )
 # end if
 
 # Load Wbias from matlab from or init randomly
 if args.wbias != "":
-    wbias_generator = mg.matrix_factory.get_generator("matlab", file_name=args.wbias, entity_name=args.wbias_name, shape=reservoir_size, scale=bias_scaling)
+    wbias_generator = mg.matrix_factory.get_generator(
+        "matlab",
+        file_name=args.wbias,
+        entity_name=args.wbias_name,
+        shape=reservoir_size,
+        scale=bias_scaling
+    )
 else:
-    wbias_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
+    wbias_generator = mg.matrix_factory.get_generator(
+        "normal",
+        mean=0.0,
+        std=1.0,
+        connectivity=1.0,
+        scale=bias_scaling
+    )
 # end if
 
 # Load x0 from matlab from or init randomly
@@ -144,24 +178,6 @@ dataset_training = DatasetComposer([pattern1_training, pattern2_training, patter
 # Data loader
 patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_workers=1)
 
-# Create a self-predicting ESN
-# which will be loaded with the
-# four patterns.
-spesn = ecnc.SPESN(
-    input_dim=1,
-    hidden_dim=reservoir_size,
-    output_dim=1,
-    learning_algo='inv',
-    w_generator=w_generator,
-    win_generator=win_generator,
-    wbias_generator=wbias_generator,
-    input_scaling=1.0,
-    ridge_param=ridge_param_wout,
-    w_ridge_param=ridge_param_wstar,
-    washout=washout_length,
-    dtype=dtype
-)
-
 # Create a set of conceptors
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size, dtype=dtype)
 
@@ -178,14 +194,22 @@ conceptor_net = ecnc.ConceptorNet(
     input_dim=1,
     hidden_dim=reservoir_size,
     output_dim=1,
-    esn_cell=spesn.cell,
     conceptor=conceptors,
+    learning_algo='inv',
+    w_generator=w_generator,
+    win_generator=win_generator,
+    wbias_generator=wbias_generator,
+    input_scaling=1.0,
+    ridge_param=ridge_param_wout,
+    w_ridge_param=ridge_param_wstar,
+    washout=washout_length,
+    fill_left=True,
     dtype=dtype
 )
 
 # We create an outside observer to plot
 # internal states and SVD afterwards
-observer = ecvs.NodeObserver(spesn.cell, initial_state='init')
+observer = ecvs.NodeObserver(conceptor_net.cell, initial_state='init')
 
 # Xold and Y collectors
 Xold_collector = torch.empty(4 * learn_length, reservoir_size, dtype=dtype)
@@ -281,12 +305,6 @@ plt.show()
 
 # Conceptors ON
 conceptor_net.conceptor_active(True)
-
-# Save each generated pattern for display
-generated_samples = torch.zeros(4, conceptor_test_length)
-
-# NRMSE between original and aligned pattern
-NRMSEs_aligned = torch.zeros(4)
 
 # Train conceptors (Compute C from R)
 conceptors.finalize()
