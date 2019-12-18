@@ -29,11 +29,9 @@ import echotorch.nn.conceptors as ecnc
 import echotorch.utils.matrix_generation as mg
 import echotorch.utils
 import echotorch.datasets as etds
-import echotorch.utils.visualisation as ecvs
 from echotorch.datasets import DatasetComposer
 from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
-import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
 
@@ -43,9 +41,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
     Test subspace first demo
     """
 
-    ##############################
-    # PUBLIC
-    ##############################
+    # region PUBLIC
 
     # Subspace first demo
     def subspace_first_demo(self, data_dir, reservoir_size=100, spectral_radius=1.5, input_scaling=1.5, bias_scaling=0.2,
@@ -353,9 +349,9 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         self.assertTensorAlmostEqual(Csim_test, Csim, precision)
     # subspace_first_demo
 
-    ##############################
-    # TESTS
-    ##############################
+    # endregion PUBLIC
+
+    # region TEST
 
     # Subspace first demo
     def test_subspace_first_demo(self):
@@ -364,5 +360,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         """
         self.subspace_first_demo(data_dir="subspace_first_demo")
     # end test_subspace_first_demo
+
+    # endregion TEST
 
 # end Test_Subspace_First_Demo
