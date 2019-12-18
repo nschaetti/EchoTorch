@@ -31,6 +31,10 @@ import math
 
 # region PARAMS
 
+# Init random numb.
+torch.random.manual_seed(1)
+np.random.seed(1)
+
 # Type params
 dtype = torch.float64
 
@@ -40,7 +44,7 @@ reservoir_size = 2
 # endregion PARAMS
 
 # Argument parsing
-parser = argparse.ArgumentParser(prog=u"fig1BC", description=u"Fig. 1 BC subspace first demo")
+parser = argparse.ArgumentParser(prog=u"Boolean operations", description="Boolean operation demo")
 parser.add_argument("--x", type=str, default="", required=False)
 parser.add_argument("--x-name", type=str, default="", required=False)
 parser.add_argument("--y", type=str, default="", required=False)

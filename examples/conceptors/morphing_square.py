@@ -350,7 +350,19 @@ for i in range(n_plots):
             reset_state=False,
             morphing_vectors=mixture_vector
         )
-
+        if i == 0 and j == 0:
+            print("{} {}".format(i, j))
+            print(generated_sample[0])
+        elif i == 8 and j == 0:
+            print("{} {}".format(i, j))
+            print(generated_sample[0])
+        elif i == 0 and j == 8:
+            print("{} {}".format(i, j))
+            print(generated_sample[0])
+        elif i == 8 and j == 8:
+            print("{} {}".format(i, j))
+            print(generated_sample[0])
+        # end if
         # Save outputs
         plots[i, j] = generated_sample[0, :, 0]
     # end for

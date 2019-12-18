@@ -351,13 +351,13 @@ plt.show()
 
 # Show NRMSE
 print("NRMSEs aligned : {}".format(torch.mean(NRMSEs_aligned)))
-
+print(conceptors.similarity_matrix(based_on='R'))
 # Plot R similarity matrix
 ecvs.show_similarity_matrix(
     sim_matrix=conceptors.similarity_matrix(based_on='R'),
     title="R base similarities"
 )
-
+print(conceptors.similarity_matrix())
 # Plot conceptors similarity matrix at aperture = 10.0
 ecvs.show_similarity_matrix(
     sim_matrix=conceptors.similarity_matrix(),

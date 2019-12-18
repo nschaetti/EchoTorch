@@ -46,7 +46,7 @@ torch.set_printoptions(precision=16)
 dtype=torch.float64
 
 # Reservoir parameters
-reservoir_size = 100
+reservoir_size = 200
 spectral_radius = 1.5
 bias_scaling = 0.25
 connectivity = 10.0 / reservoir_size
@@ -451,7 +451,7 @@ for p in range(n_patterns):
 # Show the average NRMSE
 print(u"Average NRMSE : {}".format(torch.mean(NRMSEs_aligned)))
 print(u"Average NRMSE except last : {}".format(torch.mean(NRMSEs_aligned[:-1])))
-
+print(NRMSEs_aligned)
 # endregion TEST
 
 # region PLOTTING
