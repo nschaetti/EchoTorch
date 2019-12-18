@@ -153,6 +153,16 @@ class ESN(Node):
         return self._esn_cell
     # end cell
 
+    # Output
+    @property
+    def output(self):
+        """
+        Output layer
+        :return: Output layer
+        """
+        return self._output
+    # end output
+
     # Get W's spectral radius
     @property
     def spectral_radius(self):

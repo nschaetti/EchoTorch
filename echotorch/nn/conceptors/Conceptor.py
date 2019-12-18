@@ -128,12 +128,26 @@ class Conceptor(NeuralFilter):
         Space occupied by C
         :return: Space occupied by C ([0, 1])
         """
-        return float(torch.sum(self.SV) / self.input_dim)
+        if self.is_null():
+            return 0.0
+        else:
+            return float(torch.sum(self.SV) / self.input_dim)
+        # end if
     # end quota
 
     # endregion PROPERTIES
 
     # region PUBLIC
+
+    # The conceptor is empty (zero matrix)
+    def is_null(self):
+        """
+        The conceptor is empty (zero matrix)
+        """
+        return torch.all(
+            torch.eq(self.conceptor_matrix(),torch.zeros(self.input_dim, self.input_dim, dtype=self.dtype))
+        )
+    # end is_null
 
     # Get conceptor matrix
     def conceptor_matrix(self):
@@ -180,11 +194,14 @@ class Conceptor(NeuralFilter):
         # Average R
         self.R /= self._n_samples
 
+        # Debug for R
+        self._call_debug_point("R", self.C, "Conceptor", "finalize")
+
         # Compute Conceptor matrix C from R
         self.update_C()
 
         # Debug for C
-        self._call_debug_point("C", self.C)
+        self._call_debug_point("C", self.C, "Conceptor", "finalize")
 
         # Out of training mode
         self.train(False)
@@ -373,8 +390,14 @@ class Conceptor(NeuralFilter):
         :param Q: Second conceptor operand (reservoir size x reservoir size)
         :return: Self OR Q
         """
-        # R OR Q
-        return (self.NOT().AND(Q.NOT())).NOT()
+        if Q.is_null():
+            return self.copy()
+        elif self.is_null():
+            return Q.copy()
+        else:
+            # R OR Q
+            return (self.NOT().AND(Q.NOT())).NOT()
+        # end if
     # end OR
 
     # OR in Conceptor Logic (in-place)
@@ -395,19 +418,23 @@ class Conceptor(NeuralFilter):
         NOT
         :return: ~C
         """
-        # NOT correlation matrix
-        not_C = torch.eye(self.input_dim) - self.C
+        if not self.is_null():
+            # NOT correlation matrix
+            not_C = torch.eye(self.input_dim) - self.C
 
-        # New conceptor
-        new_conceptor = Conceptor(
-            input_dim=self.input_dim,
-            aperture=1.0 / self._aperture
-        )
+            # New conceptor
+            new_conceptor = Conceptor(
+                input_dim=self.input_dim,
+                aperture=1.0 / self._aperture
+            )
 
-        # Set R and C
-        new_conceptor.set_C(not_C, aperture=1.0 / self._aperture, compute_R=True)
+            # Set R and C
+            new_conceptor.set_C(not_C, aperture=1.0 / self._aperture, compute_R=True)
 
-        return new_conceptor
+            return new_conceptor
+        else:
+            raise Exception("Cannot compute the NOT of a null conceptor!")
+        # end if
     # end NOT
 
     # NOT (in-place)
@@ -722,7 +749,11 @@ class Conceptor(NeuralFilter):
         :param inv_algo: Matrix inversion function (default: torch.inv)
         :return: C matrix (as torch tensor)
         """
+        # Dim
         R_dim = R.size(0)
+
+        # R is not None
+
         return torch.mm(inv_algo(R + math.pow(aperture, -2) * torch.eye(R_dim)), R)
     # end computeC
 
@@ -738,7 +769,13 @@ class Conceptor(NeuralFilter):
         :return: R matrix (as torch tensor)
         """
         C_dim = C.size(0)
-        return math.pow(aperture, -2) * torch.mm(C, inv_algo(torch.eye(C_dim) - C))
+
+        # Compute R directory if C != I
+        if torch.all(torch.eq(C, torch.eye(C_dim, dtype=C.dtype))):
+            return None
+        else:
+            return math.pow(aperture, -2) * torch.mm(C, inv_algo(torch.eye(C_dim) - C))
+        # end if
     # end R
 
     # Return empty conceptor
@@ -752,6 +789,30 @@ class Conceptor(NeuralFilter):
         """
         return Conceptor.min(input_dim)
     # end empty
+
+    # Return empty conceptor
+    # TODO: Test
+    @staticmethod
+    def null(input_dim):
+        """
+        Return an empty conceptor
+        :param input_dim: Conceptor dimension
+        :return: Empty conceptor (zero)
+        """
+        return Conceptor.empty(input_dim)
+    # end null
+
+    # Return zero conceptor
+    # TODO: Test
+    @staticmethod
+    def zero(input_dim):
+        """
+        Return an empty conceptor
+        :param input_dim: Conceptor dimension
+        :return: Empty conceptor (zero)
+        """
+        return Conceptor.empty(input_dim)
+    # end zero
 
     # Return identity conceptor
     # TODO: Test
@@ -788,8 +849,8 @@ class Conceptor(NeuralFilter):
         :return: Global maximal element (with I as C matrix)
         """
         # GME conceptor
-        gme = Conceptor(input_dim, aperture=1.0)
-        gme.set_C(torch.eye(input_dim), 1.0)
+        gme = Conceptor(input_dim, aperture=float('inf'))
+        gme.set_C(torch.eye(input_dim), float('inf'), compute_R=False)
         return gme
     # end max
 

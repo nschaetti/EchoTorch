@@ -267,7 +267,7 @@ conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
 
 # Create sixteen conceptors
 for p in range(n_patterns):
-    conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=1, dtype=dtype))
+    conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=aperture, dtype=dtype))
 # end for
 
 # Create a conceptor network using
@@ -299,7 +299,7 @@ P_collector = torch.empty(n_patterns, signal_plot_length, dtype=dtype)
 last_states = torch.empty(n_patterns, reservoir_size, dtype=dtype)
 
 # Save A after each loading
-A_collector = torch.empty(n_patterns, reservoir_size, reservoir_size, dtype=dtype)
+A_collector = list()
 
 # Save quota after each loading
 quota_collector = torch.zeros(n_patterns)
@@ -320,22 +320,31 @@ for p, data in enumerate(patterns_loader):
     # Feed SP-ESN
     X = conceptor_net(inputs, inputs)
 
-    # Save
+    # Save pattern and states
     P_collector[p] = inputs[0, washout_length:washout_length+signal_plot_length, 0]
     last_states[p] = X[0, -1]
-    A_collector[p] = conceptors.A()
     quota_collector[p] = conceptors.quota()
+
+    # Save A
+    if p != 0:
+        A_collector.append(conceptors.A())
+    else:
+        A_collector.append(ecnc.Conceptor.identity(reservoir_size))
+    # end if
 # end for
 
 # endregion INCREMENTAL_LOADING
 
 # region TEST
 
+# In evaluation mode
+conceptor_net.train(False)
+
 # Generated patterns aligned
 generated_samples_aligned = np.zeros((n_patterns, signal_plot_length))
 
 # Save NRMSE of aligned patterns
-NRMSE_aligned = torch.zeros(n_patterns)
+NRMSEs_aligned = torch.zeros(n_patterns)
 
 # Set conceptors in evaluation mode and generate a sample
 for p in range(n_patterns):
@@ -344,7 +353,7 @@ for p in range(n_patterns):
 
     # Set last state in training phase as initial
     # state here
-    conceptor_net.cell.set_hidden(last_states)
+    conceptor_net.cell.set_hidden(last_states[p])
 
     # Generate sample
     generated_sample = conceptor_net(torch.zeros(1, conceptor_test_length, 1, dtype=dtype), reset_state=False)
@@ -358,11 +367,11 @@ for p in range(n_patterns):
 
     # Save
     generated_samples_aligned[p] = generated_sample_aligned
-    NRMSE_aligned[p] = NRMSE_aligned
+    NRMSEs_aligned[p] = NRMSE_aligned
 # end for
 
 # Show NRMSE
-print(u"Average NRMSE except last : {}".format(torch.mean(NRMSE_aligned)))
+print(u"Average NRMSE except last : {}".format(torch.mean(NRMSEs_aligned[:-1])))
 
 # endregion TEST
 
@@ -382,7 +391,7 @@ for p in range(n_patterns):
 
     # C(all) after learning the pattern
     A = A_collector[p]
-    _, Sx, _ = A.SV()
+    _, Sx, _ = A.SVD
 
     # Plot singular values of C(all)
     plt.fill(np.linspace(0, signal_plot_length, n_plot_singular_values), 2.0 * Sx - 1.0, color='red', alpha=0.75)
@@ -413,7 +422,7 @@ for p in range(n_patterns):
     plt.text(
         plot_width - 0.7,
         plot_bottom + 0.1,
-        round(NRMSE_aligned[p], 4),
+        round(NRMSEs_aligned[p].item(), 4),
         fontsize=14,
         verticalalignment='bottom',
         horizontalalignment='right',

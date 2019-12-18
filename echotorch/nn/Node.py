@@ -290,7 +290,7 @@ class Node(nn.Module):
     #######################
 
     # Matrix inverse
-    def _inverse(self, name, M):
+    def _inverse(self, name, M, code_class, code_pos):
         """
         Matrix inverse
         :param name: Name associated with M
@@ -307,18 +307,22 @@ class Node(nn.Module):
             # Show condition number
             if self._debug == Node.DEBUG_OUTPUT:
                 print(
-                    "DEBUG - INFO : Condition number while inversing {} : {}".format(
+                    "DEBUG - INFO : Condition number while inversing {} : {} (at {}:{})".format(
                         name,
-                        condition_number
+                        condition_number,
+                        code_class,
+                        code_pos
                     )
                 )
 
             # Bad condition number
             if condition_number > 14:
                 print(
-                    "DEBUG - WARNING : High condition number while inversing {} : {}".format(
+                    "DEBUG - WARNING : High condition number while inversing {} : {} (at {}:{})".format(
                         name,
-                        condition_number
+                        condition_number,
+                        code_class,
+                        code_pos
                     )
                 )
             # end if
@@ -327,7 +331,7 @@ class Node(nn.Module):
     # end _inverse
 
     # Matrix pseudo-inverse
-    def _pinverse(self, name, M):
+    def _pinverse(self, name, M, code_class, code_pos):
         """
         Matrix pseudo-inverse
         :param name: Name associated with M
@@ -344,18 +348,22 @@ class Node(nn.Module):
             # Show condition number
             if self._debug == Node.DEBUG_OUTPUT:
                 print(
-                    "DEBUG - INFO : Condition number while pseudo-inversing {} : {}".format(
+                    "DEBUG - INFO : Condition number while pseudo-inversing {} : {} (at {}:{})".format(
                         name,
-                        condition_number
+                        condition_number,
+                        code_class,
+                        code_pos
                     )
                 )
 
             # Bad condition number
             if condition_number > 14:
                 print(
-                    "DEBUG - WARNING : High condition number while pseudo-inversing {} : {}".format(
+                    "DEBUG - WARNING : High condition number while pseudo-inversing {} : {} (at {}:{})".format(
                         name,
-                        condition_number
+                        condition_number,
+                        code_class,
+                        code_pos
                     )
                 )
             # end if
@@ -368,18 +376,18 @@ class Node(nn.Module):
     #######################
 
     # Call debug point
-    def _call_debug_point(self, name, value):
+    def _call_debug_point(self, name, value, code_class, code_pos):
         """
         Call a debug point from inside the module to compare with given values
         :param name: Name of the debug point
         :param value: Value of the debug point
         """
         # String
-        error_precision = Node.WARNING + "DEBUG - ERROR: {} have precision issue! (module:{}, outside:{})" + Node.ENDC
-        info_precision_scalar = "DEBUG - INFO: {} (scalar) has an absolute difference of {}"
-        info_precision_matrix = "DEBUG - INFO: {} (matrix) has a norm-2 difference of {}"
-        fatal_size = Node.FAIL + "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{})" + Node.ENDC
-        fatal_type = Node.FAIL + "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{})" + Node.ENDC
+        error_precision = Node.WARNING + "DEBUG - ERROR: {} has precision issue! (diff: {}, module:{}, outside:{}) (at {}:{})" + Node.ENDC
+        info_precision_scalar = "DEBUG - INFO: {} (scalar) has an absolute difference of {} (at {}:{})"
+        info_precision_matrix = "DEBUG - INFO: {} (matrix) has a norm-2 difference of {} (at {}:{})"
+        fatal_size = Node.FAIL + "DEBUG - FATAL: {} have not the same size! (module:{}, outside:{}) (at {}:{})" + Node.ENDC
+        fatal_type = Node.FAIL + "DEBUG - FATAL: {} are not of the same type! (module:{}, outside:{}) (at {}:{})" + Node.ENDC
 
         # If debug point set
         if self._debug > Node.NO_DEBUG and name in self._debug_points.keys():
@@ -396,7 +404,7 @@ class Node(nn.Module):
 
                     # In debug output, print difference
                     if self._debug == Node.DEBUG_OUTPUT or self._debug == Node.DEBUG_TEST_CASE:
-                        print(info_precision_scalar.format(name, abs_diff))
+                        print(info_precision_scalar.format(name, abs_diff, code_class, code_pos))
                     # end if
 
                     # In debug test case, call test call for evaluation
@@ -404,7 +412,7 @@ class Node(nn.Module):
                         self._test_case.assertAlmostEqual(value_from_module, value_from_outside, precision)
                     # In debut test, test if precision is ok
                     elif abs_diff > precision:
-                        print(error_precision.format(name, value_from_module, value_from_outside))
+                        print(error_precision.format(name, value_from_module, value_from_outside, code_class, code_pos))
                     # end if
                 # Matrix/Tensor
                 elif isinstance(value_from_module, torch.Tensor):
@@ -415,21 +423,30 @@ class Node(nn.Module):
 
                         # In debug output, print difference
                         if self._debug == Node.DEBUG_OUTPUT or self._debug == Node.DEBUG_TEST_CASE:
-                            print(info_precision_matrix.format(name, norm_diff))
+                            print(info_precision_matrix.format(name, norm_diff, code_class, code_pos))
                         # end if
 
                         # In debug test case, call test case for evaluation
                         if self._debug == Node.DEBUG_TEST_CASE:
                             self._test_case.assertTensorAlmostEqual(value_from_module, value_from_outside, precision)
                         if norm_diff > precision:
-                            print(error_precision.format(name, torch.norm(value_from_module), torch.norm(value_from_outside)))
+                            print(
+                                error_precision.format(
+                                    name,
+                                    norm_diff,
+                                    torch.norm(value_from_module),
+                                    torch.norm(value_from_outside),
+                                    code_class,
+                                    code_pos
+                                )
+                            )
                         # end if
                     else:
-                        print(fatal_size.format(name, value_from_module.size(), value_from_outside.size()))
+                        print(fatal_size.format(name, value_from_module.size(), value_from_outside.size(), code_class, code_pos))
                         raise Exception()
                 # end if
             else:
-                print(fatal_type.format(name, type(value_from_module), type(value_from_outside)))
+                print(fatal_type.format(name, type(value_from_module), type(value_from_outside), code_class, code_pos))
                 raise Exception()
             # end if
         # end if

@@ -138,7 +138,7 @@ class IncConceptorNet(IncSPESN):
     # Get states after batch update to train conceptors
     def _post_update_states(self, states, inputs, forward_i, sample_i):
         """
-        Get states after batch update to train conceptors
+        Get states after batch update to train Conceptors
         :param states: Reservoir states (without washout)
         :param inputs: Input signal
         :param forward_i: Forward call

@@ -83,7 +83,6 @@ class RRCell(Node):
         self.register_buffer('xTx', Variable(torch.zeros(self._x_size, self._x_size, dtype=dtype), requires_grad=False))
         self.register_buffer('xTy', Variable(torch.zeros(self._x_size, output_dim, dtype=dtype), requires_grad=False))
         self.register_buffer('w_out', Variable(torch.zeros(output_dim, input_dim, dtype=dtype), requires_grad=False))
-        print("Constructor w_out: {}".format(self.w_out.size()))
     # end __init__
 
     #####################
@@ -128,7 +127,7 @@ class RRCell(Node):
             x = self._add_constant(x)
         # end if
 
-        # Learning algo
+        # Training or eval
         if self.training:
             for b in range(batch_size):
                 if not self._averaged:
@@ -191,6 +190,7 @@ class RRCell(Node):
 
         # wout = (xTx)^(-1)xTy
         self.w_out = torch.mm(inv_xTx, self.xTy).t()
+
         # Not in training mode anymore
         self.train(False)
     # end finalize

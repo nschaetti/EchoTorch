@@ -38,7 +38,7 @@ class IncRRCell(Node):
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, conceptors, ridge_param=0.0, with_bias=False, learning_algo='inv',
+    def __init__(self, input_dim, output_dim, conceptors, ridge_param=0.0, with_bias=False, learning_algo='pinv',
                  softmax_output=False, averaged=True, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
@@ -128,79 +128,115 @@ class IncRRCell(Node):
             x = self._add_constant(x)
         # end if
 
-        # Outputs
-        outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype), requires_grad=False)
-        outputs = outputs.cuda() if self.w_out.is_cuda else outputs
+        # State or output
+        if self.training:
+            # For each sample in the batch
+            for b in range(batch_size):
+                # Targets to be learn : what is not predicted
+                # by current Wout matrix
+                Y = y[b] - torch.mm(self.w_out, x[b].t()).t()
 
-        # For each sample in the batch
-        for b in range(batch_size):
-            # Targets to be learn : what is not predicted
-            # by current Wout matrix
-            # by current Wout matrix
-            Y = y - torch.mm(self.w_out, x)
+                # Debug
+                self._call_debug_point("X{}".format(self._n_samples), x[b], "IncRRCell", "forward")
+                self._call_debug_point("y{}".format(self._n_samples), y[b], "IncRRCell", "forward")
+                self._call_debug_point("Y{}".format(self._n_samples), Y, "IncRRCell", "forward")
 
-            # The linear subspace of the reservoir state space that are not yet
-            # occupied by any pattern.
-            F = self._conceptors.F()
+                # Filter if the conceptor is not null
+                if not self._conceptors.is_null():
+                    # The linear subspace of the reservoir state space that are not yet
+                    # occupied by any pattern.
+                    F = self._conceptors.F()
 
-            # Filter training states to get what is new in the reservoir space
-            S = torch.mm(F, x)
+                    # Debug
+                    self._call_debug_point("F{}".format(self._n_samples), F, "IncRRCell", "forward")
 
-            # SS inverse
-            if self._learning_algo == 'inv':
-                inv_func = torch.inverse
-            else:
-                inv_func = torch.pinverse
-            # end if
+                    # Filter training states to get what is new in the reservoir space
+                    S = torch.mm(F, x[b].t()).t()
+                else:
+                    # No filter
+                    S = x[b]
+                # end if
 
-            # sTs
-            if self._averaged:
-                sTs = torch.mm(S.t(), S) / time_length
-            else:
-                sTs = torch.mm(S.t(), S)
-            # end if
+                # Debug
+                self._call_debug_point("S{}".format(self._n_samples), S, "IncRRCell", "forward")
 
-            # sTy
-            if self._averaged:
-                sTy = torch.mm(S.t(), Y) / time_length
-            else:
-                sTy = torch.mm(S.t(), Y)
-            # end if
+                # sTs
+                if self._averaged:
+                    sTs = torch.mm(S.t(), S) / time_length
+                else:
+                    sTs = torch.mm(S.t(), S)
+                # end if
 
-            # Ridge sTs
-            ridge_sTs = sTs + self._ridge_param * torch.eye(self._input_dim)
+                # Debug
+                self._call_debug_point("sTs{}".format(self._n_samples), sTs, "IncRRCell", "forward")
 
-            # Inverse of sTs
-            if self._learning_algo == "inv":
-                inv_sTs = ridge_sTs.inverse()
-            elif self._learning_algo == "pinv":
-                inv_sTs = ridge_sTs.pinverse()
-            else:
-                raise Exception("Unknown learning method {}".format(self._learning_algo))
-            # end if
+                # sTy
+                if self._averaged:
+                    sTy = torch.mm(S.t(), Y) / time_length
+                else:
+                    sTy = torch.mm(S.t(), Y)
+                # end if
 
-            # Compute increment for Wout
-            Wout_inc = (torch.mm(inv_sTs, sTy)).t()
+                # Debug
+                self._call_debug_point("sTy{}".format(self._n_samples), sTy, "IncRRCell", "forward")
 
-            # Increment Wout
-            self.w_out += Wout_inc
+                # Ridge sTs
+                ridge_sTs = sTs + self._ridge_param * torch.eye(self._input_dim)
 
-            # Predicted output
-            outputs[b] = torch.mm(x[b], self.w_out)
+                # Debug
+                self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncRRCell", "forward")
+
+                # Inverse / pinverse
+                if self._learning_algo == "inv":
+                    inv_sTs = self._inverse("ridge_sTs", ridge_sTs, "IncRRCell", "forward")
+                elif self._learning_algo == "pinv":
+                    inv_sTs = self._pinverse("ridge_sTs", ridge_sTs, "IncRRCell", "forward")
+                else:
+                    raise Exception("Unknown learning method {}".format(self._learning_algo))
+                # end if
+
+                # Debug
+                self._call_debug_point("inv_sTs{}".format(self._n_samples), inv_sTs, "IncRRCell", "forward")
+
+                # Compute increment for Wout
+                Wout_inc = (torch.mm(inv_sTs, sTy)).t()
+
+                # Debug
+                self._call_debug_point("Wout_inc{}".format(self._n_samples), Wout_inc, "IncRRCell", "forward")
+
+                # Increment Wout
+                self.w_out += Wout_inc
+
+                # Debug
+                self._call_debug_point("w_out{}".format(self._n_samples), self.w_out, "IncRRCell", "forward")
+
+                # One more sample
+                self._n_samples += 1
             # end for
-        # end for
 
-        # Softmax output ?
-        if self._softmax_output:
-            return self.softmax(outputs)
+            # State
+            return x
         else:
-            return outputs
+            # Outputs
+            outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype), requires_grad=False)
+            outputs = outputs.cuda() if self.w_out.is_cuda else outputs
+
+            # For each sample in the batch
+            for b in range(batch_size):
+                # Predicted output
+                outputs[b] = torch.mm(self.w_out, x[b].t()).t()
+            # end for
+
+            # Softmax output ?
+            if self._softmax_output:
+                return self.softmax(outputs)
+            else:
+                return outputs
+            # end if
         # end if
     # end forward
 
-    ###############################################
-    # PRIVATE
-    ###############################################
+    # region PRIVATE
 
     # Add constant
     def _add_constant(self, x):
@@ -216,5 +252,7 @@ class IncRRCell(Node):
         # end if
         return torch.cat((bias, x), dim=2)
     # end _add_constant
+
+    # endregion PRIVATE
 
 # end IncRRCell

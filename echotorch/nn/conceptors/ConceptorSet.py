@@ -101,6 +101,19 @@ class ConceptorSet(NeuralFilter):
         return self.A().NOT()
     # end N
 
+    # Conceptor matrix of NOT A
+    def F(self):
+        """
+        NOT A - Conceptor matrix of subspace not populated by conceptors
+        :return: Matrix N (Conceptor)
+        """
+        if self.is_null():
+            return torch.eye(self.input_dim, dtype=self.dtype)
+        else:
+            return self.N().conceptor_matrix()
+        # end if
+    # end F
+
     # OR of all conceptors stored
     def A(self):
         """
@@ -125,8 +138,25 @@ class ConceptorSet(NeuralFilter):
         The space taken by the Conceptors
         in the reservoir space.
         """
-        return self.A().quota
+        if self.is_null():
+            return 0.0
+        else:
+            return self.A().quota
+        # end if
     # end quota
+
+    # The set contains only zero null conceptors
+    def is_null(self):
+        """
+        The set contains only zero null conceptors
+        """
+        for k, c in self.conceptors.items():
+            if not c.is_null():
+                return False
+            # end if
+        # end for
+        return True
+    # end is_null
 
     # Multiply aperture of each conceptor by a factor gamma
     def PHI(self, gamma):
@@ -178,12 +208,16 @@ class ConceptorSet(NeuralFilter):
     # end similarity_matrix
 
     # Set conceptor index to use
-    def set(self, conceptor_i):
+    def set(self, k):
         """
-        Set conceptor index to use
+        Set k index to use
         :param conceptor_i: Conceptor index to use
         """
-        self._current_conceptor_index = conceptor_i
+        if k in self.conceptors.keys():
+            self._current_conceptor_index = k
+        else:
+            raise Exception("Unknown conceptor {}".format(k))
+        # end if
     # end set
 
     # Reset the set (empty list, reset A)
