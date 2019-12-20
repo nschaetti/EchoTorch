@@ -138,6 +138,174 @@ def pattern_interpolation(p, y, interpolation_rate, error_measure=nrmse):
 # end find_phase_shift
 
 
+# Find best pattern interpolation
+def find_pattern_interpolation(p, y, interpolation_rate, n_matches, error_measure=nrmse):
+    """
+    Pattern interpolation
+    :param p:
+    :param y:
+    :param interpolation_rate:
+    :param error_measure:
+    :return:
+    """
+    # Length
+    CL = y.size(0)
+    PL = p.size(0)
+
+    # Interpolation of generated sample
+    interpolated_func = interp1d(np.arange(CL), y[:, 0].numpy(), kind='quadratic')
+    interpolated_generated = interpolated_func(np.arange(0, CL - 1.0, 1.0 / interpolation_rate))
+
+    # Interpolation of target sample
+    interpolated_func = interp1d(np.arange(PL), p.numpy(), kind='quadratic')
+    interpolated_pattern = interpolated_func(np.arange(0, PL - 1.0, 1.0 / interpolation_rate))
+
+    # Length of generated (interpolated)
+    L = interpolated_generated.shape[0]
+
+    # Length of original (interpolated)
+    M = interpolated_pattern.shape[0]
+
+    # List of best matches
+    best_matches = list()
+
+    # Save norm-2 for each phase shift
+    norm_phase_shift = np.zeros(L - M)
+
+    # Phase shift
+    for shift in range(L - M):
+        # Norm-2 between generated an original
+        norm_phase_shift[shift] = lin.norm(interpolated_generated[shift:shift + M] - interpolated_pattern)
+        best_matches.append((norm_phase_shift[shift], shift))
+    # end for
+
+    # Sort by distance
+    best_matches = sorted(best_matches, key=lambda tup: tup[0])
+
+    # List of original phase and their norm
+    best_phases = list()
+    phase_norms = list()
+
+    # Count for average
+    norms_add = 0.0
+    norms_count = 0
+
+    # For each matches
+    for (m_norm, m_pos) in best_matches:
+        # Generated signal aligned
+        generated_sample_aligned = interpolated_generated[
+            np.arange(m_pos, m_pos + PL * interpolation_rate, interpolation_rate)
+        ]
+
+        # Original phase
+        original_phase = np.ceil(m_pos / interpolation_rate)
+
+        # Add
+        best_phases.append(original_phase)
+
+        # To Tensor
+        generated_sample_aligned = torch.Tensor(generated_sample_aligned)
+
+        # Double ?
+        if isinstance(generated_sample_aligned, torch.DoubleTensor):
+            generated_sample_aligned = generated_sample_aligned.double()
+        # end if
+
+        # Error after alignment
+        error_aligned = error_measure(generated_sample_aligned.reshape(1, -1), p.reshape(1, -1))
+        phase_norms.append(error_aligned)
+        norms_add += error_aligned
+        norms_count += 1
+    # end for
+
+    return best_phases, phase_norms, norms_add / norms_count
+# end find_pattern_interpolation
+
+# Find best pattern interpolation with threshold
+def find_pattern_interpolation_threshold(p, y, interpolation_rate, threshold, error_measure=nrmse):
+    """
+    Pattern interpolation
+    :param p:
+    :param y:
+    :param interpolation_rate:
+    :param error_measure:
+    :return:
+    """
+    # Length
+    CL = y.size(0)
+    PL = p.size(0)
+
+    # Interpolation of generated sample
+    interpolated_func = interp1d(np.arange(CL), y[:, 0].numpy(), kind='quadratic')
+    interpolated_generated = interpolated_func(np.arange(0, CL - 1.0, 1.0 / interpolation_rate))
+
+    # Interpolation of target sample
+    interpolated_func = interp1d(np.arange(PL), p.numpy(), kind='quadratic')
+    interpolated_pattern = interpolated_func(np.arange(0, PL - 1.0, 1.0 / interpolation_rate))
+
+    # Length of generated (interpolated)
+    L = interpolated_generated.shape[0]
+
+    # Length of original (interpolated)
+    M = interpolated_pattern.shape[0]
+
+    # List of best matches
+    matches = list()
+
+    # Save norm-2 for each phase shift
+    norm_phase_shift = np.zeros(L - M)
+
+    # Phase shift
+    for shift in range(L - M):
+        # Norm-2 between generated an original
+        norm_phase_shift[shift] = lin.norm(interpolated_generated[shift:shift + M] - interpolated_pattern)
+        if norm_phase_shift[shift] < threshold:
+            matches.append((shift, norm_phase_shift[shift]))
+        # end if
+    # end for
+
+    # List of original phase and their norm
+    threshold_phases = list()
+    threshold_norms = list()
+
+    # Average
+    norms_add = 0.0
+    norms_count = 1
+
+    # For each matches
+    for (m_pos, n_norm) in matches:
+        # Generated signal aligned
+        generated_sample_aligned = interpolated_generated[
+            np.arange(m_pos, m_pos + PL * interpolation_rate, interpolation_rate)
+        ]
+
+        # Original phase
+        original_phase = np.ceil(m_pos / interpolation_rate)
+
+        # Add
+        threshold_phases.append(original_phase)
+
+        # To Tensor
+        generated_sample_aligned = torch.Tensor(generated_sample_aligned)
+
+        # Double ?
+        if isinstance(generated_sample_aligned, torch.DoubleTensor):
+            generated_sample_aligned = generated_sample_aligned.double()
+        # end if
+
+        # Error after alignment
+        error_aligned = error_measure(generated_sample_aligned.reshape(1, -1), p.reshape(1, -1))
+        threshold_norms.append(error_aligned)
+
+        # Average
+        norms_add += error_aligned
+        norms_count += 1
+    # end for
+
+    return threshold_phases, threshold_norms, norms_add / norms_count, norm_phase_shift
+# end find_pattern_interpolation_threshold
+
+
 # Compute similarity matrix
 def compute_similarity_matrix(svd_list):
     """
