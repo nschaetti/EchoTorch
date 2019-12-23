@@ -39,7 +39,8 @@ class RRCell(Node):
 
     # Constructor
     def __init__(self, input_dim, output_dim, ridge_param=0.0, with_bias=True, learning_algo='inv',
-                 softmax_output=False, averaged=True, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 softmax_output=False, normalize_output=False, averaged=True, debug=Node.NO_DEBUG, test_case=None,
+                 dtype=torch.float32):
         """
         Constructor
         :param input_dim: Feature space dimension
@@ -48,6 +49,7 @@ class RRCell(Node):
         :param with_bias: Add a bias to the linear layer
         :param learning_algo: Inverse (inv) or pseudo-inverse (pinv)
         :param softmax_output: Add a softmax output (normalize outputs) ?
+        :param normalize_output: Normalize outputs to sum to one ?
         :param averaged: Covariance matrix divided by the number of samples ?
         :param debug: Debug mode
         :param test_case: Test case to call for test.
@@ -68,6 +70,7 @@ class RRCell(Node):
         self._with_bias = with_bias
         self._learning_algo = learning_algo
         self._softmax_output = softmax_output
+        self._normalize_output = normalize_output
         self._softmax = torch.nn.Softmax(dim=2)
         self._averaged = averaged
         self._n_samples = 0
@@ -85,13 +88,11 @@ class RRCell(Node):
         self.register_buffer('w_out', Variable(torch.zeros(output_dim, input_dim, dtype=dtype), requires_grad=False))
     # end __init__
 
-    #####################
-    # PROPERTIES
-    #####################
+    # region PROPERTIES
 
-    #####################
-    # PUBLIC
-    #####################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Reset learning
     def reset(self):
@@ -158,6 +159,8 @@ class RRCell(Node):
 
             if self._softmax_output:
                 return self._softmax(outputs)
+            elif self._normalize_output:
+                return torch.abs(outputs) / torch.sum(torch.abs(outputs), axis=2).reshape(outputs.size(0), outputs.size(1), 1)
             else:
                 return outputs
         # end if
@@ -195,9 +198,9 @@ class RRCell(Node):
         self.train(False)
     # end finalize
 
-    #####################
-    # PRIVATE
-    #####################
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Add constant
     def _add_constant(self, x):
@@ -215,9 +218,9 @@ class RRCell(Node):
         return torch.cat((bias, x), dim=2)
     # end _add_constant
 
-    #####################
-    # OVERLOAD
-    #####################
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Extra-information
     def extra_repr(self):
@@ -229,5 +232,7 @@ class RRCell(Node):
               'learning_algo={_learning_algo}, softmax_output={_softmax_output}, averaged={_averaged}')
         return s.format(**self.__dict__)
     # end extra_repr
+
+    # endregion OVERRIDE
 
 # end RRCell

@@ -160,7 +160,11 @@ B.set_C(torch.mm(torch.mm(Ub, torch.diag(Sb)), Vb), aperture=1)
 AandB = ecnc.Conceptor.operator_AND(A, B)
 AorB = ecnc.Conceptor.operator_OR(A, B)
 notA = ecnc.Conceptor.operator_NOT(A)
-
+print(A.conceptor_matrix())
+print(B.conceptor_matrix())
+print(AandB.conceptor_matrix())
+print(AorB.conceptor_matrix())
+print(notA.conceptor_matrix())
 # endregion BOOLEAN_OPERATIONS
 
 # region PLOTS

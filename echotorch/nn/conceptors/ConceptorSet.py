@@ -292,17 +292,30 @@ class ConceptorSet(NeuralFilter):
         :return: Evidence against
         """
         # Empty conceptor
-        Cothers = Conceptor.empty(self._conceptor_dim)
+        # Cothers = Conceptor.empty(self._conceptor_dim)
 
         # OR for all other Conceptor
-        for i, C in enumerate(self.conceptors):
-            Cothers = Conceptor.operator_OR(Cothers, C)
+        # for k, C in self.conceptors.items():
+        #     if k != conceptor_i:
+        #         Cothers = Conceptor.operator_OR(Cothers, C)
+            # end if
+        # end for
+
+        # Start at 0
+        others = Conceptor(input_dim=self._conceptor_dim, aperture=1)
+
+        # For each conceptor
+        for kc, C in self._conceptors.items():
+            if kc != conceptor_i:
+                others.OR_(C)
+            # end if
         # end for
 
         # NOT others
-        Nothers = Conceptor.operator_NOT(Cothers)
+        not_others = Conceptor.operator_NOT(others)
 
-        return Conceptor.evidence(Nothers, x)
+        # Tensor dim
+        return Conceptor.evidence(not_others, x)
     # end Eneg
 
     # Positive evidence for a conceptor
@@ -326,12 +339,51 @@ class ConceptorSet(NeuralFilter):
         :param x: Reservoir states
         :return: Total evidence
         """
-        # Target conceptor
-        target_conceptor = self.conceptors[conceptor_i]
-
         # Total evidence
-        return self.Eplus(conceptor_i, x) + self.Eneg(conceptor_i, x)
+        return (self.Eplus(conceptor_i, x) + self.Eneg(conceptor_i, x)) / 2.0
     # end E
+
+    # Get evidences for each conceptor
+    # TODO: Test
+    def evidences(self, x, based_on='both', average=False):
+        """
+        Get evidences for each conceptor
+        :param x: Matrix of points in the reservoir space (T x Nx)
+        :param based_on: both (positive evidence + negative evidence), positive, negative
+        :return: Evidence matrix with evidence for each conceptor (T x conceptors)
+        """
+        # A single point in reservoir space
+        if x.ndim == 2:
+            # Time length
+            time_length = x.size(0)
+
+            # Evidence vector
+            evidences_matrix = torch.zeros(time_length, self.count)
+
+            # For each conceptor
+            for c_i, k in enumerate(self.conceptors.keys()):
+                # Evidences for this conceptor
+                if based_on == 'both':
+                    evidences_matrix[:, c_i] = self.E(k, x)
+                elif based_on == 'positive':
+                    evidences_matrix[:, c_i] = self.Eplus(k, x)
+                elif based_on == 'negative':
+                    evidences_matrix[:, c_i] = self.Eneg(k, x)
+                else:
+                    raise Exception("Waiting for both, positive or negative for based_on, got {}".format(based_on))
+                # end if
+            # end for
+
+            # Average
+            if average:
+                return torch.mean(evidences_matrix, axis=0)
+            else:
+                return evidences_matrix
+            # end if
+        elif x.ndim == 3:
+            raise Exception("Waiting for 2-dim tensor, got {} instead".format(x.ndim))
+        #end if
+    # end evidences
 
     # endregion PUBLIC
 

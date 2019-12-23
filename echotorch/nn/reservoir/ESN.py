@@ -41,8 +41,8 @@ class ESN(Node):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True,
-                 softmax_output=False, washout=0, create_rnn=True, create_output=True, debug=Node.NO_DEBUG,
-                 test_case=None, dtype=torch.float32):
+                 softmax_output=False, normalize_output=False, washout=0, create_rnn=True, create_output=True,
+                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -59,6 +59,7 @@ class ESN(Node):
         :param ridge_param: Ridge parameter
         :param with_bias: Add a bias to the output layer ?
         :param softmax_output: Add a softmax output layer
+        :param normalize_output: Normalize output to sum to one
         :param washout: Washout period (ignore timesteps at the beginning of each sample)
         :param create_rnn: Create RNN layer ?
         :param create_output: Create the output layer ?
@@ -111,6 +112,7 @@ class ESN(Node):
                 with_bias=with_bias,
                 learning_algo=learning_algo,
                 softmax_output=softmax_output,
+                normalize_output=normalize_output,
                 debug=debug,
                 test_case=test_case,
                 dtype=dtype
@@ -243,9 +245,7 @@ class ESN(Node):
         return self._output.w_out
     # end w_out
 
-    #######################
-    # Forward/Backward
-    #######################
+    # region OVERRIDE
 
     # Forward
     def forward(self, u, y=None, reset_state=True):
@@ -266,9 +266,7 @@ class ESN(Node):
         # end if
     # end forward
 
-    #######################
-    # PUBLIC
-    #######################
+    # region PUBLIC
 
     # Reset layer (not trained)
     def reset(self):
@@ -291,9 +289,9 @@ class ESN(Node):
         self._esn_cell.reset_hidden()
     # end reset_hidden
 
-    ####################
-    # PRIVATE
-    ####################
+    # endregion OVERRIDE
+
+    # region PRIVATE
 
     # Generate matrices
     def _generate_matrices(self, w_generator, win_generator, wbias_generator):
@@ -333,5 +331,7 @@ class ESN(Node):
 
         return w, w_in, w_bias
     # end _generate_matrices
+
+    # endregion PRIVATE
 
 # end ESN

@@ -910,11 +910,28 @@ class Conceptor(NeuralFilter):
         """
         How x fits in Conceptor ellipsoid (Evidence)
         :param C: Conceptor object
-        :param x: Reservoir states
+        :param x: Reservoir state(s) (T x Nx, or Nx)
         :return:
         """
-        return x.mm(C.C).mm(x.t())
-    # end E
+        if x.ndim == 1:
+            return torch.mv(C.C.t(), x).t().dot(x) / torch.dot(x, x)
+        elif x.ndim == 2:
+            # Time length
+            time_length = x.size(0)
+
+            # Evidence vector
+            evidences_vector = torch.empty(time_length)
+
+            # For each time step
+            for t in range(time_length):
+                evidences_vector[t] = torch.mv(C.C.t(), x[t]).t().dot(x[t]) / torch.dot(x[t], x[t])
+            # end for
+
+            return evidences_vector
+        else:
+            raise Exception("Waiting for 1-dim or 2-dim tensor, got {}".format(x.ndim))
+        # end if
+    # end evidence
 
     # endregion STATIC
 

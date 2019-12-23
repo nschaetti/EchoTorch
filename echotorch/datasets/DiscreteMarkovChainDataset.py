@@ -60,40 +60,43 @@ class DiscreteMarkovChainDataset(Dataset):
         :param length: Length of the sample to generate
         :param start_state: Starting state
         """
-        # Discrete vector of states
-        states_discrete_vector = torch.zeros(length)
-        states_discrete_vector[0] = start_state
-
         # One-hot vector of states
         states_vector = torch.zeros(length, self._n_states)
         states_vector[0, start_state] = 1.0
+
+        # Next state to predict
+        next_states_vector = torch.zeros(length, self._n_states)
 
         # Current state
         current_state = start_state
 
         # For each time step
-        for t in range(1, length):
+        for t in range(1, length + 1):
             # Probability to next states
             prob_next_states = self._probability_matrix[current_state]
 
             # Create a multinomial distribution from probs.
             mnd = torch.distributions.multinomial.Multinomial(
-                total_count=self.n_states,
+                total_count=self._n_states,
                 probs=prob_next_states
             )
 
             # Generate next states from probs.
             next_state = torch.argmax(mnd.sample()).item()
 
-            # Save next state
-            states_discrete_vector[t] = next_state
-            states_vector[t, next_state] = 1.0
+            # Save state
+            if t < length:
+                states_vector[t, next_state] = 1.0
+            # end if
+
+            # Save prediction
+            next_states_vector[t-1, next_state] = 1.0
 
             # Set as current
             current_state = next_state
         # end for
 
-        return states_discrete_vector, states_vector
+        return states_vector, next_states_vector
     # end _generate_markov_chain
 
     # endregion ENDPRIVATE
