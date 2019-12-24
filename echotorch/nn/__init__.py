@@ -32,6 +32,9 @@ from .features.OnlinePCACell import OnlinePCACell
 from .features.PCACell import PCACell
 from .features.SFACell import SFACell
 
+# Functional
+from .functional.losses import CSTLoss
+
 # Import reservoir nodes
 from .reservoir.BDESN import BDESN
 from .reservoir.BDESNCell import BDESNCell
@@ -55,5 +58,5 @@ from .utils.Identity import Identity
 __all__ = [
     'Conceptor', 'ConceptorNet', 'ICACell', 'OnlinePCACell', 'PCACell', 'SFACell',
     'BDESN', 'BDESNPCA', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'Node', 'StackedESN',
-    'RRCell', 'Identity'
+    'RRCell', 'Identity', 'CSTLoss'
 ]
