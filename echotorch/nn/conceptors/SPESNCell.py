@@ -37,10 +37,21 @@ class SPESNCell(ESNCell):
     Self-Predicting ESN Cell
     """
 
+    # Loading methods
+    W_LOADING = 0
+    INPUTS_SIMULATION = 1
+    INPUTS_RECREATION = 2
+
     # Constructor
-    def __init__(self, w_ridge_param, w_learning_algo='inv', averaged=False, fill_left=False, *args, **kwargs):
+    def __init__(self, w_ridge_param, w_learning_algo='inv', averaged=False, fill_left=False,
+                 loading_method='w-loading', *args, **kwargs):
         """
         Constructor
+        :param w_learning_param:
+        :param w_learning_algo:
+        :param averaged:
+        :param fill_left:
+        :param loading_method: Use W (w-loading), D (input-simulation) or R (input recreation)
         """
         # Superclass
         super(SPESNCell, self).__init__(*args, **kwargs)
@@ -51,34 +62,19 @@ class SPESNCell(ESNCell):
         self._w_learning_algo = w_learning_algo
         self._n_samples = 0
         self._fill_left = fill_left
+        self._loading_method = loading_method
 
         # Set it as buffer
         self.register_buffer('xTx', Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
         self.register_buffer('xTy', Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
     # end __init__
 
-    ##################
-    # PUBLIC
-    ##################
+    # region PRIVATE
 
-    # Reset learning
-    def reset(self):
+    # Finalize W loading
+    def _finalize_W_loading(self):
         """
-        Reset learning
-        :return:
-        """
-        self.xTx.data.fill_(0.0)
-        self.xTy.data.fill_(0.0)
-        self._n_samples = 0
-
-        # Training mode again
-        self.train(True)
-    # end reset
-
-    # Finalize internal training
-    def finalize(self):
-        """
-        Finalize internal training
+        Finalize W loading
         """
         if self._averaged:
             # Average
@@ -120,12 +116,117 @@ class SPESNCell(ESNCell):
 
         # Debug for W
         self._call_debug_point("w", self.w, "SPESNCell", "finalize")
+    # end _finalize_W_loading
+
+    # Finalize input simulation
+    def _finalize_input_simulation(self):
+        """
+        Finalize input simulation
+        """
+        pass
+    # end _finalize_input_simulation
+
+    # Finalize input recreation
+    def _finalize_input_recreation(self):
+        """
+        Finalize input recreation
+        """
+        pass
+    # end _finalize_input_recreation
+
+    # Update for W loading
+    def _update_W(self, states):
+        """
+        Update for W loading
+        """
+        # X (reservoir states)
+        X = states[self._washout:]
+        self._call_debug_point("X{}".format(self._n_samples), X, "SPESNCell", "_post_update_hook")
+
+        # Learn length
+        learn_length = X.size(0)
+
+        # Xold (reservoir states at t - 1))
+        if self._fill_left:
+            Xold = self.features(X, fill_left=states[self._washout - 1] if self._washout > 0 else None)
+        else:
+            Xold = self.features(X)
+        # end if
+
+        # Debug Xold
+        self._call_debug_point("Xold{}".format(self._n_samples), Xold, "SPESNCell", "_post_update_hook")
+
+        # Y (W*x + Win*u), what we want to predict
+        Y = self.targets(X)
+        self._call_debug_point("Y{}".format(self._n_samples), Y, "SPESNCell", "_post_update_hook")
+
+        # Covariance matrices
+        if self._averaged:
+            self.xTx.data.add_((Xold.t().mm(Xold) / learn_length).data)
+            self.xTy.data.add_((Xold.t().mm(Y) / learn_length).data)
+        else:
+            self.xTx.data.add_(Xold.t().mm(Xold).data)
+            self.xTy.data.add_(Xold.t().mm(Y).data)
+        # end if
+
+        # Debug for xTx and xTy
+        self._call_debug_point("xTx{}".format(self._n_samples), Xold.t().mm(Xold), "SPESNCell", "_post_update_hook")
+        self._call_debug_point("xTy{}".format(self._n_samples), Xold.t().mm(Y), "SPESNCell", "_post_update_hook")
+    # end update_W
+
+    # Update for input simulation
+    def _update_input_simulation(self, states):
+        """
+        Update for input simulation
+        """
+        pass
+    # end update_input_simulation
+
+    # Update for input recreation
+    def _update_input_recreation(self, states):
+        """
+        Update for input simulation
+        """
+        pass
+    # end update_input_recreation
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Reset learning
+    def reset(self):
+        """
+        Reset learning
+        :return:
+        """
+        self.xTx.data.fill_(0.0)
+        self.xTy.data.fill_(0.0)
+        self._n_samples = 0
+
+        # Training mode again
+        self.train(True)
+    # end reset
+
+    # Finalize internal training
+    def finalize(self):
+        """
+        Finalize internal training
+        """
+        # Loading method
+        if self._loading_method == SPESNCell.W_LOADING:
+            self._finalize_W_loading()
+        elif self._loading_method == SPESNCell.INPUTS_SIMULATION:
+            self._finalize_input_simulation()
+        elif self._loading_method == SPESNCell.INPUTS_RECREATION:
+            self._finalize_input_recreation()
+        else:
+            raise Exception("Unknown loading method {}".format(self._loading_method))
+        # end if
 
         # Not in training mode anymore
         self.train(False)
     # end finalize
-
-    # region OVERRIDE
 
     # Hook which gets executed before the update state equation for every sample.
     def _pre_update_hook(self, inputs, forward_i, sample_i):
@@ -161,39 +262,16 @@ class SPESNCell(ESNCell):
         :param sample_i: Batch position.
         """
         if self.training:
-            # X (reservoir states)
-            X = states[self._washout:]
-            self._call_debug_point("X{}".format(self._n_samples), X, "SPESNCell", "_post_update_hook")
-
-            # Learn length
-            learn_length = X.size(0)
-
-            # Xold (reservoir states at t - 1))
-            if self._fill_left:
-                Xold = self.features(X, fill_left=states[self._washout-1] if self._washout > 0 else None)
+            # Loading method
+            if self._loading_method == SPESNCell.W_LOADING:
+                self._update_W(states)
+            elif self._loading_method == SPESNCell.INPUTS_SIMULATION:
+                self._update_input_simulation(states)
+            elif self._loading_method == SPESNCell.INPUTS_RECREATION:
+                self._update_input_recreation(states)
             else:
-                Xold = self.features(X)
+                raise Exception("Unknown loading method {}".format(self._loading_method))
             # end if
-
-            # Debug Xold
-            self._call_debug_point("Xold{}".format(self._n_samples), Xold, "SPESNCell", "_post_update_hook")
-
-            # Y (W*x + Win*u), what we want to predict
-            Y = self.targets(X)
-            self._call_debug_point("Y{}".format(self._n_samples), Y, "SPESNCell", "_post_update_hook")
-
-            # Covariance matrices
-            if self._averaged:
-                self.xTx.data.add_((Xold.t().mm(Xold) / learn_length).data)
-                self.xTy.data.add_((Xold.t().mm(Y) / learn_length).data)
-            else:
-                self.xTx.data.add_(Xold.t().mm(Xold).data)
-                self.xTy.data.add_(Xold.t().mm(Y).data)
-            # end if
-
-            # Debug for xTx and xTy
-            self._call_debug_point("xTx{}".format(self._n_samples), Xold.t().mm(Xold), "SPESNCell", "_post_update_hook")
-            self._call_debug_point("xTy{}".format(self._n_samples), Xold.t().mm(Y), "SPESNCell", "_post_update_hook")
 
             # Inc
             self._n_samples += 1
