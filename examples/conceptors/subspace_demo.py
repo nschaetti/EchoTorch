@@ -37,22 +37,32 @@ from torch.autograd import Variable
 torch.random.manual_seed(1)
 np.random.seed(1)
 
-# ESN params
+# Type parameter
+dtype=torch.float64
+
+# Reservoir parameters
 reservoir_size = 100
 spectral_radius = 1.5
-input_scaling = 1.5
 bias_scaling = 0.2
 connectivity = 10.0 / reservoir_size
-dtype=torch.float64
+
+# Inputs parameters
+input_scaling = 1.5
 
 # Sequence lengths
 washout_length = 500
 learn_length = 1000
-signal_plot_length = 20
+
+# Training parameters
+loading_method = ecnc.SPESNCell.INPUTS_SIMULATION
+
+# Testing parameters
 conceptor_test_length = 200
-singular_plot_length = 50
-free_run_length = 100000
 interpolation_rate = 20
+
+# Plotting parameters
+signal_plot_length = 20
+singular_plot_length = 50
 
 # Regularization
 ridge_param_wstar = 0.0001
@@ -154,6 +164,7 @@ conceptor_net = ecnc.ConceptorNet(
     input_scaling=1.0,
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
+    loading_method=loading_method,
     washout=washout_length,
     dtype=dtype
 )
@@ -212,8 +223,10 @@ conceptor_net.finalize()
 predY = torch.mm(conceptor_net.cell.w, Xold_collector.t()).t()
 
 # Compute NRMSE
-training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
-print("Training NRMSE : {}".format(training_NRMSE))
+if loading_method == ecnc.SPESNCell.W_LOADING:
+    training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
+    print("Training NRMSE : {}".format(training_NRMSE))
+# end if
 
 # Conceptors OFF
 conceptor_net.conceptor_active(False)

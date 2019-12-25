@@ -43,8 +43,8 @@ class SPESN(ESN):
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  w_learning_algo='inv', ridge_param=0.000001, w_ridge_param=0.0001, with_bias=True,
-                 softmax_output=False, washout=0, fill_left=False, debug=Node.NO_DEBUG, test_case=None,
-                 dtype=torch.float32):
+                 softmax_output=False, washout=0, fill_left=False, loading_method=SPESNCell.W_LOADING,
+                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -106,6 +106,7 @@ class SPESN(ESN):
             w_ridge_param=w_ridge_param,
             washout=washout,
             fill_left=fill_left,
+            loading_method=loading_method,
             debug=debug,
             test_case=test_case,
             dtype=dtype

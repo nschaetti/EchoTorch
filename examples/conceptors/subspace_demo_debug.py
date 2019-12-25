@@ -48,22 +48,30 @@ else:
 torch.random.manual_seed(1)
 np.random.seed(1)
 
-# ESN params
-reservoir_size = 100
-spectral_radius = 1.5
-input_scaling = 1.5
-bias_scaling = 0.2
-connectivity = 10.0 / reservoir_size
+# Type parameters
 dtype=torch.float64
 
-# Sequence lengths
+# Reservoir parameters
+reservoir_size = 100
+spectral_radius = 1.5
+bias_scaling = 0.2
+connectivity = 10.0 / reservoir_size
+
+# Input parameters
+input_scaling = 1.5
+
+# Learning parameters
 washout_length = 500
 learn_length = 1000
-signal_plot_length = 20
+loading_method = ecnc.SPESNCell.W_LOADING
+
+# Testing parameters
 conceptor_test_length = 200
-singular_plot_length = 50
-free_run_length = 100000
 interpolation_rate = 20
+
+# Plotting parameters
+signal_plot_length = 20
+singular_plot_length = 50
 
 # Regularization
 ridge_param_wstar = 0.0001
@@ -134,25 +142,6 @@ dataset_training = DatasetComposer([pattern1_training, pattern2_training, patter
 # Data loader
 patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_workers=1)
 
-# Create a self-predicting ESN
-# which will be loaded with the
-# four patterns.
-"""spesn = ecnc.SPESN(
-    input_dim=1,
-    hidden_dim=reservoir_size,
-    output_dim=1,
-    learning_algo='inv',
-    w_generator=w_generator,
-    win_generator=win_generator,
-    wbias_generator=wbias_generator,
-    input_scaling=1.0,
-    ridge_param=ridge_param_wout,
-    w_ridge_param=ridge_param_wstar,
-    washout=washout_length,
-    debug=debug_mode,
-    dtype=dtype
-)"""
-
 # Create a set of conceptors
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
 
@@ -178,6 +167,7 @@ conceptor_net = ecnc.ConceptorNet(
     ridge_param=ridge_param_wout,
     w_ridge_param=ridge_param_wstar,
     washout=washout_length,
+    loading_method=loading_method,
     debug=debug_mode,
     dtype=dtype
 )
@@ -205,11 +195,13 @@ if debug_mode > Node.NO_DEBUG:
         )
 
         # Targets
-        conceptor_net.cell.debug_point(
-            "Y{}".format(i),
-            torch.from_numpy(np.load("data/debug/subspace_demo/Y{}.npy".format(i))),
-            precision
-        )
+        if loading_method == ecnc.SPESNCell.W_LOADING:
+            conceptor_net.cell.debug_point(
+                "Y{}".format(i),
+                torch.from_numpy(np.load("data/debug/subspace_demo/Y{}.npy".format(i))),
+                precision
+            )
+        # end if
 
         # Xold
         conceptor_net.cell.debug_point(
@@ -231,11 +223,15 @@ if debug_mode > Node.NO_DEBUG:
     conceptor_net.cell.debug_point("Win", torch.from_numpy(np.load("data/debug/subspace_demo/Win.npy")), precision)
     conceptor_net.cell.debug_point("Wbias", torch.from_numpy(np.load("data/debug/subspace_demo/Wbias.npy")), precision)
     conceptor_net.cell.debug_point("xTx", torch.from_numpy(np.load("data/debug/subspace_demo/xTx.npy")), precision)
-    conceptor_net.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")), precision)
     conceptor_net.cell.debug_point("w_ridge_param", 0.0001, precision)
     conceptor_net.cell.debug_point("ridge_xTx", torch.from_numpy(np.load("data/debug/subspace_demo/ridge_xTx.npy")), precision)
     conceptor_net.cell.debug_point("inv_xTx", torch.from_numpy(np.load("data/debug/subspace_demo/inv_xTx.npy")), precision)
     conceptor_net.cell.debug_point("w", torch.from_numpy(np.load("data/debug/subspace_demo/W.npy")), precision)
+
+    # Debug not related to inputs recreation
+    if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
+        conceptor_net.cell.debug_point("xTy", torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")), precision)
+    # end if
 # end if
 
 # Xold and Y collectors
@@ -283,13 +279,16 @@ observer.set_active(False)
 
 # Learn internal weights
 conceptor_net.finalize()
+# print(conceptor_net.cell.D)
 
 # Predicted by W
 predY = torch.mm(conceptor_net.cell.w, Xold_collector.t()).t()
 
 # Compute NRMSE
-training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
-print("Training NRMSE : {}".format(training_NRMSE))
+if loading_method == ecnc.SPESNCell.W_LOADING:
+    training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
+    print("Training NRMSE : {}".format(training_NRMSE))
+# end if
 
 # Conceptors OFF
 conceptor_net.conceptor_active(False)

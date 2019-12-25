@@ -96,11 +96,6 @@ class ESNCell(Node, Observable):
         self.add_observation_point("w_bias", unique=True)
         self.add_observation_point("X", unique=False)
         self.add_observation_point("U", unique=False)
-
-        # Observe W, Win, Wbias
-        """self.observation_point('w', self.w)
-        self.observation_point('w_in', self.w_in)
-        self.observation_point('w_bias', self.w_bias)"""
     # end __init__
 
     ######################

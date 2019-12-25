@@ -102,7 +102,6 @@ class IncSPESNCell(SPESNCell):
         self.train(False)
     # end reset
 
-
     # Compute input layer
     def _input_layer(self, ut):
         """
