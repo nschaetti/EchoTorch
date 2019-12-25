@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch
 from torch.autograd import Variable
 from echotorch.nn.reservoir.ESNCell import ESNCell
-import matplotlib.pyplot as plt
 
 
 # Self-Predicting ESN Cell
@@ -44,7 +43,7 @@ class SPESNCell(ESNCell):
 
     # Constructor
     def __init__(self, w_ridge_param, w_learning_algo='inv', averaged=False, fill_left=False,
-                 loading_method='w-loading', *args, **kwargs):
+                 loading_method=SPESNCell.W_LOADING, *args, **kwargs):
         """
         Constructor
         :param w_learning_param:
