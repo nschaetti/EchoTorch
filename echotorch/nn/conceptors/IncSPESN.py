@@ -28,6 +28,7 @@ Created on 5th November 2019
 import torch
 from ..linear import IncRRCell
 from .IncSPESNCell import IncSPESNCell
+from .SPESNCell import SPESNCell
 from ..reservoir import ESN
 from ..Node import Node
 
@@ -43,8 +44,8 @@ class IncSPESN(ESN):
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo_wout='pinv', learning_algo_w='inv',
                  ridge_param_wout=0.000001, aperture=1, with_bias=False, softmax_output=False, washout=0,
-                 cell_averaged=True, output_averaged=True, fill_left=False, debug=Node.NO_DEBUG, test_case=None,
-                 dtype=torch.float32):
+                 cell_averaged=True, output_averaged=True, fill_left=False, loading_method=SPESNCell.INPUTS_SIMULATION,
+                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -64,6 +65,7 @@ class IncSPESN(ESN):
         :param with_bias: Add a bias to the output layer ?
         :param softmax_output: Add a softmax output layer
         :param washout: Washout period (ignore timesteps at the beginning of each sample)
+        :param loading_method:
         :param debug: Debug mode
         :param test_case: Test case to call
         :param dtype: Data type
@@ -112,6 +114,7 @@ class IncSPESN(ESN):
             washout=washout,
             fill_left=fill_left,
             averaged=cell_averaged,
+            loading_method=loading_method,
             debug=debug,
             test_case=test_case,
             dtype=dtype

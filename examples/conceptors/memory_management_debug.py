@@ -67,6 +67,7 @@ input_scaling = 1.5
 # Washout and learning lengths
 washout_length = 100
 learn_length = 100
+loading_method = ecnc.SPESNCell.INPUTS_RECREATION
 
 # Testing parameters
 interpolation_rate = 20
@@ -340,6 +341,7 @@ conceptor_net = ecnc.IncConceptorNet(
     aperture=aperture,
     washout=washout_length,
     fill_left=True,
+    loading_method=loading_method,
     debug=debug_mode,
     dtype=dtype
 )
@@ -379,11 +381,13 @@ if debug_mode > Node.NO_DEBUG:
         )
 
         # SPESN : Td
-        conceptor_net.cell.debug_point(
-            "Td{}".format(i),
-            torch.from_numpy(np.load("data/debug/memory_management/Td{}.npy".format(i)).T),
-            precision
-        )
+        if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
+            conceptor_net.cell.debug_point(
+                "Td{}".format(i),
+                torch.from_numpy(np.load("data/debug/memory_management/Td{}.npy".format(i)).T),
+                precision
+            )
+        # end if
 
         # SPESN : F
         conceptor_net.cell.debug_point(
@@ -400,11 +404,13 @@ if debug_mode > Node.NO_DEBUG:
         )
 
         # SPESN : sTd
-        conceptor_net.cell.debug_point(
-            "sTd{}".format(i),
-            torch.from_numpy(np.load("data/debug/memory_management/sTd{}.npy".format(i))),
-            precision
-        )
+        if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
+            conceptor_net.cell.debug_point(
+                "sTd{}".format(i),
+                torch.from_numpy(np.load("data/debug/memory_management/sTd{}.npy".format(i))),
+                precision
+            )
+        # end if
 
         # SPESN : sTs
         conceptor_net.cell.debug_point(

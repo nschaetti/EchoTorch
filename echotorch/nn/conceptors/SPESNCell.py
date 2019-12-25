@@ -286,8 +286,10 @@ class SPESNCell(ESNCell):
         Reset learning
         :return:
         """
-        self.xTx.data.fill_(0.0)
-        self.xTy.data.fill_(0.0)
+        self.xTx.fill_(0.0)
+        self.xTy.fill_(0.0)
+        self.D.fill_(0.0)
+        self.R.fill_(0.0)
         self._n_samples = 0
 
         # Training mode again
