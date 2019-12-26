@@ -76,7 +76,7 @@ class IncSPESNCell(SPESNCell):
             # The linear subspace of the reservoir state space that are not yet
             # occupied by any pattern.
             F = self._conceptors.F()
-            self._call_debug_point("F{}".format(self._n_samples), F, "IncSPESNCell", "_post_update_hook")
+            self._call_debug_point("F{}".format(self._n_samples), F, "IncSPESNCell", "_compute_increment")
 
             # Filter old state to get only what is new
             S_old = torch.mm(F, X.t()).t()
@@ -86,7 +86,7 @@ class IncSPESNCell(SPESNCell):
         # end if
 
         # Debug
-        self._call_debug_point("Sold{}".format(self._n_samples), S_old, "IncSPESNCell", "_post_update_hook")
+        self._call_debug_point("Sold{}".format(self._n_samples), S_old, "IncSPESNCell", "_compute_increment")
 
         # Targets
         if self._averaged:
@@ -96,7 +96,7 @@ class IncSPESNCell(SPESNCell):
         # end if
 
         # Debug
-        self._call_debug_point("sTd{}".format(self._n_samples), sTd, "IncSPESNCell", "_post_update_hook")
+        self._call_debug_point("sTd{}".format(self._n_samples), sTd, "IncSPESNCell", "_compute_increment")
 
         # sTs
         if self._averaged:
@@ -106,25 +106,25 @@ class IncSPESNCell(SPESNCell):
         # end if
 
         # Debug
-        self._call_debug_point("sTs{}".format(self._n_samples), sTs, "IncSPESNCell", "_post_update_hook")
+        self._call_debug_point("sTs{}".format(self._n_samples), sTs, "IncSPESNCell", "_compute_increment")
 
         # Ridge sTs
         ridge_sTs = sTs + math.pow(self._aperture, -2) * torch.eye(self._output_dim)
 
         # Debug
-        self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncSPESNCell", "_post_update_hook")
+        self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncSPESNCell", "_compute_increment")
 
         # Inverse / pinverse
         if self._w_learning_algo == "inv":
-            inv_sTs = self._inverse("ridge_sTs", ridge_sTs, "IncSPESNCell", "_post_update_hook")
+            inv_sTs = self._inverse("ridge_sTs", ridge_sTs, "IncSPESNCell", "_compute_increment")
         elif self._w_learning_algo == "pinv":
-            inv_sTs = self._pinverse("ridge_sTs", ridge_sTs, "IncSPESNCell", "_post_update_hook")
+            inv_sTs = self._pinverse("ridge_sTs", ridge_sTs, "IncSPESNCell", "_compute_increment")
         else:
             raise Exception("Unknown learning method {}".format(self._learning_algo))
         # end if
 
         # Debug
-        self._call_debug_point("inv_sTs{}".format(self._n_samples), inv_sTs, "IncSPESNCell", "_post_update_hook")
+        self._call_debug_point("inv_sTs{}".format(self._n_samples), inv_sTs, "IncSPESNCell", "_compute_increment")
 
         # Compute the increment for matrix D
         return torch.mm(inv_sTs, sTd).t()
@@ -135,22 +135,8 @@ class IncSPESNCell(SPESNCell):
         """
         Update input simulation matrix D
         """
-        # X (reservoir states)
-        X = states[self._washout:]
-        self._call_debug_point("X{}".format(self._n_samples), X, "IncSPESNCell", "_update_D_loading")
-
-        # Get old states as features
-        if self._fill_left:
-            X_old = self.features(X, fill_left=states[self._washout - 1] if self._washout > 0 else None)
-        else:
-            X_old = self.features(X)
-        # end if
-
-        # Debug Xold
-        self._call_debug_point("Xold{}".format(self._n_samples), X_old, "IncSPESNCell", "_update_D_loading")
-
-        # Inputs
-        U = inputs[self._washout:]
+        # Get X and U
+        X_old, U = self._compute_XU(states, inputs)
 
         # Targets : what cannot be predicted by the
         # current matrix D.
@@ -178,22 +164,8 @@ class IncSPESNCell(SPESNCell):
         """
         Update input recreation matrix R
         """
-        # X (reservoir states)
-        X = states[self._washout:]
-        self._call_debug_point("X{}".format(self._n_samples), X, "IncSPESNCell", "_update_R_loading")
-
-        # Get old states as features
-        if self._fill_left:
-            X_old = self.features(X, fill_left=states[self._washout - 1] if self._washout > 0 else None)
-        else:
-            X_old = self.features(X)
-        # end if
-
-        # Debug Xold
-        self._call_debug_point("Xold{}".format(self._n_samples), X_old, "IncSPESNCell", "_update_R_loading")
-
-        # Inputs
-        U = inputs[self._washout:]
+        # Get X and U
+        X_old, U = self._compute_XU(states, inputs)
 
         # Targets : what cannot be predicted by the
         # current matrix D.
@@ -212,6 +184,33 @@ class IncSPESNCell(SPESNCell):
         # Debug
         self._call_debug_point("R{}".format(self._n_samples), self.R, "IncSPESNCell", "_update_R_loading")
     # end _update_R_loading
+
+    # Compute X and U
+    def _compute_XU(self, states, inputs):
+        """
+        Compute X and U
+        :param states: Reservoir states
+        :param inputs: Reservoir inputs
+        """
+        # X (reservoir states)
+        X = states[self._washout:]
+        self._call_debug_point("X{}".format(self._n_samples), X, "IncSPESNCell", "_compute_XU")
+
+        # Get old states as features
+        if self._fill_left:
+            X_old = self.features(X, fill_left=states[self._washout - 1] if self._washout > 0 else None)
+        else:
+            X_old = self.features(X)
+        # end if
+
+        # Debug Xold
+        self._call_debug_point("Xold{}".format(self._n_samples), X_old, "IncSPESNCell", "_compute_XU")
+
+        # Inputs
+        U = inputs[self._washout:]
+
+        return X_old, U
+    # end _compute_XU
 
     # endregion PRIVATE
 
