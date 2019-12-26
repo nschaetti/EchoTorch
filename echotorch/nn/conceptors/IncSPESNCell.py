@@ -136,7 +136,7 @@ class IncSPESNCell(SPESNCell):
         Update input simulation matrix D
         """
         # Get X and U
-        X_old, U = self._compute_XU(states, inputs)
+        _, X_old, U = self._compute_XU(states, inputs)
 
         # Targets : what cannot be predicted by the
         # current matrix D.
@@ -165,7 +165,7 @@ class IncSPESNCell(SPESNCell):
         Update input recreation matrix R
         """
         # Get X and U
-        X_old, U = self._compute_XU(states, inputs)
+        _, X_old, U = self._compute_XU(states, inputs)
 
         # Targets : what cannot be predicted by the
         # current matrix D.
@@ -209,7 +209,7 @@ class IncSPESNCell(SPESNCell):
         # Inputs
         U = inputs[self._washout:]
 
-        return X_old, U
+        return X, X_old, U
     # end _compute_XU
 
     # endregion PRIVATE
