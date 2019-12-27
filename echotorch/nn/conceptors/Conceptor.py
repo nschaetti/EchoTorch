@@ -145,7 +145,7 @@ class Conceptor(NeuralFilter):
         The conceptor is empty (zero matrix)
         """
         return torch.all(
-            torch.eq(self.conceptor_matrix(),torch.zeros(self.input_dim, self.input_dim, dtype=self.dtype))
+            torch.eq(self.conceptor_matrix(), torch.zeros(self.input_dim, self.input_dim, dtype=self._dtype))
         )
     # end is_null
 

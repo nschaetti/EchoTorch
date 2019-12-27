@@ -40,6 +40,7 @@ class ConceptorSet(NeuralFilter):
         :param args: Arguments
         :param kwargs: Positional arguments
         """
+        print(kwargs)
         # Super constructor
         super(ConceptorSet, self).__init__(
             input_dim=input_dim,
@@ -108,7 +109,7 @@ class ConceptorSet(NeuralFilter):
         :return: Matrix N (Conceptor)
         """
         if self.is_null():
-            return torch.eye(self.input_dim, dtype=self.dtype)
+            return torch.eye(self.input_dim, dtype=self._dtype)
         else:
             return self.N().conceptor_matrix()
         # end if
@@ -121,7 +122,7 @@ class ConceptorSet(NeuralFilter):
         :return: OR (Conceptor) of all conceptors stored
         """
         # Start at 0
-        A = Conceptor(input_dim=self._conceptor_dim, aperture=1)
+        A = Conceptor(input_dim=self._conceptor_dim, aperture=1, dtype=self._dtype)
 
         # For each conceptor
         for kc, C in self._conceptors.items():
@@ -260,7 +261,7 @@ class ConceptorSet(NeuralFilter):
         """
         # Get morphed C
         Cm = self.morphed_C(morphing_vector)
-        new_C = Conceptor(self._input_dim, aperture=1)
+        new_C = Conceptor(self._input_dim, aperture=1, dtype=self._dtype)
         new_C.set_C(Cm)
         return new_C
     # end morphing
@@ -271,7 +272,7 @@ class ConceptorSet(NeuralFilter):
         Get morphed conceptor matrix
         """
         # Start with zero
-        Cm = torch.zeros(self.input_dim, self.input_dim, dtype=self.dtype)
+        Cm = torch.zeros(self.input_dim, self.input_dim, dtype=self._dtype)
 
         # For each conceptor
         for c_i, c_name in enumerate(self.conceptors.keys()):
@@ -302,7 +303,7 @@ class ConceptorSet(NeuralFilter):
         # end for
 
         # Start at 0
-        others = Conceptor(input_dim=self._conceptor_dim, aperture=1)
+        others = Conceptor(input_dim=self._conceptor_dim, aperture=1, dtype=self._dtype)
 
         # For each conceptor
         for kc, C in self._conceptors.items():

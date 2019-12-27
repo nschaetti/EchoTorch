@@ -24,6 +24,7 @@ from .Conceptor import Conceptor
 from .ConceptorNet import ConceptorNet
 from .ConceptorSet import ConceptorSet
 from .IncConceptorNet import IncConceptorNet
+from .IncForgSPESNCell import IncForgSPESNCell
 from .IncSPESN import IncSPESN
 from .IncSPESNCell import IncSPESNCell
 from .SPESN import SPESN
@@ -31,5 +32,6 @@ from .SPESNCell import SPESNCell
 
 # All
 __all__ = [
-    'Conceptor', 'ConceptorNet', 'ConceptorSet', 'IncConceptorNet', 'IncSPESN', 'IncSPESNCell', 'SPESN', 'SPESNCell'
+    'Conceptor', 'ConceptorNet', 'ConceptorSet', 'IncForgSPESNCell', 'IncConceptorNet', 'IncSPESN', 'IncSPESNCell',
+    'SPESN', 'SPESNCell'
 ]

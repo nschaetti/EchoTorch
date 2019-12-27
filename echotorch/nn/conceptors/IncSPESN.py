@@ -26,7 +26,7 @@ Created on 5th November 2019
 
 # Imports
 import torch
-from ..linear import IncRRCell
+from ..linear import IncRRCell, IncForgRRCell
 from .IncSPESNCell import IncSPESNCell
 from .IncForgSPESNCell import IncForgSPESNCell
 from .SPESNCell import SPESNCell
@@ -46,7 +46,8 @@ class IncSPESN(ESN):
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo_wout='pinv', learning_algo_w='inv',
                  ridge_param_wout=0.000001, aperture=1, with_bias=False, softmax_output=False, washout=0,
                  cell_averaged=True, output_averaged=True, fill_left=False, loading_method=SPESNCell.INPUTS_SIMULATION,
-                 incremental_forgetting=False, forgetting_lambda=0.0, forgetting_version=IncForgSPESNCell.FORGETTING_A,
+                 incremental_forgetting=False, forgetting_lambda=0.0,
+                 forgetting_version=IncForgSPESNCell.FORGETTING_VERSION1, forgetting_threshold=0.95,
                  debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
@@ -69,6 +70,7 @@ class IncSPESN(ESN):
         :param washout: Washout period (ignore timesteps at the beginning of each sample)
         :param loading_method:
         :param incremental_forgetting: Active incremental forgetting ?
+        :param forgetting_threshold: Forgetting threshold
         :param debug: Debug mode
         :param test_case: Test case to call
         :param dtype: Data type
@@ -122,6 +124,26 @@ class IncSPESN(ESN):
                 loading_method=loading_method,
                 lambda_param=forgetting_lambda,
                 forgetting_version=forgetting_version,
+                forgetting_threshold=forgetting_threshold,
+                debug=debug,
+                test_case=test_case,
+                dtype=dtype
+            )
+
+            # Output layer
+            self._output = IncForgRRCell(
+                input_dim=hidden_dim,
+                output_dim=output_dim,
+                ridge_param=ridge_param_wout,
+                aperture=aperture,
+                with_bias=with_bias,
+                learning_algo=learning_algo_wout,
+                softmax_output=softmax_output,
+                conceptors=conceptors,
+                averaged=output_averaged,
+                lambda_param=forgetting_lambda,
+                forgetting_version=forgetting_version,
+                forgetting_threshold=forgetting_threshold,
                 debug=debug,
                 test_case=test_case,
                 dtype=dtype
@@ -146,22 +168,22 @@ class IncSPESN(ESN):
                 test_case=test_case,
                 dtype=dtype
             )
-        # end if
 
-        # Output layer
-        self._output = IncRRCell(
-            input_dim=hidden_dim,
-            output_dim=output_dim,
-            ridge_param=ridge_param_wout,
-            with_bias=with_bias,
-            learning_algo=learning_algo_wout,
-            softmax_output=softmax_output,
-            conceptors=conceptors,
-            averaged=output_averaged,
-            debug=debug,
-            test_case=test_case,
-            dtype=dtype
-        )
+            # Output layer
+            self._output = IncRRCell(
+                input_dim=hidden_dim,
+                output_dim=output_dim,
+                ridge_param=ridge_param_wout,
+                with_bias=with_bias,
+                learning_algo=learning_algo_wout,
+                softmax_output=softmax_output,
+                conceptors=conceptors,
+                averaged=output_averaged,
+                debug=debug,
+                test_case=test_case,
+                dtype=dtype
+            )
+        # end if
     # end __init__
 
     # endregion BODY

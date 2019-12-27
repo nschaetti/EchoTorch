@@ -59,6 +59,18 @@ class IncSPESNCell(SPESNCell):
         # Parameter
         self._conceptors = conceptors
         self._aperture = aperture
+
+        # Input simulation matrix increment
+        self.register_buffer(
+            'Dinc',
+            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+        )
+
+        # Input recreation matrix increment
+        self.register_buffer(
+            'Rinc',
+            Variable(torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+        )
     # end __init__
 
     # region PRIVATE
@@ -147,13 +159,13 @@ class IncSPESNCell(SPESNCell):
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncSPESNCell", "_update_D_loading")
 
         # Compute the increment for matrix D
-        Dinc = self._compute_increment(X_old, Y)
+        self.Dinc = self._compute_increment(X_old, Y)
 
         # Debug
-        self._call_debug_point("Dinc{}".format(self._n_samples), Dinc, "IncSPESNCell", "_update_D_loading")
+        self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
 
         # Increment D
-        self.D += Dinc
+        self.D += self.Dinc
 
         # Debug
         self._call_debug_point("D{}".format(self._n_samples), self.D, "IncSPESNCell", "_update_D_loading")
@@ -173,13 +185,13 @@ class IncSPESNCell(SPESNCell):
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncSPESNCell", "_update_R_loading")
 
         # Compute the increment for matrix D
-        Rinc = self._compute_increment(X_old, Y)
+        self.Rinc = self._compute_increment(X_old, Y)
 
         # Debug
-        self._call_debug_point("Rinc{}".format(self._n_samples), Rinc, "IncSPESNCell", "_update_R_loading")
+        self._call_debug_point("Rinc{}".format(self._n_samples), self.Rinc, "IncSPESNCell", "_update_R_loading")
 
         # Increment R
-        self.R += Rinc
+        self.R += self.Rinc
 
         # Debug
         self._call_debug_point("R{}".format(self._n_samples), self.R, "IncSPESNCell", "_update_R_loading")
