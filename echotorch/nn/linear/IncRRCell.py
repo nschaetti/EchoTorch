@@ -84,15 +84,109 @@ class IncRRCell(Node):
 
         # Wout matrix
         self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
+        self.register_buffer('w_out_inc', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
     # end __init__
 
-    #####################
-    # PROPERTIES
-    #####################
+    # region PRIVATE
 
-    #####################
-    # PUBLIC
-    #####################
+    # Compute Wout increment
+    def _compute_increment(self, X, Y):
+        """
+        Compute Wout increment
+        """
+        # Time length
+        time_length = X.size()[0]
+
+        # Targets to be learn : what is not predicted
+        # by current Wout matrix
+        Yt = Y - torch.mm(self.w_out, X.t()).t()
+
+        # Debug
+        self._call_debug_point("X{}".format(self._n_samples), X, "IncRRCell", "_compute_increment")
+        self._call_debug_point("y{}".format(self._n_samples), Y, "IncRRCell", "_compute_increment")
+        self._call_debug_point("Yt{}".format(self._n_samples), Yt, "IncRRCell", "_compute_increment")
+
+        # Filter if the conceptor is not null
+        if not self._conceptors.is_null():
+            # The linear subspace of the reservoir state space that are not yet
+            # occupied by any pattern.
+            F = self._conceptors.F()
+
+            # Debug
+            self._call_debug_point("F{}".format(self._n_samples), F, "IncRRCell", "_compute_increment")
+
+            # Filter training states to get what is new in the reservoir space
+            S = torch.mm(F, X.t()).t()
+        else:
+            # No filter
+            S = X
+        # end if
+
+        # Debug
+        self._call_debug_point("S{}".format(self._n_samples), S, "IncRRCell", "_compute_increment")
+
+        # sTs
+        if self._averaged:
+            sTs = torch.mm(S.t(), S) / time_length
+        else:
+            sTs = torch.mm(S.t(), S)
+        # end if
+
+        # Debug
+        self._call_debug_point("sTs{}".format(self._n_samples), sTs, "IncRRCell", "_compute_increment")
+
+        # sTy
+        if self._averaged:
+            sTy = torch.mm(S.t(), Yt) / time_length
+        else:
+            sTy = torch.mm(S.t(), Yt)
+        # end if
+
+        # Debug
+        self._call_debug_point("sTy{}".format(self._n_samples), sTy, "IncRRCell", "_compute_increment")
+
+        # Ridge sTs
+        ridge_sTs = sTs + self._ridge_param * torch.eye(self._input_dim)
+
+        # Debug
+        self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncRRCell", "_compute_increment")
+
+        # Inverse / pinverse
+        if self._learning_algo == "inv":
+            inv_sTs = self._inverse("ridge_sTs", ridge_sTs, "IncRRCell", "_compute_increment")
+        elif self._learning_algo == "pinv":
+            inv_sTs = self._pinverse("ridge_sTs", ridge_sTs, "IncRRCell", "_compute_increment")
+        else:
+            raise Exception("Unknown learning method {}".format(self._learning_algo))
+        # end if
+
+        # Debug
+        self._call_debug_point("inv_sTs{}".format(self._n_samples), inv_sTs, "IncRRCell", "_compute_increment")
+
+        # Compute increment for Wout
+        Wout_inc = (torch.mm(inv_sTs, sTy)).t()
+
+        # Debug
+        self._call_debug_point("Wout_inc{}".format(self._n_samples), Wout_inc, "IncRRCell", "_compute_increment")
+
+        return Wout_inc
+    # end _compute_increment
+
+    # Update Wout matrix
+    def _update_Wout_loading(self, x, y):
+        """
+        Update Wout matrix
+        """
+        # Compute increment for Wout
+        self.w_out_inc = self._compute_increment(x, y)
+
+        # Increment Wout
+        self.w_out += self.w_out_inc
+    # end _update_Wout_loading
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Reset learning
     def reset(self):
@@ -132,80 +226,8 @@ class IncRRCell(Node):
         if self.training:
             # For each sample in the batch
             for b in range(batch_size):
-                # Targets to be learn : what is not predicted
-                # by current Wout matrix
-                Y = y[b] - torch.mm(self.w_out, x[b].t()).t()
-
-                # Debug
-                self._call_debug_point("X{}".format(self._n_samples), x[b], "IncRRCell", "forward")
-                self._call_debug_point("y{}".format(self._n_samples), y[b], "IncRRCell", "forward")
-                self._call_debug_point("Y{}".format(self._n_samples), Y, "IncRRCell", "forward")
-
-                # Filter if the conceptor is not null
-                if not self._conceptors.is_null():
-                    # The linear subspace of the reservoir state space that are not yet
-                    # occupied by any pattern.
-                    F = self._conceptors.F()
-
-                    # Debug
-                    self._call_debug_point("F{}".format(self._n_samples), F, "IncRRCell", "forward")
-
-                    # Filter training states to get what is new in the reservoir space
-                    S = torch.mm(F, x[b].t()).t()
-                else:
-                    # No filter
-                    S = x[b]
-                # end if
-
-                # Debug
-                self._call_debug_point("S{}".format(self._n_samples), S, "IncRRCell", "forward")
-
-                # sTs
-                if self._averaged:
-                    sTs = torch.mm(S.t(), S) / time_length
-                else:
-                    sTs = torch.mm(S.t(), S)
-                # end if
-
-                # Debug
-                self._call_debug_point("sTs{}".format(self._n_samples), sTs, "IncRRCell", "forward")
-
-                # sTy
-                if self._averaged:
-                    sTy = torch.mm(S.t(), Y) / time_length
-                else:
-                    sTy = torch.mm(S.t(), Y)
-                # end if
-
-                # Debug
-                self._call_debug_point("sTy{}".format(self._n_samples), sTy, "IncRRCell", "forward")
-
-                # Ridge sTs
-                ridge_sTs = sTs + self._ridge_param * torch.eye(self._input_dim)
-
-                # Debug
-                self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncRRCell", "forward")
-
-                # Inverse / pinverse
-                if self._learning_algo == "inv":
-                    inv_sTs = self._inverse("ridge_sTs", ridge_sTs, "IncRRCell", "forward")
-                elif self._learning_algo == "pinv":
-                    inv_sTs = self._pinverse("ridge_sTs", ridge_sTs, "IncRRCell", "forward")
-                else:
-                    raise Exception("Unknown learning method {}".format(self._learning_algo))
-                # end if
-
-                # Debug
-                self._call_debug_point("inv_sTs{}".format(self._n_samples), inv_sTs, "IncRRCell", "forward")
-
-                # Compute increment for Wout
-                Wout_inc = (torch.mm(inv_sTs, sTy)).t()
-
-                # Debug
-                self._call_debug_point("Wout_inc{}".format(self._n_samples), Wout_inc, "IncRRCell", "forward")
-
-                # Increment Wout
-                self.w_out += Wout_inc
+                # Update Wout matrix
+                self._update_Wout_loading(x[b], y[b])
 
                 # Debug
                 self._call_debug_point("w_out{}".format(self._n_samples), self.w_out, "IncRRCell", "forward")
@@ -235,6 +257,8 @@ class IncRRCell(Node):
             # end if
         # end if
     # end forward
+
+    # endregion OVERRIDE
 
     # region PRIVATE
 

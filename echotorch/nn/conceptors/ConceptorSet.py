@@ -108,24 +108,24 @@ class ConceptorSet(NeuralFilter):
         :return: Matrix N (Conceptor)
         """
         if self.is_null():
-            return torch.eye(self.input_dim, dtype=self.dtype)
+            return torch.eye(self.input_dim, dtype=self._dtype)
         else:
             return self.N().conceptor_matrix()
         # end if
     # end F
 
     # OR of all conceptors stored
-    def A(self):
+    def A(self, tol=1e-14):
         """
         OR of all conceptors stored
         :return: OR (Conceptor) of all conceptors stored
         """
         # Start at 0
-        A = Conceptor(input_dim=self._conceptor_dim, aperture=1)
+        A = Conceptor(input_dim=self._conceptor_dim, aperture=1, dtype=self._dtype)
 
         # For each conceptor
         for kc, C in self._conceptors.items():
-            A.OR_(C)
+            A.OR_(C, tol=tol)
         # end for
 
         return A
@@ -260,7 +260,7 @@ class ConceptorSet(NeuralFilter):
         """
         # Get morphed C
         Cm = self.morphed_C(morphing_vector)
-        new_C = Conceptor(self._input_dim, aperture=1)
+        new_C = Conceptor(self._input_dim, aperture=1, dtype=self._dtype)
         new_C.set_C(Cm)
         return new_C
     # end morphing
@@ -271,7 +271,7 @@ class ConceptorSet(NeuralFilter):
         Get morphed conceptor matrix
         """
         # Start with zero
-        Cm = torch.zeros(self.input_dim, self.input_dim, dtype=self.dtype)
+        Cm = torch.zeros(self.input_dim, self.input_dim, dtype=self._dtype)
 
         # For each conceptor
         for c_i, c_name in enumerate(self.conceptors.keys()):
@@ -284,7 +284,7 @@ class ConceptorSet(NeuralFilter):
 
     # Negative evidence for a Conceptor
     # TODO: Test
-    def Eneg(self, conceptor_i, x):
+    def Eneg(self, conceptor_i, x, tol=1e-14):
         """
         Negative evidence
         :param conceptor_i: Index of the conceptor to compare to.
@@ -302,12 +302,12 @@ class ConceptorSet(NeuralFilter):
         # end for
 
         # Start at 0
-        others = Conceptor(input_dim=self._conceptor_dim, aperture=1)
+        others = Conceptor(input_dim=self._conceptor_dim, aperture=1, dtype=self._dtype)
 
         # For each conceptor
         for kc, C in self._conceptors.items():
             if kc != conceptor_i:
-                others.OR_(C)
+                others.OR_(C, tol=tol)
             # end if
         # end for
 

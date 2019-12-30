@@ -25,10 +25,11 @@ Created on 29th of October, 2019
 """
 
 # Imports
+from .IncForgRRCell import IncForgRRCell
 from .IncRRCell import IncRRCell
 from .RRCell import RRCell
 
 # All
 __all__ = [
-    'IncRRCell', 'RRCell'
+    'IncForgRRCell', 'IncRRCell', 'RRCell'
 ]

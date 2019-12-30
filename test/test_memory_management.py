@@ -49,7 +49,8 @@ class Test_Memory_Management(EchoTorchTestCase):
                           bias_scaling=0.25, connectivity=10.0, washout_length=100, learn_length=100,
                           ridge_param_wout=0.01, aperture=1000, precision=0.001,
                           torch_seed=1, np_seed=1, interpolation_rate=20, conceptor_test_length=200,
-                          signal_plot_length=20, use_matlab_params=True):
+                          signal_plot_length=20, loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
+                          use_matlab_params=True):
         """
         Memory management
         """
@@ -298,6 +299,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             aperture=aperture,
             washout=washout_length,
             fill_left=True,
+            loading_method=loading_method,
             debug=debug_mode,
             test_case=self,
             dtype=dtype
@@ -335,11 +337,13 @@ class Test_Memory_Management(EchoTorchTestCase):
                 )
 
                 # SPESN : Td
-                conceptor_net.cell.debug_point(
-                    "Td{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Td{}.npy".format(i)).T),
-                    precision if i < 13 else precision * 100
-                )
+                if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
+                    conceptor_net.cell.debug_point(
+                        "Td{}".format(i),
+                        torch.from_numpy(np.load("data/tests/memory_management/Td{}.npy".format(i)).T),
+                        precision if i < 13 else precision * 100
+                    )
+                # end if
 
                 # SPESN : F
                 if i != 15:
@@ -358,11 +362,13 @@ class Test_Memory_Management(EchoTorchTestCase):
                 )
 
                 # SPESN : sTd
-                conceptor_net.cell.debug_point(
-                    "sTd{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/sTd{}.npy".format(i))),
-                    precision if i < 15 else precision * 100
-                )
+                if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
+                    conceptor_net.cell.debug_point(
+                        "sTd{}".format(i),
+                        torch.from_numpy(np.load("data/tests/memory_management/sTd{}.npy".format(i))),
+                        precision if i < 15 else precision * 100
+                    )
+                # end if
 
                 # SPESN : sTs
                 conceptor_net.cell.debug_point(
@@ -461,6 +467,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 else:
                     inv_sts_precision = precision * 100
                 # end if
+
                 conceptor_net.output.debug_point(
                     "inv_sTs{}".format(i),
                     torch.from_numpy(np.load("data/tests/memory_management/Wout_inv_ridge_sTs{}.npy".format(i))),
@@ -592,7 +599,7 @@ class Test_Memory_Management(EchoTorchTestCase):
 
     # region TEST
 
-    # Memory management with matlab info
+    # Memory management (input simulation) with matlab info
     def test_memory_management_matlab(self):
         """
         Memory management
@@ -621,6 +628,37 @@ class Test_Memory_Management(EchoTorchTestCase):
             ]
         )
     # end test_memory_management_matlab
+
+    # Memory management (input recreation) with matlab info
+    def test_memory_management_input_recreation_matlab(self):
+        """
+        Memory management
+        """
+        # Test with matlab params
+        self.memory_management(
+            data_dir="memory_management",
+            use_matlab_params=True,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
+            expected_NRMSEs=[
+                0.01825501182411578,
+                0.022420943203613906,
+                0.0028304998508909174,
+                0.02841607835076219,
+                0.029260350859960222,
+                0.01825501182411578,
+                0.022420943203613906,
+                0.0028304998508909174,
+                0.1671342727324171,
+                0.0051145493052900,
+                0.0275242645293474,
+                0.0230442825704813,
+                0.0249327812343836,
+                0.0059416182339191,
+                0.1890864223241806,
+                1.4962894916534424
+            ]
+        )
+    # end test_memory_management_input_recreation_matlab
 
     # Test memory management random 100 neurons
     def test_memory_management_random_100neurons(self):
@@ -655,6 +693,40 @@ class Test_Memory_Management(EchoTorchTestCase):
         )
     # end test_memory_management_random_100neurons
 
+    # Test memory management (input recreation) random 100 neurons
+    def test_memory_management_input_recreation_random_100neurons(self):
+        """
+        Test memory management (input recreation) random 100 neurons
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
+            precision=0.000001,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                1.1544502340257168e-02,
+                9.5921922475099564e-03,
+                1.0274781379848719e-03,
+                3.5200463607907295e-03,
+                6.2437158077955246e-02,
+                1.1544502340257168e-02,
+                9.5921922475099564e-03,
+                1.0274781379848719e-03,
+                5.1192387938499451e-02,
+                5.9445840306580067e-03,
+                1.8144855275750160e-02,
+                9.4426041468977928e-03,
+                2.1960476413369179e-02,
+                5.6651360355317593e-03,
+                6.4829468727111816e-02,
+                1.7635645866394043e+00
+            ]
+        )
+    # end test_memory_management_input_recreation_random_100neurons
+
     # Test memory management random 200 neurons
     def test_memory_management_random_200neurons(self):
         """
@@ -665,6 +737,41 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             reservoir_size=200,
             use_matlab_params=False,
+            precision=0.000001,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                0.0004915953031741,
+                0.0016071919817477,
+                0.0002676959265955,
+                0.0009588617249392,
+                0.0002541547582950,
+                0.0004915953031741,
+                0.0016071919817477,
+                0.0002676959265955,
+                0.0014735902659595,
+                0.0008529321057722,
+                0.0006031005177647,
+                0.0015809513861313,
+                0.0016617941437289,
+                0.0003109153185505,
+                0.0027175231371075,
+                0.0012399877887219
+            ]
+        )
+    # end test_memory_management_random_200neurons
+
+    # Test memory management (input recreation) random 200 neurons
+    def test_memory_management_input_recreation_random_200neurons(self):
+        """
+        Test memory management (input recreation) random 200 neurons
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            reservoir_size=200,
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             precision=0.000001,
             torch_seed=5,
             np_seed=5,

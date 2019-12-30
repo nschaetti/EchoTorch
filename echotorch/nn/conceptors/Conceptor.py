@@ -131,7 +131,7 @@ class Conceptor(NeuralFilter):
         if self.is_null():
             return 0.0
         else:
-            return float(torch.sum(self.SV) / self.input_dim)
+            return torch.sum(self.SV).item() / self.input_dim
         # end if
     # end quota
 
@@ -145,7 +145,7 @@ class Conceptor(NeuralFilter):
         The conceptor is empty (zero matrix)
         """
         return torch.all(
-            torch.eq(self.conceptor_matrix(),torch.zeros(self.input_dim, self.input_dim, dtype=self.dtype))
+            torch.eq(self.conceptor_matrix(), torch.zeros(self.input_dim, self.input_dim, dtype=self._dtype))
         )
     # end is_null
 
@@ -308,7 +308,7 @@ class Conceptor(NeuralFilter):
     # end PHI
 
     # AND in Conceptor Logic
-    def AND(self, B):
+    def AND(self, B, tol=1e-14):
         """
         AND in Conceptor Logic
         :param B: Second conceptor operand (reservoir size x reservoir size)
@@ -316,15 +316,20 @@ class Conceptor(NeuralFilter):
         """
         # Dimension
         dim = self.input_dim
-        tol = 1e-14
 
         # Conceptor matrices
         Cc = self.C
         Bc = B.C
 
+        # Same conceptor ?
+        same_conceptor = torch.all(torch.eq(Cc, Bc))
+
         # Apertures
         C_aperture = self.aperture
         B_aperture = B.aperture
+
+        # Same aperture
+        same_aperture = C_aperture == B_aperture
 
         # SV on both conceptor
         (UC, SC, UtC) = torch.svd(Cc)
@@ -364,27 +369,41 @@ class Conceptor(NeuralFilter):
         )
 
         # Cet C
-        new_conceptor.set_C(
-            C=CandB,
-            aperture=1.0 / math.sqrt(math.pow(C_aperture, -2) + math.pow(B_aperture, -2))
-        )
+        # TODO: Problem with aperture of a AND of two different conceptors
+        if same_conceptor:
+            new_conceptor.set_C(
+                C=CandB,
+                aperture=1.0 / math.sqrt(math.pow(C_aperture, -2) + math.pow(B_aperture, -2))
+            )
+        elif not same_conceptor and same_aperture:
+            new_conceptor.set_C(
+                C=CandB,
+                aperture=C_aperture
+            )
+        else:
+            # print("WARNING: Computing the AND of two different conceptors with different aperture is hazardous (aperture put to 1)")
+            new_conceptor.set_C(
+                C=CandB,
+                aperture=1.0
+            )
+        # end if
 
         return new_conceptor
     # end AND
 
     # AND in Conceptor Logic
-    def AND_(self, B):
+    def AND_(self, B, tol=1e-14):
         """
         AND in Conceptor Logic
         :param B: Second conceptor operand (reservoir size x reservoir size)
         """
         # C AND B
-        CandB = self.AND(B)
+        CandB = self.AND(B, tol=tol)
         self.set_C(CandB.C, CandB.aperture)
     # end AND_
 
     # OR in Conceptor Logic
-    def OR(self, Q):
+    def OR(self, Q, tol=1e-14):
         """
         OR in Conceptor Logic
         :param Q: Second conceptor operand (reservoir size x reservoir size)
@@ -396,17 +415,17 @@ class Conceptor(NeuralFilter):
             return Q.copy()
         else:
             # R OR Q
-            return (self.NOT().AND(Q.NOT())).NOT()
+            return (self.NOT().AND(Q.NOT(), tol=tol)).NOT()
         # end if
     # end OR
 
     # OR in Conceptor Logic (in-place)
-    def OR_(self, Q):
+    def OR_(self, Q, tol=1e-14):
         """
         OR in Conceptor Logic (in-place)
         :param Q: Second operand Conceptor
         """
-        newC = self.OR(Q)
+        newC = self.OR(Q, tol=tol)
         self.R = newC.R
         self._aperture = newC.aperture
         self.C = newC.C
@@ -420,7 +439,7 @@ class Conceptor(NeuralFilter):
         """
         if not self.is_null():
             # NOT correlation matrix
-            not_C = torch.eye(self.input_dim) - self.C
+            not_C = torch.eye(self.input_dim, dtype=self._dtype) - self.C
 
             # New conceptor
             new_conceptor = Conceptor(
@@ -702,7 +721,7 @@ class Conceptor(NeuralFilter):
 
     # OR in Conceptor Logic
     @staticmethod
-    def operator_OR(C, B):
+    def operator_OR(C, B, tol=1e-14):
         """
         OR in Conceptor Logic
         :param C: First Conceptor operand (reservoir size x reservoir size)
@@ -710,12 +729,12 @@ class Conceptor(NeuralFilter):
         :return: C OR B
         """
         # C OR B
-        return C.OR(B)
+        return C.OR(B, tol=tol)
     # end operator_OR
 
     # AND in Conceptor Logic
     @staticmethod
-    def operator_AND(C, B):
+    def operator_AND(C, B, tol=1e-14):
         """
         AND in Conceptor Logic
         :param C: First Conceptor operand
@@ -723,7 +742,7 @@ class Conceptor(NeuralFilter):
         :return: C AND B
         """
         # C AND B
-        return C.AND(B)
+        return C.AND(B, tol=tol)
     # end operator_AND
 
     # PHI in Conceptor Logic

@@ -67,7 +67,8 @@ input_scaling = 1.5
 # Washout and learning lengths
 washout_length = 100
 learn_length = 100
-loading_method = ecnc.SPESNCell.INPUTS_RECREATION
+loading_method = ecnc.SPESNCell.INPUTS_SIMULATION
+forgetting_version = ecnc.IncForgSPESNCell.FORGETTING_E
 
 # Testing parameters
 interpolation_rate = 20
@@ -89,7 +90,10 @@ n_patterns = 16
 # endregion PARAMS
 
 # Argument parsing
-parser = argparse.ArgumentParser(prog="memory_management", description="Memory management (with debug)")
+parser = argparse.ArgumentParser(
+    prog="memory_management_incremental_forgetting",
+    description="Memory management + incremental forgetting (with debug)"
+)
 parser.add_argument("--w", type=str, default="", required=False)
 parser.add_argument("--w-name", type=str, default="", required=False)
 parser.add_argument("--win", type=str, default="", required=False)
@@ -342,6 +346,9 @@ conceptor_net = ecnc.IncConceptorNet(
     washout=washout_length,
     fill_left=True,
     loading_method=loading_method,
+    incremental_forgetting=True,
+    forgetting_lambda=0.0,
+    forgetting_version=forgetting_version,
     debug=debug_mode,
     dtype=dtype
 )
@@ -530,6 +537,10 @@ P_collector = torch.empty(n_patterns, signal_plot_length, dtype=dtype)
 last_states = torch.empty(n_patterns, reservoir_size, dtype=dtype)
 A_collector = list()
 quota_collector = torch.zeros(n_patterns)
+DINC_collector = torch.empty(n_patterns, reservoir_size, reservoir_size, dtype=dtype)
+DUP_collector = torch.empty(n_patterns, reservoir_size, reservoir_size, dtype=dtype)
+RINC_collector = torch.empty(n_patterns, reservoir_size, 1, dtype=dtype)
+RUP_collector = torch.empty(n_patterns, reservoir_size, 1, dtype=dtype)
 
 # Conceptors activated in the loop
 conceptor_net.conceptor_active(True)
@@ -576,6 +587,21 @@ for p, data in enumerate(patterns_loader):
     # (with the aperture set in the
     # parameters).
     A_collector.append(conceptors.A())
+
+    # Save D or R
+    """if loading_method == ecnc.IncSPESNCell.INPUTS_SIMULATION:
+        DINC_collector[p] = conceptor_net.cell.Dinc
+        DUP_collector[p] = conceptor_net.cell.Dup
+        print("Dinc:")
+        print(conceptor_net.cell.Dinc)
+        print("Dup:")
+        print(conceptor_net.cell.Dup)
+        print("D:")
+        print(conceptor_net.cell.D)
+    else:
+        RINC_collector[p] = conceptor_net.cell.Rinc
+        RUP_collector[p] = conceptor_net.cell.Rup
+    # end if"""
 # end for
 
 # endregion INCREMENTAL_LOADING
