@@ -10,6 +10,16 @@ import numpy.linalg as lin
 import matplotlib.pyplot as plt
 
 
+# Compute quota of a conceptor matrix
+def quota(conceptor_matrix):
+    """
+    Compute quota of a conceptor matrix
+    """
+    _, Se, _ = torch.svd(conceptor_matrix)
+    return float(torch.sum(Se).item() / conceptor_matrix.size(0))
+# end quota
+
+
 # Compute correlation matrix
 def compute_correlation_matrix(states):
     """

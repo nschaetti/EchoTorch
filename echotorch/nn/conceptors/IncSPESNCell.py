@@ -76,7 +76,7 @@ class IncSPESNCell(SPESNCell):
     # region PRIVATE
 
     # Compute increment matrix
-    def _compute_increment(self, X, Y):
+    def _compute_increment(self, X, Y, ridge_param):
         """
         Compute increment matrix
         """
@@ -121,7 +121,7 @@ class IncSPESNCell(SPESNCell):
         self._call_debug_point("sTs{}".format(self._n_samples), sTs, "IncSPESNCell", "_compute_increment")
 
         # Ridge sTs
-        ridge_sTs = sTs + math.pow(self._aperture, -2) * torch.eye(self._output_dim)
+        ridge_sTs = sTs + ridge_param * torch.eye(self._output_dim)
 
         # Debug
         self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncSPESNCell", "_compute_increment")
@@ -159,7 +159,7 @@ class IncSPESNCell(SPESNCell):
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncSPESNCell", "_update_D_loading")
 
         # Compute the increment for matrix D
-        self.Dinc = self._compute_increment(X_old, Y)
+        self.Dinc = self._compute_increment(X_old, Y, math.pow(self._aperture, -2))
 
         # Debug
         self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
@@ -185,7 +185,7 @@ class IncSPESNCell(SPESNCell):
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncSPESNCell", "_update_R_loading")
 
         # Compute the increment for matrix D
-        self.Rinc = self._compute_increment(X_old, Y)
+        self.Rinc = self._compute_increment(X_old, Y, math.pow(self._aperture, -2))
 
         # Debug
         self._call_debug_point("Rinc{}".format(self._n_samples), self.Rinc, "IncSPESNCell", "_update_R_loading")

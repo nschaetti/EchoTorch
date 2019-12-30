@@ -40,7 +40,6 @@ class ConceptorSet(NeuralFilter):
         :param args: Arguments
         :param kwargs: Positional arguments
         """
-        print(kwargs)
         # Super constructor
         super(ConceptorSet, self).__init__(
             input_dim=input_dim,
@@ -116,7 +115,7 @@ class ConceptorSet(NeuralFilter):
     # end F
 
     # OR of all conceptors stored
-    def A(self):
+    def A(self, tol=1e-14):
         """
         OR of all conceptors stored
         :return: OR (Conceptor) of all conceptors stored
@@ -126,7 +125,7 @@ class ConceptorSet(NeuralFilter):
 
         # For each conceptor
         for kc, C in self._conceptors.items():
-            A.OR_(C)
+            A.OR_(C, tol=tol)
         # end for
 
         return A
@@ -285,7 +284,7 @@ class ConceptorSet(NeuralFilter):
 
     # Negative evidence for a Conceptor
     # TODO: Test
-    def Eneg(self, conceptor_i, x):
+    def Eneg(self, conceptor_i, x, tol=1e-14):
         """
         Negative evidence
         :param conceptor_i: Index of the conceptor to compare to.
@@ -308,7 +307,7 @@ class ConceptorSet(NeuralFilter):
         # For each conceptor
         for kc, C in self._conceptors.items():
             if kc != conceptor_i:
-                others.OR_(C)
+                others.OR_(C, tol=tol)
             # end if
         # end for
 
