@@ -44,11 +44,11 @@ class IncSPESN(ESN):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo_wout='pinv', learning_algo_w='inv',
-                 ridge_param_wout=0.000001, aperture=1, with_bias=False, softmax_output=False, washout=0,
-                 cell_averaged=True, output_averaged=True, fill_left=False, loading_method=SPESNCell.INPUTS_SIMULATION,
-                 incremental_forgetting=False, forgetting_lambda=0.0,
-                 forgetting_version=IncForgSPESNCell.FORGETTING_VERSION1, forgetting_threshold=0.95,
-                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 ridge_param_inc=0.01, ridge_param_up=0.01, ridge_param_wout_inc=0.01, ridge_param_wout_up=0.01,
+                 aperture=1, with_bias=False, softmax_output=False, washout=0, cell_averaged=True, output_averaged=True,
+                 fill_left=False, loading_method=SPESNCell.INPUTS_SIMULATION, incremental_forgetting=False,
+                 forgetting_lambda=0.0, forgetting_version=IncForgSPESNCell.FORGETTING_VERSION1,
+                 forgetting_threshold=0.95, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -82,7 +82,6 @@ class IncSPESN(ESN):
             w_generator=w_generator,
             win_generator=win_generator,
             wbias_generator=wbias_generator,
-            ridge_param=ridge_param_wout,
             create_rnn=False,
             create_output=False,
             debug=debug,
@@ -118,6 +117,8 @@ class IncSPESN(ESN):
                 nonlin_func=nonlin_func,
                 w_learning_algo=learning_algo_w,
                 aperture=aperture,
+                ridge_param_inc=ridge_param_inc,
+                ridge_param_up=ridge_param_up,
                 washout=washout,
                 fill_left=fill_left,
                 averaged=cell_averaged,
@@ -134,7 +135,8 @@ class IncSPESN(ESN):
             self._output = IncForgRRCell(
                 input_dim=hidden_dim,
                 output_dim=output_dim,
-                ridge_param=ridge_param_wout,
+                ridge_param_inc=ridge_param_wout_inc,
+                ridge_param_up=ridge_param_wout_up,
                 aperture=aperture,
                 with_bias=with_bias,
                 learning_algo=learning_algo_wout,

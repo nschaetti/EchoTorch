@@ -31,6 +31,7 @@ from torch.autograd import Variable
 from .IncSPESNCell import IncSPESNCell
 from .Conceptor import Conceptor
 from echotorch.utils import nrmse
+from echotorch.utils import quota
 
 
 # Self-Predicting ESN Cell with incremental-forgetting learning
@@ -47,8 +48,8 @@ class IncForgSPESNCell(IncSPESNCell):
     FORGETTING_VERSION5 = 5
 
     # Constructor
-    def __init__(self, lambda_param=0.0, forgetting_threshold=0.95, forgetting_version=FORGETTING_VERSION1,
-                 *args, **kwargs):
+    def __init__(self, ridge_param_inc=0.0, ridge_param_up=0.0, lambda_param=0.0, forgetting_threshold=0.95,
+                 forgetting_version=FORGETTING_VERSION1, *args, **kwargs):
         """
         Constructor
         :param lambda_param: Lambda parameters
@@ -64,6 +65,8 @@ class IncForgSPESNCell(IncSPESNCell):
         )
 
         # Parameter
+        self._ridge_param_inc = ridge_param_inc
+        self._ridge_param_up = ridge_param_up
         self._lambda = lambda_param
         self._forgetting_version = forgetting_version
         self._forgetting_threshold = forgetting_threshold
@@ -277,6 +280,7 @@ class IncForgSPESNCell(IncSPESNCell):
         self.E = E.C
         self.NOT_M = NOT_M.C
         self.M = M.C
+        self.F = self._conceptors.F()
 
         # Targets
         win_u = torch.mm(self.w_in, U.t()).t()
@@ -285,7 +289,12 @@ class IncForgSPESNCell(IncSPESNCell):
         Yinc = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
 
         # Compute the increment and update for matrix D
-        self.Dinc = self._compute_increment(X_old, Yinc, math.pow(self._aperture, -2))
+        if quota(self.F) < 1e-1:
+            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc * 100)
+        else:
+            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc)
+        # end if
+        # self.Dinc = self._compute_increment(X_old, Yinc, 1)
 
         # Compute the targets for each version.
         if self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION1:
@@ -326,7 +335,7 @@ class IncForgSPESNCell(IncSPESNCell):
         # Compute the final matrix for the different version
         if self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION1:
             # Compute the increment and update for matrix D
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, math.pow(self._aperture, -2))
+            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
 
             # Debug
             self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
@@ -343,7 +352,7 @@ class IncForgSPESNCell(IncSPESNCell):
             # end if
         elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION2:
             # Compute the increment and update for matrix D
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, math.pow(self._aperture, -2))
+            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
 
             # Debug
             self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
@@ -359,7 +368,7 @@ class IncForgSPESNCell(IncSPESNCell):
             # end if
         elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION3:
             # Compute the increment and update for matrix D
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, math.pow(self._aperture, -2))
+            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
 
             # Debug
             self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
@@ -375,7 +384,7 @@ class IncForgSPESNCell(IncSPESNCell):
             # end if
         elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION4:
             # Compute new D to predict the new pattern
-            self.Dnew = self._compute_update(X_old, Y, E, C, NOT_M, math.pow(self._aperture, -2))
+            self.Dnew = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
 
             # Compute the increment and update for matrix D
             self.Dinc = torch.mm(self._conceptors.F(), self.Dnew)
@@ -396,7 +405,8 @@ class IncForgSPESNCell(IncSPESNCell):
             # end if
         elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION5:
             # Compute matrix Dnew which predict what cannot be predicted by D + Dinc
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, math.pow(self._aperture, -2))
+            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
+            # self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, 1)
 
             # Test update matrix and save magnitude
             self.dup_nrmse = nrmse(torch.mm(self.D + self.Dinc + self.Dup, X_old.t()).t(), win_u)
@@ -408,14 +418,19 @@ class IncForgSPESNCell(IncSPESNCell):
 
             # Compute final matrix
             if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
+                # Gradient
+                self.d_gradient = torch.norm(self.D + self.Dinc + self._lambda * self.Dup) - torch.norm(self.D)
+
                 # D = -C * D + (1-l) * C * D + l * Dup + Dinc
+                # self.D += self.Dinc + self._lambda * self.Dup
                 self.D += self.Dinc + self.Dup
+                # pass
             else:
                 # Gradient
                 self.d_gradient = torch.norm(self.D + self.Dinc) - torch.norm(self.D)
 
                 # Add increment to D
-                self.D += self.Dinc
+                self.D += self.Dinc + self.Dup
             # end if
 
             # Save D's magnitude

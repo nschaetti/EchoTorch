@@ -90,7 +90,7 @@ class IncRRCell(Node):
     # region PRIVATE
 
     # Compute Wout increment
-    def _compute_increment(self, X, Y):
+    def _compute_increment(self, X, Y, ridge_param):
         """
         Compute Wout increment
         """
@@ -146,7 +146,7 @@ class IncRRCell(Node):
         self._call_debug_point("sTy{}".format(self._n_samples), sTy, "IncRRCell", "_compute_increment")
 
         # Ridge sTs
-        ridge_sTs = sTs + self._ridge_param * torch.eye(self._input_dim)
+        ridge_sTs = sTs + ridge_param * torch.eye(self._input_dim)
 
         # Debug
         self._call_debug_point("ridge_sTs{}".format(self._n_samples), ridge_sTs, "IncRRCell", "_compute_increment")
@@ -178,7 +178,7 @@ class IncRRCell(Node):
         Update Wout matrix
         """
         # Compute increment for Wout
-        self.w_out_inc = self._compute_increment(x, y)
+        self.w_out_inc = self._compute_increment(x, y, self._ridge_param)
 
         # Increment Wout
         self.w_out += self.w_out_inc

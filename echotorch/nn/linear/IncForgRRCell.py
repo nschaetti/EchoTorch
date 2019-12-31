@@ -31,6 +31,7 @@ from torch.autograd import Variable
 from ..conceptors import Conceptor
 from .IncRRCell import IncRRCell
 from echotorch.utils import nrmse
+from echotorch.utils import quota
 
 
 # Incremental Ridge Regression node
@@ -47,8 +48,8 @@ class IncForgRRCell(IncRRCell):
     FORGETTING_VERSION5 = 5
 
     # Constructor
-    def __init__(self, aperture, lambda_param=0.0, forgetting_threshold=0.95, forgetting_version=FORGETTING_VERSION1,
-                 *args, **kwargs):
+    def __init__(self, aperture, ridge_param_inc=0.01, ridge_param_up=0.01, lambda_param=0.0, forgetting_threshold=0.95,
+                 forgetting_version=FORGETTING_VERSION1, *args, **kwargs):
         """
         Constructor
         :param input_dim: Feature space dimension
@@ -70,6 +71,8 @@ class IncForgRRCell(IncRRCell):
         )
 
         # Properties
+        self._ridge_param_inc = ridge_param_inc
+        self._ridge_param_up = ridge_param_up
         self._aperture = aperture
         self._lambda = lambda_param
         self._forgetting_version = forgetting_version
@@ -231,7 +234,11 @@ class IncForgRRCell(IncRRCell):
         C, NC, E, M, NOT_M = self._compute_conceptor(X)
 
         # Compute increment for Wout
-        self.w_out_inc = self._compute_increment(X, Y)
+        if quota(self._conceptors.F()) < 1e-1:
+            self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc)
+        else:
+            self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc)
+        # end if
 
         # Compute the targets for each version.
         if self._forgetting_version == IncForgRRCell.FORGETTING_VERSION1:
@@ -271,7 +278,7 @@ class IncForgRRCell(IncRRCell):
         # Compute the final matrix for different version
         if self._forgetting_version == IncForgRRCell.FORGETTING_VERSION1:
             # Compute the increment and update for matrix Wout
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param)
+            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
 
             # Debug
             self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
@@ -286,7 +293,7 @@ class IncForgRRCell(IncRRCell):
             # end if
         elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION2:
             # Compute the increment and update for matrix Wout
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param)
+            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
 
             # Debug
             self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
@@ -302,7 +309,7 @@ class IncForgRRCell(IncRRCell):
             # end if
         elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION3:
             # Compute the increment and update for matrix Wout
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param)
+            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
 
             # Debug
             self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
@@ -317,7 +324,7 @@ class IncForgRRCell(IncRRCell):
             # end if
         elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION4:
             # Compute new Wout to predict the new pattern
-            self.w_out_new = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param)
+            self.w_out_new = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
 
             # Split Wout new into update and increment
             # Wout_inc = F * Wout_new
@@ -340,7 +347,7 @@ class IncForgRRCell(IncRRCell):
             # end if
         elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION5:
             # Compute matrix Wout which predict what cannot be predicted by Wout + Wout_inc
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param)
+            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
 
             # Split the matrix Wout_new into update and increment
             # Wout_up = A * Wout_new
@@ -354,15 +361,19 @@ class IncForgRRCell(IncRRCell):
 
             # Compute final matrix
             if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
+                # Gradient
+                self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc + self.w_out_up) - torch.norm(self.w_out)
+
                 # Wout = -C * Wout + (1-l) * C * Wout + l * Wout_up + Wout_inc
+                # self.w_out += self.w_out_inc + self.w_out_up
                 self.w_out += self.w_out_inc + self.w_out_up
+                # pass
             else:
                 # Gradient
                 self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc) - torch.norm(self.w_out)
+
                 # Wout = -C * Wout + C * Wout + Wout_inc
-                # self.w_out = torch.mm(NC.C, self.w_out.t()).t() + torch.mm(C.C, self.w_out.t()).t() + self.w_out_inc
-                # self.w_out += self.w_out_up + self.w_out_inc
-                self.w_out += self.w_out_inc
+                self.w_out += self.w_out_inc + self.w_out_up
             # end if
         # end if
 
