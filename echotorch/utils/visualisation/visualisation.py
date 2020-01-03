@@ -64,12 +64,15 @@ def show_sv_for_increasing_aperture(conceptor, factor, title):
 
 
 # Show similarity matrix
-def show_similarity_matrix(sim_matrix, title, vmin=0, vmax=1.0):
+def show_similarity_matrix(sim_matrix, title, vmin=0, vmax=1.0, precision=2):
     """
     Show similarity matrix
     :param sim_matrix:
     :return:
     """
+    # Precision value
+    precision_string = '{' + ':0.{}f'.format(precision) + '}'
+
     # Show similarity matrices
     fig, ax = plt.subplots(figsize=(8, 8))
     cax = ax.matshow(sim_matrix, interpolation='nearest', cmap='jet', vmin=vmin, vmax=vmax)
@@ -77,9 +80,9 @@ def show_similarity_matrix(sim_matrix, title, vmin=0, vmax=1.0):
     fig.colorbar(cax, ticks=np.arange(0.0, 1.1, 0.1))
     for (i, j), z in np.ndenumerate(sim_matrix):
         if (i < 2 and j < 2) or (i > 1 and j > 1):
-            plt.text(j, i, '{:0.2f}'.format(z), ha='center', va='center')
+            plt.text(j, i, precision_string.format(z), ha='center', va='center')
         else:
-            plt.text(j, i, '{:0.2f}'.format(z), ha='center', va='center', color='white')
+            plt.text(j, i, precision_string.format(z), ha='center', va='center', color='white')
         # end if
     # end for
     plt.show()

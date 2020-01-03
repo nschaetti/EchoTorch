@@ -90,7 +90,7 @@ class IncRRCell(Node):
     # region PRIVATE
 
     # Compute Wout increment
-    def _compute_increment(self, X, Y, ridge_param):
+    def _compute_increment(self, X, Y, ridge_param, F=None):
         """
         Compute Wout increment
         """
@@ -110,7 +110,9 @@ class IncRRCell(Node):
         if not self._conceptors.is_null():
             # The linear subspace of the reservoir state space that are not yet
             # occupied by any pattern.
-            F = self._conceptors.F()
+            if F is None:
+                F = self._conceptors.F()
+            # end if
 
             # Debug
             self._call_debug_point("F{}".format(self._n_samples), F, "IncRRCell", "_compute_increment")

@@ -10,6 +10,20 @@ import numpy.linalg as lin
 import matplotlib.pyplot as plt
 
 
+# Compute the rank of a matrix
+def rank(m, tol=1e-14):
+    """
+    Compute the rank of a matrix
+    :param m: Matrix
+    """
+    # SVD on M
+    Um, Sm, _ = torch.svd(m)
+
+    # How many sv above threshold
+    return int(torch.sum(1.0 * (Sm > tol)))
+# end rank
+
+
 # Compute quota of a conceptor matrix
 def quota(conceptor_matrix):
     """

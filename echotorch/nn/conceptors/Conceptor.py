@@ -568,6 +568,14 @@ class Conceptor(NeuralFilter):
         return s.format(**self.__dict__)
     # end extra_repr
 
+    # Hash
+    def __hash__(self):
+        """
+        Hash object
+        """
+        return hash((self.R.__hash__(), self.C.__hash__(), self.aperture))
+    # end __hash__
+
     # endregion OVERRIDE
 
     # region OPERATORS
@@ -800,13 +808,13 @@ class Conceptor(NeuralFilter):
     # Return empty conceptor
     # TODO: Test
     @staticmethod
-    def empty(input_dim):
+    def empty(input_dim, dtype=torch.float64):
         """
         Return an empty conceptor
         :param input_dim: Conceptor dimension
         :return: Empty conceptor (zero)
         """
-        return Conceptor.min(input_dim)
+        return Conceptor.min(input_dim, dtype=dtype)
     # end empty
 
     # Return empty conceptor
@@ -836,40 +844,40 @@ class Conceptor(NeuralFilter):
     # Return identity conceptor
     # TODO: Test
     @staticmethod
-    def identity(input_dim):
+    def identity(input_dim, dtype=torch.float64):
         """
         Return identity conceptor (no filtering)
         :param input_dim: Input dimension
         :return: Identity conceptor
         """
-        return Conceptor.max(input_dim)
+        return Conceptor.max(input_dim, dtype=dtype)
     # end identity
 
     # Global minimal element
     # TODO: Test
     @staticmethod
-    def min(input_dim):
+    def min(input_dim, dtype=torch.float64):
         """
         Global minimal element
         :param input_dim: Conceptor dimension
         :return: Global minimal element (with 0 as C matrix)
         """
         # GME conceptor
-        return Conceptor(input_dim, aperture=0.0)
+        return Conceptor(input_dim, aperture=0.0, dtype=dtype)
     # end min
 
     # Global maximal element
     # TODO: Test
     @staticmethod
-    def max(input_dim):
+    def max(input_dim, dtype=torch.float64):
         """
         Global maximal element
         :param input_dim: Conceptor dimension
         :return: Global maximal element (with I as C matrix)
         """
         # GME conceptor
-        gme = Conceptor(input_dim, aperture=float('inf'))
-        gme.set_C(torch.eye(input_dim), float('inf'), compute_R=False)
+        gme = Conceptor(input_dim, aperture=float('inf'), dtype=dtype)
+        gme.set_C(torch.eye(input_dim, dtype=dtype), float('inf'), compute_R=False)
         return gme
     # end max
 

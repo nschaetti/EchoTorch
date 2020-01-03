@@ -31,7 +31,7 @@ from torch.autograd import Variable
 from .IncSPESNCell import IncSPESNCell
 from .Conceptor import Conceptor
 from echotorch.utils import nrmse
-from echotorch.utils import quota
+from echotorch.utils import quota, rank
 
 
 # Self-Predicting ESN Cell with incremental-forgetting learning
@@ -70,12 +70,27 @@ class IncForgSPESNCell(IncSPESNCell):
         self._lambda = lambda_param
         self._forgetting_version = forgetting_version
         self._forgetting_threshold = forgetting_threshold
+
+        # Debug info
         self.dinc_nrmse = -1
         self.dup_nrmse = -1
         self.dinc_magnitude = 0
         self.dup_magnitude = 0
         self.d_magnitude = 0
         self.d_gradient = 0
+        self.d_rank = 0
+        self.dinc_rank = 0
+        self.dup_rank = 0
+        self.e_rank = 0
+        self.d_SVs = None
+        self.dinc_SVs = None
+        self.dup_SVs = None
+        self.e_SVs = None
+
+        # Spaces used for loading
+        self.A = Conceptor.empty(self.output_dim, dtype=self._dtype)
+        self.E = None
+        self.M = None
 
         # Input simulation matrix update
         self.register_buffer(
@@ -120,10 +135,18 @@ class IncForgSPESNCell(IncSPESNCell):
         )
     # end __init__
 
+    # Set aperture
+    def set_aperture(self, aperture):
+        """
+        Set aperture
+        """
+        self._aperture = aperture
+    # end set_aperture
+
     # region PRIVATE
 
-    # Compute update matrix
-    def _compute_update(self, X_old, Y, E, C, NOT_M, ridge_param):
+    # Compute update matrix (Dup)
+    def _compute_update(self, X_old, Y, E, ridge_param):
         """
         Compute update matrix
         :param X_old: Reservoir states at time t - 1
@@ -133,44 +156,13 @@ class IncForgSPESNCell(IncSPESNCell):
         # Learn length
         learn_length = X_old.size(0)
 
-        # Features for version 4 and 5
-        if self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION4:
-            # Use the whole space as features
-            # X(t-1)
-            S_old = X_old
-        elif not self._conceptors.is_null():
-            # The linear subspace of the reservoir state space
-            # occupied by loaded patterns.
-            A = self._conceptors.A().C
-            self._call_debug_point("A{}".format(self._n_samples), A, "IncForgSPESNCell", "_compute_update")
-
-            # For each version
-            if self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION1:
-                # Filter old state to get only what is new in that space.
-                # A * X(t-1)
-                S_old = torch.mm(E.C, X_old.t()).t()
-            elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION2:
-                # The linear subspace of conflict between loaded patterns and the new one.
-                # E * X(t-1)
-                S_old = torch.mm(E.C, X_old.t()).t()
-            elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION3:
-                # The linear subspace of conflict between loaded patterns and the new one.
-                # C * A * X(t-1)
-                S_old = torch.mm(torch.mm(C.C, A), X_old.t()).t()
-            elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION5:
-                # Use the space occupied by the other patterns
-                # A * X(t-1)
-                S_old = torch.mm(E.C, X_old.t()).t()
-            # end if
+        # If the conflict zone is not empty, we compute
+        # the features as the reservoir states restricted
+        # to the conflict zone.
+        if not E.is_null():
+            S_old = torch.mm(E.C, X_old.t()).t()
         else:
-            # No update
-            if self._loading_method == IncSPESNCell.INPUTS_SIMULATION:
-                return torch.zeros(self.D.size(0), self.D.size(1), dtype=self.dtype)
-            elif self._loading_method == IncSPESNCell.INPUTS_RECREATION:
-                return torch.zeros(self.R.size(0), self.R.size(1), dtype=self.dtype)
-            else:
-                raise Exception("Unknown loading method {}".format(self._loading_method))
-            # end if
+            S_old = X_old
         # end if
 
         # Debug
@@ -214,7 +206,7 @@ class IncForgSPESNCell(IncSPESNCell):
         # Debug
         self._call_debug_point("inv_sTs{}".format(self._n_samples), inv_sTs, "IncForgSPESNCell", "_compute_update")
 
-        # Compute the increment for matrix D
+        # Compute the update for matrix D
         return torch.mm(inv_sTs, sTd).t()
     # end _compute_update
 
@@ -237,33 +229,55 @@ class IncForgSPESNCell(IncSPESNCell):
         # Train conceptor
         C.finalize()
 
-        # NOT C
-        NOT_C = Conceptor.operator_NOT(C)
-
-        # Space occupied by currently loaded
-        # patterns.
-        A = self._conceptors.A()
-
-        # Conflict zone
-        E = Conceptor.operator_AND(A, C, tol=1e-14)
-
-        # Demilitarized zone
-        if E.is_null():
-            M = Conceptor.operator_AND(A, NOT_C)
-        else:
-            M = Conceptor.operator_AND(A, Conceptor.operator_NOT(E), tol=1e-14)
-        # end if
-
-        # Conflict zone + outside
-        if A.is_null():
-            NOT_M = Conceptor.identity(self.output_dim)
-        else:
-            # NOT_M = Conceptor.operator_OR(Conceptor.operator_NOT(A), C)
-            NOT_M = Conceptor.operator_NOT(M)
-        # end if
-
-        return C, NOT_C, E, M, NOT_M
+        return C
     # end if
+
+    # Compute A (space occupied by all patterns)
+    def _update_A(self, M, C, increment=False):
+        """
+        Compute A (space occupied by all patterns
+        :param C: Conceptor
+        """
+        if increment:
+            self.A = Conceptor.operator_OR(self.A, C)
+        else:
+            self.A = Conceptor.operator_OR(M, C)
+        # end if
+    # end _update_A
+
+    # Compute F (space not occupied by any pattern)
+    def _compute_F_matrix(self):
+        """
+        Compute F (space not occupied by any pattern)
+        """
+        if not self.A.is_null():
+            return Conceptor.operator_NOT(self.A).C
+        else:
+            return Conceptor.identity(self.output_dim, dtype=self._dtype).C
+        # end if
+    # end _compute_F
+
+    # Compute M (conflict free zone)
+    def _compute_M(self, C):
+        """
+        Compute M (conflict free zone)
+        :param C: Conceptor of current pattern.
+        """
+        return Conceptor.operator_AND(self.A, Conceptor.operator_NOT(C))
+    # end _compute_M
+
+    # Compute E (conflict zone)
+    def _compute_E(self, M):
+        """
+        Compute E (conflict zone)
+        :param M: conflict free zone.
+        """
+        if not M.is_null():
+            return Conceptor.operator_NOT(M)
+        else:
+            return Conceptor.identity(self.output_dim, dtype=self._dtype)
+        # end if
+    # end _compute_E
 
     # Update input simulation matrix D
     def _update_D_loading(self, states, inputs):
@@ -273,179 +287,94 @@ class IncForgSPESNCell(IncSPESNCell):
         # Get X and U
         X, X_old, U = self._compute_XU(states, inputs)
 
-        # Compute conflict zone
-        C, NC, E, M, NOT_M = self._compute_conceptor(X)
+        # Compute conceptor of current pattern
+        C = self._compute_conceptor(X)
 
-        # Save conceptor matrix
-        self.E = E.C
-        self.NOT_M = NOT_M.C
-        self.M = M.C
-        self.F = self._conceptors.F()
+        # Compute free zone
+        self.F = self._compute_F_matrix()
 
-        # Targets
+        # Compute demilitarized zone
+        self.M = self._compute_M(C)
+        self.E = self._compute_E(self.M)
+
+        # DEBUG E
+        self.e_rank = rank(self.E.C)
+        _, self.e_SVs, _ = torch.svd(self.E.C)
+
+        # Truth for comparison and test (Win * U)
         win_u = torch.mm(self.w_in, U.t()).t()
 
-        # Targets for the increment matrix Dinc
+        # Targets for the increment matrix Dinc(t+1)
+        # What cannot be learned by D(t) alone.
         Yinc = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
 
-        # Compute the increment and update for matrix D
+        # Compute the increment for matrix D
+        # with adaptative ridge param (*1000 if free zone F is too small)
         if quota(self.F) < 1e-1:
-            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc * 100)
+            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc * 1000)
         else:
             self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc)
         # end if
-        # self.Dinc = self._compute_increment(X_old, Yinc, 1)
 
-        # Compute the targets for each version.
-        if self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION1:
-            # Targets : what cannot be predicted by the
-            # current matrix D.
-            # Y = Win * U - D * X(t-1)
-            Y = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION2:
-            # Targets : what cannot be predicted by the space
-            # of D in conflict with the current patterns.
-            # (using (A and C)).
-            # Y = Win * U - D * E * X(t-1)
-            Y = (torch.mm(self.w_in, U.t()) - torch.mm(torch.mm(self.D, E.C), X_old.t())).t()
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION3:
-            # Targets : what cannot be predicted by the space
-            # of D in conflict with the current patterns.
-            # (using C instead of (A and C)
-            # Y = Win * U - C * D * X(t-1)
-            Y = (torch.mm(self.w_in, U.t()) - torch.mm(torch.mm(C.C, self.D), X_old.t())).t()
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION4:
-            # Targets : what cannot be predicted by the current matrix D.
-            # Y = Win * U - D * X(t-1)
-            Y = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION5:
-            # Targets : what cannot be predicted by the current matrix D and (!)
-            # the added increment matrix Dinc.
-            # Y = Win * U - (D + Dinc) * X(t-1)
-            Y = (torch.mm(self.w_in, U.t()) - torch.mm(self.D + self.Dinc, X_old.t())).t()
+        # DEBUG Dinc
+        self.dinc_nrmse = nrmse(torch.mm(self.D + self.Dinc, X_old.t()).t(), win_u)
+        self.dinc_magnitude = torch.norm(self.Dinc)
+        self.dinc_rank = rank(self.Dinc)
+        _, self.dinc_SVs, _ = torch.svd(self.Dinc)
 
-            # Test increment matrix and save magnitude
-            self.dinc_nrmse = nrmse(torch.mm(self.D + self.Dinc, X_old.t()).t(), win_u)
-            self.dinc_magnitude = torch.norm(self.Dinc)
-        # end if
+        # Targets : what cannot be predicted by the current matrix D(t)
+        # Y = Win * U - D * X(t-1)
+        Y = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
 
         # Debug
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncSPESNCell", "_update_D_loading")
 
-        # Compute the final matrix for the different version
-        if self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION1:
-            # Compute the increment and update for matrix D
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
+        # Compute matrix Dup which predict what cannot be predicted by D using the conflict zone E and
+        # free zone F
+        self.Dup = self._compute_update(X_old, Y, self.E, self._ridge_param_up)
 
-            # Debug
-            self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
-            self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
+        # DEBUG Dup
+        self.dup_nrmse = nrmse(torch.mm(self.D + self.Dup, X_old.t()).t(), Y)
+        self.dup_magnitude = torch.norm(self.Dup)
+        self.dup_rank = rank(self.Dup)
+        _, self.dup_SVs, _ = torch.svd(self.Dup)
 
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # D = (1-l) * D + l * Dup + Dinc
-                # Charge le nouveau mais écrases les anciens :
-                self.D += self.Dup
-            else:
-                # D = D + Dinc
-                self.D += self.Dinc
-            # end if
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION2:
-            # Compute the increment and update for matrix D
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
+        # Debug
+        self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
+        self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
 
-            # Debug
-            self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
-            self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
+        # We erase information in D with Dup if above a threshold
+        if self.A.quota + C.quota > self._forgetting_threshold:
+            # Gradient
+            self.d_gradient = torch.norm(self.D + self.Dup) - torch.norm(self.D)
 
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # D = M * D + (1-l) * E * D + l * Dup + Dinc
-                self.D = torch.mm(M.C, self.D) + (1.0 - self._lambda) * torch.mm(E.C, self.D) + self._lambda * self.Dup + self.Dinc
-            else:
-                # D = M * D + E * D + Dinc
-                self.D = torch.mm(M.C, self.D) + torch.mm(E.C, self.D) + self.Dinc
-            # end if
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION3:
-            # Compute the increment and update for matrix D
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
+            # D = D + Dup
+            self.D += self.Dup
 
-            # Debug
-            self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
-            self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
+            # Update A
+            self._update_A(self.M, C)
+        else:
+            # Gradient
+            self.d_gradient = torch.norm(self.D + self.Dinc) - torch.norm(self.D)
 
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # D = -C * D + (1-l) * C * D + l * Dup + Dinc
-                self.D = torch.mm(NC.C, self.D) + (1.0 - self._lambda) * torch.mm(C.C, self.D) + self._lambda * self.Dup + self.Dinc
-            else:
-                # D = -C * D + C * D + Dinc
-                self.D = torch.mm(NC.C, self.D) + torch.mm(C.C, self.D) + self.Dinc
-            # end if
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION4:
-            # Compute new D to predict the new pattern
-            self.Dnew = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
+            # D = D + Dinc
+            self.D += self.Dinc
 
-            # Compute the increment and update for matrix D
-            self.Dinc = torch.mm(self._conceptors.F(), self.Dnew)
-            self.Dup = torch.mm(self._conceptors.A().C, self.Dnew)
-
-            # Debug
-            self._call_debug_point("Dnew{}".format(self._n_samples), self.Dnew, "IncSPESNCell", "_update_D_loading")
-            self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
-            self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
-
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # D = -C * D + (1-l) * C * D + l * Dup + Dinc
-                self.D = torch.mm(NC.C, self.D) + (1.0 - self._lambda) * torch.mm(C.C, self.D) + self._lambda * self.Dup + self.Dinc
-            else:
-                # D = D + -C * D + C * D + Dinc
-                self.D = torch.mm(NC.C, self.D) + torch.mm(C.C, self.D) + self.Dinc
-            # end if
-        elif self._forgetting_version == IncForgSPESNCell.FORGETTING_VERSION5:
-            # Compute matrix Dnew which predict what cannot be predicted by D + Dinc
-            self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, self._ridge_param_up)
-            # self.Dup = self._compute_update(X_old, Y, E, C, NOT_M, 1)
-
-            # Test update matrix and save magnitude
-            self.dup_nrmse = nrmse(torch.mm(self.D + self.Dinc + self.Dup, X_old.t()).t(), win_u)
-            self.dup_magnitude = torch.norm(self.Dup)
-
-            # Debug
-            self._call_debug_point("Dinc{}".format(self._n_samples), self.Dinc, "IncSPESNCell", "_update_D_loading")
-            self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
-
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # Gradient
-                self.d_gradient = torch.norm(self.D + self.Dinc + self._lambda * self.Dup) - torch.norm(self.D)
-
-                # D = -C * D + (1-l) * C * D + l * Dup + Dinc
-                # self.D += self.Dinc + self._lambda * self.Dup
-                self.D += self.Dinc + self.Dup
-                # pass
-            else:
-                # Gradient
-                self.d_gradient = torch.norm(self.D + self.Dinc) - torch.norm(self.D)
-
-                # Add increment to D
-                self.D += self.Dinc + self.Dup
-            # end if
-
-            # Save D's magnitude
-            self.d_magnitude = torch.norm(self.D)
+            # Update A
+            self._update_A(self.M, C, increment=True)
         # end if
+
+        # Save D's magnitude and rank and SV
+        self.d_magnitude = torch.norm(self.D)
+        self.d_rank = rank(self.D)
+        _, self.d_SVs, _ = torch.svd(self.D)
 
         # Debug
         self._call_debug_point("D{}".format(self._n_samples), self.D, "IncSPESNCell", "_update_D_loading")
     # end _update_D_loading
 
     # Update input recreation matrix R
-    def _update_R_loading(self, states, inputs):
-        """
-        Update input recreation matrix R
-        """
+    """def _update_R_loading(self, states, inputs):
         # Get X and U
         X, X_old, U = self._compute_XU(states, inputs)
 
@@ -483,7 +412,7 @@ class IncForgSPESNCell(IncSPESNCell):
 
         # Debug
         self._call_debug_point("R{}".format(self._n_samples), self.R, "IncSPESNCell", "_update_R_loading")
-    # end _update_R_loading
+    # end _update_R_loading"""
 
     # endregion PRIVATE
 

@@ -23,6 +23,7 @@
 import torch
 from ..NeuralFilter import NeuralFilter
 from .Conceptor import Conceptor
+from echotorch.utils import quota, rank
 from echotorch.utils.utility_functions import generalized_squared_cosine
 
 
@@ -206,6 +207,42 @@ class ConceptorSet(NeuralFilter):
         # end for
         return sim_matrix
     # end similarity_matrix
+
+    # Intersection matrix between conceptors
+    def intersection_matrix(self, return_rank=False, gamma=1):
+        """
+        Union matrix between conceptors
+        :param return_rank: Rank of union
+        """
+        # Intersection matrix
+        if return_rank:
+            intersection_matrix = torch.zeros(self.count, self.count, dtype=torch.long)
+        else:
+            intersection_matrix = torch.zeros(self.count, self.count)
+        # end if
+
+        # For each pair
+        for i, i_name in enumerate(self._conceptors.keys()):
+            for j, j_name in enumerate(self._conceptors.keys()):
+                # Compute
+                E = Conceptor.operator_AND(self._conceptors[i_name], self._conceptors[j_name])
+
+                # Change aperture
+                if gamma != 1:
+                    E.PHI(gamma)
+                # end if
+
+                # Compute rank or quota
+                if return_rank:
+                    intersection_matrix[i, j] = rank(E.C)
+                else:
+                    intersection_matrix[i, j] = quota(E.C)
+                # end if
+            # end for
+        # end for
+
+        return intersection_matrix
+    # end intersection_matrix
 
     # Set conceptor index to use
     def set(self, k):

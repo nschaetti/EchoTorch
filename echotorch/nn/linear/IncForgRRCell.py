@@ -31,7 +31,7 @@ from torch.autograd import Variable
 from ..conceptors import Conceptor
 from .IncRRCell import IncRRCell
 from echotorch.utils import nrmse
-from echotorch.utils import quota
+from echotorch.utils import quota, rank
 
 
 # Incremental Ridge Regression node
@@ -77,22 +77,36 @@ class IncForgRRCell(IncRRCell):
         self._lambda = lambda_param
         self._forgetting_version = forgetting_version
         self._forgetting_threshold = forgetting_threshold
+
+        # Debug
         self.w_out_inc_nrmse = -1
         self.w_out_up_nrmse = -1
         self.w_out_inc_magnitude = 0
         self.w_out_up_magnitude = 0
         self.w_out_magnitude = 0
         self.w_out_gradient = 0
+        self.w_out_inc_rank = 0
+        self.w_out_up_rank = 0
+        self.w_out_rank = 0
+        self.e_rank = 0
+        self.w_out_SVs = None
+        self.w_out_inc_SVs = None
+        self.w_out_up_SVs = None
+
+        # Space used by all patterns
+        self.A = Conceptor.empty(self.output_dim)
 
         # Wout matrix, update, increment and new
         self.register_buffer('w_out_up', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
         self.register_buffer('w_out_new', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
     # end __init__
 
-    # region PRIVATE
+    def set_aperture(self, aperture):
+        self._aperture = aperture
+    # end set_aperture
 
     # Compute update matrix for Wout
-    def _compute_update(self, X, Y, E, C, NOT_M, ridge_param):
+    def _compute_update(self, X, Y, E, ridge_param):
         """
         Compute update matrix for Wout
         :param X:
@@ -103,36 +117,14 @@ class IncForgRRCell(IncRRCell):
         # Time length
         time_length = X.size()[0]
 
-        if self._forgetting_version == IncForgRRCell.FORGETTING_VERSION4:
-            # X
-            S = X
-        # Filter if the conceptor is not null
-        elif not self._conceptors.is_null():
-            # The linear subspace of the reservoir state space
-            # occupied by loaded patterns.
-            A = self._conceptors.A().C
-
-            # Debug
-            self._call_debug_point("A{}".format(self._n_samples), A, "IncForgRRCell", "_compute_update")
-
-            # For each version
-            if self._forgetting_version == IncForgRRCell.FORGETTING_VERSION1:
-                # Filter old state to get only what is new in that space
-                # A * X
-                S = torch.mm(E.C, X.t()).t()
-            elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION2:
-                # E * X
-                S = torch.mm(E.C, X.t()).t()
-            elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION3:
-                # A * X
-                S = torch.mm(A, X.t()).t()
-            elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION5:
-                # A * X
-                S = torch.mm(E.C, X.t()).t()
-            # end if
+        # If the conflict + free zone is not empty
+        # then we predict using states restricted to that zones.
+        if not E.is_null():
+            # S = E * X
+            S = torch.mm(E.C, X.t()).t()
         else:
-            # No update
-            return torch.zeros(self.w_out.size(0), self.w_out.size(1), dtype=self.dtype)
+            # No filtering
+            S = X.t()
         # end if
 
         # Debug
@@ -191,7 +183,7 @@ class IncForgRRCell(IncRRCell):
         """
         # Compute Conceptor for new pattern
         C = Conceptor(
-            input_dim=self.input_dim,
+            input_dim=self.output_dim,
             aperture=self._aperture,
             debug=self._debug,
             dtype=self.dtype
@@ -203,27 +195,59 @@ class IncForgRRCell(IncRRCell):
         # Train conceptor
         C.finalize()
 
-        # NOT C
-        NOT_C = Conceptor.operator_NOT(C)
+        return C
 
-        # Space occupied by currently loaded
-        # patterns.
-        A = self._conceptors.A()
+    # end if
 
-        # Conflict zone
-        E = Conceptor.operator_AND(A, C)
-
-        # Demilitarized zone
-        if E.is_null():
-            M = Conceptor.operator_AND(A, NOT_C)
-            NOT_M = torch.eye(self.input_dim)
+    # Compute A (space occupied by all patterns)
+    def _update_A(self, M, C, increment=False):
+        """
+        Compute A (space occupied by all patterns
+        :param C: Conceptor
+        """
+        if increment:
+            self.A = Conceptor.operator_OR(self.A, C)
         else:
-            M = Conceptor.operator_AND(A, Conceptor.operator_NOT(E))
-            NOT_M = Conceptor.operator_NOT(M).C
+            self.A = Conceptor.operator_OR(M, C)
         # end if
 
-        return C, NOT_C, E, M, NOT_M
-    # end if
+    # end _update_A
+
+    # Compute F (space not occupied by any pattern)
+    def _compute_F_matrix(self):
+        """
+        Compute F (space not occupied by any pattern)
+        """
+        if not self.A.is_null():
+            return Conceptor.operator_NOT(self.A).C
+        else:
+            return Conceptor.identity(self.output_dim, dtype=self._dtype).C
+        # end if
+
+    # end _compute_F
+
+    # Compute M (conflict free zone)
+    def _compute_M(self, C):
+        """
+        Compute M (conflict free zone)
+        :param C: Conceptor of current pattern.
+        """
+        return Conceptor.operator_AND(self.A, Conceptor.operator_NOT(C))
+
+    # end _compute_M
+
+    # Compute E (conflict zone)
+    def _compute_E(self, M):
+        """
+        Compute E (conflict zone)
+        :param M: conflict free zone.
+        """
+        if not M.is_null():
+            return Conceptor.operator_NOT(M)
+        else:
+            return Conceptor.identity(self.output_dim, dtype=self._dtype)
+        # end if
+    # end _compute_E
 
     # Update Wout matrix
     def _update_Wout_loading(self, X, Y):
@@ -231,154 +255,82 @@ class IncForgRRCell(IncRRCell):
         Update Wout matrix
         """
         # Compute zones
-        C, NC, E, M, NOT_M = self._compute_conceptor(X)
+        C = self._compute_conceptor(X)
+
+        # Compute free zone
+        self.F = self._compute_F_matrix()
+
+        # Compute conflict and conflict free zones
+        self.M = self._compute_M(C)
+        self.E = self._compute_E(self.M)
+
+        # Debug
+        self.e_rank = rank(self.E.C)
 
         # Compute increment for Wout
-        if quota(self._conceptors.F()) < 1e-1:
-            self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc)
+        if quota(self.F) < 1e-1:
+            self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc * 1000, F=self._compute_F_matrix())
         else:
-            self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc)
+            self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc, F=self._compute_F_matrix())
         # end if
 
-        # Compute the targets for each version.
-        if self._forgetting_version == IncForgRRCell.FORGETTING_VERSION1:
-            # Targets: What cannot be predicted by the current matrix Wout
-            # Y - Wout * X
-            Yt = Y - torch.mm(self.w_out, X.t()).t()
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION2:
-            # Targets: what cannot be predicted by the space
-            # of Wout in conflict with the current patterns.
-            # (using (A and C)).
-            # Y - Wout * E * X
-            Yt = Y - torch.mm(self.w_out, torch.mm(E.C, X.t())).t()
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION3:
-            # Targets: what cannot be predicted by the space of Wout
-            # in conflict with the current patterns.
-            # (using C instead of (A and C)).
-            # Y - C * Wout * X
-            Yt = Y - torch.mm(torch.mm(C.C, self.w_out.t()).t(), X.t()).t()
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION4:
-            # Targets: what cannot be predicted by the current matrix Wout
-            # Y - Wout * X
-            Yt = Y - torch.mm(self.w_out, X.t()).t()
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION5:
-            # Targets: what cannot be predicted by the current matrix Wout and (!)
-            # the added increment matrix Wout_inc.
-            # Y - (Wout + Wout_inc) * X
-            Yt = Y - torch.mm(self.w_out + self.w_out_inc, X.t()).t()
+        # DEBUG Wout inc
+        self.w_out_inc_nrmse = nrmse(torch.mm(self.w_out + self.w_out_inc, X.t()).t(), Y)
+        self.w_out_inc_magnitude = torch.norm(self.w_out_inc)
+        self.w_out_inc_rank = rank(self.w_out_inc)
+        _, self.w_out_inc_SVs, _ = torch.svd(self.w_out_inc)
 
-            # Compute NRMSE of (Wout + Wout_inc) and magnitude
-            self.w_out_inc_nrmse = nrmse(torch.mm(self.w_out + self.w_out_inc, X.t()).t(), Y)
-            self.w_out_inc_magnitude = torch.norm(self.w_out_inc)
-        # end if
+        # Targets: what cannot be predicted by the current matrix Wout.
+        # Yt = Y - Wout * X
+        Yt = Y - torch.mm(self.w_out, X.t()).t()
 
         # Debug
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncForgRRCell", "_update_Wout_loading")
 
-        # Compute the final matrix for different version
-        if self._forgetting_version == IncForgRRCell.FORGETTING_VERSION1:
-            # Compute the increment and update for matrix Wout
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
+        # Compute matrix Wout update which predict what cannot be predicted by Wout using the conflict zone
+        # and the free zone.
+        self.w_out_up = self._compute_update(X, Yt, self.E, self._ridge_param_up)
 
-            # Debug
-            self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
+        # Split the matrix Wout_new into update and increment
+        # Wout_up = A * Wout_new
+        self.w_out_up_nrmse = nrmse(torch.mm(self.w_out + self.w_out_up, X.t()).t(), Y)
+        self.w_out_up_magnitude = torch.norm(self.w_out_up)
+        self.w_out_up_rank = rank(self.w_out_up)
+        _, self.w_out_up_SVs, _ = torch.svd(self.w_out_up)
 
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # Wout = (1-l) * Wout + l * Wout_up + Wout_inc
-                self.w_out += self.w_out_up
-            else:
-                # Wout = Wout + Wout_inc
-                self.w_out += self.w_out_inc
-            # end if
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION2:
-            # Compute the increment and update for matrix Wout
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
+        # Debug
+        # self._call_debug_point("w_out_new{}".format(self._n_samples), self.w_out_new, "IncForgRRCell", "_update_Wout_loading")
+        self._call_debug_point("w_out_inc{}".format(self._n_samples), self.w_out_inc, "IncForgRRCell", "_update_Wout_loading")
+        self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
 
-            # Debug
-            self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
+        # Compute final matrix
+        if self.A.quota + C.quota > self._forgetting_threshold:
+            # Gradient
+            self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc + self.w_out_up) - torch.norm(self.w_out)
 
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # Wout = M * Wout + (1-l) * E * Wout + l * Wout_up + Wout_inc
-                self.w_out = torch.mm(M.C, self.w_out.t()).t() + (1.0 - self._lambda) * torch.mm(E.C, self.w_out.t()).t() + self._lambda * self.w_out_up + self.w_out_inc
-            else:
+            # Wout = Wout + Wout_up
+            self.w_out += self.w_out_up
 
-                # Wout = M * Wout + E * Wout + Wout_inc
-                self.w_out = torch.mm(M.C, self.w_out.t()).t() + torch.mm(E.C, self.w_out.t()).t() + self.w_out_inc
-            # end if
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION3:
-            # Compute the increment and update for matrix Wout
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
+            # Update A
+            self._update_A(self.M, C)
+        else:
+            # Gradient
+            self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc) - torch.norm(self.w_out)
 
-            # Debug
-            self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
+            # Wout = Wout + Wout_inc
+            self.w_out += self.w_out_inc
 
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # Wout = -C * Wout + (1-l) * C * Wout + l * Wout_up + Wout_inc
-                self.w_out = torch.mm(NC.C, self.w_out.t()).t() + (1.0 - self._lambda) * torch.mm(C.C, self.w_out.t()).t() + self._lambda * self.w_out_up + self.w_out_inc
-            else:
-                # Wout = -C * Wout + C * Wout + Wout_inc
-                self.w_out = torch.mm(NC.C, self.w_out.t()).t() + torch.mm(C.C, self.w_out.t()).t() + self.w_out_inc
-            # end if
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION4:
-            # Compute new Wout to predict the new pattern
-            self.w_out_new = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
-
-            # Split Wout new into update and increment
-            # Wout_inc = F * Wout_new
-            # Wout_up = A * Wout_new
-            self.w_out_inc = torch.mm(self._conceptors.F().t(), self.w_out_new.t()).t()
-            self.w_out_up = torch.mm(self._conceptors.A().C.t(), self.w_out_new.t()).t()
-
-            # Debug
-            self._call_debug_point("w_out_new{}".format(self._n_samples), self.w_out_new, "IncForgRRCell", "_update_Wout_loading")
-            self._call_debug_point("w_out_inc{}".format(self._n_samples), self.w_out_inc, "IncForgRRCell", "_update_Wout_loading")
-            self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
-
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # Wout = -C * Wout + (1-l) * C * Wout + l * Wout_up + Wout_inc
-                self.w_out = torch.mm(NC.C, self.w_out.t()).t() + (1.0 - self._lambda) * torch.mm(C.C, self.w_out.t()).t() + self._lambda * self.w_out_up + self.w_out_inc
-            else:
-                # Wout = -C * Wout + C * Wout + Wout_inc
-                self.w_out = torch.mm(NC.C, self.w_out.t()).t() + torch.mm(C.C, self.w_out.t()).t() + self.w_out_inc
-            # end if
-        elif self._forgetting_version == IncForgRRCell.FORGETTING_VERSION5:
-            # Compute matrix Wout which predict what cannot be predicted by Wout + Wout_inc
-            self.w_out_up = self._compute_update(X, Yt, E, C, NOT_M, self._ridge_param_up)
-
-            # Split the matrix Wout_new into update and increment
-            # Wout_up = A * Wout_new
-            self.w_out_up_nrmse = nrmse(torch.mm(self.w_out + self.w_out_inc + self.w_out_up, X.t()).t(), Y)
-            self.w_out_up_magnitude = torch.norm(self.w_out_up)
-
-            # Debug
-            # self._call_debug_point("w_out_new{}".format(self._n_samples), self.w_out_new, "IncForgRRCell", "_update_Wout_loading")
-            self._call_debug_point("w_out_inc{}".format(self._n_samples), self.w_out_inc, "IncForgRRCell", "_update_Wout_loading")
-            self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
-
-            # Compute final matrix
-            if self._conceptors.A().quota + C.quota > self._forgetting_threshold:
-                # Gradient
-                self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc + self.w_out_up) - torch.norm(self.w_out)
-
-                # Wout = -C * Wout + (1-l) * C * Wout + l * Wout_up + Wout_inc
-                # self.w_out += self.w_out_inc + self.w_out_up
-                self.w_out += self.w_out_inc + self.w_out_up
-                # pass
-            else:
-                # Gradient
-                self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc) - torch.norm(self.w_out)
-
-                # Wout = -C * Wout + C * Wout + Wout_inc
-                self.w_out += self.w_out_inc + self.w_out_up
-            # end if
+            # Update A
+            self._update_A(self.M, C, increment=True)
         # end if
 
         # Wout magnitude
         self.w_out_magnitude = torch.norm(self.w_out)
+        self.w_out_rank = rank(self.w_out)
+        _, self.w_out_SVs, _ = torch.svd(self.w_out)
+
+        # Debug
+        self._call_debug_point("w_out{}".format(self._n_samples), self.w_out, "IncForgRRCell", "_update_Wout_loading")
     # end _update_Wout_loading
 
     # endregion OVERRIDE
