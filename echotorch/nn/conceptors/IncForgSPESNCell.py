@@ -88,6 +88,7 @@ class IncForgSPESNCell(IncSPESNCell):
         self.e_SVs = None
 
         # Spaces used for loading
+        self.C = None
         self.A = Conceptor.empty(self.output_dim, dtype=self._dtype)
         self.E = None
         self.M = None
@@ -115,25 +116,9 @@ class IncForgSPESNCell(IncSPESNCell):
             'Rnew',
             Variable(torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
         )
-
-        # Conflict zone
-        self.register_buffer(
-            'E',
-            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
-        )
-
-        # Welcome zone
-        self.register_buffer(
-            'NOT_M',
-            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
-        )
-
-        # Demilitarized zone
-        self.register_buffer(
-            'M',
-            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
-        )
     # end __init__
+
+    # region PUBLIC
 
     # Set aperture
     def set_aperture(self, aperture):
@@ -142,6 +127,8 @@ class IncForgSPESNCell(IncSPESNCell):
         """
         self._aperture = aperture
     # end set_aperture
+
+    # endregion PUBLIC
 
     # region PRIVATE
 
@@ -229,6 +216,25 @@ class IncForgSPESNCell(IncSPESNCell):
         # Train conceptor
         C.finalize()
 
+        # SV modification function
+        def modify_SVs(svs):
+            svs[svs > 0.5] = 1.0
+            svs[svs <= 0.5] = 0.0
+            return svs
+        # end modify_SVs
+
+        # SV modification with tanh
+        def modify_SVs_tanh(svs):
+            for i in range(svs.size(0)):
+                # svs[i] = (torch.tanh(50.0 * (2.0 * svs[i] - 1))) / 2.0
+                svs[i] = (torch.tanh(svs[i] * 50 - 25) + 1) / 2.0
+            # end for
+            return svs
+        # end modify_SVs_tanh
+
+        # Modify conceptor's SVs
+        C.modify_SVs(modify_SVs)
+
         return C
     # end if
 
@@ -288,13 +294,13 @@ class IncForgSPESNCell(IncSPESNCell):
         X, X_old, U = self._compute_XU(states, inputs)
 
         # Compute conceptor of current pattern
-        C = self._compute_conceptor(X)
+        self.C = self._compute_conceptor(X)
 
         # Compute free zone
         self.F = self._compute_F_matrix()
 
-        # Compute demilitarized zone
-        self.M = self._compute_M(C)
+        # Compute demilitarized zone and conflict zone
+        self.M = self._compute_M(self.C)
         self.E = self._compute_E(self.M)
 
         # DEBUG E
@@ -309,11 +315,11 @@ class IncForgSPESNCell(IncSPESNCell):
         Yinc = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
 
         # Compute the increment for matrix D
-        # with adaptative ridge param (*1000 if free zone F is too small)
+        # with adaptive ridge param (*1000 if free zone F is too small)
         if quota(self.F) < 1e-1:
-            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc * 1000)
+            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc * 1000, F=self._compute_F_matrix())
         else:
-            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc)
+            self.Dinc = self._compute_increment(X_old, Yinc, self._ridge_param_inc, F=self._compute_F_matrix())
         # end if
 
         # DEBUG Dinc
@@ -322,19 +328,23 @@ class IncForgSPESNCell(IncSPESNCell):
         self.dinc_rank = rank(self.Dinc)
         _, self.dinc_SVs, _ = torch.svd(self.Dinc)
 
-        # Targets : what cannot be predicted by the current matrix D(t)
+        # Targets for the update matrix Dup(t+1)
+        # What cannot be predicted by the current matrix D(t)
         # Y = Win * U - D * X(t-1)
         Y = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, X_old.t())).t()
+        # Y = (torch.mm(self.w_in, U.t()) - torch.mm(self.D, torch.mm(self.M.C, X_old.t()))).t()
+        # Y = (torch.mm(self.w_in, U.t())).t()
 
         # Debug
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncSPESNCell", "_update_D_loading")
 
         # Compute matrix Dup which predict what cannot be predicted by D using the conflict zone E and
-        # free zone F
+        # free zone F (E+F)
         self.Dup = self._compute_update(X_old, Y, self.E, self._ridge_param_up)
 
         # DEBUG Dup
-        self.dup_nrmse = nrmse(torch.mm(self.D + self.Dup, X_old.t()).t(), Y)
+        self.dup_nrmse = nrmse(torch.mm(self.D + self.Dup, X_old.t()).t(), win_u)
+        # self.dup_nrmse = nrmse(torch.mm(torch.mm(self.M.C, self.D) + (1.0 - self._lambda) * torch.mm(self.E.C, self.D) + self._lambda * self.Dup, X_old.t()).t(), win_u)
         self.dup_magnitude = torch.norm(self.Dup)
         self.dup_rank = rank(self.Dup)
         _, self.dup_SVs, _ = torch.svd(self.Dup)
@@ -344,24 +354,28 @@ class IncForgSPESNCell(IncSPESNCell):
         self._call_debug_point("Dup{}".format(self._n_samples), self.Dup, "IncSPESNCell", "_update_D_loading")
 
         # We erase information in D with Dup if above a threshold
-        if self.A.quota + C.quota > self._forgetting_threshold:
+        if self.A.quota > self._forgetting_threshold:
             # Gradient
-            self.d_gradient = torch.norm(self.D + self.Dup) - torch.norm(self.D)
-
+            self.d_gradient = torch.norm(self.D + self._lambda * self.Dup) - torch.norm(self.D)
+            # self.d_gradient = torch.norm(torch.mm(self.M.C, self.D) + (1.0 - self._lambda) * torch.mm(self.E.C, self.D) + self._lambda * self.Dup) - torch.norm(self.D)
+            print("update")
             # D = D + Dup
-            self.D += self.Dup
+            self.D += self._lambda * self.Dup
+            # self.D = torch.mm(self.M.C, self.D) + (1.0 - self._lambda) * torch.mm(self.E.C, self.D) + self._lambda * self.Dup
 
             # Update A
-            self._update_A(self.M, C)
+            self._update_A(self.M, self.C)
         else:
             # Gradient
             self.d_gradient = torch.norm(self.D + self.Dinc) - torch.norm(self.D)
 
             # D = D + Dinc
             self.D += self.Dinc
+            # self.D += self._lambda * self.Dup
 
             # Update A
-            self._update_A(self.M, C, increment=True)
+            self._update_A(self.M, self.C, increment=True)
+            # self._update_A(self.M, C)
         # end if
 
         # Save D's magnitude and rank and SV

@@ -76,7 +76,7 @@ class IncSPESNCell(SPESNCell):
     # region PRIVATE
 
     # Compute increment matrix
-    def _compute_increment(self, X, Y, ridge_param):
+    def _compute_increment(self, X, Y, ridge_param, F=None):
         """
         Compute increment matrix
         """
@@ -87,7 +87,9 @@ class IncSPESNCell(SPESNCell):
         if not self._conceptors.is_null():
             # The linear subspace of the reservoir state space that are not yet
             # occupied by any pattern.
-            F = self._conceptors.F()
+            if F is None:
+                F = self._conceptors.F()
+            # end if
             self._call_debug_point("F{}".format(self._n_samples), F, "IncSPESNCell", "_compute_increment")
 
             # Filter old state to get only what is new

@@ -80,6 +80,15 @@ class IncConceptorNet(IncSPESN):
         return self.conceptor.quota
     # end quota
 
+    # Set aperture used for forgetting and increments
+    def set_aperture(self, aperture):
+        """
+        Set aperture used for forgetting and increments
+        """
+        self._esn_cell.set_aperture(aperture)
+        self._output.set_aperture(aperture)
+    # end set_aperture
+
     # Set the current conceptor
     def set_conceptor(self, C):
         """
@@ -87,7 +96,6 @@ class IncConceptorNet(IncSPESN):
         :param C: The conceptor matrix
         """
         self.conceptor = C
-
     # end set_conceptor
 
     # Use conceptor ?

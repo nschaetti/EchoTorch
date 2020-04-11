@@ -94,6 +94,7 @@ class IncForgRRCell(IncRRCell):
         self.w_out_up_SVs = None
 
         # Space used by all patterns
+        self.C = None
         self.A = Conceptor.empty(self.output_dim)
 
         # Wout matrix, update, increment and new
@@ -101,9 +102,17 @@ class IncForgRRCell(IncRRCell):
         self.register_buffer('w_out_new', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
     # end __init__
 
+    # region PUBLIC
+
+    # Set aperture
     def set_aperture(self, aperture):
+        """
+        Set aperture
+        """
         self._aperture = aperture
     # end set_aperture
+
+    # endregion PUBLIC
 
     # Compute update matrix for Wout
     def _compute_update(self, X, Y, E, ridge_param):
@@ -183,7 +192,7 @@ class IncForgRRCell(IncRRCell):
         """
         # Compute Conceptor for new pattern
         C = Conceptor(
-            input_dim=self.output_dim,
+            input_dim=self.input_dim,
             aperture=self._aperture,
             debug=self._debug,
             dtype=self.dtype
@@ -195,8 +204,26 @@ class IncForgRRCell(IncRRCell):
         # Train conceptor
         C.finalize()
 
-        return C
+        # SV modification function
+        def modify_SVs(svs):
+            svs[svs > 0.5] = 1.0
+            svs[svs <= 0.5] = 0.0
+            return svs
+        # end if
 
+        # SV modification with tanh
+        def modify_SVs_tanh(svs):
+            for i in range(svs.size(0)):
+                # svs[i] = (torch.tanh(50.0 * (2.0 * svs[i] - 1))) / 2.0
+                svs[i] = (torch.tanh(svs[i] * 50 - 25) + 1) / 2.0
+            # end for
+            return svs
+        # end modify_SVs_tanh
+
+        # Modify conceptor's SVs
+        C.modify_SVs(modify_SVs)
+
+        return C
     # end if
 
     # Compute A (space occupied by all patterns)
@@ -233,7 +260,6 @@ class IncForgRRCell(IncRRCell):
         :param C: Conceptor of current pattern.
         """
         return Conceptor.operator_AND(self.A, Conceptor.operator_NOT(C))
-
     # end _compute_M
 
     # Compute E (conflict zone)
@@ -255,13 +281,13 @@ class IncForgRRCell(IncRRCell):
         Update Wout matrix
         """
         # Compute zones
-        C = self._compute_conceptor(X)
+        self.C = self._compute_conceptor(X)
 
         # Compute free zone
         self.F = self._compute_F_matrix()
 
         # Compute conflict and conflict free zones
-        self.M = self._compute_M(C)
+        self.M = self._compute_M(self.C)
         self.E = self._compute_E(self.M)
 
         # Debug
@@ -274,6 +300,9 @@ class IncForgRRCell(IncRRCell):
             self.w_out_inc = self._compute_increment(X, Y, self._ridge_param_inc, F=self._compute_F_matrix())
         # end if
 
+        # Debug
+        self._call_debug_point("w_out_inc{}".format(self._n_samples), self.w_out_inc, "IncForgRRCell", "_update_Wout_loading")
+
         # DEBUG Wout inc
         self.w_out_inc_nrmse = nrmse(torch.mm(self.w_out + self.w_out_inc, X.t()).t(), Y)
         self.w_out_inc_magnitude = torch.norm(self.w_out_inc)
@@ -283,6 +312,7 @@ class IncForgRRCell(IncRRCell):
         # Targets: what cannot be predicted by the current matrix Wout.
         # Yt = Y - Wout * X
         Yt = Y - torch.mm(self.w_out, X.t()).t()
+        # Yt = Y - torch.mm(self.w_out, torch.mm(self.M.C, X.t())).t()
 
         # Debug
         self._call_debug_point("Td{}".format(self._n_samples), Y, "IncForgRRCell", "_update_Wout_loading")
@@ -299,29 +329,29 @@ class IncForgRRCell(IncRRCell):
         _, self.w_out_up_SVs, _ = torch.svd(self.w_out_up)
 
         # Debug
-        # self._call_debug_point("w_out_new{}".format(self._n_samples), self.w_out_new, "IncForgRRCell", "_update_Wout_loading")
-        self._call_debug_point("w_out_inc{}".format(self._n_samples), self.w_out_inc, "IncForgRRCell", "_update_Wout_loading")
         self._call_debug_point("w_out_up{}".format(self._n_samples), self.w_out_up, "IncForgRRCell", "_update_Wout_loading")
 
         # Compute final matrix
-        if self.A.quota + C.quota > self._forgetting_threshold:
+        if self.A.quota > self._forgetting_threshold:
             # Gradient
-            self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc + self.w_out_up) - torch.norm(self.w_out)
+            self.w_out_gradient = torch.norm(self.w_out + self.w_out_up) - torch.norm(self.w_out)
 
             # Wout = Wout + Wout_up
             self.w_out += self.w_out_up
 
             # Update A
-            self._update_A(self.M, C)
+            self._update_A(self.M, self.C)
         else:
             # Gradient
             self.w_out_gradient = torch.norm(self.w_out + self.w_out_inc) - torch.norm(self.w_out)
 
             # Wout = Wout + Wout_inc
             self.w_out += self.w_out_inc
+            # self.w_out += self.w_out_up
 
             # Update A
-            self._update_A(self.M, C, increment=True)
+            self._update_A(self.M, self.C, increment=True)
+            # self._update_A(self.M, C)
         # end if
 
         # Wout magnitude

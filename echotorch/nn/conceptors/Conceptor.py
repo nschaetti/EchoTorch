@@ -139,6 +139,21 @@ class Conceptor(NeuralFilter):
 
     # region PUBLIC
 
+    # Modify singular values with a function
+    def modify_SVs(self, svs_func):
+        """
+        Modify singular values with a function
+        """
+        # SVD on C
+        Uc, Sc, Vc = torch.svd(self.C)
+
+        # Modify singular values with the function
+        new_Sc = svs_func(Sc)
+
+        # Apply the change to C
+        self.C = torch.mm(Uc, torch.mm(torch.diag(new_Sc), Vc.t()))
+    # end modify_SVs
+
     # The conceptor is empty (zero matrix)
     def is_null(self):
         """
@@ -588,7 +603,7 @@ class Conceptor(NeuralFilter):
         :param other:
         :return:
         """
-        return self.C == other.C and self.aperture == other.aperture
+        return torch.all(torch.eq(self.C, other.C)) and self.aperture == other.aperture
     # end __eq__
 
     # Greater than (abstraction relationship)
