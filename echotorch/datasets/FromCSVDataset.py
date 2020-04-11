@@ -20,11 +20,9 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-import math
 import torch
-import torch.distributions.multinomial
 from torch.utils.data.dataset import Dataset
-import numpy as np
+import csv
 
 
 # Load Time series from a CSV file
@@ -34,7 +32,7 @@ class FromCSVDataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, csv_file, columns, *args, **kwargs):
+    def __init__(self, csv_file, columns, delimiter=",", quotechar='"', *args, **kwargs):
         """
         Constructor
         :param csv_file: CSV file
@@ -48,22 +46,77 @@ class FromCSVDataset(Dataset):
         # Properties
         self._csv_file = csv_file
         self._columns = columns
+        self._n_columns = len(columns)
+        self._delimiter = delimiter
+        self._quotechar = quotechar
+        self._column_indices = list()
 
         # Load
-        self._data = self._load_from_csv(self._csv_file, self._columns)
+        self._data = self._load_from_csv()
     # end __init__
 
     # region PRIVATE
 
+    # Find indices for each column
+    def _find_columns_indices(self, header_row):
+        """
+        Find indices for each column
+        :param header_row: Header row
+        """
+        for col in self._columns:
+            if col in header_row:
+                self._column_indices.append(header_row.index(col))
+            else:
+                raise Exception("Not column \'{}\' found in the CSV".format(col))
+            # end if
+        # end for
+    # end _find_columns_indices
+
     # Load from CSV file
-    def _load_from_csv(self, csv_file, columns):
+    def _load_from_csv(self):
         """
         Load from CSV file
-        :param csv_file: CSV file
-        :param columns: Columns
         :return:
         """
-        pass
+        # Open CSV file
+        with open(self._csv_file, 'r') as csvfile:
+            # Read data
+            spamreader = csv.reader(csvfile, delimiter=self._delimiter, quotechar=self._quotechar)
+
+            # Data
+            data = list()
+
+            # For each row
+            for row_i, row in enumerate(spamreader):
+                # First row is the column name
+                if row_i == 0:
+                    self._find_columns_indices(row)
+                else:
+                    # Row list
+                    row_list = list()
+
+                    # Add each column
+                    for idx in self._column_indices:
+                        row_list.append(row[idx])
+                    # end for
+
+                    # Add to data
+                    data.append(row_list)
+                # end if
+            # end for
+
+            # Create tensor
+            data_tensor = torch.zeros(len(data), self._n_columns)
+
+            # Insert data in tensor
+            for row_i, row in enumerate(data):
+                for col_i, e in enumerate(row):
+                    data_tensor[row_i, col_i] = float(e)
+                # end for
+            # end for
+
+            return data_tensor
+        # end for
     # end _load_from_csv
 
     # endregion ENDPRIVATE
@@ -76,7 +129,7 @@ class FromCSVDataset(Dataset):
         Length
         :return:
         """
-        return self._n_samples
+        return 1
     # end __len__
 
     # Get item
@@ -88,10 +141,7 @@ class FromCSVDataset(Dataset):
         """
         # Generate a Markov chain with
         # specified length.
-        return self._generate_markov_chain(
-            length=self._sample_length,
-            start_state=np.random.randint(low=0, high=self._n_states-1)
-        )
+        return self._data
     # end __getitem__
 
     # endregion OVERRIDE
