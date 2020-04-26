@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/transforms/__init__.py
-# Description : Transformers classes.
+# File : echotorch/transforms/timeseries/__init__.py
+# Description : Transformers for timeseries.
 # Date : 12th of April, 2020
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -20,11 +20,5 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-import echotorch.transforms.images
-import echotorch.transforms.targets
-import echotorch.transforms.text
-import echotorch.transforms.timeseries
+from .Normalize import Normalize
 
-__all__ = [
-    'text', 'images', 'targets', 'timeseries'
-]
