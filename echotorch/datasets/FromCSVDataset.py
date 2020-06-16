@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # File : datasets/FromCSVDataset.py
-# Description : Load timeseries from a CSV file.
+# Description : Load time series from a CSV file.
 # Date : 10th of April, 2020
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
