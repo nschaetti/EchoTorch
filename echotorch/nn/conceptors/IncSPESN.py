@@ -44,11 +44,12 @@ class IncSPESN(ESN):
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, conceptors, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo_wout='pinv', learning_algo_w='inv',
-                 ridge_param_inc=0.01, ridge_param_up=0.01, ridge_param_wout_inc=0.01, ridge_param_wout_up=0.01,
-                 aperture=1, with_bias=False, softmax_output=False, washout=0, cell_averaged=True, output_averaged=True,
-                 fill_left=False, loading_method=SPESNCell.INPUTS_SIMULATION, incremental_forgetting=False,
-                 forgetting_lambda=0.0, forgetting_version=IncForgSPESNCell.FORGETTING_VERSION1,
-                 forgetting_threshold=0.95, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 ridge_param_inc=0.01, ridge_param_up=0.01, ridge_param_wout=0.01, ridge_param_wout_inc=0.01,
+                 ridge_param_wout_up=0.01, aperture=1, with_bias=False, softmax_output=False, washout=0,
+                 cell_averaged=True, output_averaged=True, fill_left=False, loading_method=SPESNCell.INPUTS_SIMULATION,
+                 incremental_forgetting=False, forgetting_lambda=0.0,
+                 forgetting_version=IncForgSPESNCell.FORGETTING_VERSION1, forgetting_threshold=0.95,
+                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension

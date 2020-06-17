@@ -27,7 +27,7 @@ import torchvision.datasets
 import echotorch.nn.reservoir
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-import modules
+from .modules import ESNJS
 
 
 # Experiment parameters
@@ -139,7 +139,7 @@ wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
 )
 
 # New ESN-JS module
-esn = modules.ESNJS(
+esn = ESNJS(
     input_dim=input_size,
     image_size=image_size,
     hidden_dim=reservoir_size,
