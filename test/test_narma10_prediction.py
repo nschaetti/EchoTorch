@@ -55,8 +55,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
-
+        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred = self.narma10_prediction()
+        print(y_test_pred[0, :10])
         # Check results
         self.assertAlmostEqual(train_mse, 0.0014486080035567284, places=3)
         self.assertAlmostEqual(train_nrmse, 0.3550744227519557, places=2)
@@ -70,7 +70,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with 500 neurons
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(
+        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred = self.narma10_prediction(
             reservoir_size=500
         )
 
@@ -87,7 +87,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(leaky_rate=0.5)
+        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred = self.narma10_prediction(leaky_rate=0.5)
 
         # Check results
         self.assertAlmostEqual(train_mse, 0.036606427282094955, places=3)
@@ -217,13 +217,14 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
 
         # Make a prediction with our trained ESN
         y_test_predicted = esn(test_u)
-        print(test_u[0, :5])
-        print(y_test_predicted[0, :5])
+
         return (
             echotorch.utils.mse(y_train_predicted.data, train_y.data),
             echotorch.utils.nrmse(y_train_predicted.data, train_y.data),
             echotorch.utils.mse(y_test_predicted.data, test_y.data),
-            echotorch.utils.nrmse(y_test_predicted.data, test_y.data)
+            echotorch.utils.nrmse(y_test_predicted.data, test_y.data),
+            y_train_predicted,
+            y_test_predicted
         )
     # end narma10_prediction
 
