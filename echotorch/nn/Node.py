@@ -403,7 +403,7 @@ class Node(nn.Module):
                     abs_diff = np.abs(value_from_module - value_from_outside)
 
                     # In debug output, print difference
-                    if self._debug == Node.DEBUG_OUTPUT or self._debug == Node.DEBUG_TEST_CASE:
+                    if self._debug == Node.DEBUG_OUTPUT:
                         print(info_precision_scalar.format(name, abs_diff, code_class, code_pos))
                     # end if
 
@@ -422,7 +422,7 @@ class Node(nn.Module):
                         norm_diff = torch.norm(value_from_module - value_from_outside)
 
                         # In debug output, print difference
-                        if self._debug == Node.DEBUG_OUTPUT or self._debug == Node.DEBUG_TEST_CASE:
+                        if self._debug == Node.DEBUG_OUTPUT:
                             print(info_precision_matrix.format(name, norm_diff, code_class, code_pos))
                         # end if
 

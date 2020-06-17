@@ -226,15 +226,14 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
                 # Input patterns
                 conceptor_net.cell.debug_point(
                     "u{}".format(i),
-                    torch.reshape(torch.from_numpy(np.load("data/tests/subspace_first_demo/u{}.npy".format(i))),
-                                  shape=(-1, 1)),
+                    torch.reshape(torch.from_numpy(np.load(os.path.join(TEST_PATH, "u{}.npy".format(i)))), shape=(-1, 1)),
                     precision
                 )
 
                 # States
                 conceptor_net.cell.debug_point(
                     "X{}".format(i),
-                    torch.from_numpy(np.load("data/tests/subspace_first_demo/X{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "X{}.npy".format(i)))),
                     precision
                 )
 
@@ -242,7 +241,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
                 if loading_method == ecnc.SPESNCell.W_LOADING:
                     conceptor_net.cell.debug_point(
                         "Y{}".format(i),
-                        torch.from_numpy(np.load("data/tests/subspace_first_demo/Y{}.npy".format(i))),
+                        torch.from_numpy(np.load(os.path.join(TEST_PATH, "Y{}.npy".format(i)))),
                         precision
                     )
                 # end if
@@ -250,14 +249,14 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
                 # Xold
                 conceptor_net.cell.debug_point(
                     "Xold{}".format(i),
-                    torch.from_numpy(np.load("data/tests/subspace_first_demo/Xold{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Xold{}.npy".format(i)))),
                     precision
                 )
 
                 # Conceptor
                 conceptors[i].debug_point(
                     "C",
-                    torch.from_numpy(np.load("data/tests/subspace_first_demo/C{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "C{}.npy".format(i)))),
                     precision
                 )
             # end for
@@ -265,30 +264,30 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             # Load debug W, xTx, xTy
             conceptor_net.cell.debug_point(
                 "Wstar",
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/Wstar.npy", allow_pickle=True)),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wstar.npy"), allow_pickle=True)),
                 precision
             )
-            conceptor_net.cell.debug_point("Win", torch.from_numpy(np.load("data/tests/subspace_first_demo/Win.npy")), precision)
-            conceptor_net.cell.debug_point("Wbias", torch.from_numpy(np.load("data/tests/subspace_first_demo/Wbias.npy")), precision)
-            conceptor_net.cell.debug_point("xTx", torch.from_numpy(np.load("data/tests/subspace_first_demo/xTx.npy")), precision)
+            conceptor_net.cell.debug_point("Win", torch.from_numpy(np.load(os.path.join(TEST_PATH, "Win.npy"))), precision)
+            conceptor_net.cell.debug_point("Wbias", torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wbias.npy"))), precision)
+            conceptor_net.cell.debug_point("xTx", torch.from_numpy(np.load(os.path.join(TEST_PATH, "xTx.npy"))), precision)
             conceptor_net.cell.debug_point("w_ridge_param", 0.0001, precision)
             conceptor_net.cell.debug_point(
                 "ridge_xTx",
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/ridge_xTx.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "ridge_xTx.npy"))),
                 precision
             )
             conceptor_net.cell.debug_point(
                 "inv_xTx",
-                torch.from_numpy(np.load("data/tests/subspace_first_demo/inv_xTx.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "inv_xTx.npy"))),
                 precision
             )
-            conceptor_net.cell.debug_point("w", torch.from_numpy(np.load("data/tests/subspace_first_demo/W.npy")), precision)
+            conceptor_net.cell.debug_point("w", torch.from_numpy(np.load(os.path.join(TEST_PATH, "W.npy"))), precision)
 
             # Debug not related to inputs recreation
             if loading_method == ecnc.SPESNCell.W_LOADING:
                 conceptor_net.cell.debug_point(
                     "xTy",
-                    torch.from_numpy(np.load("data/debug/subspace_demo/xTy.npy")),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "xTy.npy"))),
                     precision
                 )
             # end if
@@ -385,8 +384,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
 
         # Load similarity matrices
         if use_matlab_params:
-            Rsim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Rsim.npy"))
-            Csim = torch.from_numpy(np.load("data/tests/subspace_first_demo/Csim.npy"))
+            Rsim = torch.from_numpy(np.load(os.path.join(TEST_PATH, "Rsim.npy")))
+            Csim = torch.from_numpy(np.load(os.path.join(TEST_PATH, "Csim.npy")))
         else:
             Rsim = expected_RSim
             Csim = expected_CSim

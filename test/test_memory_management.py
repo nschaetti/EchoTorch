@@ -317,7 +317,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 # SPESN : Input patterns
                 conceptor_net.cell.debug_point(
                     "u{}".format(i),
-                    torch.reshape(torch.from_numpy(np.load("data/tests/memory_management/u{}.npy".format(i))),
+                    torch.reshape(torch.from_numpy(np.load(os.path.join(TEST_PATH, "u{}.npy".format(i)))),
                                   shape=(-1, 1)),
                     precision
                 )
@@ -325,14 +325,14 @@ class Test_Memory_Management(EchoTorchTestCase):
                 # SPESN : States X
                 conceptor_net.cell.debug_point(
                     "X{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/X{}.npy".format(i)).T),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "X{}.npy".format(i))).T),
                     precision
                 )
 
                 # SPESN : States old
                 conceptor_net.cell.debug_point(
                     "Xold{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/XOld{}.npy".format(i)).T),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "XOld{}.npy".format(i))).T),
                     precision
                 )
 
@@ -340,7 +340,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
                     conceptor_net.cell.debug_point(
                         "Td{}".format(i),
-                        torch.from_numpy(np.load("data/tests/memory_management/Td{}.npy".format(i)).T),
+                        torch.from_numpy(np.load(os.path.join(TEST_PATH, "Td{}.npy".format(i))).T),
                         precision if i < 13 else precision * 100
                     )
                 # end if
@@ -349,7 +349,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 if i != 15:
                     conceptor_net.cell.debug_point(
                         "F{}".format(i),
-                        torch.from_numpy(np.load("data/tests/memory_management/F{}.npy".format(i))),
+                        torch.from_numpy(np.load(os.path.join(TEST_PATH, "F{}.npy".format(i)))),
                         precision * 10
                     )
                 # end if
@@ -357,7 +357,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 # SPESN : Sold
                 conceptor_net.cell.debug_point(
                     "Sold{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Sold{}.npy".format(i)).T),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Sold{}.npy".format(i))).T),
                     precision if i < 15 else precision * 10
                 )
 
@@ -365,7 +365,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 if loading_method != ecnc.SPESNCell.INPUTS_RECREATION:
                     conceptor_net.cell.debug_point(
                         "sTd{}".format(i),
-                        torch.from_numpy(np.load("data/tests/memory_management/sTd{}.npy".format(i))),
+                        torch.from_numpy(np.load(os.path.join(TEST_PATH, "sTd{}.npy".format(i)))),
                         precision if i < 15 else precision * 100
                     )
                 # end if
@@ -373,14 +373,14 @@ class Test_Memory_Management(EchoTorchTestCase):
                 # SPESN : sTs
                 conceptor_net.cell.debug_point(
                     "sTs{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/sTs{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "sTs{}.npy".format(i)))),
                     precision if i < 9 else precision * 10
                 )
 
                 # SPESN : ridge sTs
                 conceptor_net.cell.debug_point(
                     "ridge_sTs{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/ridge_sTs{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "ridge_sTs{}.npy".format(i)))),
                     precision
                 )
 
@@ -388,7 +388,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 if i != 15:
                     conceptor_net.cell.debug_point(
                         "Dinc{}".format(i),
-                        torch.from_numpy(np.load("data/tests/memory_management/Dinc{}.npy".format(i))),
+                        torch.from_numpy(np.load(os.path.join(TEST_PATH, "Dinc{}.npy".format(i)))),
                         precision if i < 14 else precision * 100
                     )
                 # end if
@@ -397,7 +397,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 if i != 15:
                     conceptor_net.cell.debug_point(
                         "D{}".format(i),
-                        torch.from_numpy(np.load("data/tests/memory_management/D{}.npy".format(i))),
+                        torch.from_numpy(np.load(os.path.join(TEST_PATH, "D{}.npy".format(i)))),
                         precision if i < 14 else precision * 100
                     )
                 # end if
@@ -405,57 +405,56 @@ class Test_Memory_Management(EchoTorchTestCase):
                 # Conceptor : C matrix
                 conceptors[i].debug_point(
                     "C",
-                    torch.from_numpy(np.load("data/tests/memory_management/C{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "C{}.npy".format(i)))),
                     precision
                 )
 
                 # IncRRCell : Wout Y
                 conceptor_net.output.debug_point(
                     "Y{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Y{}.npy".format(i)).T),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Y{}.npy".format(i))).T),
                     precision
                 )
 
                 # IncRRCell : Wout y
                 conceptor_net.output.debug_point(
                     "y{}".format(i),
-                    torch.reshape(torch.from_numpy(np.load("data/tests/memory_management/u{}.npy".format(i))),
-                                  shape=(-1, 1)),
+                    torch.reshape(torch.from_numpy(np.load(os.path.join(TEST_PATH, "u{}.npy".format(i)))), shape=(-1, 1)),
                     precision
                 )
 
                 # IncRRCell : Wout F
                 conceptor_net.output.debug_point(
                     "F{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Wout_F{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wout_F{}.npy".format(i)))),
                     precision if i < 15 else precision * 10
                 )
 
                 # IncRRCell : Wout S
                 conceptor_net.output.debug_point(
                     "S{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/S{}.npy".format(i)).T),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "S{}.npy".format(i))).T),
                     precision if i < 15 else precision * 10
                 )
 
                 # IncRRCell : Wout sTs
                 conceptor_net.output.debug_point(
                     "sTs{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Wout_sTs{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wout_sTs{}.npy".format(i)))),
                     precision if i < 9 else precision * 10
                 )
 
                 # IncRRCell : Wout sTy
                 conceptor_net.output.debug_point(
                     "sTy{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/sTy{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "sTy{}.npy".format(i)))),
                     precision
                 )
 
                 # IncRRCell : Wout ridge sTs
                 conceptor_net.output.debug_point(
                     "ridge_sTs{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Wout_ridge_sTs{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wout_ridge_sTs{}.npy".format(i)))),
                     precision
                 )
 
@@ -470,14 +469,14 @@ class Test_Memory_Management(EchoTorchTestCase):
 
                 conceptor_net.output.debug_point(
                     "inv_sTs{}".format(i),
-                    torch.from_numpy(np.load("data/tests/memory_management/Wout_inv_ridge_sTs{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wout_inv_ridge_sTs{}.npy".format(i)))),
                     inv_sts_precision
                 )
 
                 # IncRRCell : Wout
                 conceptor_net.output.debug_point(
                     "w_out{}".format(i),
-                    torch.reshape(torch.from_numpy(np.load("data/tests/memory_management/Wout{}.npy".format(i))), shape=(1, -1)),
+                    torch.reshape(torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wout{}.npy".format(i)))), shape=(1, -1)),
                     precision
                 )
             # end for
@@ -485,21 +484,21 @@ class Test_Memory_Management(EchoTorchTestCase):
             # Load test W
             conceptor_net.cell.debug_point(
                 "Wstar",
-                torch.from_numpy(np.load("data/tests/memory_management/Wstar.npy", allow_pickle=True)),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wstar.npy"), allow_pickle=True)),
                 precision
             )
 
             # Load test Win
             conceptor_net.cell.debug_point(
                 "Win",
-                torch.from_numpy(np.load("data/tests/memory_management/Win.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Win.npy"))),
                 precision
             )
 
             # Load test Wbias
             conceptor_net.cell.debug_point(
                 "Wbias",
-                torch.from_numpy(np.load("data/tests/memory_management/Wbias.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wbias.npy"))),
                 precision
             )
         # end if
@@ -669,26 +668,26 @@ class Test_Memory_Management(EchoTorchTestCase):
         self.memory_management(
             data_dir="memory_management",
             use_matlab_params=False,
-            precision=0.000001,
+            precision=0.00001,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
-                1.1544502340257168e-02,
-                9.5921922475099564e-03,
-                1.0274781379848719e-03,
-                3.5200463607907295e-03,
-                6.2437158077955246e-02,
-                1.1544502340257168e-02,
+                1.1030825622274112e-02,
                 9.530200433789464e-03,
-                1.0274781379848719e-03,
-                5.1192387938499451e-02,
-                5.9445840306580067e-03,
-                1.8144855275750160e-02,
-                9.4426041468977928e-03,
-                2.1960476413369179e-02,
-                5.6651360355317593e-03,
-                6.4829468727111816e-02,
-                1.7635645866394043e+00
+                1.0300955362118292e-03,
+                3.50784456755666e-03,
+                6.282222859599931e-02,
+                1.1030825622274112e-02,
+                9.530200433789464e-03,
+                1.0300955362118292e-03,
+                5.342208476605692e-02,
+                6.032676381402092e-03,
+                1.8464300029726773e-02,
+                9.449183998592379e-03,
+                2.1949619071667408e-02,
+                5.690589197530604e-03,
+                6.38910337058464e-02,
+                1.7634075234550568e+00
             ]
         )
     # end test_memory_management_random_100neurons
@@ -703,7 +702,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
-            precision=0.0001,
+            precision=0.001,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
@@ -713,15 +712,15 @@ class Test_Memory_Management(EchoTorchTestCase):
                 3.5200463607907295e-03,
                 6.282223295082599e-02,
                 1.1030825385229787e-02,
-                9.5921922475099564e-03,
+                9.530200433789464e-03,
                 1.0274781379848719e-03,
-                5.1192387938499451e-02,
-                5.9445840306580067e-03,
-                1.8144855275750160e-02,
+                5.3422078168264386e-02,
+                6.032677639786433e-03,
+                1.8464295084995325e-02,
                 9.4426041468977928e-03,
                 2.1960476413369179e-02,
                 5.6651360355317593e-03,
-                6.4829468727111816e-02,
+                6.389103415382252e-02,
                 1.7635645866394043e+00
             ]
         )
@@ -744,13 +743,13 @@ class Test_Memory_Management(EchoTorchTestCase):
                 0.0004915953031741,
                 0.0016071919817477,
                 0.0002676959265955,
-                0.0009588617249392,
+                0.0009567607714136597,
                 0.0002541547582950,
                 0.0004915953031741,
                 0.0016071919817477,
                 0.0002676959265955,
                 0.0014735902659595,
-                0.0008529321057722,
+                0.0008581799784798704,
                 0.0006031005177647,
                 0.0015809513861313,
                 0.0016617941437289,
@@ -779,13 +778,13 @@ class Test_Memory_Management(EchoTorchTestCase):
                 0.0004915953031741,
                 0.0016071919817477,
                 0.0002676959265955,
-                0.0009588617249392,
+                0.0009569405761703296,
                 0.0002541547582950,
                 0.0004915953031741,
                 0.0016071919817477,
                 0.0002676959265955,
                 0.0014735902659595,
-                0.0008529321057722,
+                0.0008582514729577747,
                 0.0006031005177647,
                 0.0015809513861313,
                 0.0016617941437289,

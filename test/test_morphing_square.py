@@ -234,7 +234,7 @@ class Test_Morphing_Square(EchoTorchTestCase):
                 # Input patterns
                 conceptor_net.cell.debug_point(
                     "u{}".format(i),
-                    torch.reshape(torch.from_numpy(np.load("data/debug/morphing_square/u{}.npy".format(i))),
+                    torch.reshape(torch.from_numpy(np.load(os.path.join(TEST_PATH, "u{}.npy".format(i)))),
                                   shape=(-1, 1)),
                     precision
                 )
@@ -242,28 +242,28 @@ class Test_Morphing_Square(EchoTorchTestCase):
                 # States
                 conceptor_net.cell.debug_point(
                     "X{}".format(i),
-                    torch.from_numpy(np.load("data/debug/morphing_square/X{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "X{}.npy".format(i)))),
                     precision
                 )
 
                 # Targets
                 conceptor_net.cell.debug_point(
                     "Y{}".format(i),
-                    torch.from_numpy(np.load("data/debug/morphing_square/Y{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Y{}.npy".format(i)))),
                     precision
                 )
 
                 # Xold
                 conceptor_net.cell.debug_point(
                     "Xold{}".format(i),
-                    torch.from_numpy(np.load("data/debug/morphing_square/Xold{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "Xold{}.npy".format(i)))),
                     precision
                 )
 
                 # Conceptor
                 conceptors[i].debug_point(
                     "C",
-                    torch.from_numpy(np.load("data/debug/morphing_square/C{}.npy".format(i))),
+                    torch.from_numpy(np.load(os.path.join(TEST_PATH, "C{}.npy".format(i)))),
                     precision
                 )
             # end for
@@ -271,35 +271,35 @@ class Test_Morphing_Square(EchoTorchTestCase):
             # Load debug Wstar
             conceptor_net.cell.debug_point(
                 "Wstar",
-                torch.from_numpy(np.load("data/debug/morphing_square/Wstar.npy", allow_pickle=True)),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wstar.npy"), allow_pickle=True)),
                 precision
             )
 
             # Load debug Win
             conceptor_net.cell.debug_point(
                 "Win",
-                torch.from_numpy(np.load("data/debug/morphing_square/Win.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Win.npy"))),
                 precision
             )
 
             # Load debug Wbias
             conceptor_net.cell.debug_point(
                 "Wbias",
-                torch.from_numpy(np.load("data/debug/morphing_square/Wbias.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "Wbias.npy"))),
                 precision
             )
 
             # xTx
             conceptor_net.cell.debug_point(
                 "xTx",
-                torch.from_numpy(np.load("data/debug/morphing_square/xTx.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "xTx.npy"))),
                 precision
             )
 
             # xTy
             conceptor_net.cell.debug_point(
                 "xTy",
-                torch.from_numpy(np.load("data/debug/morphing_square/xTy.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "xTy.npy"))),
                 precision
             )
 
@@ -309,21 +309,21 @@ class Test_Morphing_Square(EchoTorchTestCase):
             # Ridge xTx
             conceptor_net.cell.debug_point(
                 "ridge_xTx",
-                torch.from_numpy(np.load("data/debug/morphing_square/ridge_xTx.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "ridge_xTx.npy"))),
                 precision
             )
 
             # inv xTx
             conceptor_net.cell.debug_point(
                 "inv_xTx",
-                torch.from_numpy(np.load("data/debug/morphing_square/inv_xTx.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "inv_xTx.npy"))),
                 precision
             )
 
             # W
             conceptor_net.cell.debug_point(
                 "w",
-                torch.from_numpy(np.load("data/debug/morphing_square/W.npy")),
+                torch.from_numpy(np.load(os.path.join(TEST_PATH, "W.npy"))),
                 precision
             )
         # end if

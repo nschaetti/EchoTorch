@@ -58,10 +58,10 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0029544690623879433, places=3)
-        self.assertAlmostEqual(train_nrmse, 0.5070883943539743, places=2)
-        self.assertAlmostEqual(test_mse, 0.0034469489473849535, places=3)
-        self.assertAlmostEqual(test_nrmse, 0.5349677373391971, places=2)
+        self.assertAlmostEqual(train_mse, 0.0014486080035567284, places=3)
+        self.assertAlmostEqual(train_nrmse, 0.3550744227519557, places=2)
+        self.assertAlmostEqual(test_mse, 0.0020347298122942448, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.37887486593306385, places=2)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
@@ -75,10 +75,10 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         )
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.002457407768815756, places=2)
-        self.assertAlmostEqual(train_nrmse, 0.46246893301572956, places=1)
-        self.assertAlmostEqual(test_mse, 0.002545979106798768, places=2)
-        self.assertAlmostEqual(test_nrmse, 0.45976677621391027, places=1)
+        self.assertAlmostEqual(train_mse, 0.0489947535097599, places=2)
+        self.assertAlmostEqual(train_nrmse, 2.0649937667937337, places=1)
+        self.assertAlmostEqual(test_mse, 0.05040527135133743, places=2)
+        self.assertAlmostEqual(test_nrmse, 1.885733842954738, places=1)
     # end test_narma10_prediction_500neurons
 
     # Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
@@ -90,10 +90,10 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(leaky_rate=0.5)
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.002747642807662487, places=3)
-        self.assertAlmostEqual(train_nrmse, 0.48901714565587817, places=2)
-        self.assertAlmostEqual(test_mse, 0.0029079278465360403, places=3)
-        self.assertAlmostEqual(test_nrmse, 0.4913624706082851, places=2)
+        self.assertAlmostEqual(train_mse, 0.036606427282094955, places=3)
+        self.assertAlmostEqual(train_nrmse, 1.7849359355510792, places=2)
+        self.assertAlmostEqual(test_mse, 0.038768090307712555, places=3)
+        self.assertAlmostEqual(test_nrmse, 1.6537871853546815, places=2)
     # end test_narma10_prediction
 
     #endregion TESTS
@@ -204,9 +204,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         train_u, train_y = dataiter.next()
         train_u, train_y = Variable(train_u), Variable(train_y)
         if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
-        print("Train")
-        print(train_u[0, :20])
-        print(train_y[0, :20])
+
         # Make a prediction with our trained ESN
         y_train_predicted = esn(train_u)
 
@@ -216,9 +214,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         test_u, test_y = dataiter.next()
         test_u, test_y = Variable(test_u), Variable(test_y)
         if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
-        print("Test")
-        print(test_u[0, :20])
-        print(test_y[0, :20])
+
         # Make a prediction with our trained ESN
         y_test_predicted = esn(test_u)
 
