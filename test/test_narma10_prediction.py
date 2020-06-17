@@ -136,13 +136,6 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
         testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
-        # Test Matrix generator for W
-        test_matrix_generator = mg.matrix_factory.get_generator(
-            name='normal',
-            connectivity=1.0,
-            spectral_radius=spectral_radius
-        )
-        print(test_matrix_generator.generate(size=(5, 5), dtype=torch.float64))
         # Matrix generator for W
         w_matrix_generator = mg.matrix_factory.get_generator(
             name='normal',
