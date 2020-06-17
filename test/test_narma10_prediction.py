@@ -217,7 +217,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
 
         # Make a prediction with our trained ESN
         y_test_predicted = esn(test_u)
-
+        print(test_u[0, :5])
+        print(y_test_predicted[0, :5])
         return (
             echotorch.utils.mse(y_train_predicted.data, train_y.data),
             echotorch.utils.nrmse(y_train_predicted.data, train_y.data),
