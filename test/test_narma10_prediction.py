@@ -75,9 +75,9 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         )
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0014108717441558838, places=2)
+        self.assertAlmostEqual(train_mse, 0.002457407768815756, places=2)
         self.assertAlmostEqual(train_nrmse, 0.46246893301572956, places=1)
-        self.assertAlmostEqual(test_mse, 0.0016827284125611186, places=2)
+        self.assertAlmostEqual(test_mse, 0.002545979106798768, places=2)
         self.assertAlmostEqual(test_nrmse, 0.45976677621391027, places=1)
     # end test_narma10_prediction_500neurons
 
@@ -136,6 +136,13 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
         testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
+        # Test Matrix generator for W
+        test_matrix_generator = mg.matrix_factory.get_generator(
+            name='normal',
+            connectivity=1.0,
+            spectral_radius=spectral_radius
+        )
+        print(test_matrix_generator.generate(size=(5, 5), dtype=torch.float64))
         # Matrix generator for W
         w_matrix_generator = mg.matrix_factory.get_generator(
             name='normal',
