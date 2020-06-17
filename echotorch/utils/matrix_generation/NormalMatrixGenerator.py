@@ -45,7 +45,8 @@ class NormalMatrixGenerator(MatrixGenerator):
             apply_spectral_radius=True,
             scale=1.0,
             mean=0.0,
-            std=1.0
+            std=1.0,
+            minimum_edges=0
         )
 
         # Set parameters
@@ -70,10 +71,23 @@ class NormalMatrixGenerator(MatrixGenerator):
             w = torch.zeros(size, dtype=dtype)
             w = w.normal_(mean=mean, std=std)
         else:
+            # Generate matrix with entries from norm
             w = torch.zeros(size, dtype=dtype)
             w = w.normal_(mean=mean, std=std)
+
+            # Generate mask from bernoulli
             mask = torch.zeros(size, dtype=dtype)
             mask.bernoulli_(p=connectivity)
+
+            # Add edges until minimum is ok
+            while torch.sum(mask) < self.get_parameter('minimum_edges'):
+                # Random position at 1
+                x = torch.randint(high=size[0], size=(1, 1))[0, 0].item()
+                y = torch.randint(high=size[1], size=(1, 1))[0, 0].item()
+                mask[x, y] = 1.0
+            # end while
+
+            # Mask filtering
             w *= mask
         # end if
 
