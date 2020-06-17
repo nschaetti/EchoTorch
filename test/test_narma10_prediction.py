@@ -129,12 +129,12 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         torch.manual_seed(1)
 
         # NARMA30 dataset
-        narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10, seed=1)
-        narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10, seed=10)
+        narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10)
+        narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10)
 
         # Data loader
-        trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
-        testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+        trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=1)
+        testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=1)
 
         # Matrix generator for W
         w_matrix_generator = mg.matrix_factory.get_generator(
@@ -185,7 +185,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         for data in trainloader:
             # Inputs and outputs
             inputs, targets = data
-
+            print(inputs[0, :5])
             # Transform data to Variables
             inputs, targets = Variable(inputs), Variable(targets)
             if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
