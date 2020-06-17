@@ -119,13 +119,14 @@ class OnlinePCACell(nn.Module):
             self._output_dim = self._init_v.shape[1]
         else:
             # Check output dim
-            assert(
+            """assert(
                 self.output_dim == self._init_v.shape[1],
-                Exception(u"Dimension mismatch, init_eigen_vectors shape[1] must be {}, given {}".format(
+                Exception("Dimension mismatch, init_eigen_vectors shape[1] must be {}, given {}".format(
                     self.output_dim,
                     self._init_v.shape[1])
                 )
-            )
+            )"""
+            pass
         # end if
 
         # Set V
