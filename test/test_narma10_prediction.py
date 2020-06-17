@@ -185,7 +185,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         for data in trainloader:
             # Inputs and outputs
             inputs, targets = data
-            print(inputs[0, :5])
+
             # Transform data to Variables
             inputs, targets = Variable(inputs), Variable(targets)
             if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
@@ -204,7 +204,9 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         train_u, train_y = dataiter.next()
         train_u, train_y = Variable(train_u), Variable(train_y)
         if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
-
+        print("Train")
+        print(train_u[0, :20])
+        print(train_y[0, :20])
         # Make a prediction with our trained ESN
         y_train_predicted = esn(train_u)
 
@@ -214,7 +216,9 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         test_u, test_y = dataiter.next()
         test_u, test_y = Variable(test_u), Variable(test_y)
         if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
-
+        print("Test")
+        print(test_u[0, :20])
+        print(test_y[0, :20])
         # Make a prediction with our trained ESN
         y_test_predicted = esn(test_u)
 

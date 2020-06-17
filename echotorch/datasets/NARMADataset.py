@@ -16,13 +16,12 @@ class NARMADataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, sample_len, n_samples, system_order=10, seed=None):
+    def __init__(self, sample_len, n_samples, system_order=10):
         """
         Constructor
         :param sample_len: Length of the time-series in time steps.
         :param n_samples: Number of samples to generate.
         :param system_order: th order NARMA
-        :param seed: Seed of random number generator.
         """
         # Properties
         self.sample_len = sample_len
@@ -41,11 +40,6 @@ class NARMADataset(Dataset):
             self.parameters[1] = 0.04
             self.parameters[2] = 29
             self.parameters[3] = 0.001
-        # end if
-
-        # Init seed if needed
-        if seed is not None:
-            torch.manual_seed(seed)
         # end if
 
         # Generate data set
