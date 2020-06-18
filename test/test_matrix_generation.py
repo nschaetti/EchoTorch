@@ -218,6 +218,22 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         )
     # end test_uniform_matrix_generation_with_input_set
 
+    # Test matlab loader
+    def test_matlab_loader(self):
+        """
+        Test Matlab loader
+        """
+        pass
+    # end test_matlab_loader
+
+    # Test Numpy loader
+    def numpy_loader(self):
+        """
+        Test Numpy loader
+        """
+        pass
+    # end numpy_loader
+
     #endregion TESTS
 
 # end Test_Matrix_Generation

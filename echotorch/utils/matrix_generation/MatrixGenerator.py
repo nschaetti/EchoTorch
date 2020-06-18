@@ -24,7 +24,7 @@ import torch
 
 
 # Matrix generator base object
-class MatrixGenerator:
+class MatrixGenerator(object):
     """
     Matrix generator base object
     """

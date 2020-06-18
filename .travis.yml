@@ -13,4 +13,4 @@ install:
 
 # Commands to run tests
 script:
-  - python3 -m unittest
+  - pytest

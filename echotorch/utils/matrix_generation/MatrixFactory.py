@@ -25,7 +25,7 @@ import torch.sparse
 
 
 # Matrix factory
-class MatrixFactory:
+class MatrixFactory(object):
     """
     Matrix factory
     """
