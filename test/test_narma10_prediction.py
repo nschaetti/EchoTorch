@@ -55,10 +55,9 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred, w, w_in, w_bias = self.narma10_prediction()
-        print(w)
-        print(w_in)
-        print(w_bias)
+        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred, train_u, test_u = self.narma10_prediction()
+        print(train_u)
+        print(test_u)
         # Check results
         self.assertAlmostEqual(train_mse, 0.0014486080035567284, places=3)
         self.assertAlmostEqual(train_nrmse, 0.3550744227519557, places=2)
@@ -127,8 +126,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         use_cuda = torch.cuda.is_available() if use_cuda else False
 
         # Manual seed initialisation
-        np.random.seed(1)
-        torch.manual_seed(1)
+        echotorch.utils.manual_seed(1)
 
         # NARMA30 dataset
         narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10)
@@ -227,9 +225,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             echotorch.utils.nrmse(y_test_predicted.data, test_y.data),
             y_train_predicted,
             y_test_predicted,
-            esn.cell.w,
-            esn.cell.w_in,
-            esn.cell.w_bias
+            train_u,
+            test_u
         )
     # end narma10_prediction
 
