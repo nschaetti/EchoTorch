@@ -48,7 +48,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
                             spectral_radius=1.5, input_scaling=1.5, bias_scaling=0.2, washout_length=500,
                             learn_length=1000, ridge_param_wstar=0.0001, ridge_param_wout=0.01, aperture=10,
                             connectivity=10.0, loading_method=ecnc.SPESNCell.W_LOADING, precision=0.001, torch_seed=1,
-                            np_seed=1, use_matlab_params=True, expected_RSim=None, expected_CSim=None):
+                            np_seed=1, use_matlab_params=True, expected_RSim=None, expected_CSim=None,
+                            dtype=torch.float64):
         """
         Subspace first demo
         :param data_dir: Directory in the test directory
@@ -66,7 +67,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         :param precision:
         :param torch_seed:
         :param np_seed:
-        :return:
+        :param dtype:
         """
         # Package
         subpackage_dir, this_filename = os.path.split(__file__)
@@ -78,9 +79,6 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
 
         # Precision decimal
         precision_decimals = int(-np.log10(precision))
-
-        # Precision parameter
-        dtype = torch.float64
 
         # Init random number generators
         torch.random.manual_seed(torch_seed)
@@ -381,7 +379,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # Compute similarity matrices
         Rsim_test = conceptors.similarity_matrix(based_on='R')
         Csim_test = conceptors.similarity_matrix(based_on='C')
-
+        print(Rsim_test)
+        print(Csim_test)
         # Load similarity matrices
         if use_matlab_params:
             Rsim = torch.from_numpy(np.load(os.path.join(TEST_PATH, "Rsim.npy")))
@@ -401,13 +400,14 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
     # region TEST
 
     # Subspace first demo with matlab
-    def test_subspace_first_demo_matlab(self):
+    def test_subspace_first_demo_w_loading_matlab(self):
         """
         Subspace first demo
         """
         self.subspace_first_demo(
             data_dir="subspace_first_demo",
             use_matlab_params=True,
+            loading_method=ecnc.SPESNCell.W_LOADING,
             expected_training_NRMSE=0.029126309017397423,
             expected_average_NRMSEs=0.011282548308372498
         )
@@ -442,13 +442,14 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
     # end test_subspace_first_demo_input_recreation_matlab
 
     # Subspace first demo with 100 neurons
-    def test_subspace_first_demo_100neurons(self):
+    def test_subspace_first_demo_w_loading_100neurons(self):
         """
         Subspace first demo with 100 neurons
         """
         self.subspace_first_demo(
             data_dir="subspace_first_demo",
             use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.W_LOADING,
             expected_training_NRMSE=0.0302901821039379,
             expected_average_NRMSEs=0.014060717076063156,
             torch_seed=1,
@@ -469,7 +470,39 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
                 ]
             )
         )
-    # end test_subspace_first_demo_100neurons
+    # end test_subspace_first_demo_w_loading_100neurons
+
+    # Subspace first demo with 100 neurons
+    def test_subspace_first_demo_w_loading_100neurons_32bits(self):
+        """
+        Subspace first demo with 100 neurons
+        """
+        self.subspace_first_demo(
+            data_dir="subspace_first_demo",
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.W_LOADING,
+            expected_training_NRMSE=0.04581887877905017,
+            expected_average_NRMSEs=0.02034626714885235,
+            torch_seed=1,
+            np_seed=1,
+            dtype=torch.float32,
+            expected_RSim=torch.tensor(
+                [
+                    [1.0000, 0.9818, 0.4404, 0.5243],
+                    [0.9818, 1.0000, 0.4115, 0.4862],
+                    [0.4404, 0.4115, 1.0000, 0.9337],
+                    [0.5243, 0.4862, 0.9337, 1.0000]
+                ]),
+            expected_CSim=torch.tensor(
+                [
+                    [1.0000, 0.6777, 0.2949, 0.2932],
+                    [0.6777, 1.0000, 0.2448, 0.2380],
+                    [0.2949, 0.2448, 1.0000, 0.9267],
+                    [0.2932, 0.2380, 0.9267, 1.0000]
+                ]
+            )
+        )
+    # end test_subspace_first_demo_w_loading_100neurons_32bits
 
     # Subspace first demo (input simulation) with 100 neurons
     def test_subspace_first_demo_input_simulation_100neurons(self):
@@ -502,6 +535,38 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         )
     # end test_subspace_first_demo_input_simulation_100neurons
 
+    # Subspace first demo (input simulation) with 100 neurons (32 bits)
+    def test_subspace_first_demo_input_simulation_100neurons_32bits(self):
+        """
+        Subspace first demo with 100 neurons
+        """
+        self.subspace_first_demo(
+            data_dir="subspace_first_demo",
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
+            expected_training_NRMSE=0.6512869995721481,
+            expected_average_NRMSEs=0.025733066722750664,
+            torch_seed=1,
+            np_seed=1,
+            dtype=torch.float32,
+            expected_RSim=torch.tensor(
+                [
+                    [1.0000, 0.9818, 0.4404, 0.5243],
+                    [0.9818, 1.0000, 0.4115, 0.4862],
+                    [0.4404, 0.4115, 1.0000, 0.9337],
+                    [0.5243, 0.4862, 0.9337, 1.0000]
+                ]),
+            expected_CSim=torch.tensor(
+                [
+                    [1.0000, 0.6777, 0.2949, 0.2932],
+                    [0.6777, 1.0000, 0.2448, 0.2380],
+                    [0.2949, 0.2448, 1.0000, 0.9267],
+                    [0.2932, 0.2380, 0.9267, 1.0000]
+                ]
+            )
+        )
+    # end test_subspace_first_demo_input_simulation_100neurons_32bits
+
     # Subspace first demo (input recreation) with 100 neurons
     def test_subspace_first_demo_input_recreation_100neurons(self):
         """
@@ -532,6 +597,38 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             )
         )
     # end test_subspace_first_demo_input_recreation_100neurons
+
+    # Subspace first demo (input recreation) with 100 neurons (32 bits)
+    def test_subspace_first_demo_input_recreation_100neurons_32bits(self):
+        """
+        Subspace first demo with 100 neurons (32 bits)
+        """
+        self.subspace_first_demo(
+            data_dir="subspace_first_demo",
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
+            expected_training_NRMSE=0.6512869995721481,
+            expected_average_NRMSEs=0.046838752925395966,
+            torch_seed=1,
+            np_seed=1,
+            dtype=torch.float32,
+            expected_RSim=torch.tensor(
+                [
+                    [1.0000, 0.9818, 0.4404, 0.5243],
+                    [0.9818, 1.0000, 0.4115, 0.4862],
+                    [0.4404, 0.4115, 1.0000, 0.9337],
+                    [0.5243, 0.4862, 0.9337, 1.0000]
+                ]),
+            expected_CSim=torch.tensor(
+                [
+                    [1.0000, 0.6777, 0.2949, 0.2932],
+                    [0.6777, 1.0000, 0.2448, 0.2380],
+                    [0.2949, 0.2448, 1.0000, 0.9267],
+                    [0.2932, 0.2380, 0.9267, 1.0000]
+                ]
+            )
+        )
+    # end test_subspace_first_demo_input_recreation_100neurons_32bits
 
     # endregion TEST
 
