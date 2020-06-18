@@ -54,14 +54,21 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         """
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
         """
-        # Run NARMA-10 prediction with default hyper-parameters
+        # Run NARMA-10 prediction with default hyper-parameters (64 and 32)
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
+        train_mse32, train_nrmse32, test_mse32, test_nrmse32 = self.narma10_prediction(dtype=torch.float32)
 
-        # Check results
+        # Check results for 64 bits
         self.assertAlmostEqual(train_mse, 0.0014486080035567284, places=3)
-        self.assertAlmostEqual(train_nrmse, 0.39079351181912997, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.39079351181912997, places=1)
         self.assertAlmostEqual(test_mse, 0.00269576234138083, places=3)
-        self.assertAlmostEqual(test_nrmse, 0.43609712777215, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.43609712777215, places=1)
+
+        # Check results for 32 bits
+        self.assertAlmostEqual(train_mse32, 0.0014486080035567284, places=3)
+        self.assertAlmostEqual(train_nrmse32, 0.3550744227519557, places=1)
+        self.assertAlmostEqual(test_mse32, 0.0020347298122942448, places=3)
+        self.assertAlmostEqual(test_nrmse32, 0.37887486593306385, places=1)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
