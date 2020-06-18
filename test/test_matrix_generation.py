@@ -156,10 +156,10 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         self.assertTensorSize(matrix3, [2, 2])
 
         # Test values
-        self.assertEqual(matrix1[1, 0].item(), 0.2130530180569278)
-        self.assertEqual(matrix1[1, 49].item(), 0.537794066566001)
-        self.assertEqual(matrix2[0, 1].item(), -1.038548288784891)
-        self.assertEqual(matrix2[2, 3].item(), 0.5938834172311788)
+        self.assertAlmostEqual(matrix1[1, 0].item(), 0.2130530180569278, places=4)
+        self.assertAlmostEqual(matrix1[1, 49].item(), 0.537794066566001, places=4)
+        self.assertAlmostEqual(matrix2[0, 1].item(), -1.038548288784891, places=4)
+        self.assertAlmostEqual(matrix2[2, 3].item(), 0.5938834172311788, places=4)
         self.assertTensorAlmostEqual(matrix3, torch.Tensor([[1.0462, -1.3748], [0.7507, 0.5900]]), precision=0.1)
 
         # Test spectral radius, connectivity and minimum edges
@@ -201,10 +201,10 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         self.assertTensorSize(matrix3, [2, 2])
 
         # Test values
-        self.assertEqual(matrix1[0, 0].item(), 0.42069412680562895)
-        self.assertEqual(matrix1[0, 1].item(), 0.0)
-        self.assertEqual(matrix2[5, 0].item(), -0.99)
-        self.assertEqual(matrix2[9, 0].item(), -0.99)
+        self.assertAlmostEqual(matrix1[0, 0].item(), 0.42069412680562895, places=4)
+        self.assertAlmostEqual(matrix1[0, 1].item(), 0.0, places=4)
+        self.assertAlmostEqual(matrix2[5, 0].item(), -0.99, places=4)
+        self.assertAlmostEqual(matrix2[9, 0].item(), -0.99, places=4)
         self.assertTensorAlmostEqual(matrix3, torch.Tensor([[0.4950, 0.4950], [0.4950, 0.4950]]), precision=0.1)
 
         # Test spectral radius, connectivity and minimum edges
