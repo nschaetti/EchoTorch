@@ -99,7 +99,7 @@ class LiESN(ESN):
             washout=washout,
             debug=debug,
             test_case=test_case,
-            dtype=torch.float32
+            dtype=dtype
         )
     # end __init__
 

@@ -55,13 +55,13 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred, w_out = self.narma10_prediction()
-        print(w_out)
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction()
+
         # Check results
         self.assertAlmostEqual(train_mse, 0.0014486080035567284, places=3)
-        self.assertAlmostEqual(train_nrmse, 0.3550744227519557, places=2)
-        self.assertAlmostEqual(test_mse, 0.0020347298122942448, places=3)
-        self.assertAlmostEqual(test_nrmse, 0.37887486593306385, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.39079351181912997, places=2)
+        self.assertAlmostEqual(test_mse, 0.00269576234138083, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.43609712777215, places=2)
     # end test_narma10_prediction
 
     # Test NARMA-10 prediction with 500 neurons
@@ -70,15 +70,15 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with 500 neurons
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred = self.narma10_prediction(
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(
             reservoir_size=500
         )
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.0489947535097599, places=2)
-        self.assertAlmostEqual(train_nrmse, 2.0649937667937337, places=1)
-        self.assertAlmostEqual(test_mse, 0.05040527135133743, places=2)
-        self.assertAlmostEqual(test_nrmse, 1.885733842954738, places=1)
+        self.assertAlmostEqual(train_mse, 0.00040123554059248175, places=2)
+        self.assertAlmostEqual(train_nrmse, 0.18687174945460525, places=1)
+        self.assertAlmostEqual(test_mse, 0.000787773357517867, places=2)
+        self.assertAlmostEqual(test_nrmse, 0.2357453144653597, places=1)
     # end test_narma10_prediction_500neurons
 
     # Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
@@ -87,13 +87,13 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred = self.narma10_prediction(leaky_rate=0.5)
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(leaky_rate=0.5)
 
         # Check results
-        self.assertAlmostEqual(train_mse, 0.036606427282094955, places=3)
-        self.assertAlmostEqual(train_nrmse, 1.7849359355510792, places=2)
-        self.assertAlmostEqual(test_mse, 0.038768090307712555, places=3)
-        self.assertAlmostEqual(test_nrmse, 1.6537871853546815, places=2)
+        self.assertAlmostEqual(train_mse, 0.0024004888199628395, places=3)
+        self.assertAlmostEqual(train_nrmse, 0.45708166187229005, places=2)
+        self.assertAlmostEqual(test_mse, 0.0032115068445433756, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.4759889286000261, places=2)
     # end test_narma10_prediction
 
     #endregion TESTS
@@ -139,7 +139,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         w_matrix_generator = mg.matrix_factory.get_generator(
             name='normal',
             connectivity=connectivity,
-            spectral_radius=spectral_radius
+            spectral_radius=spectral_radius,
+            dtype=torch.float64
         )
 
         # Matrix generator for Win
@@ -147,7 +148,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             name='normal',
             connectivity=connectivity,
             scale=input_scaling,
-            apply_spectral_radius=False
+            apply_spectral_radius=False,
+            dtype=torch.float64
         )
 
         # Matrix generator for Wbias
@@ -155,7 +157,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             name='normal',
             connectivity=connectivity,
             scale=bias_scaling,
-            apply_spectral_radius=False
+            apply_spectral_radius=False,
+            dtype=torch.float64
         )
 
         # Create a Leaky-integrated ESN,
@@ -172,7 +175,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             wbias_generator=wbias_matrix_generator,
             input_scaling=input_scaling,
             bias_scaling=bias_scaling,
-            ridge_param=ridge_param
+            ridge_param=ridge_param,
+            dtype=torch.float64
         )
 
         # Transfer in the GPU if possible
@@ -186,7 +190,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             inputs, targets = data
 
             # Transform data to Variables
-            inputs, targets = Variable(inputs), Variable(targets)
+            inputs, targets = Variable(inputs.double()), Variable(targets.double())
             if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
 
             # ESN need inputs and targets
@@ -201,7 +205,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         # and transform it to Variable.
         dataiter = iter(trainloader)
         train_u, train_y = dataiter.next()
-        train_u, train_y = Variable(train_u), Variable(train_y)
+        train_u, train_y = Variable(train_u.double()), Variable(train_y.double())
         if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
 
         # Make a prediction with our trained ESN
@@ -211,7 +215,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         # and transform it to Variable.
         dataiter = iter(testloader)
         test_u, test_y = dataiter.next()
-        test_u, test_y = Variable(test_u), Variable(test_y)
+        test_u, test_y = Variable(test_u.double()), Variable(test_y.double())
         if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
 
         # Make a prediction with our trained ESN
@@ -221,10 +225,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             echotorch.utils.mse(y_train_predicted.data, train_y.data),
             echotorch.utils.nrmse(y_train_predicted.data, train_y.data),
             echotorch.utils.mse(y_test_predicted.data, test_y.data),
-            echotorch.utils.nrmse(y_test_predicted.data, test_y.data),
-            y_train_predicted,
-            y_test_predicted,
-            esn.w_out
+            echotorch.utils.nrmse(y_test_predicted.data, test_y.data)
         )
     # end narma10_prediction
 

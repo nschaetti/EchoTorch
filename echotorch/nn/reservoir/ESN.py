@@ -71,7 +71,8 @@ class ESN(Node):
             input_dim=input_dim,
             output_dim=output_dim,
             debug=debug,
-            test_case=test_case
+            test_case=test_case,
+            dtype=dtype
         )
 
         # Properties
