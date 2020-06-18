@@ -85,7 +85,7 @@ class EchoTorchTestCase(TestCase):
         :param tensor1: Tensor to check
         :param tensor_size: Target tensor size
         """
-        self.assertEquals(list(tensor1.size()), tensor_size)
+        self.assertEqual(list(tensor1.size()), tensor_size)
     # endregion PUBLIC
 
 # end EchoTorchTestCase
