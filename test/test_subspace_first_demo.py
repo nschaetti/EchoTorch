@@ -579,6 +579,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
             expected_training_NRMSE=0.6512869995721481,
             expected_average_NRMSEs=0.025733066722750664,
+            places=1,
             torch_seed=1,
             np_seed=1,
             dtype=torch.float32,
