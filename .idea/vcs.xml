@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-MNIST" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" vcs="Git" />
-  </component>
-</project>

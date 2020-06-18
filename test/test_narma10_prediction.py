@@ -165,7 +165,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         self.assertAlmostEqual(test_nrmse, 0.2357453144653597, places=1)
 
         # Check results for 32 bits
-        self.assertAlmostEqual(train_mse32, 0.0489947535097599, places=2)
+        self.assertAlmostEqual(train_mse32, 0.0489947535097599, places=1)
         self.assertAlmostEqual(train_nrmse32, 2.0649937667937337, places=1)
         self.assertAlmostEqual(test_mse32, 0.05040527135133743, places=2)
         self.assertAlmostEqual(test_nrmse32, 1.885733842954738, places=1)
@@ -190,7 +190,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         self.assertAlmostEqual(test_nrmse, 0.4759889286000261, places=2)
 
         # Check results
-        self.assertAlmostEqual(train_mse32, 0.036606427282094955, places=2)
+        self.assertAlmostEqual(train_mse32, 0.036606427282094955, places=1)
         self.assertAlmostEqual(train_nrmse32, 1.7849359355510792, places=1)
         self.assertAlmostEqual(test_mse32, 0.038768090307712555, places=2)
         self.assertAlmostEqual(test_nrmse32, 1.6537871853546815, places=1)
