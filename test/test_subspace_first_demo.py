@@ -504,6 +504,38 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         )
     # end test_subspace_first_demo_w_loading_100neurons_32bits
 
+    # Subspace first demo with 100 neurons, no washout
+    def test_subspace_first_demo_w_loading_100neurons_nowashout(self):
+        """
+        Subspace first demo with 100 neurons
+        """
+        self.subspace_first_demo(
+            data_dir="subspace_first_demo",
+            washout_length=0,
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.W_LOADING,
+            expected_training_NRMSE=0.019908968750831407,
+            expected_average_NRMSEs=0.012572221457958221,
+            torch_seed=1,
+            np_seed=1,
+            expected_RSim=torch.tensor(
+                [
+                    [1.0000, 0.9955, 0.6096, 0.6510],
+                    [0.9955, 1.0000, 0.5917, 0.6296],
+                    [0.6096, 0.5917, 1.0000, 0.9736],
+                    [0.6510, 0.6296, 0.9736, 1.0000]
+                ]),
+            expected_CSim=torch.tensor(
+                [
+                    [1.0000, 0.8743, 0.4223, 0.4346],
+                    [0.8743, 1.0000, 0.4293, 0.4424],
+                    [0.4223, 0.4293, 1.0000, 0.9589],
+                    [0.4346, 0.4424, 0.9589, 1.0000]
+                ]
+            )
+        )
+    # end test_subspace_first_demo_w_loading_100neurons_nowashout
+
     # Subspace first demo (input simulation) with 100 neurons
     def test_subspace_first_demo_input_simulation_100neurons(self):
         """
