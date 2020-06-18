@@ -71,21 +71,104 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         self.assertAlmostEqual(test_nrmse32, 0.37887486593306385, places=1)
     # end test_narma10_prediction
 
+    # Test NARMA-10 prediction with ridge param to 0.1 (Nx=100, SP=0.99)
+    def test_narma10_prediction_esn_ridge01(self):
+        """
+        Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
+        """
+        # Run NARMA-10 prediction with default hyper-parameters (64 and 32)
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(ridge_param=0.1)
+        train_mse32, train_nrmse32, test_mse32, test_nrmse32 = self.narma10_prediction(
+            ridge_param=0.1,
+            dtype=torch.float32
+        )
+
+        # Check results for 64 bits
+        self.assertAlmostEqual(train_mse, 0.0055206307312779, places=3)
+        self.assertAlmostEqual(train_nrmse, 0.6931676774014105, places=1)
+        self.assertAlmostEqual(test_mse, 0.007794506000496885, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.7415436548404447, places=1)
+
+        # Check results for 32 bits
+        self.assertAlmostEqual(train_mse32, 0.005962355528026819, places=3)
+        self.assertAlmostEqual(train_nrmse32, 0.7203654917258767, places=1)
+        self.assertAlmostEqual(test_mse32, 0.008289368823170662, places=3)
+        self.assertAlmostEqual(test_nrmse32, 0.76472123969956, places=1)
+    # end test_narma10_prediction_esn_ridge01
+
+    # Test NARMA-10 prediction with ridge param to 0.001 (Nx=100, SP=0.99)
+    def test_narma10_prediction_esn_ridge001(self):
+        """
+        Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
+        """
+        # Run NARMA-10 prediction with default hyper-parameters (64 and 32)
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(ridge_param=0.01)
+        train_mse32, train_nrmse32, test_mse32, test_nrmse32 = self.narma10_prediction(
+            ridge_param=0.01,
+            dtype=torch.float32
+        )
+
+        # Check results for 64 bits
+        self.assertAlmostEqual(train_mse, 0.0037603671659062763, places=3)
+        self.assertAlmostEqual(train_nrmse, 0.5720830492793262, places=1)
+        self.assertAlmostEqual(test_mse, 0.005600038439979167, places=3)
+        self.assertAlmostEqual(test_nrmse, 0.6285472481319053, places=1)
+
+        # Check results for 32 bits
+        self.assertAlmostEqual(train_mse32, 0.003447971772402525, places=3)
+        self.assertAlmostEqual(train_nrmse32, 0.5478047777622833, places=1)
+        self.assertAlmostEqual(test_mse32, 0.005058450624346733, places=3)
+        self.assertAlmostEqual(test_nrmse32, 0.5973806805561077, places=1)
+    # end test_narma10_prediction_esn_ridge001
+
+    # Test NARMA-10 prediction with ridge param to 10 (Nx=100, SP=0.99)
+    def test_narma10_prediction_esn_ridge10(self):
+        """
+        Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
+        """
+        # Run NARMA-10 prediction with default hyper-parameters (64 and 32)
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(ridge_param=10)
+        train_mse32, train_nrmse32, test_mse32, test_nrmse32 = self.narma10_prediction(
+            ridge_param=10.0,
+            dtype=torch.float32
+        )
+
+        # Check results for 64 bits
+        self.assertAlmostEqual(train_mse, 0.05097953801874421, places=2)
+        self.assertAlmostEqual(train_nrmse, 2.106405119788818, places=1)
+        self.assertAlmostEqual(test_mse, 0.062314379492128924, places=2)
+        self.assertAlmostEqual(test_nrmse, 2.0967012913437437, places=1)
+
+        # Check results for 32 bits
+        self.assertAlmostEqual(train_mse32, 0.0878116637468338, places=2)
+        self.assertAlmostEqual(train_nrmse32, 2.7645220092625897, places=1)
+        self.assertAlmostEqual(test_mse32, 0.10268372297286987, places=1)
+        self.assertAlmostEqual(test_nrmse32, 2.691492796282878, places=1)
+    # end test_narma10_prediction_esn_ridge10
+
     # Test NARMA-10 prediction with 500 neurons
     def test_narma10_prediction_esn_500neurons(self):
         """
         Test NARMA-10 prediction with 500 neurons
         """
-        # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(
-            reservoir_size=500
+        # Run NARMA-10 prediction with default hyper-parameters (64 and 32 bits)
+        train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(reservoir_size=500)
+        train_mse32, train_nrmse32, test_mse32, test_nrmse32 = self.narma10_prediction(
+            reservoir_size=500,
+            dtype=torch.float32
         )
 
-        # Check results
+        # Check results for 64 bits
         self.assertAlmostEqual(train_mse, 0.00040123554059248175, places=2)
         self.assertAlmostEqual(train_nrmse, 0.18687174945460525, places=1)
         self.assertAlmostEqual(test_mse, 0.000787773357517867, places=2)
         self.assertAlmostEqual(test_nrmse, 0.2357453144653597, places=1)
+
+        # Check results for 32 bits
+        self.assertAlmostEqual(train_mse32, 0.0489947535097599, places=2)
+        self.assertAlmostEqual(train_nrmse32, 2.0649937667937337, places=1)
+        self.assertAlmostEqual(test_mse32, 0.05040527135133743, places=2)
+        self.assertAlmostEqual(test_nrmse32, 1.885733842954738, places=1)
     # end test_narma10_prediction_500neurons
 
     # Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
@@ -93,14 +176,24 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         """
         Test NARMA-10 prediction with leaky-rate 0.5 (Nx=100, SP=0.99, LR=0.5)
         """
-        # Run NARMA-10 prediction with default hyper-parameters
+        # Run NARMA-10 prediction with default hyper-parameters (32 and 64 bits)
         train_mse, train_nrmse, test_mse, test_nrmse = self.narma10_prediction(leaky_rate=0.5)
+        train_mse32, train_nrmse32, test_mse32, test_nrmse32 = self.narma10_prediction(
+            leaky_rate=0.5,
+            dtype=torch.float32
+        )
 
         # Check results
         self.assertAlmostEqual(train_mse, 0.0024004888199628395, places=3)
         self.assertAlmostEqual(train_nrmse, 0.45708166187229005, places=2)
         self.assertAlmostEqual(test_mse, 0.0032115068445433756, places=3)
         self.assertAlmostEqual(test_nrmse, 0.4759889286000261, places=2)
+
+        # Check results
+        self.assertAlmostEqual(train_mse32, 0.036606427282094955, places=2)
+        self.assertAlmostEqual(train_nrmse32, 1.7849359355510792, places=1)
+        self.assertAlmostEqual(test_mse32, 0.038768090307712555, places=2)
+        self.assertAlmostEqual(test_nrmse32, 1.6537871853546815, places=1)
     # end test_narma10_prediction
 
     #endregion TESTS
