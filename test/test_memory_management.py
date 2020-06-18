@@ -607,7 +607,7 @@ class Test_Memory_Management(EchoTorchTestCase):
         self.memory_management(
             data_dir="memory_management",
             use_matlab_params=True,
-            places=2,
+            places=1,
             expected_NRMSEs=[
                 0.01825501182411578,
                 0.022420943203613906,
@@ -638,7 +638,7 @@ class Test_Memory_Management(EchoTorchTestCase):
         self.memory_management(
             data_dir="memory_management",
             use_matlab_params=True,
-            places=2,
+            places=1,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             expected_NRMSEs=[
                 0.01825501182411578,
