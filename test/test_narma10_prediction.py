@@ -55,9 +55,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         Test NARMA-10 prediction with default hyper-parameters (Nx=100, SP=0.99)
         """
         # Run NARMA-10 prediction with default hyper-parameters
-        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred, train_u, test_u = self.narma10_prediction()
-        print(train_u)
-        print(test_u)
+        train_mse, train_nrmse, test_mse, test_nrmse, y_train_pred, y_test_pred, w_out = self.narma10_prediction()
+        print(w_out)
         # Check results
         self.assertAlmostEqual(train_mse, 0.0014486080035567284, places=3)
         self.assertAlmostEqual(train_nrmse, 0.3550744227519557, places=2)
@@ -225,8 +224,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             echotorch.utils.nrmse(y_test_predicted.data, test_y.data),
             y_train_predicted,
             y_test_predicted,
-            train_u,
-            test_u
+            esn.w_out
         )
     # end narma10_prediction
 
