@@ -607,6 +607,7 @@ class Test_Memory_Management(EchoTorchTestCase):
         self.memory_management(
             data_dir="memory_management",
             use_matlab_params=True,
+            precision=0.001,
             expected_NRMSEs=[
                 0.01825501182411578,
                 0.022420943203613906,
@@ -637,6 +638,7 @@ class Test_Memory_Management(EchoTorchTestCase):
         self.memory_management(
             data_dir="memory_management",
             use_matlab_params=True,
+            precision=0.001,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             expected_NRMSEs=[
                 0.01825501182411578,
@@ -668,7 +670,7 @@ class Test_Memory_Management(EchoTorchTestCase):
         self.memory_management(
             data_dir="memory_management",
             use_matlab_params=False,
-            precision=0.00001,
+            precision=0.001,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
@@ -736,7 +738,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             reservoir_size=200,
             use_matlab_params=False,
-            precision=0.000001,
+            precision=0.0001,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
@@ -771,7 +773,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             reservoir_size=200,
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
-            precision=0.000001,
+            precision=0.0001,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[

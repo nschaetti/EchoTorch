@@ -103,7 +103,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
     # Run NARMA-10 prediction with classic ESN
     def narma10_prediction(self, train_sample_length=5000, test_sample_length=1000, n_train_samples=1, n_test_samples=1,
                            batch_size=1, reservoir_size=100, leaky_rate=1.0, spectral_radius=0.99, connectivity=0.1,
-                           input_scaling=1.0, bias_scaling=0.0, ridge_param=0.0000001):
+                           input_scaling=1.0, bias_scaling=0.0, ridge_param=0.0000001, dtype=torch.float64):
         """
         Run NARMA-10 prediction with classic ESN
         :param train_sample_length: Training sample length
@@ -140,7 +140,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             name='normal',
             connectivity=connectivity,
             spectral_radius=spectral_radius,
-            dtype=torch.float64
+            dtype=dtype
         )
 
         # Matrix generator for Win
@@ -149,7 +149,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             connectivity=connectivity,
             scale=input_scaling,
             apply_spectral_radius=False,
-            dtype=torch.float64
+            dtype=dtype
         )
 
         # Matrix generator for Wbias
@@ -158,7 +158,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             connectivity=connectivity,
             scale=bias_scaling,
             apply_spectral_radius=False,
-            dtype=torch.float64
+            dtype=dtype
         )
 
         # Create a Leaky-integrated ESN,
@@ -176,7 +176,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             input_scaling=input_scaling,
             bias_scaling=bias_scaling,
             ridge_param=ridge_param,
-            dtype=torch.float64
+            dtype=dtype
         )
 
         # Transfer in the GPU if possible
@@ -190,7 +190,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
             inputs, targets = data
 
             # Transform data to Variables
-            inputs, targets = Variable(inputs.double()), Variable(targets.double())
+            if dtype == torch.float64: inputs, targets = inputs.double(), targets.double()
+            inputs, targets = Variable(inputs), Variable(targets)
             if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
 
             # ESN need inputs and targets
@@ -205,7 +206,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         # and transform it to Variable.
         dataiter = iter(trainloader)
         train_u, train_y = dataiter.next()
-        train_u, train_y = Variable(train_u.double()), Variable(train_y.double())
+        if dtype == torch.float64: train_u, train_y = train_u.double(), train_y.double()
+        train_u, train_y = Variable(train_u), Variable(train_y)
         if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
 
         # Make a prediction with our trained ESN
@@ -215,7 +217,8 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         # and transform it to Variable.
         dataiter = iter(testloader)
         test_u, test_y = dataiter.next()
-        test_u, test_y = Variable(test_u.double()), Variable(test_y.double())
+        if dtype == torch.float64: test_u, test_y = test_u.double(), test_y.double()
+        test_u, test_y = Variable(test_u), Variable(test_y)
         if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
 
         # Make a prediction with our trained ESN
