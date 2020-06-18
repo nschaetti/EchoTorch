@@ -24,6 +24,7 @@ import torch
 import echotorch.utils
 from .MatrixGenerator import MatrixGenerator
 from .MatrixFactory import matrix_factory
+import warnings
 
 
 # Generate matrix it normally distributed weights.
@@ -100,6 +101,8 @@ class NormalMatrixGenerator(MatrixGenerator):
             # If current spectral radius is not zero
             if echotorch.utils.spectral_radius(w) > 0.0:
                 w = (w / echotorch.utils.spectral_radius(w)) * self.get_parameter('spectral_radius')
+            else:
+                warnings.warn("Spectral radius of W is zero (due to small size), spectral radius not changed")
             # end if
         # end if
 

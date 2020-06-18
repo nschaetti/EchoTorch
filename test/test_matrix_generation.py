@@ -48,6 +48,31 @@ class Test_Matrix_Generation(EchoTorchTestCase):
     #endregion PUBLIC
 
     #region PRIVATE
+
+    # Test spectral radius, connectivity and minimum edges
+    def check_spectral_radius_and_connectivity(self, matrix1, matrix2, matrix3, spectral_radius, connectivity,
+                                               minimum_edges):
+        """
+        Test spectral radius, connectivity and minimum edges
+        :param spectral_radius: Spectral radius
+        :param connectivity: Connectivity
+        :param minimum_edges: Minimum edges
+        """
+        # Test spectral radius
+        self.assertAlmostEqual(echotorch.utils.spectral_radius(matrix1), spectral_radius, places=1)
+        self.assertAlmostEqual(echotorch.utils.spectral_radius(matrix2), spectral_radius, places=1)
+        self.assertAlmostEqual(echotorch.utils.spectral_radius(matrix3), spectral_radius, places=1)
+
+        # Test connectivity
+        self.assertAlmostEqual(torch.sum(matrix1 != 0.0).item() / 2500, connectivity, places=1)
+        self.assertAlmostEqual(torch.sum(matrix2 != 0.0).item() / 100, connectivity, places=1)
+
+        # Test minimum edges
+        self.assertGreaterEqual(torch.sum(matrix1 != 0.0).item(), minimum_edges)
+        self.assertGreaterEqual(torch.sum(matrix2 != 0.0).item(), minimum_edges)
+        self.assertGreaterEqual(torch.sum(matrix3 != 0.0).item(), minimum_edges)
+    # end check_spectral_radius_and_connectivity
+
     #endregion PRIVATE
 
     #region TESTS
@@ -58,7 +83,7 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         Test generation of normal matrix
         """
         # Set seeds
-        torch.manual_seed(1.0)
+        echotorch.utils.manual_seed(1)
 
         # Normal matrix generator
         matrix_generator = mg.NormalMatrixGenerator(
@@ -73,6 +98,11 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         matrix2 = matrix_generator.generate(size=(10, 10))
         matrix3 = matrix_generator.generate(size=(2, 2))
 
+        # Test size
+        self.assertTensorSize(matrix1, [50, 50])
+        self.assertTensorSize(matrix2, [10, 10])
+        self.assertTensorSize(matrix3, [2, 2])
+
         # Test values
         self.assertAlmostEqual(matrix1[1, 3].item(), 0.7379, places=1)
         self.assertAlmostEqual(matrix1[1, 17].item(), -0.2756, places=1)
@@ -84,7 +114,109 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         self.assertAlmostEqual(matrix3[0, 1].item(), -1.1373, places=1)
         self.assertAlmostEqual(matrix3[1, 0].item(), 1.0411242763194695, places=1)
         self.assertAlmostEqual(matrix3[1, 1].item(), -1.6102, places=1)
+
+        # Test spectral radius, connectivity and minimum edges
+        self.check_spectral_radius_and_connectivity(
+            matrix1,
+            matrix2,
+            matrix3,
+            0.99,
+            0.1,
+            4
+        )
     # end test_normal_matrix_generation
+
+    # Test generation of uniform matrix
+    def test_uniform_matrix_generation(self):
+        """
+        Test generation of uniform matrix
+        """
+        # Set seeds
+        echotorch.utils.manual_seed(1)
+
+        # Normal matrix generator
+        matrix_generator = mg.UniformMatrixGenerator(
+            connectivity=0.1,
+            scale=1.0,
+            spectral_radius=0.99,
+            minimum_edges=4,
+            input_set=None,
+            min=-1.0,
+            max=1.0
+        )
+
+        # Generate three matrices
+        matrix1 = matrix_generator.generate(size=(50, 50))
+        matrix2 = matrix_generator.generate(size=(10, 10))
+        matrix3 = matrix_generator.generate(size=(2, 2))
+
+        # Test size
+        self.assertTensorSize(matrix1, [50, 50])
+        self.assertTensorSize(matrix2, [10, 10])
+        self.assertTensorSize(matrix3, [2, 2])
+
+        # Test values
+        self.assertEqual(matrix1[1, 0].item(), 0.2130530180569278)
+        self.assertEqual(matrix1[1, 49].item(), 0.537794066566001)
+        self.assertEqual(matrix2[0, 1].item(), -1.038548288784891)
+        self.assertEqual(matrix2[2, 3].item(), 0.5938834172311788)
+        self.assertTensorAlmostEqual(matrix3, torch.Tensor([[1.0462, -1.3748], [0.7507, 0.5900]]), precision=0.1)
+
+        # Test spectral radius, connectivity and minimum edges
+        self.check_spectral_radius_and_connectivity(
+            matrix1,
+            matrix2,
+            matrix3,
+            0.99,
+            0.1,
+            4
+        )
+    # end test_uniform_matrix_generation
+
+    # Test generation of uniform matrix with an input set
+    def test_uniform_matrix_generation_with_input_set(self):
+        """
+        Test generation of uniform matrix with an input set
+        """
+        # Set seeds
+        echotorch.utils.manual_seed(1)
+
+        # Normal matrix generator
+        matrix_generator = mg.UniformMatrixGenerator(
+            connectivity=0.1,
+            scale=1.0,
+            spectral_radius=0.99,
+            minimum_edges=4,
+            input_set=[1.0, -1.0]
+        )
+
+        # Generate three matrices
+        matrix1 = matrix_generator.generate(size=(50, 50))
+        matrix2 = matrix_generator.generate(size=(10, 10))
+        matrix3 = matrix_generator.generate(size=(2, 2))
+
+        # Test size
+        self.assertTensorSize(matrix1, [50, 50])
+        self.assertTensorSize(matrix2, [10, 10])
+        self.assertTensorSize(matrix3, [2, 2])
+
+        # Test values
+        self.assertEqual(matrix1[0, 0].item(), 0.42069412680562895)
+        self.assertEqual(matrix1[0, 1].item(), 0.0)
+        self.assertEqual(matrix2[5, 0].item(), -0.99)
+        self.assertEqual(matrix2[9, 0].item(), -0.99)
+        self.assertTensorAlmostEqual(matrix3, torch.Tensor([[0.4950, 0.4950], [0.4950, 0.4950]]), precision=0.1)
+
+        # Test spectral radius, connectivity and minimum edges
+        self.check_spectral_radius_and_connectivity(
+            matrix1,
+            matrix2,
+            matrix3,
+            0.99,
+            0.1,
+            4
+        )
+    # end test_uniform_matrix_generation_with_input_set
 
     #endregion TESTS
 
