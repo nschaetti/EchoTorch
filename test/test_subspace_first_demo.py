@@ -47,7 +47,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
     def subspace_first_demo(self, data_dir, expected_training_NRMSE, expected_average_NRMSEs, reservoir_size=100,
                             spectral_radius=1.5, input_scaling=1.5, bias_scaling=0.2, washout_length=500,
                             learn_length=1000, ridge_param_wstar=0.0001, ridge_param_wout=0.01, aperture=10,
-                            connectivity=10.0, loading_method=ecnc.SPESNCell.W_LOADING, precision=0.001, torch_seed=1,
+                            connectivity=10.0, loading_method=ecnc.SPESNCell.W_LOADING, places=3, torch_seed=1,
                             np_seed=1, use_matlab_params=True, expected_RSim=None, expected_CSim=None,
                             dtype=torch.float64):
         """
@@ -64,7 +64,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         :param ridge_param_wout:
         :param aperture:
         :param loading_method:
-        :param precision:
+        :param places:
         :param torch_seed:
         :param np_seed:
         :param dtype:
@@ -78,7 +78,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         debug_mode = Node.DEBUG_TEST_CASE
 
         # Precision decimal
-        precision_decimals = int(-np.log10(precision))
+        precision = 1.0 / places
+        # precision_decimals = int(-np.log10(precision))
 
         # Init random number generators
         torch.random.manual_seed(torch_seed)
@@ -337,7 +338,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
 
         # Check training NRMSE
-        self.assertAlmostEqual(training_NRMSE, expected_training_NRMSE, precision_decimals)
+        self.assertAlmostEqual(training_NRMSE, expected_training_NRMSE, places)
 
         # No washout this time
         conceptor_net.washout = 0
@@ -374,7 +375,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # end for
 
         # Check NRMSE
-        self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), expected_average_NRMSEs, precision_decimals)
+        self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), expected_average_NRMSEs, places)
 
         # Compute similarity matrices
         Rsim_test = conceptors.similarity_matrix(based_on='R')
@@ -641,6 +642,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             expected_training_NRMSE=0.6512869995721481,
             expected_average_NRMSEs=0.046838752925395966,
+            places=1,
             torch_seed=1,
             np_seed=1,
             dtype=torch.float32,
