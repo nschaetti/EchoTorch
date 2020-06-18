@@ -192,7 +192,7 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         # Check results
         self.assertAlmostEqual(train_mse32, 0.036606427282094955, places=1)
         self.assertLessEqual(train_nrmse32, 1.8)
-        self.assertAlmostEqual(test_mse32, 0.038768090307712555, places=2)
+        self.assertAlmostEqual(test_mse32, 0.038768090307712555, places=1)
         self.assertLessEqual(test_nrmse32, 1.8)
     # end test_narma10_prediction
 
