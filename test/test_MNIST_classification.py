@@ -209,6 +209,9 @@ class Test_MNIST_Classification(EchoTorchTestCase):
 
         # For each test batch
         for batch_idx, (data, targets) in enumerate(test_loader):
+            # Print batch idx
+            print(batch_idx)
+
             # Remove channel
             data = data.reshape(batch_size, 1500, 60)
 
