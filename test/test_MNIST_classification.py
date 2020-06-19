@@ -252,10 +252,13 @@ class Test_MNIST_Classification(EchoTorchTestCase):
         """
         Test MNIST classification with 10 neurons
         """
+        # Init. random number generator
+        echotorch.utils.manual_seed(1)
+
         # Call experience
         self.MNIST_classification(
             reservoir_size=10,
-            expected_error_rate=0.12580000000000002,
+            expected_error_rate=0.11099999999999999,
             places=2
         )
     # end test_MNIST_classification_10neurons
@@ -265,12 +268,15 @@ class Test_MNIST_Classification(EchoTorchTestCase):
         """
         Test MNIST classification with 10 neurons, low connectivity
         """
+        # Init. random number generator
+        echotorch.utils.manual_seed(1)
+
         # Call experience
         self.MNIST_classification(
             reservoir_size=10,
             connectivity=0.01,
             minimum_edges=20,
-            expected_error_rate=0.139,
+            expected_error_rate=0.11870000000000003,
             places=2
         )
     # end test_MNIST_classification_10neurons_low_connectivity
@@ -280,6 +286,9 @@ class Test_MNIST_Classification(EchoTorchTestCase):
         """
         Test MNIST classification with 10 neurons
         """
+        # Init. random number generator
+        echotorch.utils.manual_seed(1)
+
         # Call experience
         self.MNIST_classification(
             reservoir_size=10,
@@ -294,6 +303,9 @@ class Test_MNIST_Classification(EchoTorchTestCase):
         """
         Test MNIST classification with 50 neurons
         """
+        # Init. random number generator
+        echotorch.utils.manual_seed(1)
+
         # Call experience
         self.MNIST_classification(
             reservoir_size=50,

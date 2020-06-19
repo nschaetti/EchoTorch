@@ -199,7 +199,7 @@ class Test_Boolean_Operations(EchoTorchTestCase):
             exB=np.array([[0.3795, 0.1829], [0.1829, 0.7205]]),
             exAandB=np.array([[0.3596, 0.2302], [0.2302, 0.3882]]),
             exAorB=np.array([[0.7972, 0.1825], [0.1825, 0.7486]]),
-            exnotA=np.array([[ 0.3214, -0.3604], [-0.3604,  0.5286]])
+            exnotA=np.array([[0.3214, -0.3604], [-0.3604,  0.5286]])
         )
     # end test_memory_management
 
