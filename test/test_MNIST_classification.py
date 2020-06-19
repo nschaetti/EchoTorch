@@ -259,7 +259,7 @@ class Test_MNIST_Classification(EchoTorchTestCase):
         # Call experience
         self.MNIST_classification(
             reservoir_size=1000,
-            expected_error_rate=0.01,
+            expected_error_rate=0.015499999999999958,
             places=2
         )
     # end test_MNIST_classification_1000neurons
