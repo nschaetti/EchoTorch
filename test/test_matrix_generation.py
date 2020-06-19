@@ -126,6 +126,41 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         )
     # end test_normal_matrix_generation
 
+    # Test generation of normal matrix with minimum edges greater than possible
+    def test_normal_matrix_generation_greater_minimum_edges(self):
+        """
+        Test generation of normal matrix with minimum edges greater than possible
+        """
+        # Set seeds
+        echotorch.utils.manual_seed(1)
+
+        # Normal matrix generator
+        matrix_generator = mg.NormalMatrixGenerator(
+            connectivity=0.1,
+            scale=1.0,
+            spectral_radius=0.99,
+            minimum_edges=10
+        )
+
+        # Generate three matrices
+        matrix3 = matrix_generator.generate(size=(2, 2))
+
+        # Test size
+        self.assertTensorSize(matrix3, [2, 2])
+
+        # Test values
+        self.assertAlmostEqual(matrix3[0, 0].item(), 0.8489916680445274, places=1)
+        self.assertAlmostEqual(matrix3[0, 1].item(), 0.34265606917494795, places=1)
+        self.assertAlmostEqual(matrix3[1, 0].item(), 0.079176391342296, places=1)
+        self.assertAlmostEqual(matrix3[1, 1].item(), 0.7975980996826793, places=1)
+
+        # Test spectral radius
+        self.assertAlmostEqual(echotorch.utils.spectral_radius(matrix3), 0.99, places=1)
+
+        # Test minimum edges
+        self.assertGreaterEqual(torch.sum(matrix3 != 0.0).item(), 4)
+    # end test_normal_matrix_generation_greater_minimum_edges
+
     # Test generation of uniform matrix
     def test_uniform_matrix_generation(self):
         """
@@ -172,6 +207,44 @@ class Test_Matrix_Generation(EchoTorchTestCase):
             4
         )
     # end test_uniform_matrix_generation
+
+    # Test generation of uniform matrix with minimum edges greater than possible
+    def test_uniform_matrix_generation_minimum_edges_greater_possible(self):
+        """
+        Test generation of uniform matrix with minimum edges greater than possible
+        """
+        # Set seeds
+        echotorch.utils.manual_seed(1)
+
+        # Normal matrix generator
+        matrix_generator = mg.UniformMatrixGenerator(
+            connectivity=0.1,
+            scale=1.0,
+            spectral_radius=0.99,
+            minimum_edges=10,
+            input_set=None,
+            min=-1.0,
+            max=1.0
+        )
+
+        # Generate three matrices
+        matrix3 = matrix_generator.generate(size=(2, 2))
+
+        # Test size
+        self.assertTensorSize(matrix3, [2, 2])
+
+        # Test values
+        self.assertAlmostEqual(matrix3[0, 0].item(), -0.660794271934391, places=1)
+        self.assertAlmostEqual(matrix3[0, 1].item(), -0.414658075359779, places=1)
+        self.assertAlmostEqual(matrix3[1, 0].item(), -0.40005860951359784, places=1)
+        self.assertAlmostEqual(matrix3[1, 1].item(), -0.4860976711226686, places=1)
+
+        # Test spectral radius
+        self.assertAlmostEqual(echotorch.utils.spectral_radius(matrix3), 0.99, places=1)
+
+        # Test minimum edges
+        self.assertGreaterEqual(torch.sum(matrix3 != 0.0).item(), 4)
+    # end test_uniform_matrix_generation_minimum_edges_greater_possible
 
     # Test generation of uniform matrix with an input set
     def test_uniform_matrix_generation_with_input_set(self):

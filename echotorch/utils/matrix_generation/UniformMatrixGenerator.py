@@ -96,8 +96,11 @@ class UniformMatrixGenerator(MatrixGenerator):
         # Generate mask from bernoulli
         mask = torch.bernoulli(torch.zeros(size, dtype=dtype).fill_(connectivity))
 
+        # Minimum edges
+        minimum_edges = min(self.get_parameter('minimum_edges'), np.prod(size))
+
         # Add edges until minimum is ok
-        while torch.sum(mask) < self.get_parameter('minimum_edges'):
+        while torch.sum(mask) < minimum_edges:
             # Random position at 1
             x = torch.randint(high=size[0], size=(1, 1))[0, 0].item()
             y = torch.randint(high=size[1], size=(1, 1))[0, 0].item()

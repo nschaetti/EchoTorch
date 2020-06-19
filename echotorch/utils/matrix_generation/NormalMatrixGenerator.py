@@ -22,6 +22,7 @@
 # Import
 import torch
 import echotorch.utils
+import numpy as np
 from .MatrixGenerator import MatrixGenerator
 from .MatrixFactory import matrix_factory
 import warnings
@@ -80,8 +81,11 @@ class NormalMatrixGenerator(MatrixGenerator):
             mask = torch.zeros(size, dtype=dtype)
             mask.bernoulli_(p=connectivity)
 
+            # Minimum edges
+            minimum_edges = min(self.get_parameter('minimum_edges'), np.prod(size))
+
             # Add edges until minimum is ok
-            while torch.sum(mask) < self.get_parameter('minimum_edges'):
+            while torch.sum(mask) < minimum_edges:
                 # Random position at 1
                 x = torch.randint(high=size[0], size=(1, 1))[0, 0].item()
                 y = torch.randint(high=size[1], size=(1, 1))[0, 0].item()

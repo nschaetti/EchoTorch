@@ -50,7 +50,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                           ridge_param_wout=0.01, aperture=1000, places=3,
                           torch_seed=1, np_seed=1, interpolation_rate=20, conceptor_test_length=200,
                           signal_plot_length=20, loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
-                          use_matlab_params=True):
+                          use_matlab_params=True, dtype=torch.float64):
         """
         Memory management
         """
@@ -68,9 +68,6 @@ class Test_Memory_Management(EchoTorchTestCase):
 
         # Precision decimal
         precision = 1.0 / places
-
-        # Type params
-        dtype = torch.float64
 
         # Reservoir parameters
         connectivity = connectivity / reservoir_size
@@ -521,8 +518,11 @@ class Test_Memory_Management(EchoTorchTestCase):
 
             # To Variable
             if dtype == torch.float64:
-                inputs, outputs = Variable(inputs.double()), Variable(outputs.double())
+                inputs, outputs = inputs.double(), outputs.double()
             # end if
+
+            # Transform to variable
+            inputs, outputs = Variable(inputs), Variable(outputs)
 
             # Set the conceptor activated in
             # the loop.
@@ -662,7 +662,7 @@ class Test_Memory_Management(EchoTorchTestCase):
     # end test_memory_management_input_recreation_matlab
 
     # Test memory management random 100 neurons
-    def test_memory_management_random_100neurons(self):
+    def test_memory_management_random_input_simulation_100neurons(self):
         """
         Test memory management random 100 neurons
         """
@@ -692,7 +692,111 @@ class Test_Memory_Management(EchoTorchTestCase):
                 1.7634075234550568e+00
             ]
         )
-    # end test_memory_management_random_100neurons
+    # end test_memory_management_random_input_simulation_100neurons
+
+    # Test memory management random 100 neurons with 32 bits
+    def test_memory_management_random_input_simulation_100neurons_32bits(self):
+        """
+        Test memory management random 100 neurons with 32 bits
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            use_matlab_params=False,
+            places=2,
+            torch_seed=5,
+            np_seed=5,
+            dtype=torch.float32,
+            expected_NRMSEs=[
+                1.120351991263325,
+                1.2321014229499299,
+                38.293950380473774,
+                0.9578334015748378,
+                2.738546274286986,
+                1.120351991263325,
+                1.2321014229499299,
+                38.293950380473774,
+                1.504080388279612,
+                0.8736629488561596,
+                2.3756054558234796,
+                1.0878910085242535,
+                3.0158563238572724,
+                11.740575378979184,
+                1.0961540504666445,
+                0.8567249359235918
+            ]
+        )
+    # end test_memory_management_random_input_simulation_100neurons_32bits
+
+    # Test memory management random 100 neurons, aperture 10, with 32 bits
+    def test_memory_management_random_input_simulation_100neurons_aperture10_32bits(self):
+        """
+        Test memory management random 100 neurons with 32 bits
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            use_matlab_params=False,
+            aperture=15,
+            places=2,
+            torch_seed=5,
+            np_seed=5,
+            dtype=torch.float32,
+            expected_NRMSEs=[
+                0.06906211876116686,
+                0.0637207213946203,
+                0.04736693604122727,
+                0.3379228830098921,
+                0.09902425084729959,
+                0.06906211876116686,
+                0.0637207213946203,
+                0.04736693604122727,
+                0.08370662938013992,
+                0.1665983910834536,
+                0.2417284629931755,
+                0.34422328185822465,
+                0.21635224739280093,
+                0.8098266343036412,
+                0.1063114032657955,
+                1.3530813954575902
+            ]
+        )
+    # end test_memory_management_random_input_simulation_100neurons_aperture10_32bits
+
+    # Test memory management random 100 neurons and ridge param 1 with 32 bits
+    def test_memory_management_random_input_simulation_100neurons_ridge1_32bits(self):
+        """
+        Test memory management random 100 neurons and ridge param 1 with 32 bits
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            use_matlab_params=False,
+            ridge_param_wout=1,
+            places=2,
+            torch_seed=5,
+            np_seed=5,
+            dtype=torch.float32,
+            expected_NRMSEs=[
+                0.877691149527928,
+                0.8887582925551816,
+                21.541441964822784,
+                1.0358692520698392,
+                1.7081917804905709,
+                0.877691149527928,
+                0.8887582925551816,
+                21.541441964822784,
+                0.9901443229824997,
+                0.9153229589571272,
+                1.1274158711141709,
+                0.9356188656816717,
+                1.205942693908214,
+                4.284777893221337,
+                0.9819384194914207,
+                0.8941738297482775
+            ]
+        )
+    # end test_memory_management_random_input_simulation_100neurons_ridge1_32bits
 
     # Test memory management (input recreation) random 100 neurons
     def test_memory_management_input_recreation_random_100neurons(self):
@@ -728,8 +832,43 @@ class Test_Memory_Management(EchoTorchTestCase):
         )
     # end test_memory_management_input_recreation_random_100neurons
 
+    # Test memory management (input recreation) random 100 neurons with 32 bits
+    def test_memory_management_input_recreation_random_100neurons_32bits(self):
+        """
+        Test memory management (input recreation) random 100 neurons
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
+            places=2,
+            dtype=torch.float32,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                9.443374927275197,
+                1.1601015328499014,
+                338.31153588445665,
+                4.471975802838915,
+                25.98556352513353,
+                9.443374927275197,
+                1.1601015328499014,
+                338.31153588445665,
+                6.701056883850167,
+                1.2133954605416262,
+                1.9579204435190987,
+                6.555592416490851,
+                6.812134339204644,
+                3.852770261994793,
+                3.1212576774163594,
+                3.351801510271426
+            ]
+        )
+    # end test_memory_management_input_recreation_random_100neurons_32bits
+
     # Test memory management random 200 neurons
-    def test_memory_management_random_200neurons(self):
+    def test_memory_management_random_input_simulation_200neurons(self):
         """
         Test memory management random 200 neurons
         """
@@ -760,7 +899,78 @@ class Test_Memory_Management(EchoTorchTestCase):
                 0.0012399877887219
             ]
         )
-    # end test_memory_management_random_200neurons
+    # end test_memory_management_random_input_simulation_200neurons
+
+    # Test memory management random 200 neurons with 32bits float
+    def test_memory_management_random_input_simulation_200neurons_32bits(self):
+        """
+        Test memory management random 200 neurons with 32bits float
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            reservoir_size=200,
+            use_matlab_params=False,
+            places=1,
+            dtype=torch.float32,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                745089.6162153919,
+                1248268.6004286096,
+                2523338.173718299,
+                466592.6221791339,
+                248912.5466343551,
+                745089.6162153919,
+                1248268.6004286096,
+                2523338.173718299,
+                294175.8450994915,
+                187203.78526087553,
+                605331.3120201201,
+                607250.7787990066,
+                127781.16493443,
+                151086.528426594,
+                268801.15809274337,
+                469708.535600536
+            ]
+        )
+    # end test_memory_management_random_input_simulation_200neurons
+
+    # Test memory management random 200 neurons with 32bits float
+    def test_memory_management_random_input_simulation_200neurons_ridge1000_32bits(self):
+        """
+        Test memory management random 200 neurons with 32bits float
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            reservoir_size=200,
+            ridge_param_wout=1000,
+            use_matlab_params=False,
+            places=1,
+            dtype=torch.float32,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                0.9177582519729711,
+                2.42791005954353,
+                5.665878951729757,
+                0.9525683919627909,
+                0.8797265188124753,
+                0.9177582519729711,
+                2.42791005954353,
+                5.665878951729757,
+                0.7217658253471823,
+                0.907152712868187,
+                0.8081423840345694,
+                1.1673022253396494,
+                0.9550446424485463,
+                0.9308649828922396,
+                0.90703644007628,
+                0.8439111555691808
+            ]
+        )
+    # end test_memory_management_random_input_simulation_200neurons
 
     # Test memory management (input recreation) random 200 neurons
     def test_memory_management_input_recreation_random_200neurons(self):
@@ -793,6 +1003,79 @@ class Test_Memory_Management(EchoTorchTestCase):
                 0.0003109153185505,
                 0.0027175231371075,
                 0.0012399877887219
+            ]
+        )
+    # end test_memory_management_random_200neurons
+
+    # Test memory management (input recreation) random 200 neurons with 32 bits float
+    def test_memory_management_input_recreation_random_200neurons_32bits(self):
+        """
+        Test memory management (input recreation) random 200 neurons with 32 bits float
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            reservoir_size=200,
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
+            dtype=torch.float32,
+            places=3,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                9613867.832248162,
+                4394636.509928893,
+                33016850.65830816,
+                658898.39780045,
+                2312668.3512860206,
+                9613867.832248162,
+                4394636.509928893,
+                33016850.65830816,
+                2865117.964058025,
+                319693.1520818048,
+                7453742.072120285,
+                3125623.757227347,
+                1289572.1446123128,
+                469988.94911263604,
+                2346561.186089977,
+                1157613.9972063226
+            ]
+        )
+    # end test_memory_management_random_200neurons
+
+    # Test memory management (input recreation) random 200 neurons with 32 bits float and ridge param 1000
+    def test_memory_management_input_recreation_random_200neurons_ridge1000_32bits(self):
+        """
+        Test memory management (input recreation) random 200 neurons with 32 bits float
+        """
+        # Test with random matrix
+        self.memory_management(
+            data_dir="memory_management",
+            reservoir_size=200,
+            ridge_param_wout=10000,
+            use_matlab_params=False,
+            loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
+            dtype=torch.float32,
+            places=3,
+            torch_seed=5,
+            np_seed=5,
+            expected_NRMSEs=[
+                1.5947459979487746,
+                1.0849528617111965,
+                3.9557000620183347,
+                0.846830994704957,
+                1.0065152002429012,
+                1.5947459979487746,
+                1.0849528617111965,
+                3.9557000620183347,
+                1.003055969429993,
+                0.9761319546514667,
+                1.268995717876355,
+                1.9296821872159278,
+                0.9966122642764557,
+                1.0386132437866693,
+                1.7007420519130423,
+                1.241360755120375
             ]
         )
     # end test_memory_management_random_200neurons

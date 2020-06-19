@@ -10,11 +10,12 @@ cache: pip
 # Command to install dependencies
 install:
   - pip install -r requirements.txt
+  - pip install coverage
 
 # Commands to run tests
 script:
-  - python3 -m pytest
+  - coverage run -m unittest discover
 
 # Submit coverage
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash)

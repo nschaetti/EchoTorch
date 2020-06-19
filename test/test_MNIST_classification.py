@@ -52,7 +52,7 @@ class Test_MNIST_Classification(EchoTorchTestCase):
     # Run the MNIST experiment
     def MNIST_classification(self, expected_error_rate, reservoir_size=100, connectivity=0.1, spectral_radius=1.3,
                              leaky_rate=0.2, batch_size=10, input_scaling=0.6, ridge_param=0.0, bias_scaling=1.0,
-                             image_size=15, degrees=[30, 60, 60], block_size=100, places=2):
+                             image_size=15, degrees=[30, 60, 60], minimum_edges=10, block_size=100, places=2):
         """
         Run the MNIST experiment
         :param expected_error_rate:
@@ -150,14 +150,16 @@ class Test_MNIST_Classification(EchoTorchTestCase):
         # Internal matrix
         w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
             connectivity=connectivity,
-            spetral_radius=spectral_radius
+            spetral_radius=spectral_radius,
+            minimum_edges=minimum_edges
         )
 
         # Input weights
         win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
             connectivity=connectivity,
             scale=input_scaling,
-            apply_spectral_radius=False
+            apply_spectral_radius=False,
+            minimum_edges=minimum_edges
         )
 
         # Bias vector
@@ -186,6 +188,9 @@ class Test_MNIST_Classification(EchoTorchTestCase):
 
         # For each training sample
         for batch_idx, (data, targets) in enumerate(train_loader):
+            # Print batch idx
+            print(batch_idx)
+
             # Remove channel
             data = data.reshape(batch_size, 1500, 60)
 
@@ -242,30 +247,60 @@ class Test_MNIST_Classification(EchoTorchTestCase):
 
     #region TESTS
 
-    # Test MNIST classification with 100 neurons
-    def test_MNIST_classiciation_100neurons(self):
+    # Test MNIST classification with 10 neurons
+    def test_MNIST_classification_10neurons(self):
         """
-        Test MNIST classiciation with 100 neurons
+        Test MNIST classification with 10 neurons
         """
         # Call experience
         self.MNIST_classification(
-            expected_error_rate=0.032299999999999995,
+            reservoir_size=10,
+            expected_error_rate=0.12580000000000002,
             places=2
         )
-    # end test_MNIST_classification_100neurons
+    # end test_MNIST_classification_10neurons
 
-    # Test MNIST classification with 1000 neurons
-    def test_MNIST_classification_1000neurons(self):
+    # Test MNIST classification with 10 neurons, low connectivity
+    def test_MNIST_classification_10neurons_low_connectivity(self):
         """
-        Test MNIST classification with 1000 neurons
+        Test MNIST classification with 10 neurons, low connectivity
         """
         # Call experience
         self.MNIST_classification(
-            reservoir_size=1000,
-            expected_error_rate=0.015499999999999958,
+            reservoir_size=10,
+            connectivity=0.01,
+            minimum_edges=20,
+            expected_error_rate=0.139,
             places=2
         )
-    # end test_MNIST_classification_1000neurons
+    # end test_MNIST_classification_10neurons_low_connectivity
+
+    # Test MNIST classification with 10 neurons
+    def test_MNIST_classification_10neurons_alternate_rotations(self):
+        """
+        Test MNIST classification with 10 neurons
+        """
+        # Call experience
+        self.MNIST_classification(
+            reservoir_size=10,
+            degrees=[45, 45, 45],
+            expected_error_rate=0.11419999999999997,
+            places=2
+        )
+    # end test_MNIST_classification_10neurons_alternate_rotations
+
+    # Test MNIST classification with 50 neurons
+    def test_MNIST_classification_50neurons(self):
+        """
+        Test MNIST classification with 50 neurons
+        """
+        # Call experience
+        self.MNIST_classification(
+            reservoir_size=50,
+            expected_error_rate=0.045499999999999985,
+            places=2
+        )
+    # end test_MNIST_classification_50neurons
 
     #endregion TESTS
 
