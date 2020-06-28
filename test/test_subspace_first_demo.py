@@ -481,7 +481,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.W_LOADING,
-            places=2,
+            places=1,
             expected_training_NRMSE=0.04581887877905017,
             expected_average_NRMSEs=0.02034626714885235,
             torch_seed=1,
