@@ -22,6 +22,7 @@
 # Imports
 import torchvision
 import torch.nn as nn
+import echotorch.nn as ecnn
 
 
 # A NilsNet

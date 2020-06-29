@@ -25,7 +25,8 @@ Join our community to create datasets and deep-learning models! Chat with us on 
 [![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=master)](https://www.travis-ci.org/nschaetti/EchoTorch)
 
 #### Dev
-[![Build Status](https://www.travis-ci.org/nschaetti/EchoTorch.svg?branch=dev)](https://www.travis-ci.org/nschaetti/EchoTorch)
+![Upload Python Test Package](https://github.com/nschaetti/EchoTorch/workflows/Upload%20Python%20Test%20Package/badge.svg)
+![Python package testing](https://github.com/nschaetti/EchoTorch/workflows/Python%20package%20testing/badge.svg)
 
 ## Index
 
