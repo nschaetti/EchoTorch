@@ -33,6 +33,7 @@ from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
 from torch.autograd import Variable
+from examples.conceptors.patterns.periodic_patterns import pattern_library
 
 # Random numb. init
 torch.random.manual_seed(2)
@@ -129,23 +130,17 @@ else:
     x0_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
 # end if
 
-# Four pattern (two sine, two periodic)
-pattern1_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_length, n_samples=1, a=1,
-    period=8.8342522,
-    dtype=dtype
-)
-pattern2_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_length, n_samples=1, a=1,
-    period=9.8342522,
-    dtype=dtype
-)
-pattern3_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
-    period=[0.9000000000000002, -0.11507714997817164, 0.17591170369788622, -0.9, -0.021065045054201592],
-    dtype=dtype
-)
-pattern4_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
-    period=[0.9, -0.021439412841318672, 0.0379515995051003, -0.9, 0.06663989939293802],
-    dtype=dtype
-)
+# First sine periodic pattern
+pattern1_training = pattern_library(pattern_id=0, washout_length=washout_length, learn_length=learn_length, dtype=dtype)
+
+# Second sine periodic pattern
+pattern2_training = pattern_library(pattern_id=1, washout_length=washout_length, learn_length=learn_length, dtype=dtype)
+
+# First 5-periodic pattern
+pattern3_training = pattern_library(pattern_id=4, washout_length=washout_length, learn_length=learn_length, dtype=dtype)
+
+# Second 5-periodic pattern
+pattern4_training = pattern_library(pattern_id=5, washout_length=washout_length, learn_length=learn_length, dtype=dtype)
 
 # Composer
 dataset_training = DatasetComposer([pattern1_training, pattern2_training, pattern3_training, pattern4_training])

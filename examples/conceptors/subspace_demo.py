@@ -26,12 +26,12 @@ import echotorch.nn.conceptors as ecnc
 import echotorch.utils.matrix_generation as mg
 import argparse
 import echotorch.utils
-import echotorch.datasets as etds
 import echotorch.utils.visualisation as ecvs
 from echotorch.datasets import DatasetComposer
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt
 from torch.autograd import Variable
+from examples.conceptors.patterns.periodic_patterns import pattern_library
 
 # Random numb. init
 torch.random.manual_seed(1)
@@ -116,23 +116,17 @@ else:
     x0_generator = mg.matrix_factory.get_generator("normal", mean=0.0, std=1.0, connectivity=1.0)
 # end if
 
-# Four pattern (two sine, two periodic)
-pattern1_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_length, n_samples=1, a=1,
-    period=8.8342522,
-    dtype=dtype
-)
-pattern2_training = etds.SinusoidalTimeseries(sample_len=washout_length + learn_length, n_samples=1, a=1,
-    period=9.8342522,
-    dtype=dtype
-)
-pattern3_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
-    period=[0.9000000000000002, -0.11507714997817164, 0.17591170369788622, -0.9, -0.021065045054201592],
-    dtype=dtype
-)
-pattern4_training = etds.PeriodicSignalDataset(sample_len=washout_length + learn_length, n_samples=1,
-    period=[0.9, -0.021439412841318672, 0.0379515995051003, -0.9, 0.06663989939293802],
-    dtype=dtype
-)
+# First sine periodic pattern
+pattern1_training = pattern_library(pattern_id=0, washout_length=washout_length, learn_length=learn_length)
+
+# Second sine periodic pattern
+pattern2_training = pattern_library(pattern_id=1, washout_length=washout_length, learn_length=learn_length)
+
+# First 5-periodic pattern
+pattern3_training = pattern_library(pattern_id=2, washout_length=washout_length, learn_length=learn_length)
+
+# Second 5-periodic pattern
+pattern4_training = pattern_library(pattern_id=3, washout_length=washout_length, learn_length=learn_length)
 
 # Composer
 dataset_training = DatasetComposer([pattern1_training, pattern2_training, pattern3_training, pattern4_training])
@@ -144,10 +138,14 @@ patterns_loader = DataLoader(dataset_training, batch_size=1, shuffle=False, num_
 conceptors = ecnc.ConceptorSet(input_dim=reservoir_size)
 
 # Create four conceptors, one for each pattern
-conceptors.add(0, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(1, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(2, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
-conceptors.add(3, ecnc.Conceptor(input_dim=reservoir_size, aperture=alpha, dtype=dtype))
+# Create four conceptors, one for each pattern
+for c_i in range(4):
+    conceptors.add(c_i, ecnc.Conceptor(
+        input_dim=reservoir_size,
+        aperture=alpha,
+        dtype=dtype
+    ))
+# end for
 
 # Create a conceptor network using
 # the self-predicting ESN which
@@ -365,12 +363,17 @@ plt.show()
 # Show NRMSE
 print("NRMSEs aligned : {}".format(torch.mean(NRMSEs_aligned)))
 print(conceptors.similarity_matrix(based_on='R'))
+
 # Plot R similarity matrix
 ecvs.show_similarity_matrix(
     sim_matrix=conceptors.similarity_matrix(based_on='R'),
     title="R base similarities"
 )
+
+# Print the similarity matrix
+print("C-based similarity matrix, aperture = {}".format(alpha))
 print(conceptors.similarity_matrix())
+
 # Plot conceptors similarity matrix at aperture = 10.0
 ecvs.show_similarity_matrix(
     sim_matrix=conceptors.similarity_matrix(),
