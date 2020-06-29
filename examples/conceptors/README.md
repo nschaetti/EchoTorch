@@ -9,7 +9,7 @@ This section list the various figures implemented in the examples which can be f
 
 ### Figure 1 : Deriving conceptors from network dynamics
 
-<p align="center"><img src="docs/images/controlling_rnn_by_conceptors/figure1.png" /></p>
+<p align="center"><img src="../../docs/images/controlling_rnn_by_conceptors/figure1.png" /></p>
 
 Original file : fig1BC_SubspaceFirstDemo_Main
 Example : [Subspace ](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/subspace_demo.py) : subspace 
