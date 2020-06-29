@@ -53,9 +53,7 @@ use_cuda = True
 use_cuda = torch.cuda.is_available() if use_cuda else False
 
 # Manual seed
-mdp.numx.random.seed(1)
-np.random.seed(2)
-torch.manual_seed(1)
+echotorch.utils.manual_seed(1)
 
 # NARMA30 dataset
 narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10, seed=1)
