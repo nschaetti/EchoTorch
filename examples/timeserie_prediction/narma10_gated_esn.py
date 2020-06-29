@@ -30,8 +30,6 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
 import numpy as np
-import mdp
-import matplotlib.pyplot as plt
 
 # Parameters
 spectral_radius = 0.9
@@ -125,7 +123,7 @@ for epoch in range(n_iterations):
     test_u, test_y = dataiter.next()
     test_u, test_y = Variable(test_u), Variable(test_y)
     if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
-    y_predicted = esn(test_u)
+    y_predicted = gated_esn(test_u)
 
     # Print error measures
     print(u"Test MSE: {}".format(echotorch.utils.mse(y_predicted.data, test_y.data)))
