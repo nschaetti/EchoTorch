@@ -596,7 +596,9 @@ class Test_Memory_Management(EchoTorchTestCase):
             # end if
 
             # Check NRMSE
-            self.assertAlmostEqual(NRMSE_aligned / value_test_divider, expected_NRMSEs[p] / value_test_divider, places)
+            if expected_NRMSEs[p] != np.nan:
+                self.assertAlmostEqual(NRMSE_aligned / value_test_divider, expected_NRMSEs[p] / value_test_divider, places)
+            # end if
         # end for
     # end memory_management
 
@@ -890,7 +892,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             dtype=torch.float32,
             places=1,
-            value_test_divider=1.0,
+            value_test_divider=10.0,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
