@@ -884,7 +884,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             dtype=torch.float32,
             places=1,
-            value_test_divider=10.0,
+            value_test_divider=100.0,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
