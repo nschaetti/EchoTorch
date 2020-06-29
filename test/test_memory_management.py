@@ -50,7 +50,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                           ridge_param_wout=0.01, aperture=1000, places=3, value_test_divider=1.0,
                           torch_seed=1, np_seed=1, interpolation_rate=20, conceptor_test_length=200,
                           signal_plot_length=20, loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
-                          use_matlab_params=True, dtype=torch.float64):
+                          use_matlab_params=True, dtype=torch.float64, print_debug=False):
         """
         Memory management
         """
@@ -589,6 +589,12 @@ class Test_Memory_Management(EchoTorchTestCase):
                 interpolation_rate
             )
 
+            # Print results ?
+            if print_debug:
+                print("NRMSE aligned : {}".format(NRMSE_aligned / value_test_divider))
+                print("Expected NRMSE : {}".format(expected_NRMSEs[p] / value_test_divider))
+            # end if
+
             # Check NRMSE
             self.assertAlmostEqual(NRMSE_aligned / value_test_divider, expected_NRMSEs[p] / value_test_divider, places)
         # end for
@@ -884,7 +890,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             dtype=torch.float32,
             places=1,
-            value_test_divider=100.0,
+            value_test_divider=1.0,
             torch_seed=5,
             np_seed=5,
             expected_NRMSEs=[
@@ -904,7 +910,8 @@ class Test_Memory_Management(EchoTorchTestCase):
                 1.0386132437866693,
                 1.7007420519130423,
                 1.241360755120375
-            ]
+            ],
+            print_debug=True
         )
     # end test_memory_management_random_200neurons
 
