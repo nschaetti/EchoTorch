@@ -56,6 +56,20 @@ class EchoTorchTestCase(TestCase):
         )
     # end assertArrayAlmostEqual
 
+    # Assert that two tensors are equal
+    def assertTensorEqual(self, tensor1, tensor2):
+        """
+        Tensor equal (by values)
+        :param tensor1: First tensor to compare
+        :param tensor2: Second tensor to compare
+        """
+        # Tensor have equal sizes
+        self.assertTensorSize(tensor1, list(tensor2.size()))
+
+        # Check that two tensor are equal
+        assert torch.all(torch.eq(tensor1, tensor2))
+    # end assertTensorEqual
+
     # Tensor almost equal with Frobenius norm
     def assertTensorAlmostEqual(self, tensor1, tensor2, precision):
         """

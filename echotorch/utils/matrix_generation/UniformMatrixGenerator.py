@@ -56,8 +56,10 @@ class UniformMatrixGenerator(MatrixGenerator):
         self._set_parameters(args=kwargs)
     # end __init__
 
+    #region PRIVATE
+
     # Generate the matrix
-    def generate(self, size, dtype=torch.float64):
+    def _generate_matrix(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param size: Matrix size
@@ -110,20 +112,10 @@ class UniformMatrixGenerator(MatrixGenerator):
         # Mask filtering
         w *= mask
 
-        # Scale
-        w *= self.get_parameter('scale')
-
-        # Set spectral radius
-        if w.ndimension() == 2 and w.size(0) == w.size(1) and self.get_parameter('apply_spectral_radius'):
-            if echotorch.utils.spectral_radius(w) > 0:
-                w = (w / echotorch.utils.spectral_radius(w)) * self.get_parameter('spectral_radius')
-            else:
-                warnings.warn("Spectral radius of W is zero (due to small size), spectral radius not changed")
-            # end if
-        # end if
-
         return w
-    # end generate
+    # end _generate_matrix
+
+    #endregion PRIVATE
 
 # end UniformMatrixGenerator
 

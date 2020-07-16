@@ -55,8 +55,10 @@ class NormalMatrixGenerator(MatrixGenerator):
         self._set_parameters(args=kwargs)
     # end __init__
 
+    #region PRIVATE
+
     # Generate the matrix
-    def generate(self, size, dtype=torch.float64):
+    def _generate_matrix(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param: Matrix size (row, column)
@@ -96,22 +98,10 @@ class NormalMatrixGenerator(MatrixGenerator):
             w *= mask
         # end if
 
-        # Scale
-        w *= self.get_parameter('scale')
-
-        # Set spectral radius
-        # If two dim tensor, square matrix and spectral radius is available
-        if w.ndimension() == 2 and w.size(0) == w.size(1) and self.get_parameter('apply_spectral_radius'):
-            # If current spectral radius is not zero
-            if echotorch.utils.spectral_radius(w) > 0.0:
-                w = (w / echotorch.utils.spectral_radius(w)) * self.get_parameter('spectral_radius')
-            else:
-                warnings.warn("Spectral radius of W is zero (due to small size), spectral radius not changed")
-            # end if
-        # end if
-
         return w
-    # end generate
+    # end _generate_matrix
+
+    #enregion PRIVATE
 
 # end NormalMatrixGenerator
 

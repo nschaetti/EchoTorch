@@ -21,6 +21,8 @@
 
 # Import
 import torch
+import echotorch.utils
+import warnings
 
 
 # Matrix generator base object
@@ -35,12 +37,19 @@ class MatrixGenerator(object):
         Constructor
         :param kwargs: Parameters of the generator
         """
-        self._parameters = kwargs
+        # Default generation parameters
+        self._parameters = dict()
+        self._parameters['spectral_radius'] = 0.99
+        self._parameters['apply_spectral_radius'] = True
+        self._parameters['scale'] = 1.0
+
+        # Set parameter values given
+        for key, value in kwargs.items():
+            self._parameters[key] = value
+        # end for
     # end __init__
 
-    ################
-    # PROPERTIES
-    ################
+    #region PROPERTIES
 
     # Parameters
     @property
@@ -52,9 +61,9 @@ class MatrixGenerator(object):
         return self._parameters
     # end parameters
 
-    ################
-    # PUBLIC
-    ################
+    #endregion PROPERTIES
+
+    #region PUBLIC
 
     # Get a parameter value
     def get_parameter(self, key):
@@ -92,12 +101,40 @@ class MatrixGenerator(object):
         :param dtype: Data type
         :return: Generated matrix
         """
-        return torch.randn(size)
+        # Call matrix generation function
+        w = self._generate_matrix(size, dtype)
+
+        # Scale
+        w *= self.get_parameter('scale')
+
+        # Set spectral radius
+        # If two dim tensor, square matrix and spectral radius is available
+        if w.ndimension() == 2 and w.size(0) == w.size(1) and self.get_parameter('apply_spectral_radius'):
+            # If current spectral radius is not zero
+            if echotorch.utils.spectral_radius(w) > 0.0:
+                w = (w / echotorch.utils.spectral_radius(w)) * self.get_parameter('spectral_radius')
+            else:
+                warnings.warn("Spectral radius of W is zero (due to small size), spectral radius not changed")
+            # end if
+        # end if
+
+        return w
     # end generate
 
-    ################
-    # PRIVATE
-    ################
+    #endregion PUBLIC
+
+    #region PRIVATE
+
+    # Generate the matrix
+    def _generate_matrix(self, size, dtype=torch.float64):
+        """
+        Generate the matrix
+        :param size: Matrix size
+        :param dtype: Matrix data type
+        :return: Generated matrix
+        """
+        return  torch.randn(size, dtype=dtype)
+    # end _generate_matrix
 
     # Set parameters
     def _set_parameters(self, args):
@@ -109,5 +146,7 @@ class MatrixGenerator(object):
             self.set_parameter(key, value)
         # end for
     # end _set_parameters
+
+    #endregion PRIVATE
 
 # end MatrixGenerator

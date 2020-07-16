@@ -20,6 +20,8 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Import basis
+from .AperiodicSequenceMatrixGenerator import AperiodicSequenceMatrixGenerator
+from .CycleWithJumpsMatrixGenerator import CycleWithJumpsMatrixGenerator
 from .MatrixFactory import MatrixFactory, matrix_factory
 from .MatrixGenerator import MatrixGenerator
 from .MatloabLoader import MatlabLoader
@@ -29,5 +31,6 @@ from .UniformMatrixGenerator import UniformMatrixGenerator
 
 # All
 __all__ = [
-    'MatrixFactory', 'MatrixGenerator', 'MatloabLoader', 'NumpyLoader', 'matrix_factory'
+    'AperiodicSequenceMatrixGenerator', 'CycleWithJumpsMatrixGenerator', 'MatrixFactory', 'MatrixGenerator',
+    'MatloabLoader', 'NumpyLoader', 'matrix_factory'
 ]

@@ -307,6 +307,81 @@ class Test_Matrix_Generation(EchoTorchTestCase):
         pass
     # end numpy_loader
 
+    # Test generation of a matrix with aperiodic sequence
+    def test_aperiodic_sequence(self):
+        """
+        Test generation of a matrix with aperiodic sequence
+        """
+        # What we want to achieve
+        baseline = torch.from_numpy(np.array(
+            [[-1., -1., -1., -1., 1., 1., -1., 1., 1., -1.],
+             [1., 1., 1., 1., 1., -1., -1., -1., 1., -1.]]
+        ))
+
+        # Matrix factory
+        matrix_factory = echotorch.utils.matrix_generation.matrix_factory
+
+        # Input matrix generation by aperiodic sequence and constant
+        win_generator = matrix_factory.get_generator(
+            name='aperiodic_sequence',
+            constant=1,
+            start=0
+        )
+
+        # Generate the matrix
+        win = win_generator.generate(size=(2, 10), dtype=torch.float64)
+
+        # Test generated matrix
+        self.assertTensorEqual(
+            win,
+            baseline
+        )
+    # end test_aperiodic_sequence
+
+    # Test generation of a matrix with cycles and jumps
+    def test_cycles_and_jumps(self):
+        """
+        Test generation of a matrix with cycles and jumps
+        :return:
+        """
+        # What we want to achieve
+        baseline = torch.from_numpy(np.array(
+            [[0., 0., 1., 0., 0., 0., 0., 0., 1., 1.],
+             [1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+             [1., 1., 0., 0., 1., 0., 0., 0., 0., 0.],
+             [0., 0., 1., 0., 0., 0., 0., 0., 0., 0.],
+             [0., 0., 1., 1., 0., 0., 1., 0., 0., 0.],
+             [0., 0., 0., 0., 1., 0., 0., 0., 0., 0.],
+             [0., 0., 0., 0., 1., 1., 0., 0., 1., 0.],
+             [0., 0., 0., 0., 0., 0., 1., 0., 0., 0.],
+             [1., 0., 0., 0., 0., 0., 1., 1., 0., 0.],
+             [0., 0., 0., 0., 0., 0., 0., 0., 1., 0.]]
+        ))
+
+        # Generation
+        cycle_weight = 1.0
+        jump_weight = 1.0
+        jump_size = 2
+
+        # Matrix factory
+        matrix_factory = echotorch.utils.matrix_generation.matrix_factory
+
+        # Reservoir matrix with cycle and jumps generator
+        w_generator = matrix_factory.get_generator(
+            name='cycle_with_jumps',
+            cycle_weight=cycle_weight,
+            jumpy_weight=jump_weight,
+            jump_size=jump_size
+        )
+
+        # Generate the matrix
+        w = w_generator.generate(size=(10, 10), dtype=torch.float64)
+
+        # Test generated matrix
+        self.assertTensorEqual(
+            w,
+            baseline
+        )
     #endregion TESTS
 
 # end Test_Matrix_Generation

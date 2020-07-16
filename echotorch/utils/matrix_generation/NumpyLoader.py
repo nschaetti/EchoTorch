@@ -52,12 +52,10 @@ class NumpyLoader(MatrixGenerator):
         self._set_parameters(args=kwargs)
     # end __init__
 
-    ################
-    # PUBLIC
-    ################
+    #region PRIVATE
 
     # Generate the matrix
-    def generate(self, size, dtype=torch.float64):
+    def _generate_matrix(self, size, dtype=torch.float64):
         """
         Generate the matrix
         :param size: Matrix size (ignored)
@@ -82,16 +80,10 @@ class NumpyLoader(MatrixGenerator):
             m = torch.from_numpy(m).type(dtype)
         # end if
 
-        # Scale
-        m *= self.get_parameter('scale')
-
-        # Set spectral radius
-        if m.ndimension() == 2 and m.size(0) == m.size(1) and self.get_parameter('apply_spectral_radius'):
-            m = (m / echotorch.utils.spectral_radius(m)) * self.get_parameter('spectral_radius')
-        # end if
-
         return m
-    # end generate
+    # end _generate_matrix
+
+    #endregion PRIVATE
 
 # end MatlabLoader
 
