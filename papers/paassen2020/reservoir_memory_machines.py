@@ -25,6 +25,7 @@ import torch.utils.data
 from torch.autograd import Variable
 import torchvision.datasets
 import echotorch.nn.reservoir
+import echotorch.datasets as etda
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -51,5 +52,80 @@ win_generator = matrix_factory.get_generator(
     start=0
 )
 
-print(np.array2string(win_generator.generate(size=(2, 10), dtype=torch.float64).numpy(), precision=2, separator=',', suppress_small=True))
+# Init. random number generators
+echotorch.utils.manual_seed(1)
 
+# Latch task dataset
+"""latch_task_dataset = etda.LatchTaskDataset(
+    n_samples=1,
+    length_min=40,
+    length_max=50,
+    n_pics=3,
+    dtype=torch.float64
+)
+
+# Dataset loader
+latch_task_loader = torch.utils.data.DataLoader(
+    latch_task_dataset,
+    batch_size=1,
+    shuffle=False
+)"""
+
+# Copy task dataset
+"""copy_task_dataset = etda.CopyTaskDataset(
+    n_samples=1,
+    length_min=1,
+    length_max=20,
+    n_inputs=8,
+    dtype=torch.float64
+)
+
+# Dataset loader
+copy_task_loader = torch.utils.data.DataLoader(
+    copy_task_dataset,
+    batch_size=1,
+    shuffle=False
+)"""
+
+# Repeat task dataset
+repeat_task_dataset = etda.RepeatTaskDataset(
+    n_samples=1,
+    length_min=1,
+    length_max=20,
+    n_inputs=8,
+    max_repeat=2,
+    dtype=torch.float64
+)
+
+# Dataset loader
+repeat_task_loader = torch.utils.data.DataLoader(
+    repeat_task_dataset,
+    batch_size=1,
+    shuffle=False
+)
+
+# For each sample
+# for data_i, data in enumerate(latch_task_dataset):
+# for data_i, data in enumerate(copy_task_dataset):
+for data_i, data in enumerate(repeat_task_loader):
+    # Inputs and output
+    data_inputs, data_outputs = data
+    print(data_inputs.size())
+    print(data_outputs.size())
+    # Print
+    print(np.array2string(data_inputs.numpy(), separator=', '))
+    print(np.array2string(data_outputs.numpy(), separator=', '))
+
+    # Plot inputs and output
+    """plt.plot(data_inputs[0].numpy(), 'b')
+    plt.plot(data_outputs[0].numpy(), 'r')
+    plt.show()"""
+    plt.figure(figsize=(6, 6))
+    plt.subplot(2, 1, 1)
+    plt.title("Inputs")
+    plt.imshow(data_inputs[0].t().numpy(), cmap='Greys')
+    plt.subplot(2, 1, 2)
+    plt.title("Outputs")
+    plt.imshow(data_outputs[0].t().numpy(), cmap='Greys')
+    plt.show()
+# end for
