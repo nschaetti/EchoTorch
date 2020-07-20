@@ -20,20 +20,13 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-import os
 import echotorch.utils
 from .EchoTorchTestCase import EchoTorchTestCase
 import numpy as np
 import torch
-import echotorch.nn.conceptors as ecnc
 import echotorch.datasets as etda
-import echotorch.utils.matrix_generation as mg
 import echotorch.utils
-import echotorch.datasets as etds
-from echotorch.datasets import DatasetComposer
-from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
-from torch.autograd import Variable
 
 
 # Test case : Test dataset generation for latch, copy and repeat tasks

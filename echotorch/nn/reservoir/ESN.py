@@ -42,7 +42,7 @@ class ESN(Node):
     def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True,
                  softmax_output=False, normalize_output=False, washout=0, create_rnn=True, create_output=True,
-                 debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 input_normalization=False, debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -63,6 +63,7 @@ class ESN(Node):
         :param washout: Washout period (ignore timesteps at the beginning of each sample)
         :param create_rnn: Create RNN layer ?
         :param create_output: Create the output layer ?
+        :param input_normalization: Apply z normalisation to inputs
         :param debug: Debug mode
         :param test_case: Test case to call for test
         :param dtype: Data type
