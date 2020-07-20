@@ -47,9 +47,7 @@ class ImageToTimeseries(Dataset):
         self._tranpose = transpose
     # end __init__
 
-    #################
-    # OVERRIDE
-    #################
+    #region OVERRIDE
 
     # To string
     def __str__(self):
@@ -113,5 +111,6 @@ class ImageToTimeseries(Dataset):
         return timeseries_data, timeseries_target
     # end __getitem__
 
-# end ImageToTimeseries
+    #endregion OVERRIDE
 
+# end ImageToTimeseries
