@@ -21,10 +21,11 @@ from .RosslerAttractor import RosslerAttractor
 from .SinusoidalTimeseries import SinusoidalTimeseries
 from .PeriodicSignalDataset import PeriodicSignalDataset
 from .RepeatTaskDataset import RepeatTaskDataset
+from .TimeseriesBatchSequencesDataset import TimeseriesBatchSequencesDataset
 
 __all__ = [
    'CopyTaskDataset', 'DatasetComposer', 'DiscreteMarkovChainDataset', 'FromCSVDataset', 'HenonAttractor',
    'LambdaDataset', 'LatchTaskDataset', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset', 'MemTestDataset',
    'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset', 'ImageToTimeseries',
-   'MarkovChainDataset', 'MixedSinesDataset', 'RepeatTaskDataset'
+   'MarkovChainDataset', 'MixedSinesDataset', 'RepeatTaskDataset', 'TimeseriesBatchSequencesDataset'
 ]

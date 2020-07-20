@@ -21,6 +21,7 @@
 
 
 # Imports
+import math
 import torch
 from torch.utils.data import Dataset
 
@@ -32,26 +33,31 @@ class TimeseriesBatchSequencesDataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, root_dataset, window_size, timeserie_pos=0, time_axis=1, main_axis='sequences'):
+    def __init__(self, root_dataset, window_size, data_indices, time_axis=0, dataset_in_memory=False, *args, **kwargs):
         """
         Constructor
         :param root_dataset: Root dataset
         :param window_size: Sequence size in the timeseries
-        :param timeserie_pos: Which output of dataset is the timeseries tensor
+        :param data_indices: Which output of dataset is a timeseries tensor
         :param time_axis: Which axis is the temporal dimension in the output tensor
-        :param main_axis: Neighbour sequences come from different samples ('sequences') or from the same (any other value)
         """
+        # Call upper class
+        super(TimeseriesBatchSequencesDataset, self).__init__(*args, **kwargs)
+
         # Parameters
         self.root_dataset = root_dataset
         self.window_size = window_size
-        self.timeserie_pos = timeserie_pos
+        self.data_indices = data_indices
         self.time_axis = time_axis
+        self.dataset_in_memory = dataset_in_memory
 
         # Dataset information
         self.timeseries_lengths = list()
         self.timeseries_total_length = 0
         self.root_dataset_n_samples = 0
+        self.timeseries_sequences_info = list()
         self.n_samples = 0
+        self.dataset_samples = list()
 
         # Load dataset
         self._load_dataset()
@@ -65,23 +71,86 @@ class TimeseriesBatchSequencesDataset(Dataset):
         Load dataset
         :return:
         """
+        # Item position
+        item_position = 0
+
         # Load root dataset
         for item_i in range(len(self.root_dataset)):
             # Get data
             data = self.root_dataset[item_i]
 
+            # Get the first timeserie returned by the dataset
+            timeserie_pos = self.data_indices[0]
+
             # Get timeserie
-            timeserie_data = data[self.timeserie_pos]
+            timeserie_data = data[timeserie_pos]
+
+            # Length of timeseries in number of samples (sequences)
+            timeserie_length = timeserie_data.size(self.time_axis)
+            timeserie_seq_length = int(math.floor(timeserie_length / self.window_size))
 
             # Save length and total length
-            self.timeseries_lengths.append((item_i, timeserie_data.size(self.time_axis)))
-            self.timeseries_total_length += timeserie_data.size(self.time_axis)
+            self.timeseries_lengths.append(timeserie_length)
+            self.timeseries_total_length += timeserie_length
+            self.timeseries_sequences_info.append({'start': item_position, 'end': item_position + timeserie_seq_length})
+
+            # Keep in memory if asked for
+            if self.dataset_in_memory:
+                self.dataset_samples.append(data)
+            # end if
+
+            # Increment item position
+            item_position += timeserie_seq_length
         # end for
+
+        # Total number of samples
+        self.n_samples = item_position
     # end _load_dataset
 
     #endregion PRIVATE
 
     #region OVERRIDE
+
+    # Get a sample in the dataset
+    def __getitem__(self, item):
+        """
+        Get a sample in the dataset
+        :param item: Item index (start 0)
+        :return: Dataset sample
+        """
+        # Go through each samples in the root dataset
+        for item_i in range(len(self.root_dataset)):
+            # Timeserie info
+            ts_start_end = self.timeseries_sequences_info[item_i]
+
+            # The item is in this sample
+            if ts_start_end['start'] <= item < ts_start_end['end']:
+                # Get data
+                if self.dataset_in_memory:
+                    data = list(self.dataset_samples[item_i])
+                else:
+                    data = list(self.root_dataset[item_i])
+                # end if
+
+                # Sequence start and end
+                sequence_start = (item - ts_start_end['start']) * self.window_size
+                sequence_end = sequence_start + self.window_size
+                sequence_range = range(sequence_start, sequence_end)
+
+                # For each data to transform
+                for data_i in self.data_indices:
+                    # Get timeserie
+                    timeserie_data = data[data_i]
+
+                    # Get sequence according to time axis
+                    data[data_i] = torch.index_select(timeserie_data, self.time_axis, torch.tensor(sequence_range))
+                # end for
+
+                # Return modified data
+                return data
+            # end if
+        # end for
+    # end __getitem__
 
     # To string
     def __str__(self):
@@ -100,7 +169,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
         Length
         :return: How many samples
         """
-        return 0
+        return self.n_samples
     # end __len__
 
     #endregion OVERRIDE
