@@ -36,7 +36,7 @@ class CrossValidationWithDev(Dataset):
         """
         Constructor
         :param root_dataset: The target data set
-        :param k: Nnumber of fold
+        :param k: Number of fold
         :param train: Return training or test set?
         """
         # Properties

@@ -20,5 +20,6 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+from .FourierTransform import FourierTransform
 from .Normalize import Normalize
 

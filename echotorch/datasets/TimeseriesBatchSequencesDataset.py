@@ -33,12 +33,14 @@ class TimeseriesBatchSequencesDataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, root_dataset, window_size, data_indices, time_axis=0, dataset_in_memory=False, *args, **kwargs):
+    def __init__(self, root_dataset, window_size, data_indices, stride, time_axis=0, dataset_in_memory=False,
+                 *args, **kwargs):
         """
         Constructor
         :param root_dataset: Root dataset
         :param window_size: Sequence size in the timeseries
         :param data_indices: Which output of dataset is a timeseries tensor
+        :param stride: Stride
         :param time_axis: Which axis is the temporal dimension in the output tensor
         """
         # Call upper class
@@ -48,6 +50,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
         self.root_dataset = root_dataset
         self.window_size = window_size
         self.data_indices = data_indices
+        self.stride = stride
         self.time_axis = time_axis
         self.dataset_in_memory = dataset_in_memory
 
@@ -87,7 +90,8 @@ class TimeseriesBatchSequencesDataset(Dataset):
 
             # Length of timeseries in number of samples (sequences)
             timeserie_length = timeserie_data.size(self.time_axis)
-            timeserie_seq_length = int(math.floor(timeserie_length / self.window_size))
+            # timeserie_seq_length = int(math.floor(timeserie_length / self.window_size))
+            timeserie_seq_length = int(math.floor((timeserie_length - self.window_size) / self.stride))
 
             # Save length and total length
             self.timeseries_lengths.append(timeserie_length)
@@ -125,7 +129,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
 
             # The item is in this sample
             if ts_start_end['start'] <= item < ts_start_end['end']:
-                # Get data
+                # Get the corresponding timeseries
                 if self.dataset_in_memory:
                     data = list(self.dataset_samples[item_i])
                 else:
@@ -133,7 +137,8 @@ class TimeseriesBatchSequencesDataset(Dataset):
                 # end if
 
                 # Sequence start and end
-                sequence_start = (item - ts_start_end['start']) * self.window_size
+                # sequence_start = (item - ts_start_end['start']) * self.window_size
+                sequence_start = (item - ts_start_end['start']) * self.stride
                 sequence_end = sequence_start + self.window_size
                 sequence_range = range(sequence_start, sequence_end)
 
