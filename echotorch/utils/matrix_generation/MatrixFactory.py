@@ -45,9 +45,7 @@ class MatrixFactory(object):
         self._instance = self
     # end __init__
 
-    ###################
-    # PUBLIC
-    ###################
+    #region PUBLIC
 
     # Register creator
     def register_generator(self, name, generator):
@@ -61,6 +59,12 @@ class MatrixFactory(object):
 
     # Get a generator
     def get_generator(self, name, **kwargs):
+        """
+        Get a generator
+        :param name: Generator's name
+        :param kwargs: Arguments for the generator
+        :return:
+        """
         generator = self._generators[name]
         if not generator:
             raise ValueError(name)
@@ -68,9 +72,9 @@ class MatrixFactory(object):
         return generator(**kwargs)
     # end get_generator
 
-    ##################
-    # STATIC
-    ##################
+    #endregion PUBLIC
+
+    #region STATIC
 
     # Get instance
     def get_instance(self):
@@ -112,6 +116,8 @@ class MatrixFactory(object):
         # To sparse
         return torch.sparse.FloatTensor(indices, values)
     # end to_sparse
+
+    #endregion STATIC
 
 # end MatrixFactory
 
