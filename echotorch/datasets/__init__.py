@@ -22,10 +22,13 @@ from .SinusoidalTimeseries import SinusoidalTimeseries
 from .PeriodicSignalDataset import PeriodicSignalDataset
 from .RepeatTaskDataset import RepeatTaskDataset
 from .TimeseriesBatchSequencesDataset import TimeseriesBatchSequencesDataset
+from .TransformDataset import TransformDataset
+from .TripletBatching import TripletBatching
 
 __all__ = [
    'CopyTaskDataset', 'DatasetComposer', 'DiscreteMarkovChainDataset', 'FromCSVDataset', 'HenonAttractor',
    'LambdaDataset', 'LatchTaskDataset', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset', 'MemTestDataset',
    'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset', 'ImageToTimeseries',
-   'MarkovChainDataset', 'MixedSinesDataset', 'RepeatTaskDataset', 'TimeseriesBatchSequencesDataset'
+   'MarkovChainDataset', 'MixedSinesDataset', 'RepeatTaskDataset', 'TimeseriesBatchSequencesDataset',
+   'TransformDataset', 'TripletBatching'
 ]

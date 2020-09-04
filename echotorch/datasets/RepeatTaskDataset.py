@@ -31,7 +31,7 @@ class RepeatTaskDataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, n_samples, length_min, length_max, n_inputs, max_repeat, dtype=torch.float32):
+    def __init__(self, n_samples, length_min, length_max, n_inputs, max_repeat, min_repeat=1, dtype=torch.float32):
         """
         Constructor
         :param sample_len: Sample's length
@@ -43,6 +43,7 @@ class RepeatTaskDataset(Dataset):
         self.n_samples = n_samples
         self.n_inputs = n_inputs
         self.max_repeat = max_repeat
+        self.min_repeat = min_repeat
         self.dtype = dtype
 
         # Generate data set
@@ -86,7 +87,7 @@ class RepeatTaskDataset(Dataset):
         # For each sample
         for i in range(self.n_samples):
             # Random number of repeat
-            num_repeats = torch.randint(low=1, high=self.max_repeat+1, size=(1,)).item()
+            num_repeats = torch.randint(low=self.min_repeat, high=self.max_repeat+1, size=(1,)).item()
 
             # Generate length
             sample_len = torch.randint(low=self.length_min, high=self.length_max, size=(1,)).item()

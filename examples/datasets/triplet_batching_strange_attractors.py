@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/transforms/timeseries/__init__.py
-# Description : Transformers for timeseries.
-# Date : 12th of April, 2020
+# File : examples/datasets/triplet_batching_strange_attractors.py
+# Description : Take a dataset with different classes and create a dataset of triplets with an anchor (A) and positive
+# example (same class) and a negative one (different class).
+# Date : 21th of July, 2020
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,12 +18,6 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright Nils Schaetti <nils.schaetti@unine.ch>
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>, <nils.schaetti@unige.ch>
 
-# Imports
-from .AddNoise import AddNoise
-from .FourierTransform import FourierTransform
-from .Normalize import Normalize
 
-# All
-__all__ = ['AddNoise', 'FourierTransform', 'Normalize']

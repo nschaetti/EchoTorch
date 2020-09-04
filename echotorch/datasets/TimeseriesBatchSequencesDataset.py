@@ -83,15 +83,12 @@ class TimeseriesBatchSequencesDataset(Dataset):
             data = self.root_dataset[item_i]
 
             # Get the first timeserie returned by the dataset
-            timeserie_pos = self.data_indices[0]
-
-            # Get timeserie
-            timeserie_data = data[timeserie_pos]
+            timeserie_data = data[self.data_indices[0]] if self.data_indices is not None else data
 
             # Length of timeseries in number of samples (sequences)
             timeserie_length = timeserie_data.size(self.time_axis)
             # timeserie_seq_length = int(math.floor(timeserie_length / self.window_size))
-            timeserie_seq_length = int(math.floor((timeserie_length - self.window_size) / self.stride))
+            timeserie_seq_length = int(math.floor((timeserie_length - self.window_size) / self.stride) + 1)
 
             # Save length and total length
             self.timeseries_lengths.append(timeserie_length)
@@ -131,9 +128,9 @@ class TimeseriesBatchSequencesDataset(Dataset):
             if ts_start_end['start'] <= item < ts_start_end['end']:
                 # Get the corresponding timeseries
                 if self.dataset_in_memory:
-                    data = list(self.dataset_samples[item_i])
+                    data = list(self.dataset_samples[item_i]) if self.data_indices is not None else self.dataset_samples[item_i]
                 else:
-                    data = list(self.root_dataset[item_i])
+                    data = list(self.root_dataset[item_i]) if self.data_indices is not None else self.root_dataset[item_i]
                 # end if
 
                 # Sequence start and end
@@ -143,13 +140,18 @@ class TimeseriesBatchSequencesDataset(Dataset):
                 sequence_range = range(sequence_start, sequence_end)
 
                 # For each data to transform
-                for data_i in self.data_indices:
-                    # Get timeserie
-                    timeserie_data = data[data_i]
+                if self.data_indices is not None:
+                    for data_i in self.data_indices:
+                        # Get timeserie
+                        timeserie_data = data[data_i]
 
+                        # Get sequence according to time axis
+                        data[data_i] = torch.index_select(timeserie_data, self.time_axis, torch.tensor(sequence_range))
+                    # end for
+                else:
                     # Get sequence according to time axis
-                    data[data_i] = torch.index_select(timeserie_data, self.time_axis, torch.tensor(sequence_range))
-                # end for
+                    data = torch.index_select(data, self.time_axis, torch.tensor(sequence_range))
+                # end if
 
                 # Return modified data
                 return data

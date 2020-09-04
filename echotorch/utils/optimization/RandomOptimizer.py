@@ -35,8 +35,8 @@ class RandomOptimizer(Optimizer):
     # Constructor
     def __init__(self, **kwargs):
         """
-
-        :param kwargs:
+        Constructor
+        :param kwargs: Argument for the optimizer
         """
         # Set default parameter values
         super(RandomOptimizer, self).__init__(
@@ -50,14 +50,15 @@ class RandomOptimizer(Optimizer):
     #region PRIVATE
 
     # Optimize hyper-parameters
-    def _optimize_func(self, test_function, param_ranges, dataset):
+    def _optimize_func(self, test_function, param_ranges, datasets, **kwargs):
         """
         Optimize function to override
         :param test_function: The function that maps a list of parameters, training samples, test samples,
         and their corresponding ground truth to a measured fitness.
         :param param_ranges: A dictionary with parameter names and ranges
-        :param dataset: Dataset used to train and test the model as a list of tuples (X, Y) with X
-        and Y the target to be learned.
+        :param datasets: A tuple with dataset used to train and test the model as a list of tuples (X, Y) with X,
+        and Y the target to be learned. (training dataset, test dataset) or
+        (training dataset, dev dataset, test dataset)
         :return: Three objects, the model object, the best parameter values as a dict,
         the fitness value obtained by the best model.
         """
@@ -88,7 +89,11 @@ class RandomOptimizer(Optimizer):
         # Test each member of the population
         for r, param_individual in enumerate(parameter_population):
             # Test the model
-            _, fitness_value = test_function(param_individual, dataset)
+            _, fitness_value = test_function(
+                param_individual,
+                datasets,
+                **kwargs
+            )
 
             # Save fitness value
             fitness_values[r] = fitness_value
@@ -104,6 +109,13 @@ class RandomOptimizer(Optimizer):
         # end if
 
         # Get the best model
+        model, fitness_value = test_function(
+            parameters=best_param,
+            datasets=datasets,
+            **kwargs
+        )
+
+        return model, best_param, fitness_value
     # end _optimize_func
 
     #endregion PRIVATE

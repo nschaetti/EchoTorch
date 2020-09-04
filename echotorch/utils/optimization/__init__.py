@@ -20,3 +20,11 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>, <nils.schaetti@unige.ch>
 
 # Imports
+from .Optimizer import Optimizer
+from .OptimizerFactory import OptimizerFactory, optimizer_factory
+from .GeneticOptimizer import GeneticOptimizer
+from .GridSearchOptimizer import GridSearchOptimizer
+from .RandomOptimizer import RandomOptimizer
+
+# ALL
+__all__ = ['Optimizer', 'OptimizerFactory', 'GeneticOptimizer', 'GridSearchOptimizer', 'RandomOptimizer']

@@ -45,12 +45,14 @@ n_test_samples = 1
 batch_size = 1
 
 # Reservoir hyper-parameters
-spectral_radius = 0.99
-leaky_rate = 1.0
+spectral_radius = 1.07
+leaky_rate = 0.9261
 input_dim = 1
-reservoir_size = 100
-connectivity = 0.1
-ridge_param = 0.0000001
+reservoir_size = 410
+connectivity = 0.1954
+ridge_param = 0.00000409
+input_scaling = 0.9252
+bias_scaling = 0.079079
 
 # Predicted/target plot length
 plot_length = 200
@@ -64,19 +66,31 @@ np.random.seed(1)
 torch.manual_seed(1)
 
 # NARMA30 dataset
-narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10, seed=1)
-narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10, seed=10)
+narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10)
+narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10)
 
 # Data loader
 trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
-# Get matrix generators
-matrix_generator = mg.matrix_factory.get_generator(
-    name='normal',
-    connectivity=0.1,
-    mean=0.0,
-    std=1.0
+# Internal matrix
+w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    spetral_radius=spectral_radius
+)
+
+# Input weights
+win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    scale=input_scaling,
+    apply_spectral_radius=False
+)
+
+# Bias vector
+wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    scale=bias_scaling,
+    apply_spectral_radius=False
 )
 
 # Create a Leaky-integrated ESN,
@@ -87,13 +101,10 @@ esn = etrs.LiESN(
     hidden_dim=reservoir_size,
     output_dim=1,
     leaky_rate=leaky_rate,
-    spectral_radius=spectral_radius,
     learning_algo='inv',
-    w_generator=matrix_generator,
-    win_generator=matrix_generator,
-    wbias_generator=matrix_generator,
-    input_scaling=1.0,
-    bias_scaling=0,
+    w_generator=w_generator,
+    win_generator=win_generator,
+    wbias_generator=wbias_generator,
     ridge_param=ridge_param
 )
 

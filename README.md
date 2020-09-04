@@ -32,36 +32,65 @@ Join our community to create datasets and deep-learning models! Chat with us on 
 
 This repository consists of:
 
-* [echotorch.datasets] : Pre-built datasets for common ESN tasks.
-* echotorch.evaluation : Tools and functions to evaluate and compare ESN models.
-* echotorch.models : Ready to train models and generic pre-trained ESN models.
-* echotorch.nn : All neural network Torch components for ESN and Reservoir Computing.
-* echotorch.transforms : Data transformations specific to ESN.
-* echotorch.utils : Tools, functions and measures for ESN and Reservoir Computing.
+* [echotorch.datasets](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/datasets) : Pre-built datasets for common ESN tasks.
+* [echotorch.evaluation](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/evaluation) : Tools and functions to evaluate and compare ESN models (cross-validation, statistical tests, etc).
+* [echotorch.models](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/models) : Ready to train models and generic pre-trained ESN models.
+* [echotorch.nn](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/models) : All neural network Torch components for ESN and Reservoir Computing.
+* [echotorch.transforms](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/transforms) : Data transformations specific to ESN.
+* [echotorch.utils](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/utils) : Tools, functions and measures for ESN and Reservoir Computing.
+    * [echotorch.utils.conceptors](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/utils/conceptors) : Utility classes and functions in relation with conceptor neural filters.
+    * [echotorch.utils.matrix_generation](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/utils/matrix_generation) : Class to generate different matrices to be used in ESNs.
+    * [echotorch.utils.optimization](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/utils/optimization) : Implementation of classical optimization algorithms for hyperparameters optimization.
+    * [echotorch.utils.visualisation](https://github.com/nschaetti/EchoTorch/tree/dev/echotorch/utils/visualisation) :  Various classes and functions for data and model visualisation.
 
 ## Examples
 
 Here is some examples of what you can do with EchoTorch.
 
 * [Conceptors](https://github.com/nschaetti/EchoTorch/tree/dev/examples/conceptors)
-    * [Four patterns generation with Conceptors](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/conceptors_4_patterns_generation.py) : load into a reservoir four patterns and re-generate them with conceptor-based neural filtering.
+    * [Boolean operations](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/boolean_operations.py) : Boolean operations with Conceptors.
+    * [Pattern evidences](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/conceptor_patterns_evidence.py) : Evidence gathering for pattern classification with Conceptors.
+    * [Four patterns generation](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/conceptors_4_patterns_generation.py) : load into a reservoir four patterns and re-generate them with conceptor-based neural filtering.
+    * [Incremental loading and memory management](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/incremental_load_memory_management.py) : how to load patterns in ESN's memory incrementally and manage memory usage.
+    * [Memory management](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/memory_management.py) :
+    * [Memory management and increament forgetting](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/memory_management_forgetting.py) : Load patterns in ESN's memory with possible to erase old patterns (in research).
+    * [Morphing periodic patterns](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/morphing_periodic_patterns.py) : Learning, generating and morphing a set of periodic patterns.
+    * [Morphing periodic sine](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/morphing_periodic_sine.py) : Learning, generating and morphing a set of sine patterns.
+    * [Morphing random patterns](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/morphing_random_patterns.py) : Learning, generating and morphing a set of random patterns.
+    * [Morphing random sine](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/morphing_random_sines.py) : Learning, generating and morphing a set of sine patterns with random periods.
+    * [Morphing sines](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/morphing_sines.py) : 
+    * [Morphing square](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/) : Learn four patterns and visualize multiple morphed patterns.
+    * [Subspace demo](https://github.com/nschaetti/EchoTorch/blob/dev/examples/conceptors/subspace_demo.py) : Show how patterns populate the space of reservoir state and how to define them with neural filters. 
 * [Datasets](https://github.com/nschaetti/EchoTorch/tree/dev/examples/datasets)
-    * [Logistic Map](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/logistic_map.py) : generate data from the logistic map function.
+    * [Latch-Copy-Repeat](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/latch_copy_repeat.py) : How to generate data for three well-known tasks in Machine Learning.
+    * [Logistic Map](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/logistic_map.py) : Generate data from the logistic map function.
+    * [MNIST_images](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/MNIST_images.py) : Load images from the MNIST dataset.
+    * [NARMA](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/NARMA.py) : Generate NARMA timeseries.
+    * [Strange attractors](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/strange_attractors.py) : Generate timeseries data from common strange attractors.
+    * [Timeseries batch sequencing](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/timeseries_batch_sequencing.py) : Transform a timeseries in sequences of specific length (to train a FFNN for example).
+    * [Timeseries triplet batching](https://github.com/nschaetti/EchoTorch/blob/dev/examples/datasets/timeseries_triplet_batching.py) : Get triplet from an anchor, a positive example (same class), and a negative example (no the same class) to train similarity measures.  
 * [Evaluation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation)
-    * [Fold cross-validation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation/fold_cross_validation.py) : how to perform 10-fold cross validation.
-    * [Grid search](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation/grid_search.py) : hyperparamaters optimization with grid-search.
+    * [Fold cross-validation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/evaluation/fold_cross_validation.py) : How to perform 10-fold cross validation.
 * [Generation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/generation)
-    * [NARMA-10 generation with feedbacks](https://github.com/nschaetti/EchoTorch/blob/dev/examples/generation/narma10_esn_feedbacks.py) : generate NARMA-10 timeseries with feedbacks.
+    * [NARMA-10 generation with feedbacks](https://github.com/nschaetti/EchoTorch/blob/dev/examples/generation/narma10_esn_feedbacks.py) : Generate NARMA-10 timeseries with feedbacks.
+* [Matrix generation](https://github.com/nschaetti/EchoTorch/tree/dev/examples/matrix_generation)
+    * [Cycle with jumps](https://github.com/nschaetti/EchoTorch/tree/dev/examples/matrix_generation/cycle_with_jumps.py) : Generation of a matrix composed of a cycle with jumps (Rodan and Tino, 2012). (To write)
+    * [Normal matrix](https://github.com/nschaetti/EchoTorch/tree/dev/examples/matrix_generation/normal_matrix_generation.py) : Generation based on a Gaussian distribution. (to write)
+    * [Uniform matrix](https://github.com/nschaetti/EchoTorch/tree/dev/examples/matrix_generation/uniform_matrix_generation.py) : Generation based on an uniform distribution. (to write)
 * [Memory](https://github.com/nschaetti/EchoTorch/tree/dev/examples/memory)
-    * [Memtest](https://github.com/nschaetti/EchoTorch/blob/dev/examples/memory/memtest.py) : test the capacity of an ESN to memorize random inputs.
+    * [Memtest](https://github.com/nschaetti/EchoTorch/blob/dev/examples/memory/memtest.py) : Test the capacity of an ESN to memorize random inputs.
 * [MNIST](https://github.com/nschaetti/EchoTorch/blob/dev/examples/MNIST/)
-    * [Image to timeseries conversion](https://github.com/nschaetti/EchoTorch/blob/dev/examples/MNIST/convert_images.py) : how to convert images to timeseries.
+    * [Image to timeseries conversion](https://github.com/nschaetti/EchoTorch/blob/dev/examples/MNIST/convert_images.py) : How to convert images to timeseries.
 * [Nodes](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes)
-    * [Independent Component Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/ica_tests.py) : how to do Independent Component Analysis (ICA) with EchoTorch.
-    * [Principal Component Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/pca_tests.py) : how to do Principal Component Analysis (PCA) with EchoTorch.
-    * [Slow Feature Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/sfa_tests.py) : how to do Slow Features Analysis (SFA) with EchoTorch.
+    * [Independent Component Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/ica_tests.py) : How to do Independent Component Analysis (ICA) with EchoTorch.
+    * [Principal Component Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/pca_tests.py) : How to do Principal Component Analysis (PCA) with EchoTorch.
+    * [Slow Feature Analysis](https://github.com/nschaetti/EchoTorch/blob/dev/examples/nodes/sfa_tests.py) : How to do Slow Features Analysis (SFA) with EchoTorch.
+* [Optimization](https://github.com/nschaetti/EchoTorch/blob/dev/examples/optimization)
+    * [Genetic search](https://github.com/nschaetti/EchoTorch/blob/dev/examples/optimization/genetic_search.py) : Optimize hyper-parameters with a genetic algorithm.
+    * [Grid search](https://github.com/nschaetti/EchoTorch/blob/dev/examples/optimization/grid_search.py) : Optimize hyper-parameters with a grid search.
+    * [Random search](https://github.com/nschaetti/EchoTorch/blob/dev/examples/optimization/random_search.py) : Generate models withs random parameters and find the best.
 * [Switch between attractors](https://github.com/nschaetti/EchoTorch/blob/dev/examples/switch_attractor/switch_attractor_esn.py)
-    * [Switch Attractor](https://github.com/nschaetti/EchoTorch/blob/dev/examples/switch_attractor/switch_attractor_esn.py) : test the capacity of a simple ESN to switch between attractors.
+    * [Switch Attractor](https://github.com/nschaetti/EchoTorch/blob/dev/examples/switch_attractor/switch_attractor_esn.py) : Test the capacity of a simple ESN to switch between attractors.
 * [Timeseries prediction](https://github.com/nschaetti/EchoTorch/tree/dev/examples/timeserie_prediction)
     * [Mackey Glass](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/mackey_glass_esn.py) : Mackey-Glass timeseries prediction with ESN.
     * [NARMA-10](https://github.com/nschaetti/EchoTorch/blob/dev/examples/timeserie_prediction/mackey_glass_esn.py) : NARMA-10 timeseries prediction with ESN and original training methods (ridge regression).
@@ -74,6 +103,11 @@ Here is some examples of what you can do with EchoTorch.
 ## Tutorials
 
 In addition to examples, here are some Jupyter tutorials to learn how Reservoir Computing works.
+
+* [Timeseries prediction](https://github.com/nschaetti/EchoTorch/tree/dev/tutorials/timeseries_prediction/)
+    * [NARMA10](https://github.com/nschaetti/EchoTorch/tree/dev/tutorials/timeseries_prediction/NARMA_prediction.ipynb) : Train an ESN to predict a timeseries based on NARMA10 (to write).
+* [Images classification](https://github.com/nschaetti/EchoTorch/tree/dev/tutorials/images_classification/)
+    * [MNIST classification](https://github.com/nschaetti/EchoTorch/tree/dev/tutorials/images_classification/MNIST_classification.ipynb) : Classify handwritten digit images from the MNIST dataset (to write).
 
 ## Code and papers
 

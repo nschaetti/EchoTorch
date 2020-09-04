@@ -89,18 +89,19 @@ class Optimizer(object):
     # end set_parameter
 
     # Optimize
-    def optimize(self, test_function, param_ranges, samples):
+    def optimize(self, test_function, param_ranges, datasets, **kwargs):
         """
-        Optimize
+        Optimize function to override
         :param test_function: The function that maps a list of parameters, training samples, test samples,
-        and their corresponding groundtruth to a measured fitness.
-        :param param_ranges: A dictionnary with parameter names and ranges
-        :param samples: Data used to train and test the model as a list of tuples (X, Y) with X
-        and Y the target to be learned.
+        and their corresponding ground truth to a measured fitness.
+        :param param_ranges: A dictionary with parameter names and ranges
+        :param datasets: A tuple with dataset used to train and test the model as a list of tuples (X, Y) with X,
+        and Y the target to be learned. (training dataset, test dataset) or
+        (training dataset, dev dataset, test dataset)
         :return: Three objects, the model object, the best parameter values as a dict,
         the fitness value obtained by the best model.
         """
-        self._optimize_func(test_function, param_ranges, samples)
+        return self._optimize_func(test_function, param_ranges, datasets, **kwargs)
     # end optimize
 
     #endregion PUBLIC
@@ -108,19 +109,31 @@ class Optimizer(object):
     #region PRIVATE
 
     # Optimize function to override
-    def _optimize_func(self, test_function, param_ranges, samples):
+    def _optimize_func(self, test_function, param_ranges, datasets, **kwargs):
         """
         Optimize function to override
         :param test_function: The function that maps a list of parameters, training samples, test samples,
-        and their corresponding groundtruth to a measured fitness.
-        :param param_ranges: A dictionnary with parameter names and ranges
-        :param samples: Data used to train and test the model as a list of tuples (X, Y) with X
-        and Y the target to be learned.
+        and their corresponding ground truth to a measured fitness.
+        :param param_ranges: A dictionary with parameter names and ranges
+        :param datasets: A tuple with dataset used to train and test the model as a list of tuples (X, Y) with X,
+        and Y the target to be learned. (training dataset, test dataset) or
+        (training dataset, dev dataset, test dataset)
         :return: Three objects, the model object, the best parameter values as a dict,
         the fitness value obtained by the best model.
         """
         pass
     # end _optimize_func
+
+    # Set parameters
+    def _set_parameters(self, args):
+        """
+        Set parameters
+        :param args: Parameters as dict
+        """
+        for key, value in args.items():
+            self.set_parameter(key, value)
+        # end for
+    # end _set_parameters
 
     #endregion PRIVATE
 

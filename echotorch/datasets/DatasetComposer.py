@@ -4,7 +4,6 @@
 # Imports
 import torch
 from torch.utils.data.dataset import Dataset
-import numpy as np
 
 
 # Dataset Composer
@@ -39,9 +38,7 @@ class DatasetComposer(Dataset):
         # end for
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
+    #region OVERRIDE
 
     # Length
     def __len__(self):
@@ -67,9 +64,9 @@ class DatasetComposer(Dataset):
         return self.datasets[d][e], outputs, torch.LongTensor([d])
     # end __getitem__
 
-    #############################################
-    # PRIVATE
-    #############################################
+    #endregion OVERRIDE
+
+    #region PRIVATE
 
     # Create outputs
     def _create_outputs(self, i, time_length):
@@ -88,5 +85,7 @@ class DatasetComposer(Dataset):
 
         return outputs
     # end _create_outputs
+
+    #endregion PRIVATE
 
 # end DatasetComposer
