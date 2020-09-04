@@ -32,7 +32,8 @@ class CrossValidationWithDev(Dataset):
     """
 
     # Constructor
-    def __init__(self, root_dataset, k=10, train='train', fold=0, train_size=1.0, dev_ratio=0.5):
+    def __init__(self, root_dataset, k=10, mode='train', samples_indices=None, fold=0, train_size=1.0, dev_ratio=0.5,
+                 shuffle=False):
         """
         Constructor
         :param root_dataset: The target data set
@@ -42,14 +43,41 @@ class CrossValidationWithDev(Dataset):
         # Properties
         self.root_dataset = root_dataset
         self.k = k
-        self.train = train
+        self.mode = mode
         self.train_size = train_size
         self.fold = fold
-        self.folds, self.fold_sizes, self.indexes = self._create_folds(self.k)
         self.dev_ratio = dev_ratio
+        self.shuffle = shuffle
+
+        # Compute fold sizes
+        self.folds, self.fold_sizes, self.indexes = self._create_folds(self.k, samples_indices)
     # end __init__
 
     #region PUBLIC
+
+    # Set in train mode
+    def train(self):
+        """
+        Set in train mode
+        """
+        self.mode = 'train'
+    # end train
+
+    # Set in dev mode
+    def dev(self):
+        """
+        Set in dev mode
+        """
+        self.mode = 'dev'
+    # end dev
+
+    # Set in test mode
+    def test(self):
+        """
+        Set in test mode
+        """
+        self.mode = 'test'
+    # end test
 
     # Next fold
     def next_fold(self):
@@ -85,13 +113,23 @@ class CrossValidationWithDev(Dataset):
     #region PRIVATE
 
     # Create folds
-    def _create_folds(self, k):
+    def _create_folds(self, k, samples_indices=None):
         """
         Create folds
         :return:
         """
         # Indexes
-        indexes = np.arange(0, len(self.root_dataset))
+        if samples_indices is None:
+            # Indices
+            indexes = np.arange(0, len(self.root_dataset))
+
+            # Shuffle index list
+            if self.shuffle:
+                np.random.shuffle(indexes)
+            # end if
+        else:
+            indexes = samples_indices
+        # end if
 
         # Dataset length
         length = len(indexes)
@@ -131,9 +169,9 @@ class CrossValidationWithDev(Dataset):
         dev_length = int(dev_test_length * self.dev_ratio)
         test_length = dev_test_length - dev_length
 
-        if self.train == 'train':
+        if self.mode == 'train':
             return int(train_length * self.train_size)
-        elif self.train == 'dev':
+        elif self.mode == 'dev':
             return dev_length
         else:
             return test_length
@@ -150,7 +188,7 @@ class CrossValidationWithDev(Dataset):
         # Get target set
         dev_test_set = self.folds[self.fold]
         indexes_copy = self.indexes.copy()
-        train_set = np.delete(indexes_copy, dev_test_set)
+        train_set = np.setdiff1d(indexes_copy, dev_test_set)
         train_length = len(self.root_dataset) - len(dev_test_set)
         train_length = int(train_length * self.train_size)
         train_set = train_set[:train_length]
@@ -163,9 +201,9 @@ class CrossValidationWithDev(Dataset):
         test_set = dev_test_set[dev_length:]
 
         # Train/test
-        if self.train == 'train':
+        if self.mode == 'train':
             return self.root_dataset[train_set[item]]
-        elif self.train == 'dev':
+        elif self.mode == 'dev':
             return self.root_dataset[dev_set[item]]
         else:
             return self.root_dataset[test_set[item]]

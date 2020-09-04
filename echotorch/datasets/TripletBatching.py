@@ -53,12 +53,14 @@ class TripletBatching(Dataset):
 
         # Item indices for each target classes
         self._targets_indices = {}
+        self._targets_indices_len = {}
         for t_i in range(self._target_count):
             self._targets_indices[t_i] = list()
+            self._targets_indices_len[t_i] = 0
         # end for
 
         # List of target classes
-        self._target_classes = list(self._targets_indices.keys())
+        self._target_classes = list()
 
         # Analyse the dataset
         self._analyse_dataset()
@@ -83,9 +85,16 @@ class TripletBatching(Dataset):
             if self._target_type == 'tensor':
                 target_class = target_class.item()
             # end if
-            print("data_i: {}, target_class: {}".format(data_i, target_class))
+
             # Save index
             self._targets_indices[target_class].append(data_i)
+            self._targets_indices_len[target_class] += 1
+
+            # Add to list of target classes
+            # As we have at least on example
+            if target_class not in self._target_classes:
+                self._target_classes.append(target_class)
+            # end if
         # end for
     # end _analyse_dataset
 
@@ -109,15 +118,16 @@ class TripletBatching(Dataset):
         :param item: Item index (start 0)
         :return: Dataset sample
         """
-        # List of
+        # Number of classes
+        classes_count = len(self._target_classes)
 
         # Choose a random anchor class
-        anchor_class = self._target_classes[random.randrange(self._target_count)]
+        anchor_class = self._target_classes[random.randrange(classes_count)]
 
         # Indices of anchor class
         anchor_class_indices = self._targets_indices[anchor_class]
         anchor_class_indices_count = len(anchor_class_indices)
-        print(self._targets_indices)
+
         # Choose a random anchor
         anchor_index = anchor_class_indices[random.randrange(anchor_class_indices_count)]
         anchor_sample = self._root_dataset[anchor_index]
@@ -130,7 +140,7 @@ class TripletBatching(Dataset):
         # Choose a random negative class
         targets_classes = self._target_classes.copy()
         targets_classes.remove(anchor_class)
-        negative_class = targets_classes[random.randrange(self._target_count-1)]
+        negative_class = targets_classes[random.randrange(classes_count-1)]
 
         # Indices of negative class
         negative_class_indices = self._targets_indices[negative_class]
