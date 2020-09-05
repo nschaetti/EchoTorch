@@ -20,10 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-import unittest
-from unittest import TestCase
 
-import torch
 from echotorch.datasets.NARMADataset import NARMADataset
 import echotorch.utils.optimization as optim
 
@@ -35,8 +32,7 @@ import echotorch.nn.reservoir as etrs
 import echotorch.utils
 import numpy as np
 
-from .EchoTorchTestCase import EchoTorchTestCase
-
+from . import EchoTorchTestCase
 
 # Test cases : Hyperparameters optimization
 class Test_Hyperparameters_Optimization(EchoTorchTestCase):

@@ -22,16 +22,10 @@
 # Imports
 import os
 import echotorch.utils
-from .EchoTorchTestCase import EchoTorchTestCase
+from . import EchoTorchTestCase
 import numpy as np
 import torch
-import echotorch.nn.conceptors as ecnc
-import echotorch.utils.matrix_generation as mg
-import echotorch.utils
-import echotorch.datasets as etds
 import echotorch.evaluation as val
-from echotorch.datasets import DatasetComposer
-from echotorch.nn.Node import Node
 from torch.utils.data.dataloader import DataLoader
 from torch.autograd import Variable
 from .modules import DummyDataset
@@ -100,20 +94,50 @@ class Test_Fold_Cross_Validation(EchoTorchTestCase):
         dummy_dev_dataset_loader = DataLoader(dataset=dummy_cv_dev_dataset, batch_size=1, shuffle=shuffle)
         dummy_test_dataset_loader = DataLoader(dataset=dummy_cv_test_dataset, batch_size=1, shuffle=shuffle)
 
-        # For each sample in the training set
-        for data in dummy_train_dataset_loader:
-            pass
+        # Tensor for each fold and sets to keep classes
+        cross_results_train = list()
+        cross_results_dev = list()
+        cross_results_test = list()
+
+        # For each fold
+        for k in range(n_folds):
+            # Set fold
+            dummy_cv_train_dataset.set_fold(k)
+            dummy_cv_dev_dataset.set_fold(k)
+            dummy_cv_test_dataset.set_fold(k)
+
+            # For each sample in the training set
+            fold_cross_results_train = torch.zeros(len(dummy_cv_train_dataset))
+            for data_i, data in enumerate(dummy_train_dataset_loader):
+                # Data
+                _, sample_class = data
+                fold_cross_results_train[data_i] = sample_class.item()
+            # end for
+
+            # For each sample in the dev set
+            fold_cross_results_dev = torch.zeros(len(dummy_cv_dev_dataset))
+            for data_i, data in enumerate(dummy_dev_dataset_loader):
+                # Data
+                _, sample_class = data
+                fold_cross_results_dev[data_i] = sample_class.item()
+            # end for
+
+            # For each sample in the test set
+            fold_cross_results_test = torch.zeros(len(dummy_cv_test_dataset))
+            for data_i, data in enumerate(dummy_test_dataset_loader):
+                # Data
+                _, sample_class = data
+                fold_cross_results_test[data_i] = sample_class.item()
+            # end for
+
+            # Add to results
+            cross_results_train.append(fold_cross_results_train)
+            cross_results_dev.append(fold_cross_results_dev)
+            cross_results_test.append(fold_cross_results_test)
         # end for
 
-        # For each sample in the dev set
-        for data in dummy_dev_dataset_loader:
-            pass
-        # end for
-
-        # For each sample in the test set
-        for data in dummy_test_dataset_loader:
-            pass
-        # end for
+        return dummy_cv_train_dataset.folds, dummy_cv_train_dataset.fold_sizes, cross_results_train, \
+               cross_results_dev, cross_results_test
     # endregion PUBLIC
 
     # region TEST
@@ -127,18 +151,53 @@ class Test_Fold_Cross_Validation(EchoTorchTestCase):
         sample_len = 10
         input_dim = 1
         n_classes = 10
-        n_samples = 100
+        n_samples = 10
 
         # Basic case
-        self.fold_cross_validation(
+        folds, fold_sizes, results_train, results_dev, results_test = self.fold_cross_validation(
             sample_len=sample_len,
             input_dim=input_dim,
             n_classes=n_classes,
             n_samples=n_samples,
             n_folds=10,
             with_dev=False,
-            shuffle=False
+            shuffle=False,
+            sample_indices=None,
+            train_size=1.0,
+            shuffle_cv=False
         )
+
+        # Validate folds
+        for i in range(10):
+            self.assertEqual(folds[i][0], i)
+        # end for
+
+        # Validate fold sizes
+        for i in range(10):
+            self.assertEqual(fold_sizes[i], 1)
+        # end for
+
+        # Validate train
+        self.assertTensorEqual(results_train[0], torch.tensor([1., 2., 3., 4., 5., 6., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[1], torch.tensor([0., 2., 3., 4., 5., 6., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[2], torch.tensor([0., 1., 3., 4., 5., 6., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[3], torch.tensor([0., 1., 2., 4., 5., 6., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[4], torch.tensor([0., 1., 2., 3., 5., 6., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[5], torch.tensor([0., 1., 2., 3., 4., 6., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[6], torch.tensor([0., 1., 2., 3., 4., 5., 7., 8., 9.]))
+        self.assertTensorEqual(results_train[7], torch.tensor([0., 1., 2., 3., 4., 5., 6., 8., 9.]))
+        self.assertTensorEqual(results_train[8], torch.tensor([0., 1., 2., 3., 4., 5., 6., 7., 9.]))
+        self.assertTensorEqual(results_train[9], torch.tensor([0., 1., 2., 3., 4., 5., 6., 7., 8.]))
+
+        # Validate dev
+        for i in range(10):
+            self.assertTensorEqual(results_dev[i], torch.tensor([]))
+        # end for
+
+        # Validate train
+        for i in range(10):
+            self.assertTensorEqual(results_test[i], torch.tensor([float(i)]))
+        # end for
     # end test_10fold_cross_validation_no_dev
 
     # endregion TEST

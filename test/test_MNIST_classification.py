@@ -20,12 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-import unittest
-from unittest import TestCase
 
-from echotorch.datasets.NARMADataset import NARMADataset
-import echotorch.nn.reservoir as etrs
-import echotorch.utils.matrix_generation as mg
 import echotorch.utils
 
 import torch
@@ -33,9 +28,8 @@ from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
 import torchvision.datasets
 from .modules import ESNJS
-import numpy as np
 
-from .EchoTorchTestCase import EchoTorchTestCase
+from . import EchoTorchTestCase
 
 
 # Test case : MNIST digit recognition

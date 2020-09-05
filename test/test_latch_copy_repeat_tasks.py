@@ -21,7 +21,7 @@
 
 # Imports
 import echotorch.utils
-from .EchoTorchTestCase import EchoTorchTestCase
+from . import EchoTorchTestCase
 import numpy as np
 import torch
 import echotorch.datasets as etda

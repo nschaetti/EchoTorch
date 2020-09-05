@@ -21,18 +21,11 @@
 
 # Imports
 import os
-import echotorch.utils
-from .EchoTorchTestCase import EchoTorchTestCase
+from . import EchoTorchTestCase
 import numpy as np
 import torch
 import echotorch.nn.conceptors as ecnc
 import echotorch.utils.matrix_generation as mg
-import echotorch.utils
-import echotorch.datasets as etds
-from echotorch.datasets import DatasetComposer
-from echotorch.nn.Node import Node
-from torch.utils.data.dataloader import DataLoader
-from torch.autograd import Variable
 
 
 # Test case : boolean operations on Conceptors

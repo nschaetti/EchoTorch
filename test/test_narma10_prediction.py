@@ -21,7 +21,6 @@
 
 # Imports
 import unittest
-from unittest import TestCase
 
 from echotorch.datasets.NARMADataset import NARMADataset
 import echotorch.nn.reservoir as etrs
@@ -32,9 +31,7 @@ import torch
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
 
-import numpy as np
-
-from .EchoTorchTestCase import EchoTorchTestCase
+from . import EchoTorchTestCase
 
 
 # Test case : NARMA10 timeseries prediction.
