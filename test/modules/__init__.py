@@ -21,7 +21,8 @@
 
 
 # Imports
+from .DummyDataset import DummyDataset
 from .ESNJS import ESNJS
 
 # All
-__all__ = ["ESNJS"]
+__all__ = ["DummyDataset", "ESNJS"]

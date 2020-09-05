@@ -1,5 +1,23 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/datasets/SinusoidalTimeseries.py
+# Description : Create a dataset from sine patterns.
+# Date : 5th of September, 2020
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 import torch
@@ -34,9 +52,7 @@ class SinusoidalTimeseries(Dataset):
         self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
+    #region OVERRIDE
 
     # Length
     def __len__(self):
@@ -57,9 +73,9 @@ class SinusoidalTimeseries(Dataset):
         return self.outputs[idx]
     # end __getitem__
 
-    ##############################################
-    # PUBLIC
-    ##############################################
+    #endregion OVERRIDE
+
+    #region PUBLIC
 
     # Regenerate
     def regenerate(self):
@@ -71,9 +87,9 @@ class SinusoidalTimeseries(Dataset):
         self.outputs = self._generate()
     # end regenerate
 
-    ##############################################
-    # PRIVATE
-    ##############################################
+    #endregion PUBLIC
+
+    #region PRIVATE
 
     # Random initial points
     def random_initial_points(self):
@@ -110,5 +126,7 @@ class SinusoidalTimeseries(Dataset):
 
         return samples
     # end _generate
+
+    #endregion PRIVATE
 
 # end SinusoidalTimeseries
