@@ -56,6 +56,20 @@ class EchoTorchTestCase(TestCase):
         )
     # end assertArrayAlmostEqual
 
+    # Numpy array equal
+    def assertArrayEqual(self, array1, array2):
+        """
+        Numpy array equal
+        :param array1: First array to test
+        :param array2: Second array to test
+        """
+        # Check sizes
+        self.assertEqual(array1.shape, array2.shape)
+
+        # Check values
+        assert np.all(np.equal(array1, array2))
+    # end assertArrayAlmostEqual
+
     # Assert that two tensors are equal
     def assertTensorEqual(self, tensor1, tensor2):
         """

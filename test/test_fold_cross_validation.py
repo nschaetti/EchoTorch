@@ -142,6 +142,178 @@ class Test_Fold_Cross_Validation(EchoTorchTestCase):
 
     # region TEST
 
+    # Test : 10-fold cross validation, no dev, samples indices specified
+    def test_10fold_cross_validation_no_dev_sample_indices_specified(self):
+        """
+        Test : 10-fold cross validation, no dev, samples indices specified
+        """
+        # Test parameters
+        sample_len = 10
+        input_dim = 1
+        n_classes = 10
+        n_samples = 10
+
+        # Basic case
+        folds, fold_sizes, results_train, results_dev, results_test = self.fold_cross_validation(
+            sample_len=sample_len,
+            input_dim=input_dim,
+            n_classes=n_classes,
+            n_samples=n_samples,
+            n_folds=10,
+            with_dev=False,
+            shuffle=False,
+            sample_indices=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+            train_size=1.0,
+            shuffle_cv=False
+        )
+
+        # Check folds
+        for f in range(10):
+            self.assertEqual(folds[f][0], 9-f)
+        # end for
+
+        # Validate training set
+        for i in range(10):
+            # All indices
+            all_indices = [x for x in range(10)]
+
+            # Selector
+            all_indices.remove(folds[i][0])
+
+            # The two must be equal
+            self.assertTensorEqual(torch.tensor(all_indices), results_train[i])
+        # end for
+    # end test_10fold_cross_validation_no_dev_sample_indices_specified
+
+    # Test : 10 fold cross validation with dataset size not multiple of 10
+    def test_10fold_cross_validation_not_multiple(self):
+        """
+        Test : 10-fold cross validation with dataset size not multiple of 10.
+        """
+        # Test parameters
+        sample_len = 10
+        input_dim = 1
+        n_classes = 97
+        n_samples = 97
+
+        # Basic case
+        folds, fold_sizes, results_train, results_dev, results_test = self.fold_cross_validation(
+            sample_len=sample_len,
+            input_dim=input_dim,
+            n_classes=n_classes,
+            n_samples=n_samples,
+            n_folds=10,
+            with_dev=False,
+            shuffle=False,
+            sample_indices=None,
+            train_size=1.0,
+            shuffle_cv=False
+        )
+
+        # Validate fold sizes
+        self.assertArrayEqual(np.array(fold_sizes), np.array([10, 10, 10, 10, 10, 10, 10, 9 ,9 ,9]))
+    # end test_10fold_cross_validation_not_multiple
+
+    # Test : 10 fold cross validation, no overlapping
+    def test_10fold_cross_validation_no_overlapping(self):
+        """
+        Test : 10 fold cross validation, no overlapping
+        """
+        # Test parameters
+        sample_len = 10
+        input_dim = 1
+        n_classes = 100
+        n_samples = 100
+
+        # Basic case
+        folds, fold_sizes, results_train, results_dev, results_test = self.fold_cross_validation(
+            sample_len=sample_len,
+            input_dim=input_dim,
+            n_classes=n_classes,
+            n_samples=n_samples,
+            n_folds=10,
+            with_dev=False,
+            shuffle=False,
+            sample_indices=None,
+            train_size=1.0,
+            shuffle_cv=False
+        )
+
+        # Test each fold
+        for f in range(10):
+            # Training and test sets
+            training_set = results_train[f]
+            test_set = results_test[f]
+
+            # For each element in the training set
+            for i in range(training_set.size(0)):
+                # Check that this element is not in the test set
+                for j in range(test_set.size(0)):
+                    self.assertNotEqual(training_set[i].item(), test_set[j].item())
+                # end for
+            # end for
+        # end for
+    # end test_10fold_cross_validation_no_overlapping
+
+    # Test : 10 fold cross validation with dev
+    def test_10fold_cross_validation_with_dev(self):
+        """
+        Test : 10-fold cross validation with dev
+        """
+        # Test parameters
+        sample_len = 10
+        input_dim = 1
+        n_classes = 20
+        n_samples = 20
+
+        # Basic case
+        folds, fold_sizes, results_train, results_dev, results_test = self.fold_cross_validation(
+            sample_len=sample_len,
+            input_dim=input_dim,
+            n_classes=n_classes,
+            n_samples=n_samples,
+            n_folds=10,
+            with_dev=True,
+            shuffle=False,
+            sample_indices=None,
+            train_size=1.0,
+            shuffle_cv=False
+        )
+
+        # Validate folds
+        for i in range(10):
+            self.assertArrayEqual(folds[i], np.array([i*2, i*2+1]))
+        # end for
+
+        # Validate fold sizes
+        for i in range(10):
+            self.assertEqual(fold_sizes[i], 2)
+        # end for
+
+        # Validate training set
+        for i in range(10):
+            # All indices
+            all_indices = [x for x in range(20)]
+
+            # Selector
+            all_indices.remove(folds[i][0])
+            all_indices.remove(folds[i][1])
+
+            # The two must be equal
+            self.assertTensorEqual(torch.tensor(all_indices), results_train[i])
+        # end for
+
+        # Validate the dev. set
+        for i in range(10):
+            self.assertEqual(results_dev[i].item(), i*2)
+        # end for
+
+        # Validate test set
+        for i in range(10):
+            self.assertEqual(results_test[i].item(), i*2+1)
+        # end for
+    # end test_10fold_cross_validation_with_dev
+
     # Test : 10 fold cross validation with no validation set
     def test_10fold_cross_validation_no_dev(self):
         """
