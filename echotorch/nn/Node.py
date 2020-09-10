@@ -87,9 +87,7 @@ class Node(nn.Module):
         self._post_states_update_handlers = []
     # end __init__
 
-    #######################
-    # Properties
-    #######################
+    # region PROPERTIES
 
     # Input dimension
     @property
@@ -169,9 +167,9 @@ class Node(nn.Module):
         return [torch.float16, torch.float32, torch.float64]
     # end supported_dtype
 
-    #######################
-    # Forward/Backward/Init
-    #######################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Reset learning
     def reset(self):
@@ -216,10 +214,6 @@ class Node(nn.Module):
         """
         pass
     # end initialize
-
-    #######################
-    # Public
-    #######################
 
     # Add to elements to train when "finalize" is called
     def add_trainable(self, e):
@@ -285,9 +279,9 @@ class Node(nn.Module):
         # end if
     # end connect
 
-    #######################
-    # Numerical operations
-    #######################
+    # enregion PUBLIC
+
+    # region PRIVATE
 
     # Matrix inverse
     def _inverse(self, name, M, code_class, code_pos):
@@ -370,10 +364,6 @@ class Node(nn.Module):
         # end if
         return torch.pinverse(M)
     # end _pinverse
-
-    #######################
-    # Private
-    #######################
 
     # Call debug point
     def _call_debug_point(self, name, value, code_class, code_pos):
@@ -500,9 +490,9 @@ class Node(nn.Module):
         return states
     # end _post_step_update_hook
 
-    ###################
-    # OVERLOAD
-    ###################
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Extra-information
     def extra_repr(self):
@@ -513,5 +503,7 @@ class Node(nn.Module):
         s = '{_input_dim}, {_output_dim}'
         return s.format(**self.__dict__)
     # end extra_repr
+
+    # endregion OVERRIDE
 
 # end Node

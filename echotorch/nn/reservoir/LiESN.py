@@ -103,17 +103,7 @@ class LiESN(ESN):
         )
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
-
-    ###############################################
-    # PUBLIC
-    ###############################################
-
-    ###############################################
-    # PRIVATE
-    ###############################################
+    # region PRIVATE
 
     # Create recurrent layer
     def _create_recurrent_layer(self, **kargs):
@@ -125,5 +115,7 @@ class LiESN(ESN):
         # Recurrent layer
         return LiESNCell(**kargs)
     # end _create_recurrent_layer
+
+    # endregion PRIVATE
 
 # end ESNCell

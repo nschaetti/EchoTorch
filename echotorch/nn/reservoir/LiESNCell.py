@@ -49,13 +49,7 @@ class LiESNCell(ESNCell):
         self._leaky_rate = leaky_rate
     # end __init__
 
-    #####################
-    # PUBLIC
-    #####################
-
-    #####################
-    # OVERLOAD
-    #####################
+    # region OVERRIDE
 
     # Compute post nonlinearity hook
     def _post_nonlinearity(self, x):
@@ -76,5 +70,7 @@ class LiESNCell(ESNCell):
         s += ', leaky-rate={_leaky_rate}'
         return s.format(**self.__dict__)
     # end extra_repr
+
+    # endregion OVERRIDE
 
 # end LiESNCell

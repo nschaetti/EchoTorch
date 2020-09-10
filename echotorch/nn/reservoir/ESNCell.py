@@ -98,9 +98,7 @@ class ESNCell(Node, Observable):
         self.add_observation_point("U", unique=False)
     # end __init__
 
-    ######################
-    # PROPERTIES
-    ######################
+    # region PROPERTIES
 
     # Get washout
     @property
@@ -162,9 +160,9 @@ class ESNCell(Node, Observable):
         return self._nonlin_func
     # end nonlin_func
 
-    ######################
-    # PUBLIC
-    ######################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Reset hidden layer
     def reset_hidden(self):
@@ -272,9 +270,9 @@ class ESNCell(Node, Observable):
         return outputs[:, self._washout:]
     # end forward
 
-    ######################
-    # PRIVATE
-    ######################
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Compute post nonlinearity hook
     def _post_nonlinearity(self, x):
@@ -330,9 +328,9 @@ class ESNCell(Node, Observable):
         return Variable(torch.zeros(self.output_dim, dtype=self.dtype), requires_grad=False)
     # end _init_hidden
 
-    #################
-    # OVERLOAD
-    #################
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Extra-information
     def extra_repr(self):
@@ -344,5 +342,7 @@ class ESNCell(Node, Observable):
         s += ', nonlin_func={_nonlin_func}, washout={_washout}'
         return s.format(**self.__dict__)
     # end extra_repr
+
+    # endregion OVERRIDE
 
 # end ESNCell
