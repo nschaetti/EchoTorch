@@ -27,8 +27,6 @@ import echotorch.datasets as etds
 import echotorch.transforms as ettr
 from echotorch.utils.matrix_generation import matrix_factory
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
-import numpy as np
 from papers.gallicchio2017.tools import euclidian_distances, perturbation_effect, ranking_of_layers, kendalls_tau, \
     spearmans_rule, timescales_separation
 
@@ -101,23 +99,40 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
         )
     # end if
 
-    # Show the model
-    print(esn_model)
-
     # Use cuda ?
     if use_cuda:
         esn_model.cuda()
     # end if
+
+    # Return per batch
+    return_list = list()
 
     # Go through all the dataset
     for batch_idx, data in enumerate(random_symbols_loader):
         # Data
         unperturbed_input = data[0]
 
-        # Perturb sequence at the right position
+        # Copy the unperturbed sequence
         perturbed_input = unperturbed_input.clone()
-        perturbed_input[0, perturbation_position] = torch.zeros(vocabulary_size)
-        perturbed_input[0, perturbation_position, torch.randint(vocabulary_size, size=(1, 1)).item()] = 1.0
+
+        # Introduce a perturbation at t=perturbation_position for each batch
+        for batch_i in range(perturbed_input.size(0)):
+            # Current input
+            current_input = perturbed_input[batch_i, perturbation_position]
+
+            # Changed
+            changed = False
+
+            # Try until it is new
+            while not changed:
+                # Change input at time t
+                perturbed_input[batch_i, perturbation_position] = torch.zeros(vocabulary_size)
+                perturbed_input[batch_i, perturbation_position, torch.randint(vocabulary_size, size=(1, 1)).item()] = 1.0
+
+                # Changed ?
+                changed = not torch.eq(perturbed_input[batch_i, perturbation_position], current_input)
+            # end while
+        # end for
 
         # To variables
         unperturbed_input, perturbed_input = Variable(unperturbed_input.double()), Variable(perturbed_input.double())
@@ -128,12 +143,9 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
             perturbed_input = perturbed_input.cuda()
         # end if
 
-        # Feed both version to the DeepESN
+        # Feed both version to the ESN/DeepESN
         unperturbed_states = esn_model(unperturbed_input, unperturbed_input)
         perturbed_states = esn_model(perturbed_input, perturbed_input)
-
-        # New figure
-        plt.figure(figsize=(10, 8))
 
         # Compute euclidian distance between each state for each layer
         states_distances = euclidian_distances(
@@ -142,37 +154,27 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
             n_layers
         )
 
-        # Plot distances for each layer
-        for layer_i in range(n_layers):
-            # Plot distances
-            plt.plot(
-                states_distances[0, perturbation_position:perturbation_position+plot_length, layer_i].numpy(),
-                color=plot_colors[layer_i],
-                linestyle=plot_line_types[layer_i]
-            )
-        # end for
-
-        # Legend
-        plt.legend(np.arange(n_layers))
-
-        # Show the plot
-        plt.show()
+        # Distances after the perturbation
+        states_distances = states_distances[:, perturbation_position:, :]
 
         # Perturbation effect
-        P = perturbation_effect(states_distances[:, perturbation_position:])
-        print("Layer perturbation durations : {}".format(P))
+        P = perturbation_effect(states_distances)
 
         # Compute ranking
         layer_ranking = ranking_of_layers(P)
-        print("Layer ranking : {}".format(layer_ranking))
 
         # Compute Kendall's tau
-        print("Kendall's tau : {}".format(kendalls_tau(ranking=layer_ranking)))
+        tau = kendalls_tau(ranking=layer_ranking)
 
         # Compute Spearman's rule
-        print("Spearman's rule : {}".format(spearmans_rule(ranking=layer_ranking)))
+        sp_rule = spearmans_rule(ranking=layer_ranking)
 
         # Compute timescales separation
-        print("Timescales separation : {}".format(timescales_separation(P)))
+        ts_separation = timescales_separation(P)
+
+        # Add to list
+        return_list.append((states_distances, P, layer_ranking, tau, sp_rule, ts_separation))
     # end for
+
+    return return_list
 # end evaluate_perturbations
