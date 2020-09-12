@@ -34,10 +34,10 @@ from papers.gallicchio2017.tools import euclidian_distances, perturbation_effect
     spearmans_rule, timescales_separation
 
 # Experiment parameters
-n_layers = 10
-reservoir_size = 100
+n_layers = 1
+reservoir_size = 1000
 w_connectivity = 0.25
-win_connectivity = 0.1
+win_connectivity = 0.25
 leak_rate = 0.55
 spectral_radius = 0.9
 vocabulary_size = 10
@@ -45,7 +45,7 @@ input_scaling = 1.0
 bias_scaling = 0.0
 input_dim = vocabulary_size
 deep_esn_type = 'IF'
-n_samples = 30
+n_samples = 2
 sample_len = 5000
 perturbation_position = 100
 plot_length = 500
@@ -87,26 +87,24 @@ wbias_generator = matrix_factory.get_generator(
 )
 
 # Deep ESN
-deep_esn = etnn.reservoir.DeepESN(
-    n_layers=n_layers,
+esn = etnn.reservoir.LiESN(
     input_dim=input_dim,
     hidden_dim=reservoir_size,
     output_dim=vocabulary_size,
-    leak_rate=leak_rate,
+    leaky_rate=leak_rate,
     w_generator=w_generator,
     win_generator=win_generator,
     wbias_generator=wbias_generator,
     input_scaling=input_scaling,
-    input_type=deep_esn_type,
     dtype=dtype
 )
 
 # Show the model
-print(deep_esn)
+print(esn)
 
 # Use cuda ?
 if use_cuda:
-    deep_esn.cuda()
+    esn.cuda()
 # end if
 
 # Go through all the dataset
@@ -129,8 +127,8 @@ for batch_idx, data in enumerate(random_symbols_loader):
     # end if
 
     # Feed both version to the DeepESN
-    unperturbed_states = deep_esn(unperturbed_input, unperturbed_input)
-    perturbed_states = deep_esn(perturbed_input, perturbed_input)
+    unperturbed_states = esn(unperturbed_input, unperturbed_input)
+    perturbed_states = esn(perturbed_input, perturbed_input)
 
     # New figure
     plt.figure(figsize=(10, 8))
@@ -142,38 +140,19 @@ for batch_idx, data in enumerate(random_symbols_loader):
         n_layers
     )
 
-    # Plot distances for each layer
-    for layer_i in range(n_layers):
-        # Plot distances
-        plt.plot(
-            states_distances[0, perturbation_position:perturbation_position+plot_length, layer_i].numpy(),
-            color=plot_colors[layer_i],
-            linestyle=plot_line_types[layer_i]
-        )
-    # end for
-
-    # Legend
-    plt.legend(np.arange(n_layers))
+    # Plot distances
+    plt.plot(
+        states_distances[0, perturbation_position:perturbation_position+plot_length, 0].numpy(),
+        color='r',
+        linestyle='-'
+    )
 
     # Show the plot
     plt.show()
 
     # Perturbation effect
     P = perturbation_effect(states_distances[:, perturbation_position:])
-    print("Layer perturbation durations : {}".format(P))
-
-    # Compute ranking
-    layer_ranking = ranking_of_layers(P)
-    print("Layer ranking : {}".format(layer_ranking))
-
-    # Compute Kendall's tau
-    print("Kendall's tau : {}".format(kendalls_tau(ranking=layer_ranking)))
-
-    # Compute Spearman's rule
-    print("Spearman's rule : {}".format(spearmans_rule(ranking=layer_ranking)))
-
-    # Compute timescales separation
-    print("Timescales separation : {}".format(timescales_separation(P)))
+    print("Layer perturbation durations : {}".format(P.item()))
 # end for
 
 
