@@ -29,7 +29,7 @@ import torch
 import echotorch.utils.matrix_generation as mg
 from echotorch.nn.linear.RRCell import RRCell
 from ..Node import Node
-from .ESNCell import ESNCell
+from .LiESNCell import LiESNCell
 
 
 # Deep ESN
@@ -40,9 +40,9 @@ class DeepESN(Node):
 
     # Constructor
     def __init__(self, n_layers, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
-                 input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True,
-                 softmax_output=False, normalize_output=False, washout=0, create_rnn=True, create_output=True,
-                 input_type='IF', debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 leak_rate, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
+                 with_bias=True, softmax_output=False, normalize_output=False, washout=0, create_rnn=True,
+                 create_output=True, input_type='IF', debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
         """
         Constructor
         :param n_layers: Number of layers to create
@@ -82,6 +82,7 @@ class DeepESN(Node):
         self._win_generator = win_generator
         self._wbias_generator = wbias_generator
         self._input_type = input_type
+        self._washout = washout
         self._dtype = dtype
 
         # List of reservoirs
@@ -98,13 +99,17 @@ class DeepESN(Node):
                     layer_i == 0
                 )
 
+                # Input dim
+                layer_input_dim = w_in.size(1)
+
                 # Recurrent layer
-                self._esn_cell = ESNCell(
-                    input_dim=input_dim,
+                esn_cell = LiESNCell(
+                    input_dim=layer_input_dim,
                     output_dim=hidden_dim,
                     w=w,
                     w_in=w_in,
                     w_bias=w_bias,
+                    leaky_rate=leak_rate,
                     input_scaling=input_scaling,
                     nonlin_func=nonlin_func,
                     washout=washout,
@@ -112,6 +117,9 @@ class DeepESN(Node):
                     test_case=test_case,
                     dtype=dtype
                 )
+
+                # Add
+                self._reservoirs.append(esn_cell)
             # end for
         # end if
 
@@ -132,6 +140,16 @@ class DeepESN(Node):
             self.add_trainable(self._output)
         # end if
     # end __init__
+
+    # Append a layer
+    def append_layer(self, esn_cell):
+        """
+        Append a layer
+        :param esn_cell: The ESNCell object to append to the stack
+        """
+        self._reservoirs.append(esn_cell)
+        self._n_layers += 1
+    # end append_layer
 
     # region PRIVATE
 
@@ -190,5 +208,102 @@ class DeepESN(Node):
     # end _generate_matrices
 
     # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Forward
+    def forward(self, u, y=None, reset_state=True):
+        """
+        Forward function
+        :param u: Input signal
+        :param y: Target outputs (or None if prediction)
+        :param reset_state: Reset hidden state to zero or keep old one ?
+        :return: Output (eval) or hidden states (train)
+        """
+        # Sizes
+        time_length = int(u.size(1))
+        batch_sizes = int(u.size(0))
+
+        # Keep hidden states
+        hidden_states = torch.zeros(batch_sizes, time_length, self._hidden_dim * self._n_layers, dtype=self._dtype)
+
+        # Input to first layer
+        layer_input = u
+
+        # Compute hidden states for each layer
+        for layer_i in range(self._n_layers):
+            # Feed ESN
+            layer_hidden_states = self._reservoirs[layer_i](layer_input, reset_state=reset_state)
+            hidden_states[:, :, layer_i*self._hidden_dim:(layer_i+1)*self._hidden_dim] = layer_hidden_states
+            layer_input = layer_hidden_states
+        # end for
+
+        # Learning algo
+        if not self.training:
+            return self._output(hidden_states, None)
+        else:
+            return self._output(hidden_states, y[:, self._washout:])
+        # end if
+    # end forward
+
+    # Reset layer (not trained)
+    def reset(self):
+        """
+        Reset layer (not trained)
+        """
+        # Reset output layer
+        self._output.reset()
+
+        # Training mode again
+        self.train(True)
+    # end reset
+
+    # Reset hidden layer
+    def reset_hidden(self):
+        """
+        Reset hidden layer
+        :return:
+        """
+        for layer_i in range(self._n_layers):
+            self._reservoirs[layer_i].reset_hidden()
+        # end for
+    # end reset_hidden
+
+    # Get item (get layer)
+    def __getitem__(self, item):
+        """
+        Get item (get layer)
+        :param item: Item index
+        :return: ESNCell at item-th layer
+        """
+        return self._reservoirs[item]
+    # end __getitem__
+
+    # Set item (set layer)
+    def __setitem__(self, key, value):
+        """
+        Set item (set layer)
+        :param key: Layer index
+        :param value: ESNCell object
+        """
+        self._reservoirs[key] = value
+    # end __setitem__
+
+    # Extra-information
+    def extra_repr(self):
+        """
+        Extra-information
+        :return: String
+        """
+        s = super(DeepESN, self).extra_repr()
+        s += ', layers=[\n'
+        for layer_i in range(self._n_layers):
+            s += '\t{_reservoirs[' + str(layer_i) + ']},\n'
+        # end for
+        s += ']'
+        return s.format(**self.__dict__)
+    # end extra_repr
+
+    # endregion OVERRIDE
 
 # end DeepESN

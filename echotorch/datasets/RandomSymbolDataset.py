@@ -55,7 +55,7 @@ class RandomSymbolDataset(Dataset):
         Length
         :return:
         """
-        return self.n_samples
+        return self._n_samples
     # end __len__
 
     # Get item
@@ -65,7 +65,7 @@ class RandomSymbolDataset(Dataset):
         :param idx:
         :return:
         """
-        return torch.randint(low=0, high=10, size=(100, 1))
+        return [torch.randint(low=0, high=10, size=(self._sample_len, 1))]
     # end __getitem__
 
     # endregion OVERRIDE

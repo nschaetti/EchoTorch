@@ -58,8 +58,8 @@ class ToOneHot(Transformer):
         output_series = torch.zeros(x.size(0), self.output_dim, dtype=self._dtype)
 
         # Transform each symbol
-        for i in range(x.size(0)):
-            output_series[x[i]] = 1.0
+        for t in range(x.size(0)):
+            output_series[t, x[t]] = 1.0
         # end for
 
         return output_series
