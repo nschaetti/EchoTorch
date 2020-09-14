@@ -238,8 +238,9 @@ class DeepESN(Node):
                 hidden_states[:, :, layer_i*self._hidden_dim:(layer_i+1)*self._hidden_dim] = layer_hidden_states
                 layer_input = layer_hidden_states
             elif self._input_type == 'IA':
-                layer_input_with_u = torch.cat((layer_input, u), dim=2)
-                print(layer_input_with_u.size())
+                if layer_i > 0:
+                    layer_input_with_u = torch.cat((layer_input, u), dim=2)
+                # end if
                 layer_hidden_states = self._reservoirs[layer_i](layer_input_with_u, reset_state=reset_state)
                 hidden_states[:, :, layer_i * self._hidden_dim:(layer_i + 1) * self._hidden_dim] = layer_hidden_states
                 layer_input = layer_hidden_states
