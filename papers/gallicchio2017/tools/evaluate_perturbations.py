@@ -27,7 +27,7 @@ import echotorch.datasets as etds
 import echotorch.transforms as ettr
 from echotorch.utils.matrix_generation import matrix_factory
 from torch.autograd import Variable
-from papers.gallicchio2017.tools import euclidian_distances, perturbation_effect, ranking_of_layers, kendalls_tau, \
+from .tools import euclidian_distances, perturbation_effect, ranking_of_layers, kendalls_tau, \
     spearmans_rule, timescales_separation
 
 
@@ -118,7 +118,7 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
         # Introduce a perturbation at t=perturbation_position for each batch
         for batch_i in range(perturbed_input.size(0)):
             # Current input
-            current_input = perturbed_input[batch_i, perturbation_position]
+            current_input = perturbed_input[batch_i, perturbation_position].clone()
 
             # Changed
             changed = False
@@ -130,7 +130,7 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
                 perturbed_input[batch_i, perturbation_position, torch.randint(vocabulary_size, size=(1, 1)).item()] = 1.0
 
                 # Changed ?
-                changed = not torch.eq(perturbed_input[batch_i, perturbation_position], current_input)
+                changed = not torch.all(torch.eq(perturbed_input[batch_i, perturbation_position], current_input))
             # end while
         # end for
 

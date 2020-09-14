@@ -21,8 +21,9 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>, <nils.schaetti@unige.ch>
 
 # Imports
+from .evaluate_perturbations import evaluate_perturbations
 from .tools import euclidian_distances, perturbation_effect, ranking_of_layers, kendalls_tau, spearmans_rule, timescales_separation
 
 # ALL
-__all__ = ['euclidian_distances', 'perturbation_effect', 'ranking_of_layers', 'kendalls_tau', 'spearmans_rule',
-           'timescales_separation']
+__all__ = ['evaluate_perturbations', 'euclidian_distances', 'perturbation_effect', 'ranking_of_layers', 'kendalls_tau',
+           'spearmans_rule', 'timescales_separation']
