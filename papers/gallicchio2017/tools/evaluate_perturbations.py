@@ -104,8 +104,12 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
         esn_model.cuda()
     # end if
 
-    # Return per batch
-    return_list = list()
+    # Variable to keep the average over samples
+    average_state_distances = torch.zeros(sample_len - perturbation_position, n_layers)
+    average_tau = 0.0
+    average_sp_rule = 0.0
+    average_ts_separation = 0.0
+    average_count = 0
 
     # Go through all the dataset
     for batch_idx, data in enumerate(random_symbols_loader):
@@ -148,33 +152,51 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
         perturbed_states = esn_model(perturbed_input, perturbed_input)
 
         # Compute euclidian distance between each state for each layer
+        # state_distances is (batch size, time length, n. layers)
         states_distances = euclidian_distances(
             unperturbed_states,
             perturbed_states,
             n_layers
         )
 
-        # Distances after the perturbation
+        # Keep only distances after the perturbation
         states_distances = states_distances[:, perturbation_position:, :]
 
         # Perturbation effect
+        # P is (batch size, n. layers)
         P = perturbation_effect(states_distances)
 
         # Compute ranking
+        # layer_ranking is (batch size, n. layers)
         layer_ranking = ranking_of_layers(P)
 
         # Compute Kendall's tau
+        # tau is (batch size)
         tau = kendalls_tau(ranking=layer_ranking)
 
         # Compute Spearman's rule
+        # sp_rule is (batch size)
         sp_rule = spearmans_rule(ranking=layer_ranking)
 
         # Compute timescales separation
+        # ts_separation is (batch size)
         ts_separation = timescales_separation(P)
 
-        # Add to list
-        return_list.append((states_distances, P, layer_ranking, tau, sp_rule, ts_separation))
+        # Add to averaging variables
+        for batch_i in range(perturbed_input.size(0)):
+            average_state_distances += states_distances[0]
+            average_tau += tau[0]
+            average_sp_rule += sp_rule[0]
+            average_ts_separation += ts_separation[0]
+            average_count += 1
+        # end for
     # end for
 
-    return return_list
+    # Average
+    average_state_distances /= average_count
+    average_tau /= average_count
+    average_sp_rule /= average_count
+    average_ts_separation /= average_count
+
+    return average_state_distances, average_tau, average_sp_rule, average_ts_separation
 # end evaluate_perturbations

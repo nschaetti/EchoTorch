@@ -233,9 +233,22 @@ class DeepESN(Node):
         # Compute hidden states for each layer
         for layer_i in range(self._n_layers):
             # Feed ESN
-            layer_hidden_states = self._reservoirs[layer_i](layer_input, reset_state=reset_state)
-            hidden_states[:, :, layer_i*self._hidden_dim:(layer_i+1)*self._hidden_dim] = layer_hidden_states
-            layer_input = layer_hidden_states
+            if self._input_type == 'IF':
+                layer_hidden_states = self._reservoirs[layer_i](layer_input, reset_state=reset_state)
+                hidden_states[:, :, layer_i*self._hidden_dim:(layer_i+1)*self._hidden_dim] = layer_hidden_states
+                layer_input = layer_hidden_states
+            elif self._input_type == 'IA':
+                layer_input_with_u = torch.cat((layer_input, u), dim=2)
+                print(layer_input_with_u.size())
+                layer_hidden_states = self._reservoirs[layer_i](layer_input_with_u, reset_state=reset_state)
+                hidden_states[:, :, layer_i * self._hidden_dim:(layer_i + 1) * self._hidden_dim] = layer_hidden_states
+                layer_input = layer_hidden_states
+            elif self._input_type == 'GE':
+                layer_hidden_states = self._reservoirs[layer_i](u, reset_state=reset_state)
+                hidden_states[:, :, layer_i * self._hidden_dim:(layer_i + 1) * self._hidden_dim] = layer_hidden_states
+            else:
+                raise Exception("Unknown input type : {}".format(self._input_type))
+            # end if
         # end for
 
         # Learning algo

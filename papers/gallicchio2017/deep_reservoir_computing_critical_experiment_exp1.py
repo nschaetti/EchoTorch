@@ -35,18 +35,18 @@ from papers.gallicchio2017.tools import euclidian_distances, perturbation_effect
 from papers.gallicchio2017.tools import evaluate_perturbations
 
 # Experiment parameters
-n_layers = 10
-reservoir_size = 100
-w_connectivity = 0.25
-win_connectivity = 0.1
-leak_rate = 0.55
-spectral_radius = 0.9
+n_layers = [10, 1, 10]
+reservoir_size = [100, 1000, 100]
+w_connectivity = [0.25, 0.25, 0.25]
+win_connectivity = [0.1, 0.1, 0.1]
+leak_rate = [0.55, 0.55, 0.55]
+spectral_radius = [0.9, 0.9, 0.9]
 vocabulary_size = 10
-input_scaling = 1.0
-bias_scaling = 0.0
+input_scaling = [1.0, 1.0, 1.0]
+bias_scaling = [0.0, 0.0, 0.0]
 input_dim = vocabulary_size
-deep_esn_type = 'IF'
-n_samples = 1
+deep_esn_type = ['IF', 'esn', 'IA']
+n_samples = 10
 sample_len = 5000
 perturbation_position = 100
 plot_length = 500
@@ -56,17 +56,17 @@ dtype=torch.float64
 use_cuda = False and torch.cuda.is_available()
 
 # Perform experiment with Deep-ESN (Input-to-First)
-measure_list_deepesn_if = evaluate_perturbations(
-    n_layers=n_layers,
-    reservoir_size=reservoir_size,
-    w_connectivity=w_connectivity,
-    win_connectivity=win_connectivity,
-    leak_rate=leak_rate,
-    spectral_radius=spectral_radius,
+desn_if_states_distances, desn_if_tau, desn_if_sp_rule, desn_if_ts_separation = evaluate_perturbations(
+    n_layers=n_layers[0],
+    reservoir_size=reservoir_size[0],
+    w_connectivity=w_connectivity[0],
+    win_connectivity=win_connectivity[0],
+    leak_rate=leak_rate[0],
+    spectral_radius=spectral_radius[0],
     vocabulary_size=vocabulary_size,
-    input_scaling=input_scaling,
-    bias_scaling=bias_scaling,
-    esn_type=deep_esn_type,
+    input_scaling=input_scaling[0],
+    bias_scaling=bias_scaling[0],
+    esn_type=deep_esn_type[0],
     n_samples=n_samples,
     sample_len=sample_len,
     perturbation_position=perturbation_position,
@@ -74,4 +74,56 @@ measure_list_deepesn_if = evaluate_perturbations(
     dtype=dtype
 )
 
-print(measure_list_deepesn_if)
+# Perform experiment with Deep-ESN (Input-to-All)
+desn_ia_states_distances, desn_ia_tau, desn_ia_sp_rule, desn_ia_ts_separation = evaluate_perturbations(
+    n_layers=n_layers[2],
+    reservoir_size=reservoir_size[2],
+    w_connectivity=w_connectivity[2],
+    win_connectivity=win_connectivity[2],
+    leak_rate=leak_rate[2],
+    spectral_radius=spectral_radius[2],
+    vocabulary_size=vocabulary_size,
+    input_scaling=input_scaling[2],
+    bias_scaling=bias_scaling[2],
+    esn_type=deep_esn_type[2],
+    n_samples=n_samples,
+    sample_len=sample_len,
+    perturbation_position=perturbation_position,
+    use_cuda=use_cuda,
+    dtype=dtype
+)
+
+# Perform experiment with ESN
+esn_states_distances, esn_tau, esn_sp_rule, esn_ts_separation = evaluate_perturbations(
+    n_layers=n_layers[1],
+    reservoir_size=reservoir_size[1],
+    w_connectivity=w_connectivity[1],
+    win_connectivity=win_connectivity[1],
+    leak_rate=leak_rate[1],
+    spectral_radius=spectral_radius[1],
+    vocabulary_size=vocabulary_size,
+    input_scaling=input_scaling[1],
+    bias_scaling=bias_scaling[1],
+    esn_type=deep_esn_type[1],
+    n_samples=n_samples,
+    sample_len=sample_len,
+    perturbation_position=perturbation_position,
+    use_cuda=use_cuda,
+    dtype=dtype
+)
+
+# Plot result from IF and ESN
+plt.figure(figsize=(8, 6))
+for layer_i in range(n_layers[0]):
+    plt.plot(desn_if_states_distances[:plot_length, layer_i], linestyle='-', color=(0.0, 0.0, 1.0, (1.0/n_layers[0]) * layer_i))
+# end for
+plt.plot(esn_states_distances[:plot_length, 0], linestyle='--', color='r')
+plt.show()
+
+# Plot result from IA and ESN
+plt.figure(figsize=(8, 6))
+for layer_i in range(n_layers[0]):
+    plt.plot(desn_ia_states_distances[:plot_length, layer_i], linestyle='-', color=(0.0, 0.0, 1.0, (1.0/n_layers[0]) * layer_i))
+# end for
+plt.plot(esn_states_distances[:plot_length, 0], linestyle='--', color='r')
+plt.show()
