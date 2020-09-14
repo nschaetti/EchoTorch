@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-# File : papers/gallicchio2017/deep_reservoir_computing_critical_experiemental_analysis.py
+# File : papers/gallicchio2017/deep_reservoir_computing_critical_experiemental_analysis_exp1.py
 # Description : Reproduction of the paper "Deep Reservoir Computing : A Critical Experiemental Analysis"
 # (Gallicchio 2017)
-# Date : 10th of September, 2020
+# Date : 14th of September, 2020
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -21,17 +21,10 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>, <nils.schaetti@unige.ch>
 
 # Imports
-import torch
 import torch.utils.data
-import echotorch.nn as etnn
-import echotorch.datasets as etds
-import echotorch.transforms as ettr
-from echotorch.utils.matrix_generation import matrix_factory
-from torch.autograd import Variable
+import echotorch.utils
 import matplotlib.pyplot as plt
 import numpy as np
-from papers.gallicchio2017.tools import euclidian_distances, perturbation_effect, ranking_of_layers, kendalls_tau, \
-    spearmans_rule, timescales_separation
 from papers.gallicchio2017.tools import evaluate_perturbations
 
 # Experiment parameters
@@ -53,8 +46,11 @@ plot_length = 500
 dtype=torch.float64
 use_cuda = False and torch.cuda.is_available()
 
+# Initialise random number generation
+echotorch.utils.manual_seed(1)
+
 # Perform experiment with Deep-ESN (Input-to-First)
-desn_if_states_distances, desn_if_tau, desn_if_sp_rule, desn_if_ts_separation = evaluate_perturbations(
+desn_if_states_distances, desn_if_KT, desn_if_SF, desn_if_TS = evaluate_perturbations(
     n_layers=n_layers[0],
     reservoir_size=reservoir_size[0],
     w_connectivity=w_connectivity[0],
@@ -73,7 +69,7 @@ desn_if_states_distances, desn_if_tau, desn_if_sp_rule, desn_if_ts_separation = 
 )
 
 # Perform experiment with Deep-ESN (Input-to-All)
-desn_ia_states_distances, desn_ia_tau, desn_ia_sp_rule, desn_ia_ts_separation = evaluate_perturbations(
+desn_ia_states_distances, desn_ia_KT, desn_ia_SF, desn_ia_TS = evaluate_perturbations(
     n_layers=n_layers[2],
     reservoir_size=reservoir_size[2],
     w_connectivity=w_connectivity[2],
@@ -92,7 +88,7 @@ desn_ia_states_distances, desn_ia_tau, desn_ia_sp_rule, desn_ia_ts_separation = 
 )
 
 # Perform experiment with Grouped-ESNs (No connections)
-desn_ge_states_distances, desn_ge_tau, desn_ge_sp_rule, desn_ge_ts_separation = evaluate_perturbations(
+desn_ge_states_distances, desn_ge_KT, desn_ge_SF, desn_ge_TS = evaluate_perturbations(
     n_layers=n_layers[3],
     reservoir_size=reservoir_size[3],
     w_connectivity=w_connectivity[3],
@@ -111,7 +107,7 @@ desn_ge_states_distances, desn_ge_tau, desn_ge_sp_rule, desn_ge_ts_separation = 
 )
 
 # Perform experiment with ESN
-esn_states_distances, esn_tau, esn_sp_rule, esn_ts_separation = evaluate_perturbations(
+esn_states_distances, esn_KT, esn_SF, esn_TS = evaluate_perturbations(
     n_layers=n_layers[1],
     reservoir_size=reservoir_size[1],
     w_connectivity=w_connectivity[1],
@@ -164,21 +160,24 @@ plt.show()
 
 # Plot tau for each variant
 plt.figure(figsize=(8, 6))
-plt.title("Tau")
-plt.bar(np.arange(4), [desn_if_tau, desn_ia_tau, desn_ge_tau, esn_tau])
+plt.title("Kendall's Tau")
+plt.bar(np.arange(4), [desn_if_KT, desn_ia_KT, desn_ge_KT])
 plt.xticks(np.arange(4), ('IF', 'IA', 'GE', 'ESN'))
+print("Kendall's Tau : {}".format([desn_if_KT, desn_ia_KT, desn_ge_KT]))
 plt.show()
 
 # Plot tau for each variant
 plt.figure(figsize=(8, 6))
-plt.title("Spearman's Rule")
-plt.bar(np.arange(4), [desn_if_sp_rule, desn_ia_sp_rule, desn_ge_sp_rule, esn_sp_rule])
+plt.title("Spearman's footrule distances")
+plt.bar(np.arange(4), [desn_if_SF, desn_ia_SF, desn_ge_SF])
 plt.xticks(np.arange(4), ('IF', 'IA', 'GE', 'ESN'))
+print("Spearman's footrule distances : {}".format([desn_if_SF, desn_ia_SF, desn_ge_SF]))
 plt.show()
 
 # Plot tau for each variant
 plt.figure(figsize=(8, 6))
 plt.title("Timescale separation")
-plt.bar(np.arange(4), [desn_if_ts_separation, desn_ia_ts_separation, desn_ge_ts_separation, esn_ts_separation])
+plt.bar(np.arange(4), [desn_if_TS, desn_ia_TS, desn_ge_TS])
 plt.xticks(np.arange(4), ('IF', 'IA', 'GE', 'ESN'))
+print("Timescale separation : {}".format([desn_if_TS, desn_ia_TS, desn_ge_TS]))
 plt.show()

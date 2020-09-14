@@ -42,7 +42,8 @@ class DeepESN(Node):
     def __init__(self, n_layers, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
                  leak_rate, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
                  with_bias=True, softmax_output=False, normalize_output=False, washout=0, create_rnn=True,
-                 create_output=True, input_type='IF', debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
+                 create_output=True, input_type='IF', output_type='AO', debug=Node.NO_DEBUG, test_case=None,
+                 dtype=torch.float32):
         """
         Constructor
         :param n_layers: Number of layers to create
@@ -62,6 +63,7 @@ class DeepESN(Node):
         :param create_rnn: Create the RNN layers ?
         :param create_output: Create the output layer ?
         :param input_type: Input variant (IF: input-to-first, IA: input-to-all, GE: grouped-ESNs)
+        :param output_type: Output flavour (AO: all-to-outputs, LO: last-to-outputs)
         :param debug: Debug mode
         :param test_case: Test case to call for test
         :param dtype: Data type
@@ -93,9 +95,9 @@ class DeepESN(Node):
             for layer_i in range(self._n_layers):
                 # Generate matrices
                 w, w_in, w_bias = self._generate_matrices(
-                    w_generator,
-                    win_generator,
-                    wbias_generator,
+                    self._get_hyperparam_value(w_generator, layer_i),
+                    self._get_hyperparam_value(win_generator, layer_i),
+                    self._get_hyperparam_value(wbias_generator, layer_i),
                     layer_i == 0
                 )
 
@@ -109,9 +111,9 @@ class DeepESN(Node):
                     w=w,
                     w_in=w_in,
                     w_bias=w_bias,
-                    leaky_rate=leak_rate,
-                    input_scaling=input_scaling,
-                    nonlin_func=nonlin_func,
+                    leaky_rate=self._get_hyperparam_value(leak_rate, layer_i),
+                    input_scaling=self._get_hyperparam_value(input_scaling, layer_i),
+                    nonlin_func=self._get_hyperparam_value(nonlin_func, layer_i),
                     washout=washout,
                     debug=debug,
                     test_case=test_case,
@@ -152,6 +154,21 @@ class DeepESN(Node):
     # end append_layer
 
     # region PRIVATE
+
+    # Get hyperparameter value
+    def _get_hyperparam_value(self, hyperparam, layer_i):
+        """
+        Get hyperparameter value
+        :param hyperparam: Hyperparameter (a value or a list)
+        :param layer_i: Which layer (integer)
+        :return: Hyperparameter value for this layer
+        """
+        if type(hyperparam) == list:
+            return hyperparam[layer_i]
+        else:
+            return hyperparam
+        # end if
+    # end _get_hyperparam_value
 
     # Generate matrices
     def _generate_matrices(self, w_generator, win_generator, wbias_generator, first_layer=False):

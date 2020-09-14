@@ -106,9 +106,9 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
 
     # Variable to keep the average over samples
     average_state_distances = torch.zeros(sample_len - perturbation_position, n_layers)
-    average_tau = 0.0
-    average_sp_rule = 0.0
-    average_ts_separation = 0.0
+    average_KT = 0.0
+    average_SF = 0.0
+    average_TS = 0.0
     average_count = 0
 
     # Go through all the dataset
@@ -171,32 +171,32 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
         layer_ranking = ranking_of_layers(P)
 
         # Compute Kendall's tau
-        # tau is (batch size)
-        tau = kendalls_tau(ranking=layer_ranking)
+        # KT is (batch size)
+        KT = kendalls_tau(ranking=layer_ranking)
 
         # Compute Spearman's rule
-        # sp_rule is (batch size)
-        sp_rule = spearmans_rule(ranking=layer_ranking)
+        # SF is (batch size)
+        SF = spearmans_rule(ranking=layer_ranking)
 
         # Compute timescales separation
-        # ts_separation is (batch size)
-        ts_separation = timescales_separation(P)
+        # TS is (batch size)
+        TS = timescales_separation(P)
 
         # Add to averaging variables
         for batch_i in range(perturbed_input.size(0)):
             average_state_distances += states_distances[0]
-            average_tau += tau[0]
-            average_sp_rule += sp_rule[0]
-            average_ts_separation += ts_separation[0]
+            average_KT += KT[0]
+            average_SF += SF[0]
+            average_TS += TS[0]
             average_count += 1
         # end for
     # end for
 
     # Average
     average_state_distances /= average_count
-    average_tau /= average_count
-    average_sp_rule /= average_count
-    average_ts_separation /= average_count
+    average_KT /= average_count
+    average_SF /= average_count
+    average_TS /= average_count
 
-    return average_state_distances, average_tau, average_sp_rule, average_ts_separation
+    return average_state_distances, average_KT, average_SF, average_TS
 # end evaluate_perturbations

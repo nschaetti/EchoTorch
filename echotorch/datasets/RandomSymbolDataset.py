@@ -45,7 +45,25 @@ class RandomSymbolDataset(Dataset):
         self._n_samples = n_samples
         self._vocabulary_size = vocabulary_size
         self._random_func = random_func
+
+        # Generate samples
+        self._samples = self._generate()
     # end __init__
+
+    # region PRIVATE
+
+    # Generate samples
+    def _generate(self):
+        """
+        Generate samples
+        :return: Generated samples
+        """
+        samples = list()
+        for sample_i in range(self._n_samples):
+            samples.append(torch.randint(low=0, high=10, size=(self._sample_len, 1)))
+        # end for
+        return samples
+    # endregion PRIVATE
 
     # region OVERRIDE
 
@@ -65,7 +83,7 @@ class RandomSymbolDataset(Dataset):
         :param idx:
         :return:
         """
-        return [torch.randint(low=0, high=10, size=(self._sample_len, 1))]
+        return self._samples[idx]
     # end __getitem__
 
     # endregion OVERRIDE

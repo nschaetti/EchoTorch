@@ -24,7 +24,7 @@ import torch
 from echotorch.datasets.NARMADataset import NARMADataset
 import echotorch.utils.optimization as optim
 import numpy as np
-from narma_evaluation import evaluation_function
+from .narma_evaluation import evaluation_function
 
 # Length of training samples
 train_sample_length = 5000
@@ -41,7 +41,7 @@ np.random.seed(1)
 torch.manual_seed(1)
 
 # Get a random optimizer
-random_optimizer = optim.optimizer_factory.get_optimizer('genetic')
+genetic_optimizer = optim.optimizer_factory.get_optimizer('genetic')
 
 # NARMA10 dataset
 narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10)
@@ -58,7 +58,7 @@ param_ranges['input_scaling'] = np.linspace(0.1, 1.0, 1000)
 param_ranges['bias_scaling'] = np.linspace(0.0, 1.0, 1000)
 
 # Launch the optimization of hyper-paramete
-_, best_param, best_NRMSE = random_optimizer.optimize(
+_, best_param, best_NRMSE = genetic_optimizer.optimize(
     evaluation_function,
     param_ranges,
     (narma10_train_dataset, narma10_test_dataset),
