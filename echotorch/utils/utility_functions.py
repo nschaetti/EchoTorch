@@ -7,7 +7,38 @@ import numpy as np
 from .error_measures import nrmse, generalized_squared_cosine
 from scipy.interpolate import interp1d
 import numpy.linalg as lin
+from scipy import stats
+import scipy.integrate as integrate
 import matplotlib.pyplot as plt
+
+
+# Compute entropy per variable
+def entropy(x):
+    """
+    Compute entropy per variable
+    :param x: Samples (batch size, n. samples, n. variables) or (n. samples, n. variables)
+    :return: A tensor (n. variables) containing measured entropy
+    """
+    # Resize if batch is there
+    if x.ndim == 3:
+        batch_size = x.size(0)
+        time_length = x.size(1)
+        x = x.reshape(batch_size * time_length, x.size(2))
+    # end if
+
+    # Number of variables
+    n_vars = x.size(1)
+
+    # Tensor for each variable
+    entropy_tensor = torch.zeros(n_vars)
+
+    # Estimate kernels for each variables
+    for var_i in range(n_vars):
+        entropy_tensor[var_i] = integrate.quad(stats.gaussian_kde(x), -1, 1)
+    # end for
+
+    return entropy_tensor
+# end entropy
 
 
 # Compute the rank of a matrix

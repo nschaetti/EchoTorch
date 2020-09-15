@@ -22,6 +22,7 @@
 
 # Imports
 import torch
+from echotorch.utils import entropy
 
 
 # Compute euclidian distances between states for a layer
@@ -236,3 +237,33 @@ def timescales_separation(P):
     return TS_separation
 # end timescales_separation
 
+
+# Entropy per layer
+def entropy_layer(reservoir_states, n_layers):
+    """
+    Entropy per layer
+    :param reservoir_states: Reservoir states (batch size, time length, reservoir size)
+    :param n_layers: Number of layers
+    :return: Entropy per layer
+    """
+    # Dim. sizes
+    batch_size = reservoir_states.size(0)
+    time_length = reservoir_states.size(1)
+    total_reservoir_size = reservoir_states.size(2)
+
+    # Reservoir size
+    reservoir_size = int(total_reservoir_size / n_layers)
+
+    # Switch time and units dimensions
+    reservoir_states = reservoir_states.transpose(0, 2, 1)
+
+    # Tensor to save entropy per layer
+    entropy_per_layer = torch.zeros(n_layers)
+
+    # For each layer
+    for layer_i in range(n_layers):
+        entropy_per_layer[layer_i] = entropy(reservoir_states[:, layer_i*reservoir_size:(layer_i+1)*reservoir_size, :])
+    # end for
+
+    return entropy_per_layer
+# end entropy_layer

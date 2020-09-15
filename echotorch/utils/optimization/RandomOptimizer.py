@@ -33,13 +33,14 @@ class RandomOptimizer(Optimizer):
     """
 
     # Constructor
-    def __init__(self, **kwargs):
+    def __init__(self, num_workers=1, **kwargs):
         """
         Constructor
         :param kwargs: Argument for the optimizer
         """
         # Set default parameter values
         super(RandomOptimizer, self).__init__(
+            num_workers=num_workers,
             R=10
         )
 

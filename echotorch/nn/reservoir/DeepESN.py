@@ -26,6 +26,7 @@ Created on 26 January 2018
 
 # Imports
 import torch
+import numpy as np
 import echotorch.utils.matrix_generation as mg
 from echotorch.nn.linear.RRCell import RRCell
 from ..Node import Node
@@ -163,7 +164,7 @@ class DeepESN(Node):
         :param layer_i: Which layer (integer)
         :return: Hyperparameter value for this layer
         """
-        if type(hyperparam) == list:
+        if type(hyperparam) == list or type(hyperparam) == np.ndarray or type(hyperparam) == torch.tensor:
             return hyperparam[layer_i]
         else:
             return hyperparam

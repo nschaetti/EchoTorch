@@ -22,6 +22,7 @@
 
 # Imports
 import torch.utils.data
+import numpy as np
 import echotorch.nn as etnn
 import echotorch.datasets as etds
 import echotorch.transforms as ettr
@@ -31,44 +32,72 @@ from .tools import euclidian_distances, perturbation_effect, ranking_of_layers, 
     spearmans_rule, timescales_separation
 
 
+# Get hyperparameter value
+def get_hyperparam_value(hyperparam, layer_i):
+    """
+    Get hyperparameter value
+    :param hyperparam: Hyperparameter (a value or a list)
+    :param layer_i: Which layer (integer)
+    :return: Hyperparameter value for this layer
+    """
+    if type(hyperparam) == list or type(hyperparam) == np.ndarray or type(hyperparam) == torch.tensor:
+        return hyperparam[layer_i]
+    else:
+        return hyperparam
+    # end if
+# end get_hyperparam_value
+
+
 # Evaluate perturbation experiement
 def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connectivity, leak_rate, spectral_radius,
                            vocabulary_size, input_scaling, bias_scaling, esn_type, n_samples, sample_len,
-                           perturbation_position, use_cuda, dtype):
+                           perturbation_position, dataset=None, use_cuda=False, dtype=torch.float64):
     """
     Evaluate perturbation experiment
     """
     # Dataset generating sequences of random symbols
-    random_symbols_loader = torch.utils.data.DataLoader(
-        etds.TransformDataset(
-            root_dataset=etds.RandomSymbolDataset(
-                sample_len=sample_len,
-                n_samples=n_samples,
-                vocabulary_size=10
-            ),
-            transform=ettr.timeseries.ToOneHot(output_dim=vocabulary_size, dtype=dtype),
-            transform_indices=[0]
+    if dataset is None:
+        random_symbols_loader = torch.utils.data.DataLoader(
+            etds.TransformDataset(
+                root_dataset=etds.RandomSymbolDataset(
+                    sample_len=sample_len,
+                    n_samples=n_samples,
+                    vocabulary_size=10
+                ),
+                transform=ettr.timeseries.ToOneHot(output_dim=vocabulary_size, dtype=dtype),
+                transform_indices=None
+            )
         )
-    )
+    else:
+        random_symbols_loader = torch.utils.data.DataLoader(dataset)
+    # end if
 
-    # Generator for internal matrices W
-    w_generator = matrix_factory.get_generator(
-        name='normal',
-        spectral_radius=spectral_radius,
-        connectivity=w_connectivity
-    )
+    # List of generator
+    w_generators = list()
+    win_generators = list()
+    wbias_generators = list()
 
-    # Generator for inputs-to-reservoir matrices Win
-    win_generator = matrix_factory.get_generator(
-        name='normal',
-        connectivity=win_connectivity
-    )
+    # For each layer
+    for layer_i in range(n_layers):
+        # Generator for internal matrices W
+        w_generators.append(matrix_factory.get_generator(
+            name='normal',
+            spectral_radius=get_hyperparam_value(spectral_radius, layer_i),
+            connectivity=get_hyperparam_value(w_connectivity, layer_i)
+        ))
 
-    # Generator for internal units biases
-    wbias_generator = matrix_factory.get_generator(
-        name='normal',
-        scale=bias_scaling
-    )
+        # Generator for inputs-to-reservoir matrices Win
+        win_generators.append(matrix_factory.get_generator(
+            name='normal',
+            connectivity=get_hyperparam_value(win_connectivity, layer_i)
+        ))
+
+        # Generator for internal units biases
+        wbias_generators.append(matrix_factory.get_generator(
+            name='normal',
+            scale=get_hyperparam_value(bias_scaling, layer_i)
+        ))
+    # end for
 
     # Deep ESN / ESN
     if esn_type == 'esn':
@@ -77,9 +106,9 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
             hidden_dim=reservoir_size,
             output_dim=vocabulary_size,
             leaky_rate=leak_rate,
-            w_generator=w_generator,
-            win_generator=win_generator,
-            wbias_generator=wbias_generator,
+            w_generator=w_generators[0],
+            win_generator=win_generators[0],
+            wbias_generator=wbias_generators[0],
             input_scaling=input_scaling,
             dtype=dtype
         )
@@ -90,9 +119,9 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
             hidden_dim=reservoir_size,
             output_dim=vocabulary_size,
             leak_rate=leak_rate,
-            w_generator=w_generator,
-            win_generator=win_generator,
-            wbias_generator=wbias_generator,
+            w_generator=w_generators,
+            win_generator=win_generators,
+            wbias_generator=wbias_generators,
             input_scaling=input_scaling,
             input_type=esn_type,
             dtype=dtype
@@ -114,7 +143,7 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
     # Go through all the dataset
     for batch_idx, data in enumerate(random_symbols_loader):
         # Data
-        unperturbed_input = data[0]
+        unperturbed_input = data
 
         # Copy the unperturbed sequence
         perturbed_input = unperturbed_input.clone()
@@ -198,5 +227,5 @@ def evaluate_perturbations(n_layers, reservoir_size, w_connectivity, win_connect
     average_SF /= average_count
     average_TS /= average_count
 
-    return average_state_distances, average_KT, average_SF, average_TS
+    return esn_model, average_state_distances, average_KT, average_SF, average_TS
 # end evaluate_perturbations

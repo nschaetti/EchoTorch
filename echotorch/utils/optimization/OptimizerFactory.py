@@ -54,17 +54,18 @@ class OptimizerFactory(object):
     # end register_optimizer
 
     # Get an optimizer
-    def get_optimizer(self, name, **kwargs):
+    def get_optimizer(self, name, *args, num_workers=1, **kwargs):
         """
         Get an optimizer
         :param name: Optimizer's name
+        :param num_workers: How many thread to use for evaluation
         :param kwargs: Arguments for the optimizer
         """
         optimizer = self._optimizers[name]
         if not optimizer:
             raise ValueError(name)
         # end if
-        return optimizer(**kwargs)
+        return optimizer(num_workers, *args, **kwargs)
     # end get_optimizer
 
     #endregion PUBLIC

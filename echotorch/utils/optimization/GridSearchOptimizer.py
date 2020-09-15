@@ -35,13 +35,13 @@ class GridSearchOptimizer(Optimizer):
     """
 
     # Constructor
-    def __init__(self, **kwargs):
+    def __init__(self, num_workers=1, **kwargs):
         """
         Constructor
         :param kwargs: Argument for the optimizer
         """
         # Set default parameter values
-        super(GridSearchOptimizer, self).__init__()
+        super(GridSearchOptimizer, self).__init__(num_workers=num_workers)
 
         # Set parameters
         self._set_parameters(args=kwargs)

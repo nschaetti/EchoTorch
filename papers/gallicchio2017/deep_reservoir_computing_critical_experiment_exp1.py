@@ -50,7 +50,7 @@ use_cuda = False and torch.cuda.is_available()
 echotorch.utils.manual_seed(1)
 
 # Perform experiment with Deep-ESN (Input-to-First)
-desn_if_states_distances, desn_if_KT, desn_if_SF, desn_if_TS = evaluate_perturbations(
+_, desn_if_states_distances, desn_if_KT, desn_if_SF, desn_if_TS = evaluate_perturbations(
     n_layers=n_layers[0],
     reservoir_size=reservoir_size[0],
     w_connectivity=w_connectivity[0],
@@ -69,7 +69,7 @@ desn_if_states_distances, desn_if_KT, desn_if_SF, desn_if_TS = evaluate_perturba
 )
 
 # Perform experiment with Deep-ESN (Input-to-All)
-desn_ia_states_distances, desn_ia_KT, desn_ia_SF, desn_ia_TS = evaluate_perturbations(
+_, desn_ia_states_distances, desn_ia_KT, desn_ia_SF, desn_ia_TS = evaluate_perturbations(
     n_layers=n_layers[2],
     reservoir_size=reservoir_size[2],
     w_connectivity=w_connectivity[2],
@@ -88,7 +88,7 @@ desn_ia_states_distances, desn_ia_KT, desn_ia_SF, desn_ia_TS = evaluate_perturba
 )
 
 # Perform experiment with Grouped-ESNs (No connections)
-desn_ge_states_distances, desn_ge_KT, desn_ge_SF, desn_ge_TS = evaluate_perturbations(
+_, desn_ge_states_distances, desn_ge_KT, desn_ge_SF, desn_ge_TS = evaluate_perturbations(
     n_layers=n_layers[3],
     reservoir_size=reservoir_size[3],
     w_connectivity=w_connectivity[3],
@@ -107,7 +107,7 @@ desn_ge_states_distances, desn_ge_KT, desn_ge_SF, desn_ge_TS = evaluate_perturba
 )
 
 # Perform experiment with ESN
-esn_states_distances, esn_KT, esn_SF, esn_TS = evaluate_perturbations(
+_, esn_states_distances, esn_KT, esn_SF, esn_TS = evaluate_perturbations(
     n_layers=n_layers[1],
     reservoir_size=reservoir_size[1],
     w_connectivity=w_connectivity[1],
@@ -159,25 +159,25 @@ plt.plot(esn_states_distances[:plot_length, 0], linestyle='--', color='r')
 plt.show()
 
 # Plot tau for each variant
+print("Kendall's Tau : {}".format([desn_if_KT, desn_ia_KT, desn_ge_KT]))
 plt.figure(figsize=(8, 6))
 plt.title("Kendall's Tau")
-plt.bar(np.arange(4), [desn_if_KT, desn_ia_KT, desn_ge_KT])
-plt.xticks(np.arange(4), ('IF', 'IA', 'GE', 'ESN'))
-print("Kendall's Tau : {}".format([desn_if_KT, desn_ia_KT, desn_ge_KT]))
+plt.bar(np.arange(3), [desn_if_KT, desn_ia_KT, desn_ge_KT])
+plt.xticks(np.arange(3), ('IF', 'IA', 'GE'))
 plt.show()
 
 # Plot tau for each variant
 plt.figure(figsize=(8, 6))
 plt.title("Spearman's footrule distances")
-plt.bar(np.arange(4), [desn_if_SF, desn_ia_SF, desn_ge_SF])
-plt.xticks(np.arange(4), ('IF', 'IA', 'GE', 'ESN'))
+plt.bar(np.arange(3), [desn_if_SF, desn_ia_SF, desn_ge_SF])
+plt.xticks(np.arange(3), ('IF', 'IA', 'GE'))
 print("Spearman's footrule distances : {}".format([desn_if_SF, desn_ia_SF, desn_ge_SF]))
 plt.show()
 
 # Plot tau for each variant
 plt.figure(figsize=(8, 6))
 plt.title("Timescale separation")
-plt.bar(np.arange(4), [desn_if_TS, desn_ia_TS, desn_ge_TS])
-plt.xticks(np.arange(4), ('IF', 'IA', 'GE', 'ESN'))
+plt.bar(np.arange(3), [desn_if_TS, desn_ia_TS, desn_ge_TS])
+plt.xticks(np.arange(3), ('IF', 'IA', 'GE'))
 print("Timescale separation : {}".format([desn_if_TS, desn_ia_TS, desn_ge_TS]))
 plt.show()

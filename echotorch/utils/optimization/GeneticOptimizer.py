@@ -33,13 +33,14 @@ class GeneticOptimizer(Optimizer):
     """
 
     # Constructor
-    def __init__(self, **kwargs):
+    def __init__(self, num_workers=1, **kwargs):
         """
         Constructor
         :param kwargs: Argument for the optimizer
         """
         # Set default parameter values
         super(GeneticOptimizer, self).__init__(
+            num_workers=num_workers,
             population_size=20,
             selected_population=5,
             mutation_probability=0.1,
@@ -48,8 +49,21 @@ class GeneticOptimizer(Optimizer):
 
         # Set parameters
         self._set_parameters(args=kwargs)
-
     # end __init__
+
+    # region PROPERTIES
+
+    # List of hooks (to override)
+    @property
+    def hooks_list(self):
+        """
+        List of hooks
+        :return: List of hooks
+        """
+        return ['population', 'evaluation']
+    # end hooks_list
+
+    # endregion PROPERTIES
 
     # region PRIVATE
 
@@ -82,7 +96,6 @@ class GeneticOptimizer(Optimizer):
         # end for
 
         return population
-
     # end _generate_random_population
 
     # Make a crossover between two individuals
@@ -110,7 +123,6 @@ class GeneticOptimizer(Optimizer):
         # end for
 
         return new_individual
-
     # end _crossover
 
     # Mutate an individual
@@ -131,7 +143,6 @@ class GeneticOptimizer(Optimizer):
         # end for
 
         return individual
-
     # end _mutation
 
     # Create a new generation by mating the old one
@@ -173,7 +184,7 @@ class GeneticOptimizer(Optimizer):
     # end _population_mating
 
     # Optimize hyper-parameters
-    def _optimize_func(self, test_function, param_ranges, datasets, **kwargs):
+    def _optimize_func(self, test_function, param_ranges, datasets, *args, **kwargs):
         """
         Optimize function to override
         :param test_function: The function that maps a list of parameters, training samples, test samples,
@@ -194,6 +205,9 @@ class GeneticOptimizer(Optimizer):
         # Get the initial random population
         population = self._generate_random_population(param_ranges)
 
+        # Hook
+        self._call_hook('population', population)
+
         # Keep the best individual
         if self.get_parameter('target') == 'min':
             best_individual = (None, math.inf)
@@ -203,19 +217,14 @@ class GeneticOptimizer(Optimizer):
 
         # For each iteration
         for epoch in range(iterations):
-            # Save fitness values for each individual (list of tuples)
-            fitness_values = list()
-
             # Test each member of the population
-            for r, individual_dna in enumerate(population):
-                # Test the individual
-                _, fitness_value = test_function(individual_dna, datasets, **kwargs)
-                print(individual_dna)
-                print(fitness_value)
-                print("")
-                # Save fitness value
-                fitness_values.append((individual_dna, fitness_value))
-            # end for
+            fitness_values = self._evaluate_with_workers(
+                test_function,
+                population,
+                datasets,
+                *args,
+                **kwargs
+            )
 
             # Sort individuals from the best to the worse
             if self.get_parameter('target') == 'min':
@@ -223,6 +232,9 @@ class GeneticOptimizer(Optimizer):
             else:
                 fitness_values = sorted(fitness_values, key=lambda tup: tup[1], reverse=True)
             # end if
+
+            # Hook
+            self._call_hook('evaluation', fitness_values)
 
             # Keep if it is the best ever
             winner = fitness_values[0]
@@ -242,9 +254,17 @@ class GeneticOptimizer(Optimizer):
                 mutation_prob,
                 param_ranges
             )
-            print("##############")
+
+            # Keep the winer
+            if best_individual[0] is not None:
+                new_population[-1] = best_individual[0]
+            # end if
+
             # The new generation is now the current one
             population = new_population
+
+            # Hook
+            self._call_hook('population', population)
         # end for
 
         # Get the best model
