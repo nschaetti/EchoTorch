@@ -196,7 +196,7 @@ param_ranges = dict()
 param_ranges['w_connectivity'] = generate_random_parameter_value(0.1, 1.0, n_layers, n_chromo)
 param_ranges['win_connectivity'] = generate_random_parameter_value(0.1, 1.0, n_layers, n_chromo)
 param_ranges['leak_rate'] = generate_random_parameter_value(0.1, 1.0, n_layers, n_chromo)
-param_ranges['spectral_radius'] = generate_random_parameter_value(0.01, 2.0, n_layers, n_chromo)
+param_ranges['spectral_radius'] = generate_random_parameter_value(0.1, 2.0, n_layers, n_chromo)
 param_ranges['input_scaling'] = generate_random_parameter_value(0.1, 1.0, n_layers, n_chromo)
 param_ranges['bias_scaling'] = generate_random_parameter_value(0.0, 1.0, n_layers, n_chromo)
 

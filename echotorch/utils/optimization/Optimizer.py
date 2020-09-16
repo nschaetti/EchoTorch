@@ -203,7 +203,14 @@ class Optimizer(object):
                 for worker_i in range(self._num_workers):
                     # Launch threads
                     thread_list.append(executor.submit(worker_func, params_set[param_i], *args, **kwargs))
+
+                    # Next parameters
                     param_i += 1
+
+                    # If the end, break
+                    if param_i == len(params_set):
+                        break
+                    # end if
                 # end for
             # end with
 

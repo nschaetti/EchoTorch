@@ -28,86 +28,68 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
-import numpy as np
-from past.utils import old_div
+import echotorch.nn as etnn
+from torch.autograd import Variable
 
 
-# Slow Feature Analysis layer
-class SFACell(nn.Module):
+# Compute the approximation of time derivative
+def time_derivative(x):
+    """
+    Compute the approximation of time derivative
+    :param x: Input multi-dimensional signal
+    :return: Input derivative
+    """
+    return x[1:, :] - x[:-1, :]
+# end time_derivative
+
+
+# Slow feature analysis
+class SFACell(etnn.Node):
     """
     Extract the slowly varying components from input data.
     """
 
-    # Type keys
-    _type_keys = ['f', 'd', 'F', 'D']
-
-    # Type conv
-    _type_conv = {('f', 'd'): 'd', ('f', 'F'): 'F', ('f', 'D'): 'D',
-                  ('d', 'F'): 'D', ('d', 'D'): 'D',
-                  ('F', 'd'): 'D', ('F', 'D'): 'D'}
-
     # Constructor
-    def __init__(self, input_dim, output_dim, include_last_sample=True, rank_deficit_method='none', use_bias=True):
+    def __init__(self, input_dim, output_dim, normalize=True, dtype=torch.float64):
         """
         Constructor
         :param input_dim: Input dimension
         :param output_dim: Number of slow feature
-        :param include_last_sample: If set to False, the training method discards the last sample in every chunk during training when calculating the matrix.
-        :param rank_deficit_method: 'none', 'reg', 'pca', 'svd', 'auto'.
         """
-        super(SFACell, self).__init__()
-        self.include_last_sample = include_last_sample
-        self.use_bias = use_bias
-        self.input_dim = input_dim
-        self.output_dim = output_dim
+        # Call upper  class
+        super(SFACell, self).__init__(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            dtype=dtype
+        )
 
-        # Initialie the two covariance matrices one for
-        # the input data, and the other for the derivatives.
-        self.xTx = torch.zeros(input_dim, input_dim)
-        self.xTx_avg = torch.zeros(input_dim)
-        self.dxTdx = torch.zeros(input_dim, input_dim)
-        self.dxTdx_avg = torch.zeros(input_dim)
+        # Compute the number of samples
+        self._n_samples = 0
 
-        # Set routine for eigenproblem
-        self.set_rank_deficit_method(rank_deficit_method)
-        self.rank_threshold = 1e-12
-        self.rank_deficit = 0
+        # Create buffer for the covariance matrix
+        self.register_buffer(
+            'xTx',
+            Variable(torch.zeros(self._input_dim, self._input_dim, dtype=dtype), requires_grad=False)
+        )
 
-        # Will be set after training
-        self.d = None
-        self.sf = None
-        self.avg = None
-        self.bias = None
-        self.tlen = None
+        # Create buffer for the covariance matrix of the derivatives
+        self.register_buffer(
+            'dxTdx',
+            Variable(torch.zeros(self._input_dim, self._input_dim, dtype=dtype), requires_grad=False)
+        )
+
+        # Create buffer for the trained project matrix
+        self.register_buffer(
+            'w_sfa',
+            Variable(torch.zeros(output_dim, self._input_dim, dtype=dtype), requires_grad=False)
+        )
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
 
-    # Time derivative
-    def time_derivative(self, x):
-        """
-        Compute the approximation of time derivative
-        :param x:
-        :return:
-        """
-        return x[1:, :] - x[:-1, :]
-    # end time_derivative
-
-    # Reset learning
-    def reset(self):
-        """
-        Reset learning
-        :return:
-        """
-        # Training mode again
-        self.train(True)
-    # end reset
+    # region PUBLIC
 
     # Forward
     def forward(self, x):
@@ -116,31 +98,34 @@ class SFACell(nn.Module):
         :param x: Input signal.
         :return: Output or hidden states
         """
+        # Dims
+        batch_size = x.size(0)
+        time_length = x.size(1)
+
         # For each batch
-        for b in np.arange(0, x.size(0)):
+        for b in range(batch_size):
             # If training or execution
             if self.training:
-                # Last sample
-                last_sample_index = None if self.include_last_sample else -1
+                # Sample
+                xs = x[b, :-1, :]
 
-                # Sample and derivative
-                xs = x[b, :last_sample_index, :]
-                xd = self.time_derivative(x[b])
+                # Derivatives with respect to time
+                xd = time_derivative(x[b])
 
                 # Update covariance matrix
-                self.xTx.data.add(xs.t().mm(xs))
-                self.dxTdx.data.add(xd.t().mm(xd))
-
-                # Update average
-                self.xTx_avg += torch.sum(xs, axis=1)
-                self.dxTdx_avg += torch.sum(xd, axis=1)
-
-                # Length
-                self.tlen += x.size(0)
+                if not self._normalize:
+                    self.xTx.data.add(xs.t().mm(xs).data)
+                    self.dxTdx.data.add(xd.t().mm(xd).data)
+                else:
+                    self.xTx.data.add((xs.t().mm(xs) / time_length).data)
+                    self.dxTdx.data.add((xd.t().mm(xd) / time_length).data)
+                    self._n_samples += 1.0
+                # end if
             else:
-                x[b].mv(self.sf) - self.bias
+                x[b].mv(self.w_sfa)
             # end if
         # end if
+
         return x
     # end forward
 
@@ -150,7 +135,7 @@ class SFACell(nn.Module):
         Finalize training with LU factorization or Pseudo-inverse
         """
         # Covariance
-        self.xTx, self.xTx_avg, self.tlen = self._fix(self.xtX, self.xTx_avg, self.tlen, center=True)
+        self.xTx, self.xTx_avg, self.tlen = self._fix(self.xTx, self.xTx_avg, self.tlen, center=False)
         self.dxTdx, self.dxTdx_avg, self.tlen = self._fix(self.dxTdx, self.dxTdx_avg, self.tlen, center=False)
 
         # Range
@@ -164,7 +149,7 @@ class SFACell(nn.Module):
 
         # We want only positive values
         if torch.min(d) < 0:
-            raise Exception(u"Got negative values in {}".format(d))
+            raise Exception("Got negative values in {}".format(d))
         # end if
 
         # Delete covariance matrix
@@ -173,11 +158,14 @@ class SFACell(nn.Module):
 
         # Store bias
         self.bias = self.xTx_avg * self.sf
+
+        # Trained
+        self.train(False)
     # end finalize
 
-    ###############################################
-    # PRIVATE
-    ###############################################
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Solve standard and generalized eigenvalue problem for symmetric (hermitian) definite positive matrices
     def _symeig(self, A, B, range, eigenvectors=True):
@@ -204,7 +192,7 @@ class SFACell(nn.Module):
 
         # No negative values
         if wB.real.min() < 0:
-            raise Exception(u"Got negative eigenvalues: {}".format(wB))
+            raise Exception("Got negative eigenvalues: {}".format(wB))
         # end if
 
         # Old division
@@ -261,17 +249,6 @@ class SFACell(nn.Module):
         # end if
     # end _symeig
 
-    # Ref cast
-    def refcast(self, array, dtype):
-        """
-        Cast the array to dtype only if necessary, otherwise return a reference.
-        """
-        dtype = np.dtype(dtype)
-        if array.dtype == dtype:
-            return array
-        return array.astype(dtype)
-    # end refcast
-
     # Check eigenvalues
     def _assert_eigenvalues_real(self, w, dtype):
         """
@@ -312,19 +289,25 @@ class SFACell(nn.Module):
         """
         Returns a triple containing the covariance matrix, the average and
         the number of observations.
-        :param mtx:
-        :param center:
-        :return:
+        :param mtx: The cumulated covariance matrix
+        :param avg: The cumulated average
+        :param tlen: The total length of samples
+        :param center: True if average must be removed of the covariance matrix
+        :return: Fixed covariance matrix, average and total length
         """
+        # Divide the covariance matrix
+        # by the total length of training
+        # samples.
         if self.use_bias:
             mtx /= tlen
         else:
             mtx /= tlen - 1
         # end if
 
-        # Substract the mean
+        # Remove the mean to the
+        # covariance matrix
         if center:
-            avg_mtx = np.outer(avg, avg)
+            avg_mtx = torch.ger(avg, avg)
             if self.use_bias:
                 avg_mtx /= tlen * tlen
             else:
@@ -333,10 +316,13 @@ class SFACell(nn.Module):
             mtx -= avg_mtx
         # end if
 
-        # Fix the average
+        # Compute the average activation
+        # for each units.
         avg /= tlen
 
         return mtx, avg, tlen
     # end fix
+
+    # endregion PRIVATE
 
 # end SFACell
