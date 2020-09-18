@@ -33,13 +33,13 @@ from torch.autograd import Variable
 
 
 # Compute the approximation of time derivative
-def time_derivative(x):
+def time_derivative(x, time_step):
     """
     Compute the approximation of time derivative
     :param x: Input multi-dimensional signal
     :return: Input derivative
     """
-    return x[1:, :] - x[:-1, :]
+    return (x[1:, :] - x[:-1, :]) / time_step
 # end time_derivative
 
 
@@ -50,12 +50,21 @@ class SFACell(etnn.Node):
     """
 
     # Constructor
-    def __init__(self, input_dim, output_dim, normalize=True, dtype=torch.float64):
+    def __init__(self, input_dim, output_dim, whitening=True, time_step=1.0, dtype=torch.float64):
         """
         Constructor
         :param input_dim: Input dimension
-        :param output_dim: Number of slow feature
+        :param output_dim: Number of slow feature to extract
         """
+        # Check that output is not bigger
+        # than the input dimension
+        if output_dim > input_dim:
+            raise Exception("Output dimension cannot be bigger than the input dimension : {} vs {}".format(
+                input_dim,
+                output_dim
+            ))
+        # end if
+
         # Call upper  class
         super(SFACell, self).__init__(
             input_dim=input_dim,
@@ -64,7 +73,9 @@ class SFACell(etnn.Node):
         )
 
         # Compute the number of samples
-        self._n_samples = 0
+        self._n_samples = 0.0
+        self._whitening = whitening
+        self._time_step = time_step
 
         # Create buffer for the covariance matrix
         self.register_buffer(
@@ -80,8 +91,14 @@ class SFACell(etnn.Node):
 
         # Create buffer for the trained project matrix
         self.register_buffer(
-            'w_sfa',
+            'W',
             Variable(torch.zeros(output_dim, self._input_dim, dtype=dtype), requires_grad=False)
+        )
+
+        # Create buffer for the trained bias
+        self.register_buffer(
+            'b',
+            Variable(torch.zeros(self._input_dim, dtype=dtype), requires_grad=False)
         )
     # end __init__
 
@@ -102,31 +119,76 @@ class SFACell(etnn.Node):
         batch_size = x.size(0)
         time_length = x.size(1)
 
-        # For each batch
-        for b in range(batch_size):
-            # If training or execution
-            if self.training:
-                # Sample
-                xs = x[b, :-1, :]
+        # If in training mode
+        if self.training:
+            # Compute bias
+            self.b += -torch.mean(torch.mean(x, dim=1), dim=0)
 
-                # Derivatives with respect to time
-                xd = time_derivative(x[b])
+            # Center x
+            x += self.b
 
-                # Update covariance matrix
-                if not self._normalize:
-                    self.xTx.data.add(xs.t().mm(xs).data)
-                    self.dxTdx.data.add(xd.t().mm(xd).data)
+            # For each batch
+            for b in range(batch_size):
+                # Use whitening ?
+                if self._whitening:
+                    # Compute x covariance matrix
+                    self.xTx += torch.mm(x[b].t(), x[b]) / time_length
+
+                    # Eigen-decomposition of the covariance matrix
+                    D, U = torch.eig(self.xTx, eigenvectors=True)
+
+                    # Check eigenvalues
+                    self._check_eigenvalues(D)
+
+                    # Remove imaginary parts and compute the diagonal matrix
+                    D = torch.diag(D[:, 0])
+
+                    # Whitening matrix S
+                    S = torch.mm(torch.sqrt(torch.inverse(D)), U.t())
+
+                    # Project the input signal x
+                    # Into the space with unite-covariance matrix
+                    xs = torch.mm(S, x[b].t()).t()
                 else:
-                    self.xTx.data.add((xs.t().mm(xs) / time_length).data)
-                    self.dxTdx.data.add((xd.t().mm(xd) / time_length).data)
-                    self._n_samples += 1.0
+                    xs = x[b]
                 # end if
-            else:
-                x[b].mv(self.w_sfa)
-            # end if
+
+                # Compute time derivatives
+                dxs = time_derivative(xs, self._time_step)
+
+                # Increment the time derivatives covariance matrix
+                self.dxTdx += torch.mm(dxs.t(), dxs) / time_length
+
+                # Samples computed
+                self._n_samples += 1.0
+            # end for
+
+            # Compute eigen decomposition
+            L, V = torch.eig(self.dxTdx, eigenvectors=True)
+
+            # Check eigenvalues
+            self._check_eigenvalues(L)
+
+            # Keep only the slowest
+            Vs = self._slowest_features(L, V)
+
+            # Update W
+            self.W = torch.mm(
+                Vs.t(),
+                torch.mm(torch.sqrt(torch.inverse(D)), U.t())
+            )
         # end if
 
-        return x
+        # Empty tensor for output
+        outputs = torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype)
+
+        # For each batch
+        for b in range(batch_size):
+            # Compute outputs
+            outputs[b] = torch.mm(self.W, (x[b] + self.b).t()).t()
+        # end for
+
+        return outputs
     # end forward
 
     # Finish training
@@ -134,31 +196,6 @@ class SFACell(etnn.Node):
         """
         Finalize training with LU factorization or Pseudo-inverse
         """
-        # Covariance
-        self.xTx, self.xTx_avg, self.tlen = self._fix(self.xTx, self.xTx_avg, self.tlen, center=False)
-        self.dxTdx, self.dxTdx_avg, self.tlen = self._fix(self.dxTdx, self.dxTdx_avg, self.tlen, center=False)
-
-        # Range
-        rng = (1, self.output_dim)
-
-        # Resolve system
-        self.d, self.sf = self._symeig(
-            self.dxTdx, self.xTx, rng
-        )
-        d = self.d
-
-        # We want only positive values
-        if torch.min(d) < 0:
-            raise Exception("Got negative values in {}".format(d))
-        # end if
-
-        # Delete covariance matrix
-        del self.xTx
-        del self.dxTdx
-
-        # Store bias
-        self.bias = self.xTx_avg * self.sf
-
         # Trained
         self.train(False)
     # end finalize
@@ -166,6 +203,17 @@ class SFACell(etnn.Node):
     # endregion PUBLIC
 
     # region PRIVATE
+
+    # Keep only the slowest features
+    def _slowest_features(self, L, V):
+        """
+        Keep only  the slowest features
+        :param L: Eigenvalues
+        :param V: Eigenvectors
+        :return: The eigenvector corresponding to the smallest eigenvalues
+        """
+        return torch.index_select(V, 1, torch.argsort(L[:, 0])[:self._output_dim])
+    # end _slowest_features
 
     # Solve standard and generalized eigenvalue problem for symmetric (hermitian) definite positive matrices
     def _symeig(self, A, B, range, eigenvectors=True):
@@ -248,6 +296,17 @@ class SFACell(etnn.Node):
             return torch.FloatTensor(w)
         # end if
     # end _symeig
+
+    # Check eigenvalues
+    def _check_eigenvalues(self, L):
+        """
+        Check eigenvalues
+        :param L: Matrix (n x 2) with real (1) and imaginary (2) parts.
+        """
+        if not (torch.all(L[:, 1] == 0) and torch.all(L[:, 0] >= 0.0)):
+            raise Exception("Error, got imaginary or negative eigenvalues for whitening : {}".format(D))
+        # end if
+    # end _check_eigenvalues
 
     # Check eigenvalues
     def _assert_eigenvalues_real(self, w, dtype):
