@@ -45,12 +45,13 @@ class Test_Memory_Management(EchoTorchTestCase):
     # region PUBLIC
 
     # Memory management
-    def memory_management(self, data_dir, expected_NRMSEs, reservoir_size=100, spectral_radius=1.5, input_scaling=1.5,
-                          bias_scaling=0.25, connectivity=10.0, washout_length=100, learn_length=100,
-                          ridge_param_wout=0.01, aperture=1000, places=3, value_test_divider=1.0,
-                          torch_seed=1, np_seed=1, interpolation_rate=20, conceptor_test_length=200,
-                          signal_plot_length=20, loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
-                          use_matlab_params=True, dtype=torch.float64, print_debug=False):
+    def memory_management(
+            self, data_dir, expected_NRMSEs, reservoir_size=100, spectral_radius=1.5, input_scaling=1.5,
+            bias_scaling=0.25, connectivity=10.0, washout_length=100, learn_length=100,
+            ridge_param_wout=0.01, aperture=1000, places=3, value_test_divider=1.0,
+            torch_seed=1, np_seed=1, interpolation_rate=20, conceptor_test_length=200,
+            signal_plot_length=20, loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
+            use_matlab_params=True, dtype=torch.float64, print_debug=False):
         """
         Memory management
         """
