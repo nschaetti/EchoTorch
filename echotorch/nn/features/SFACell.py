@@ -27,7 +27,7 @@ Created on 26 January 2018
 # Imports
 import torch.sparse
 import torch
-import echotorch.nn as etnn
+from ..Node import Node
 from torch.autograd import Variable
 
 
@@ -43,7 +43,7 @@ def time_derivative(x, time_step):
 
 
 # Slow feature analysis
-class SFACell(etnn.Node):
+class SFACell(Node):
     """
     Extract the slowly varying components from input data.
     """
