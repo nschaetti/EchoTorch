@@ -410,14 +410,7 @@
       <workItem from="1602140869301" duration="9676000" />
       <workItem from="1602486858282" duration="20974000" />
       <workItem from="1602575850344" duration="13556000" />
-      <workItem from="1602661760783" duration="19058000" />
-    </task>
-    <task id="LOCAL-00029" summary="ConceptorSet : can access matrix N (NOT A)">
-      <created>1573046663915</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1573046663915</updated>
+      <workItem from="1602661760783" duration="19480000" />
     </task>
     <task id="LOCAL-00030" summary="Added inputs and states observer in ESNCell">
       <created>1573048487015</created>
@@ -755,7 +748,14 @@
       <option name="project" value="LOCAL" />
       <updated>1602686026162</updated>
     </task>
-    <option name="localTasksCounter" value="78" />
+    <task id="LOCAL-00078" summary="- python-package-testing.yml : add codecov uploading">
+      <created>1602688875120</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1602688875120</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -779,7 +779,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="ConceptorSet, NeuralFilter, ObservationPoint" />
     <MESSAGE value="Visualizer" />
     <MESSAGE value="Fig 2. Morphing in progress (morphing_square.py)" />
     <MESSAGE value="Fig 17 : morphing periodic to sine ok, but debug and test to do (morphing_periodic_sine.py).&#10;Fig 16 : not working, complete debug to do (+test) (morphing_periodic_patterns.py)" />
@@ -804,7 +803,8 @@
     <MESSAGE value="Cosmetics and tests for optimisation" />
     <MESSAGE value="Removed echotorch.nn import" />
     <MESSAGE value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
-    <option name="LAST_COMMIT_MESSAGE" value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
+    <MESSAGE value="- python-package-testing.yml : add codecov uploading" />
+    <option name="LAST_COMMIT_MESSAGE" value="- python-package-testing.yml : add codecov uploading" />
   </component>
   <component name="WindowStateProjectService">
     <state x="613" y="226" width="732" height="645" key="#Inspections" timestamp="1602592837433">
@@ -842,17 +842,17 @@
       <screen x="0" y="27" width="1440" height="933" />
     </state>
     <state x="421" y="96" width="594" height="808" key="#test_fold_cross_validation/0.27.1440.933@0.27.1440.933" timestamp="1599335084429" />
-    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602686026090">
+    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602688875063">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="100" y="25" width="1167" height="935" key="CommitChangelistDialog2/0.27.1440.933@0.27.1440.933" timestamp="1600089077664" />
     <state x="133" y="23" width="1556" height="1053" key="CommitChangelistDialog2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653192057" />
-    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602686026090" />
+    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602688875063" />
     <state x="178" y="19" key="CommitChangelistDialog2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067931115" />
-    <state x="518" y="240" width="864" height="614" key="DiffContextDialog" timestamp="1602686008412">
+    <state x="274" y="236" width="1388" height="614" key="DiffContextDialog" timestamp="1602688864136">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
-    <state x="518" y="240" width="864" height="614" key="DiffContextDialog/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602686008412" />
+    <state x="274" y="236" width="1388" height="614" key="DiffContextDialog/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602688864136" />
     <state x="522" y="248" width="864" height="614" key="DiffContextDialog/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067917816" />
     <state x="702" y="269" width="424" height="492" key="FileChooserDialogImpl" timestamp="1602687686789">
       <screen x="42" y="27" width="1878" height="1053" />
@@ -920,12 +920,12 @@
     <state x="292" y="121" width="1001" height="738" key="SettingsEditor/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601643750586" />
     <state x="328" y="107" width="1221" height="845" key="SettingsEditor/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602592436549" />
     <state x="333" y="115" key="SettingsEditor/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601906109421" />
-    <state x="456" y="195" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602686027446">
+    <state x="456" y="193" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602688876996">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="318" y="204" width="800" height="565" key="Vcs.Push.Dialog.v2/0.27.1440.933@0.27.1440.933" timestamp="1600089079053" />
     <state x="424" y="225" key="Vcs.Push.Dialog.v2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653196739" />
-    <state x="456" y="195" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602686027446" />
+    <state x="456" y="193" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602688876996" />
     <state x="461" y="221" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067932933" />
     <state x="803" y="458" width="361" height="182" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601910120036">
       <screen x="48" y="27" width="1872" height="1053" />
