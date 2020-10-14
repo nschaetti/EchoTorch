@@ -10,5 +10,4 @@ torch>=1.6.0
 torchvision>=0.6.0
 networkx
 tqdm
-math
 threading
