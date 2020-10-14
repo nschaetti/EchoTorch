@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/EchoTorch.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.github/workflows/python-package-testing.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/python-package-testing.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_memory_management.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_memory_management.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_narma10_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_narma10_prediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +26,10 @@
   </component>
   <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
     <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="ExportToHTMLSettings">
+    <option name="OPEN_IN_BROWSER" value="true" />
+    <option name="OUTPUT_DIRECTORY" value="$USER_HOME$" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -70,7 +70,7 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
+    <property name="last_opened_file_path" value="$USER_HOME$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -88,7 +88,7 @@
       <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/lab/conceptors" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Nosetests in test_MNIST_classification.py">
+  <component name="RunManager" selected="Python tests.Nosetests in test_boolean_operations.py">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -264,7 +264,7 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests in test_latch_copy_repeat_tasks.py" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests in test_boolean_operations.py" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -276,7 +276,7 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/test_latch_copy_repeat_tasks.py&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/test_boolean_operations.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
@@ -337,19 +337,19 @@
       <item itemvalue="Shell Script.Launch TorchServe" />
       <item itemvalue="Shell Script.Stop TorchServe" />
       <item itemvalue="Python tests.Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" />
-      <item itemvalue="Python tests.Nosetests in test_latch_copy_repeat_tasks.py" />
       <item itemvalue="Python tests.Nosetests in test_morphing_square.py" />
       <item itemvalue="Python tests.Nosetests in test_narma10_prediction.py" />
       <item itemvalue="Python tests.Nosetests in test_subspace_first_demo.py" />
       <item itemvalue="Python tests.Nosetests in test_MNIST_classification.py" />
+      <item itemvalue="Python tests.Nosetests in test_boolean_operations.py" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Nosetests in test_boolean_operations.py" />
         <item itemvalue="Python tests.Nosetests in test_MNIST_classification.py" />
         <item itemvalue="Python tests.Nosetests in test_subspace_first_demo.py" />
         <item itemvalue="Python tests.Nosetests in test_narma10_prediction.py" />
         <item itemvalue="Python tests.Nosetests in test_morphing_square.py" />
-        <item itemvalue="Python tests.Nosetests in test_latch_copy_repeat_tasks.py" />
       </list>
     </recent_temporary>
   </component>
@@ -410,14 +410,7 @@
       <workItem from="1602140869301" duration="9676000" />
       <workItem from="1602486858282" duration="20974000" />
       <workItem from="1602575850344" duration="13556000" />
-      <workItem from="1602661760783" duration="16172000" />
-    </task>
-    <task id="LOCAL-00028" summary="ConceptorSet : A class to store and manipulate conceptors and OR matrix A.">
-      <created>1573046573924</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1573046573924</updated>
+      <workItem from="1602661760783" duration="19058000" />
     </task>
     <task id="LOCAL-00029" summary="ConceptorSet : can access matrix N (NOT A)">
       <created>1573046663915</created>
@@ -755,7 +748,14 @@
       <option name="project" value="LOCAL" />
       <updated>1602682313227</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)">
+      <created>1602686026162</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1602686026162</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -779,7 +779,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="Image to timeseries dataset" />
     <MESSAGE value="ConceptorSet, NeuralFilter, ObservationPoint" />
     <MESSAGE value="Visualizer" />
     <MESSAGE value="Fig 2. Morphing in progress (morphing_square.py)" />
@@ -804,7 +803,8 @@
     <MESSAGE value="Removed old code for SFA" />
     <MESSAGE value="Cosmetics and tests for optimisation" />
     <MESSAGE value="Removed echotorch.nn import" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed echotorch.nn import" />
+    <MESSAGE value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
+    <option name="LAST_COMMIT_MESSAGE" value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
   </component>
   <component name="WindowStateProjectService">
     <state x="613" y="226" width="732" height="645" key="#Inspections" timestamp="1602592837433">
@@ -842,50 +842,52 @@
       <screen x="0" y="27" width="1440" height="933" />
     </state>
     <state x="421" y="96" width="594" height="808" key="#test_fold_cross_validation/0.27.1440.933@0.27.1440.933" timestamp="1599335084429" />
-    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602682313167">
+    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602686026090">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="100" y="25" width="1167" height="935" key="CommitChangelistDialog2/0.27.1440.933@0.27.1440.933" timestamp="1600089077664" />
     <state x="133" y="23" width="1556" height="1053" key="CommitChangelistDialog2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653192057" />
-    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602682313167" />
+    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602686026090" />
     <state x="178" y="19" key="CommitChangelistDialog2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067931115" />
-    <state x="522" y="248" width="864" height="614" key="DiffContextDialog" timestamp="1602067917816">
-      <screen x="48" y="27" width="1872" height="1053" />
+    <state x="518" y="240" width="864" height="614" key="DiffContextDialog" timestamp="1602686008412">
+      <screen x="42" y="27" width="1878" height="1053" />
     </state>
+    <state x="518" y="240" width="864" height="614" key="DiffContextDialog/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602686008412" />
     <state x="522" y="248" width="864" height="614" key="DiffContextDialog/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067917816" />
-    <state x="706" y="271" width="424" height="492" key="FileChooserDialogImpl" timestamp="1601909936845">
-      <screen x="48" y="27" width="1872" height="1053" />
+    <state x="702" y="269" width="424" height="492" key="FileChooserDialogImpl" timestamp="1602687686789">
+      <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="506" y="252" width="424" height="492" key="FileChooserDialogImpl/0.27.1440.933@0.27.1440.933" timestamp="1601554757672" />
     <state x="675" y="273" width="424" height="492" key="FileChooserDialogImpl/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601890144926" />
+    <state x="702" y="269" key="FileChooserDialogImpl/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602687686789" />
     <state x="706" y="271" key="FileChooserDialogImpl/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601909936845" />
-    <state width="1836" height="300" key="GridCell.Tab.0.bottom" timestamp="1602684947791">
+    <state width="1836" height="300" key="GridCell.Tab.0.bottom" timestamp="1602687367978">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.bottom/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
     <state width="1080" height="629" key="GridCell.Tab.0.bottom/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="300" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602684947791" />
+    <state width="1836" height="300" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602687367978" />
     <state width="1830" height="267" key="GridCell.Tab.0.bottom/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="300" key="GridCell.Tab.0.center" timestamp="1602684947791">
+    <state width="1836" height="300" key="GridCell.Tab.0.center" timestamp="1602687367978">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.center/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.center/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="300" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602684947791" />
+    <state width="1836" height="300" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602687367978" />
     <state width="1830" height="267" key="GridCell.Tab.0.center/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="300" key="GridCell.Tab.0.left" timestamp="1602684947791">
+    <state width="1836" height="300" key="GridCell.Tab.0.left" timestamp="1602687367978">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.left/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.left/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="300" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602684947791" />
+    <state width="1836" height="300" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602687367978" />
     <state width="1830" height="267" key="GridCell.Tab.0.left/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="300" key="GridCell.Tab.0.right" timestamp="1602684947791">
+    <state width="1836" height="300" key="GridCell.Tab.0.right" timestamp="1602687367978">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.right/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.right/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="300" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602684947791" />
+    <state width="1836" height="300" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602687367978" />
     <state width="1830" height="267" key="GridCell.Tab.0.right/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
     <state width="1836" height="349" key="GridCell.Tab.1.bottom" timestamp="1602684936131">
       <screen x="42" y="27" width="1878" height="1053" />
@@ -918,12 +920,12 @@
     <state x="292" y="121" width="1001" height="738" key="SettingsEditor/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601643750586" />
     <state x="328" y="107" width="1221" height="845" key="SettingsEditor/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602592436549" />
     <state x="333" y="115" key="SettingsEditor/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601906109421" />
-    <state x="456" y="197" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602682314321">
+    <state x="456" y="195" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602686027446">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="318" y="204" width="800" height="565" key="Vcs.Push.Dialog.v2/0.27.1440.933@0.27.1440.933" timestamp="1600089079053" />
     <state x="424" y="225" key="Vcs.Push.Dialog.v2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653196739" />
-    <state x="456" y="197" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602682314321" />
+    <state x="456" y="195" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602686027446" />
     <state x="461" y="221" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067932933" />
     <state x="803" y="458" width="361" height="182" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601910120036">
       <screen x="48" y="27" width="1872" height="1053" />
@@ -967,7 +969,7 @@
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_morphing_square_py.coverage" NAME="Nosetests in test_morphing_square.py Coverage Results" MODIFIED="1602684897729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_fold_cross_validation_Test_Fold_Cross_Validation_test_10fold_cross_validation_no_dev.coverage" NAME="Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev Coverage Results" MODIFIED="1599340487160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_memory_management_py.coverage" NAME="Nosetests in test_memory_management.py Coverage Results" MODIFIED="1602684806102" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_boolean_operations_py.coverage" NAME="Nosetests in test_boolean_operations.py Coverage Results" MODIFIED="1592378353178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_boolean_operations_py.coverage" NAME="Nosetests in test_boolean_operations.py Coverage Results" MODIFIED="1602687367926" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_session_objects_Test_Session_Objects_test_create_session_object.coverage" NAME="Unittests for test_session_objects.Test_Session_Objects.test_create_session_object Coverage Results" MODIFIED="1602511483480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/tests" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_hyperparameters_optimization_Test_Hyperparameters_Optimization.coverage" NAME="Nosetests for test_hyperparameters_optimization.Test_Hyperparameters_Optimization Coverage Results" MODIFIED="1599336258804" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_liesn.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn Coverage Results" MODIFIED="1592379818131" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
