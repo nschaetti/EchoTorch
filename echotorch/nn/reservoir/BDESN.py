@@ -78,9 +78,7 @@ class BDESN(nn.Module):
         )
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
     # Hidden layer
     @property
@@ -112,22 +110,9 @@ class BDESN(nn.Module):
         return self.esn_cell.w_in
     # end w_in
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
 
-    # Reset learning
-    def reset(self):
-        """
-        Reset learning
-        :return:
-        """
-        # Reset output layer
-        self.output.reset()
-
-        # Training mode again
-        self.train(True)
-    # end reset
+    # region PUBLIC
 
     # Output matrix
     def get_w_out(self):
@@ -148,6 +133,23 @@ class BDESN(nn.Module):
         self.esn_cell.w = w
     # end set_w
 
+    # endregion PUBLIC
+
+    # region OVERRIDE
+
+    # Reset learning
+    def reset(self):
+        """
+        Reset learning
+        :return:
+        """
+        # Reset output layer
+        self.output.reset()
+
+        # Training mode again
+        self.train(True)
+    # end reset
+
     # Forward
     def forward(self, u, y=None):
         """
@@ -160,6 +162,7 @@ class BDESN(nn.Module):
 
         # Learning algorithm
         return self.output(hidden_states, y)
+
     # end forward
 
     # Finish training
@@ -172,6 +175,7 @@ class BDESN(nn.Module):
 
         # Not in training mode anymore
         self.train(False)
+
     # end finalize
 
     # Reset hidden layer
@@ -181,6 +185,7 @@ class BDESN(nn.Module):
         :return:
         """
         self.esn_cell.reset_hidden()
+
     # end reset_hidden
 
     # Get W's spectral radius
@@ -191,5 +196,7 @@ class BDESN(nn.Module):
         """
         return self.esn_cell.get_spectral_raduis()
     # end spectral_radius
+
+    # endregion OVERRIDE
 
 # end BDESN

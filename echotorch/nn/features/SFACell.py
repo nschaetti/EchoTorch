@@ -25,10 +25,8 @@ Created on 26 January 2018
 """
 
 # Imports
-import numpy as np
 import torch.sparse
 import torch
-import torch.nn as nn
 import echotorch.nn as etnn
 from torch.autograd import Variable
 

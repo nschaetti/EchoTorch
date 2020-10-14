@@ -76,9 +76,7 @@ class OnlinePCACell(nn.Module):
         self._reduced_dims = self.output_dim
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
     # Initial eigen vectors
     @property
@@ -137,9 +135,9 @@ class OnlinePCACell(nn.Module):
         # end if
     # end init_eigen_vectors
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Get variance explained by PCA
     def get_var_tot(self):
@@ -185,34 +183,9 @@ class OnlinePCACell(nn.Module):
         return self.v
     # end get_recmatrix
 
-    # Reset learning
-    def reset(self):
-        """
-        Reset learning
-        :return:
-        """
-        # Training mode again
-        self.train(True)
-    # end reset
+    # endregion PUBLIC
 
-    # Forward
-    def forward(self, x, y=None):
-        """
-        Forward
-        :param x: Input signal.
-        :param y: Target outputs
-        :return: Output or hidden states
-        """
-        # Update components
-        self._update_pca(x)
-
-        # Execute
-        return self._execute(x)
-    # end forward
-
-    ###############################################
-    # PRIVATE
-    ###############################################
+    # region PRIVATE
 
     # Project the input on the first 'n' components
     def _execute(self, x, n=None):
@@ -226,6 +199,7 @@ class OnlinePCACell(nn.Module):
             return x.mm(self.v[:, :n])
         # end if
         return x.mm(self.v)
+
     # end _execute
 
     # Update the principal components.
@@ -269,6 +243,7 @@ class OnlinePCACell(nn.Module):
 
         self._var_tot = explained_var
         self._reduced_dims = red_j
+
     # end update_pca
 
     # Initialize parameters
@@ -285,6 +260,7 @@ class OnlinePCACell(nn.Module):
                 self.init_eigen_vectors = 0.1 * torch.randn(self.input_dim, self.input_dim)
             # end if
         # end if
+
     # end _check_params
 
     # Return amnesic weights
@@ -306,6 +282,7 @@ class OnlinePCACell(nn.Module):
         _world = float(_i - 1 - l) / _i
         _wnew = float(1 + l) / _i
         return [_world, _wnew]
+
     # end _amnesic
 
     # Add constant
@@ -318,5 +295,36 @@ class OnlinePCACell(nn.Module):
         bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
         return torch.cat((bias, x), dim=2)
     # end _add_constant
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Reset learning
+    def reset(self):
+        """
+        Reset learning
+        :return:
+        """
+        # Training mode again
+        self.train(True)
+    # end reset
+
+    # Forward
+    def forward(self, x, y=None):
+        """
+        Forward
+        :param x: Input signal.
+        :param y: Target outputs
+        :return: Output or hidden states
+        """
+        # Update components
+        self._update_pca(x)
+
+        # Execute
+        return self._execute(x)
+    # end forward
+
+    # endregion OVERRIDE
 
 # end PCACell

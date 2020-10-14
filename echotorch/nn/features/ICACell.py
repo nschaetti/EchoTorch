@@ -48,13 +48,26 @@ class ICACell(nn.Module):
         pass
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
+
+    # region PRIVATE
+
+    # Add constant
+    def _add_constant(self, x):
+        """
+        Add constant
+        :param x:
+        :return:
+        """
+        bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
+        return torch.cat((bias, x), dim=2)
+    # end _add_constant
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Reset learning
     def reset(self):
@@ -94,19 +107,6 @@ class ICACell(nn.Module):
         pass
     # end finalize
 
-    ###############################################
-    # PRIVATE
-    ###############################################
-
-    # Add constant
-    def _add_constant(self, x):
-        """
-        Add constant
-        :param x:
-        :return:
-        """
-        bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
-        return torch.cat((bias, x), dim=2)
-    # end _add_constant
+    # endregion OVERRIDE
 
 # end ICACell

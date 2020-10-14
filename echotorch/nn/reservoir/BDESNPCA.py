@@ -30,7 +30,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .BDESNCell import BDESNCell
 from sklearn.decomposition import IncrementalPCA
-import matplotlib.pyplot as plt
 from torch.autograd import Variable
 
 
@@ -41,10 +40,11 @@ class BDESNPCA(nn.Module):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, pca_dim, linear_dim, leaky_rate=1.0, spectral_radius=0.9, bias_scaling=0,
-                 input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0],
-                 w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True,
-                 pca_batch_size=10):
+    def __init__(
+            self, input_dim, hidden_dim, output_dim, pca_dim, linear_dim, leaky_rate=1.0, spectral_radius=0.9, bias_scaling=0,
+            input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None, input_set=[1.0, -1.0],
+            w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, create_cell=True,
+            pca_batch_size=10):
         """
         Constructor
         :param input_dim: Inputs dimension.
@@ -85,9 +85,7 @@ class BDESNPCA(nn.Module):
         self.linear2 = nn.Linear(linear_dim, output_dim)
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
     # Hidden layer
     @property
@@ -119,22 +117,9 @@ class BDESNPCA(nn.Module):
         return self.esn_cell.w_in
     # end w_in
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
 
-    # Reset learning
-    def reset(self):
-        """
-        Reset learning
-        :return:
-        """
-        # Reset output layer
-        self.output.reset()
-
-        # Training mode again
-        self.train(True)
-    # end reset
+    # region PUBLIC
 
     # Output matrix
     def get_w_out(self):
@@ -155,6 +140,23 @@ class BDESNPCA(nn.Module):
         self.esn_cell.w = w
     # end set_w
 
+    # endregion PUBLIC
+
+    # region OVERRIDE
+
+    # Reset learning
+    def reset(self):
+        """
+        Reset learning
+        :return:
+        """
+        # Reset output layer
+        self.output.reset()
+
+        # Training mode again
+        self.train(True)
+    # end reset
+
     # Forward
     def forward(self, u, y=None):
         """
@@ -174,6 +176,7 @@ class BDESNPCA(nn.Module):
 
         # FFNN output
         return F.relu(self.linear2(F.relu(self.linear1(pca_states))))
+
     # end forward
 
     # Finish training
@@ -186,6 +189,7 @@ class BDESNPCA(nn.Module):
 
         # Not in training mode anymore
         self.train(False)
+
     # end finalize
 
     # Reset hidden layer
@@ -195,6 +199,7 @@ class BDESNPCA(nn.Module):
         :return:
         """
         self.esn_cell.reset_hidden()
+
     # end reset_hidden
 
     # Get W's spectral radius
@@ -205,5 +210,7 @@ class BDESNPCA(nn.Module):
         """
         return self.esn_cell.get_spectral_raduis()
     # end spectral_radius
+
+    # endregion OVERRIDE
 
 # end BDESNPCA

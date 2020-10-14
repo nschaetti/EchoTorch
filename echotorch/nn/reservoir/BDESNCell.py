@@ -62,15 +62,15 @@ class BDESNCell(nn.Module):
 
         # Recurrent layer
         if create_cell:
-            self.esn_cell = LiESNCell(leaky_rate, False, input_dim, hidden_dim, spectral_radius, bias_scaling,
-                                      input_scaling, w, w_in, w_bias, None, sparsity, input_set, w_sparsity,
-                                      nonlin_func)
+            self.esn_cell = LiESNCell(
+                leaky_rate, False, input_dim, hidden_dim, spectral_radius, bias_scaling,
+                input_scaling, w, w_in, w_bias, None, sparsity, input_set, w_sparsity,
+                nonlin_func
+            )
         # end if
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
     # Hidden weight matrix
     @property
@@ -92,22 +92,9 @@ class BDESNCell(nn.Module):
         return self.esn_cell.w_in
     # end w_in
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
 
-    # Reset learning
-    def reset(self):
-        """
-        Reset learning
-        :return:
-        """
-        # Reset output layer
-        self.output.reset()
-
-        # Training mode again
-        self.train(True)
-    # end reset
+    # region PUBLIC
 
     # Output matrix
     def get_w_out(self):
@@ -128,6 +115,23 @@ class BDESNCell(nn.Module):
         self.esn_cell.w = w
     # end set_w
 
+    # endregion PUBLIC
+
+    # region OVERRIDE
+
+    # Reset learning
+    def reset(self):
+        """
+        Reset learning
+        :return:
+        """
+        # Reset output layer
+        self.output.reset()
+
+        # Training mode again
+        self.train(True)
+    # end reset
+
     # Forward
     def forward(self, u, y=None):
         """
@@ -144,6 +148,7 @@ class BDESNCell(nn.Module):
         backward_hidden_states = Variable(torch.from_numpy(np.flip(backward_hidden_states.data.numpy(), 1).copy()))
 
         return torch.cat((forward_hidden_states, backward_hidden_states), dim=2)
+
     # end forward
 
     # Finish training
@@ -156,6 +161,7 @@ class BDESNCell(nn.Module):
 
         # Not in training mode anymore
         self.train(False)
+
     # end finalize
 
     # Reset hidden layer
@@ -165,6 +171,7 @@ class BDESNCell(nn.Module):
         :return:
         """
         self.esn_cell.reset_hidden()
+
     # end reset_hidden
 
     # Get W's spectral radius
@@ -175,5 +182,7 @@ class BDESNCell(nn.Module):
         """
         return self.esn_cell.get_spectral_raduis()
     # end spectral_radius
+
+    # endregion OVERRIDE
 
 # end BDESNCell

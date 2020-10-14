@@ -28,7 +28,6 @@ Created on 4 November 2019
 import torch
 from torch.autograd import Variable
 import math
-
 from ..NeuralFilter import NeuralFilter
 from echotorch.utils.utility_functions import generalized_squared_cosine
 
