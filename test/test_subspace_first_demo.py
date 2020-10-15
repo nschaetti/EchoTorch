@@ -642,7 +642,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             expected_training_NRMSE=0.7,
-            expected_average_NRMSEs=0.05,
+            expected_average_NRMSEs=0.1,
             places=1,
             torch_seed=1,
             np_seed=1,

@@ -915,7 +915,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             places=1,
             value_test_divider=100.0,
             seed=5,
-            assert_almost_equal=True,
+            assert_almost_equal=False,
             expected_NRMSEs=[
                 2.0,
                 1.5,
@@ -933,8 +933,7 @@ class Test_Memory_Management(EchoTorchTestCase):
                 1.5,
                 2.0,
                 1.5
-            ],
-            print_debug=True
+            ]
         )
     # end test_memory_management_random_200neurons
 
