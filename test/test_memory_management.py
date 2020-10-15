@@ -845,22 +845,22 @@ class Test_Memory_Management(EchoTorchTestCase):
             seed=5,
             assert_almost_equal=False,
             expected_NRMSEs=[
-                1.0,
+                1.5,
                 3.0,
                 6.0,
-                1.0,
-                1.0,
-                1.0,
+                1.5,
+                1.5,
+                1.5,
                 3.0,
                 6.0,
-                1.0,
-                1.0,
-                1.0,
+                1.5,
+                1.5,
+                1.5,
                 2.0,
-                1.0,
-                1.0,
-                1.0,
-                1.0
+                1.5,
+                1.5,
+                1.5,
+                1.5
             ]
         )
     # end test_memory_management_random_input_simulation_200neurons_ridge1000_32bits
@@ -918,7 +918,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             assert_almost_equal=False,
             expected_NRMSEs=[
                 2.0,
-                1.5,
+                1.6,
                 4.5,
                 1.0,
                 1.2,
@@ -930,9 +930,9 @@ class Test_Memory_Management(EchoTorchTestCase):
                 1.6,
                 2.5,
                 1.2,
-                1.5,
+                1.6,
                 2.0,
-                1.5
+                1.6
             ]
         )
     # end test_memory_management_random_200neurons
