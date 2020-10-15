@@ -4,8 +4,6 @@
     <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test_memory_management.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_memory_management.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_narma10_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_narma10_prediction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_subspace_first_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_subspace_first_demo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +88,7 @@
       <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/lab/conceptors" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Nosetests in test_subspace_first_demo.py">
+  <component name="RunManager" selected="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -250,7 +248,7 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_matlab" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -262,11 +260,11 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons&quot;" />
+      <option name="_new_target" value="&quot;test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_matlab&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_simulation_100neurons_32bits" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -278,11 +276,11 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_simulation_100neurons_32bits&quot;" />
+      <option name="_new_target" value="&quot;test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_w_loading_100neurons" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons_aperture10_32bits" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -294,11 +292,11 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_w_loading_100neurons&quot;" />
+      <option name="_new_target" value="&quot;test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons_aperture10_32bits&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests in test_memory_management.py" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_200neurons_ridge1000_32bits" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -310,8 +308,8 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/test_memory_management.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_200neurons_ridge1000_32bits&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="Nosetests in test_subspace_first_demo.py" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
@@ -339,19 +337,19 @@
       <item itemvalue="Shell Script.Archive Model" />
       <item itemvalue="Shell Script.Launch TorchServe" />
       <item itemvalue="Shell Script.Stop TorchServe" />
-      <item itemvalue="Python tests.Nosetests in test_memory_management.py" />
-      <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons" />
-      <item itemvalue="Python tests.Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_simulation_100neurons_32bits" />
-      <item itemvalue="Python tests.Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_w_loading_100neurons" />
       <item itemvalue="Python tests.Nosetests in test_subspace_first_demo.py" />
+      <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_matlab" />
+      <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons_aperture10_32bits" />
+      <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_200neurons_ridge1000_32bits" />
+      <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits" />
+        <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_200neurons_ridge1000_32bits" />
+        <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons_aperture10_32bits" />
+        <item itemvalue="Python tests.Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_matlab" />
         <item itemvalue="Python tests.Nosetests in test_subspace_first_demo.py" />
-        <item itemvalue="Python tests.Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_w_loading_100neurons" />
-        <item itemvalue="Python tests.Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_simulation_100neurons_32bits" />
-        <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons" />
-        <item itemvalue="Python tests.Nosetests in test_memory_management.py" />
       </list>
     </recent_temporary>
   </component>
@@ -413,14 +411,7 @@
       <workItem from="1602486858282" duration="20974000" />
       <workItem from="1602575850344" duration="13556000" />
       <workItem from="1602661760783" duration="20103000" />
-      <workItem from="1602748363405" duration="4222000" />
-    </task>
-    <task id="LOCAL-00031" summary="Added &quot;observe&quot; function to add an observer function to the ESN cell.">
-      <created>1573049294306</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1573049294306</updated>
+      <workItem from="1602748363405" duration="6387000" />
     </task>
     <task id="LOCAL-00032" summary="Working on ESNCellObserver : observe inputs and states of an ESN cell.">
       <created>1573049358014</created>
@@ -758,7 +749,14 @@
       <option name="project" value="LOCAL" />
       <updated>1602689232364</updated>
     </task>
-    <option name="localTasksCounter" value="80" />
+    <task id="LOCAL-00080" summary="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal.">
+      <created>1602752830400</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1602752830401</updated>
+    </task>
+    <option name="localTasksCounter" value="81" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -782,7 +780,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="Fig 2. Morphing in progress (morphing_square.py)" />
     <MESSAGE value="Fig 17 : morphing periodic to sine ok, but debug and test to do (morphing_periodic_sine.py).&#10;Fig 16 : not working, complete debug to do (+test) (morphing_periodic_patterns.py)" />
     <MESSAGE value="Work on memory management (memory_management.py)&#10;IncConceptorNet.py : Incremental version of ConceptorNet.py&#10;IncSPESN : Incremental version of SPESN&#10;IncSPESNCell : Incremental version of SPESNCell" />
     <MESSAGE value="Cosmetics" />
@@ -807,7 +804,8 @@
     <MESSAGE value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
     <MESSAGE value="- python-package-testing.yml : add codecov uploading" />
     <MESSAGE value="- python-package-testing.yml : must install pytest-cov" />
-    <option name="LAST_COMMIT_MESSAGE" value="- python-package-testing.yml : must install pytest-cov" />
+    <MESSAGE value="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal." />
+    <option name="LAST_COMMIT_MESSAGE" value="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal." />
   </component>
   <component name="WindowStateProjectService">
     <state x="613" y="226" width="732" height="645" key="#Inspections" timestamp="1602592837433">
@@ -845,12 +843,12 @@
       <screen x="0" y="27" width="1440" height="933" />
     </state>
     <state x="421" y="96" width="594" height="808" key="#test_fold_cross_validation/0.27.1440.933@0.27.1440.933" timestamp="1599335084429" />
-    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602689232310">
+    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602752830217">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="100" y="25" width="1167" height="935" key="CommitChangelistDialog2/0.27.1440.933@0.27.1440.933" timestamp="1600089077664" />
     <state x="133" y="23" width="1556" height="1053" key="CommitChangelistDialog2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653192057" />
-    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602689232310" />
+    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602752830217" />
     <state x="178" y="19" key="CommitChangelistDialog2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067931115" />
     <state x="274" y="236" width="1388" height="614" key="DiffContextDialog" timestamp="1602688864136">
       <screen x="42" y="27" width="1878" height="1053" />
@@ -864,33 +862,33 @@
     <state x="675" y="273" width="424" height="492" key="FileChooserDialogImpl/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601890144926" />
     <state x="702" y="269" key="FileChooserDialogImpl/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602687686789" />
     <state x="706" y="271" key="FileChooserDialogImpl/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601909936845" />
-    <state width="1836" height="277" key="GridCell.Tab.0.bottom" timestamp="1602752538345">
+    <state width="1836" height="264" key="GridCell.Tab.0.bottom" timestamp="1602754273272">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.bottom/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
     <state width="1080" height="629" key="GridCell.Tab.0.bottom/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="277" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602752538345" />
+    <state width="1836" height="264" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602754273272" />
     <state width="1830" height="267" key="GridCell.Tab.0.bottom/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="277" key="GridCell.Tab.0.center" timestamp="1602752538345">
+    <state width="1836" height="264" key="GridCell.Tab.0.center" timestamp="1602754273272">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.center/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.center/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="277" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602752538345" />
+    <state width="1836" height="264" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602754273272" />
     <state width="1830" height="267" key="GridCell.Tab.0.center/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="277" key="GridCell.Tab.0.left" timestamp="1602752538344">
+    <state width="1836" height="264" key="GridCell.Tab.0.left" timestamp="1602754273272">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.left/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.left/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="277" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602752538344" />
+    <state width="1836" height="264" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602754273272" />
     <state width="1830" height="267" key="GridCell.Tab.0.left/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="277" key="GridCell.Tab.0.right" timestamp="1602752538345">
+    <state width="1836" height="264" key="GridCell.Tab.0.right" timestamp="1602754273272">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.right/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.right/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="277" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602752538345" />
+    <state width="1836" height="264" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602754273272" />
     <state width="1830" height="267" key="GridCell.Tab.0.right/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
     <state width="1836" height="349" key="GridCell.Tab.1.bottom" timestamp="1602691120759">
       <screen x="42" y="27" width="1878" height="1053" />
@@ -923,12 +921,12 @@
     <state x="292" y="121" width="1001" height="738" key="SettingsEditor/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601643750586" />
     <state x="328" y="107" width="1221" height="845" key="SettingsEditor/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602592436549" />
     <state x="333" y="115" key="SettingsEditor/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601906109421" />
-    <state x="456" y="191" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602689233806">
+    <state x="456" y="189" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602752832543">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="318" y="204" width="800" height="565" key="Vcs.Push.Dialog.v2/0.27.1440.933@0.27.1440.933" timestamp="1600089079053" />
     <state x="424" y="225" key="Vcs.Push.Dialog.v2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653196739" />
-    <state x="456" y="191" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602689233806" />
+    <state x="456" y="189" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602752832543" />
     <state x="461" y="221" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067932933" />
     <state x="803" y="458" width="361" height="182" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601910120036">
       <screen x="48" y="27" width="1872" height="1053" />
@@ -957,14 +955,16 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_subspace_first_demo_py.coverage" NAME="Nosetests in test_subspace_first_demo.py Coverage Results" MODIFIED="1602684936031" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_random_200neurons_ridge1000_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits Coverage Results" MODIFIED="1602749559448" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_subspace_first_demo_py.coverage" NAME="Nosetests in test_subspace_first_demo.py Coverage Results" MODIFIED="1602752747269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_random_200neurons_ridge1000_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits Coverage Results" MODIFIED="1602754273241" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_subspace_first_demo_Test_Subspace_First_Demo_test_subspace_first_demo_input_simulation_100neurons_32bits.coverage" NAME="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_simulation_100neurons_32bits Coverage Results" MODIFIED="1602752538336" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization_test_random_optimization_NARMA10.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization.test_random_optimization_NARMA10 Coverage Results" MODIFIED="1602680464731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_session_objects_Test_Session_Objects_test_generate_random_session.coverage" NAME="Unittests for test_session_objects.Test_Session_Objects.test_generate_random_session Coverage Results" MODIFIED="1602592112108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/tests" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_matlab.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_matlab Coverage Results" MODIFIED="1602753148682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_timeseries_embedding_Test_Timeseries_Embedding_test_timeseries_embedding.coverage" NAME="Unittests for test_timeseries_embedding.Test_Timeseries_Embedding.test_timeseries_embedding Coverage Results" MODIFIED="1602510317547" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test.coverage" NAME="Nosetests in test Coverage Results" MODIFIED="1602676813461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn_500neurons.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons Coverage Results" MODIFIED="1602752210526" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_input_simulation_100neurons_aperture10_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons_aperture10_32bits Coverage Results" MODIFIED="1602753246787" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization Coverage Results" MODIFIED="1599336277381" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_random_200neurons.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons Coverage Results" MODIFIED="1602751820977" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$morphing_square.coverage" NAME="morphing_square Coverage Results" MODIFIED="1575585249182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
@@ -972,6 +972,8 @@
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_matrix_generation_py.coverage" NAME="Nosetests in test_matrix_generation.py Coverage Results" MODIFIED="1602684887097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_100neurons.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_100neurons Coverage Results" MODIFIED="1592380663845" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction Coverage Results" MODIFIED="1592378825193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_input_simulation_200neurons_ridge1000_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_200neurons_ridge1000_32bits Coverage Results" MODIFIED="1602753602337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_subspace_first_demo_Test_Subspace_First_Demo_test_subspace_first_demo_w_loading_100neurons.coverage" NAME="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_w_loading_100neurons Coverage Results" MODIFIED="1602752739710" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_morphing_square_py.coverage" NAME="Nosetests in test_morphing_square.py Coverage Results" MODIFIED="1602684897729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_fold_cross_validation_Test_Fold_Cross_Validation_test_10fold_cross_validation_no_dev.coverage" NAME="Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev Coverage Results" MODIFIED="1599340487160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_memory_management_py.coverage" NAME="Nosetests in test_memory_management.py Coverage Results" MODIFIED="1602752024117" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
