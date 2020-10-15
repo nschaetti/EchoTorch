@@ -338,7 +338,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         training_NRMSE = echotorch.utils.nrmse(predY, Y_collector)
 
         # Check training NRMSE
-        self.assertAlmostEqual(training_NRMSE, expected_training_NRMSE, places)
+        self.assertLessEqual(training_NRMSE, expected_training_NRMSE)
 
         # No washout this time
         conceptor_net.washout = 0
@@ -375,7 +375,7 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
         # end for
 
         # Check NRMSE
-        self.assertAlmostEqual(torch.mean(NRMSEs_aligned).item(), expected_average_NRMSEs, places)
+        self.assertLessEqual(torch.mean(NRMSEs_aligned).item(), expected_average_NRMSEs)
 
         # Compute similarity matrices
         Rsim_test = conceptors.similarity_matrix(based_on='R')
@@ -408,8 +408,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=True,
             loading_method=ecnc.SPESNCell.W_LOADING,
-            expected_training_NRMSE=0.029126309017397423,
-            expected_average_NRMSEs=0.011282548308372498
+            expected_training_NRMSE=0.03,
+            expected_average_NRMSEs=0.02
         )
     # end test_subspace_first_demo_matlab
 
@@ -422,8 +422,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=True,
             loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
-            expected_training_NRMSE=0.7160011344407806,
-            expected_average_NRMSEs=0.011969905346632004
+            expected_training_NRMSE=0.8,
+            expected_average_NRMSEs=0.02
         )
     # end test_subspace_first_demo_input_simulation_matlab
 
@@ -436,8 +436,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=True,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
-            expected_training_NRMSE=0.7160011344407806,
-            expected_average_NRMSEs=0.011969903483986855
+            expected_training_NRMSE=0.8,
+            expected_average_NRMSEs=0.02
         )
     # end test_subspace_first_demo_input_recreation_matlab
 
@@ -450,8 +450,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.W_LOADING,
-            expected_training_NRMSE=0.0302901821039379,
-            expected_average_NRMSEs=0.014060717076063156,
+            expected_training_NRMSE=0.04,
+            expected_average_NRMSEs=0.02,
             torch_seed=1,
             np_seed=1,
             expected_RSim=torch.tensor(
@@ -482,8 +482,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.W_LOADING,
             places=1,
-            expected_training_NRMSE=0.04581887877905017,
-            expected_average_NRMSEs=0.02034626714885235,
+            expected_training_NRMSE=0.1,
+            expected_average_NRMSEs=0.1,
             torch_seed=1,
             np_seed=1,
             dtype=torch.float32,
@@ -515,8 +515,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             washout_length=0,
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.W_LOADING,
-            expected_training_NRMSE=0.019908968750831407,
-            expected_average_NRMSEs=0.012572221457958221,
+            expected_training_NRMSE=0.02,
+            expected_average_NRMSEs=0.02,
             torch_seed=1,
             np_seed=1,
             expected_RSim=torch.tensor(
@@ -546,8 +546,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
-            expected_training_NRMSE=0.7415542044431334,
-            expected_average_NRMSEs=0.014060717076063156,
+            expected_training_NRMSE=0.8,
+            expected_average_NRMSEs=0.02,
             torch_seed=1,
             np_seed=1,
             expected_RSim=torch.tensor(
@@ -577,8 +577,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
-            expected_training_NRMSE=0.6512869995721481,
-            expected_average_NRMSEs=0.025733066722750664,
+            expected_training_NRMSE=0.8,
+            expected_average_NRMSEs=0.1,
             places=1,
             torch_seed=1,
             np_seed=1,
@@ -610,8 +610,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
-            expected_training_NRMSE=0.7415542044431334,
-            expected_average_NRMSEs=0.014060717076063156,
+            expected_training_NRMSE=0.8,
+            expected_average_NRMSEs=0.02,
             torch_seed=1,
             np_seed=1,
             expected_RSim=torch.tensor(
@@ -641,8 +641,8 @@ class Test_Subspace_First_Demo(EchoTorchTestCase):
             data_dir="subspace_first_demo",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
-            expected_training_NRMSE=0.6512869995721481,
-            expected_average_NRMSEs=0.046838752925395966,
+            expected_training_NRMSE=0.7,
+            expected_average_NRMSEs=0.05,
             places=1,
             torch_seed=1,
             np_seed=1,

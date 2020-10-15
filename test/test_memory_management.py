@@ -49,7 +49,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             self, data_dir, expected_NRMSEs, reservoir_size=100, spectral_radius=1.5, input_scaling=1.5,
             bias_scaling=0.25, connectivity=10.0, washout_length=100, learn_length=100,
             ridge_param_wout=0.01, aperture=1000, places=3, value_test_divider=1.0,
-            torch_seed=1, np_seed=1, interpolation_rate=20, conceptor_test_length=200,
+            seed=1, interpolation_rate=20, conceptor_test_length=200,
             signal_plot_length=20, loading_method=ecnc.SPESNCell.INPUTS_SIMULATION,
             use_matlab_params=True, dtype=torch.float64, print_debug=False):
         """
@@ -64,8 +64,7 @@ class Test_Memory_Management(EchoTorchTestCase):
         debug_mode = Node.DEBUG_TEST_CASE
 
         # Random numb. init
-        torch.random.manual_seed(torch_seed)
-        np.random.seed(np_seed)
+        echotorch.utils.random.manual_seed(seed)
 
         # Precision decimal
         precision = 1.0 / places
@@ -562,6 +561,10 @@ class Test_Memory_Management(EchoTorchTestCase):
         # and switch to the evaluation mode.
         conceptor_net.train(False)
 
+        # Keep aligned NRMSEs to be print
+        # at the end.
+        NRMSEs_aligned = list()
+
         # For each pattern we generate a sample by filtering the neurons
         # activation with the selected Conceptor, we then align the
         # generated sample to the real pattern by testing different
@@ -600,7 +603,17 @@ class Test_Memory_Management(EchoTorchTestCase):
             if expected_NRMSEs[p] != np.nan:
                 self.assertAlmostEqual(NRMSE_aligned / value_test_divider, expected_NRMSEs[p] / value_test_divider, places)
             # end if
+
+            # Append to the list
+            NRMSEs_aligned.append(str(NRMSE_aligned))
         # end for
+
+        # Print NRMSEs aligned
+        # if in debug mode
+        if print_debug:
+            print("Aligned NRMSEs")
+            print(",\n".join(NRMSEs_aligned))
+        # end if
     # end memory_management
 
     # endregion PUBLIC
@@ -617,6 +630,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             use_matlab_params=True,
             places=1,
+            seed=1,
             expected_NRMSEs=[
                 0.01825501182411578,
                 0.022420943203613906,
@@ -648,6 +662,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             use_matlab_params=True,
             places=1,
+            seed=1,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             expected_NRMSEs=[
                 0.01825501182411578,
@@ -680,11 +695,10 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             use_matlab_params=False,
             places=2,
-            torch_seed=5,
-            np_seed=5,
+            seed=5,
             expected_NRMSEs=[
                 1.1030825622274112e-02,
-                9.530200433789464e-03,
+                9.530213626792397e-03,
                 1.0300955362118292e-03,
                 3.50784456755666e-03,
                 6.282222859599931e-02,
@@ -715,8 +729,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             aperture=15,
             places=1,
             value_test_divider=10.0,
-            torch_seed=5,
-            np_seed=5,
+            seed=5,
             dtype=torch.float32,
             expected_NRMSEs=[
                 0.06906211876116686,
@@ -749,27 +762,27 @@ class Test_Memory_Management(EchoTorchTestCase):
             data_dir="memory_management",
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
-            places=2,
-            torch_seed=5,
-            np_seed=5,
+            places=1,
+            seed=5,
             expected_NRMSEs=[
-                1.1030825385229787e-02,
-                9.530200433789464e-03,
-                1.0274781379848719e-03,
-                3.5200463607907295e-03,
-                6.282223295082599e-02,
-                1.1030825385229787e-02,
-                9.530200433789464e-03,
-                1.0274781379848719e-03,
-                5.3422078168264386e-02,
-                6.032677639786433e-03,
-                1.8464295084995325e-02,
-                9.4426041468977928e-03,
-                2.1960476413369179e-02,
-                5.6651360355317593e-03,
-                6.389103415382252e-02,
-                1.7635645866394043e+00
-            ]
+                3.702687777745065e-02,
+                4.6126697490757554e-02,
+                2.343471898453438e-03,
+                3.5078419245692886e-03,
+                8.027064598302061e-02,
+                3.702687777745065e-02,
+                4.6126697490757554e-02,
+                3.343471898453438e-03,
+                8.077585555182237e-02,
+                2.700503907328527e-02,
+                2.9118910303447952e-02,
+                1.6722716383555238e-02,
+                2.1949619071667408e-02,
+                7.54969504237424e-03,
+                8.361298126585516e-02,
+                1.7237494048673314
+            ],
+            print_debug=True
         )
     # end test_memory_management_input_recreation_random_100neurons
 
@@ -784,8 +797,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             reservoir_size=200,
             use_matlab_params=False,
             places=3,
-            torch_seed=5,
-            np_seed=5,
+            seed=5,
             expected_NRMSEs=[
                 0.0004915953031741,
                 0.0016071919817477,
@@ -821,8 +833,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             places=1,
             value_test_divider=100.0,
             dtype=torch.float32,
-            torch_seed=5,
-            np_seed=5,
+            seed=5,
             expected_NRMSEs=[
                 0.9177582519729711,
                 2.42791005954353,
@@ -856,8 +867,7 @@ class Test_Memory_Management(EchoTorchTestCase):
             use_matlab_params=False,
             loading_method=ecnc.SPESNCell.INPUTS_RECREATION,
             places=3,
-            torch_seed=5,
-            np_seed=5,
+            seed=5,
             expected_NRMSEs=[
                 0.0004915953031741,
                 0.0016071919817477,
@@ -867,13 +877,13 @@ class Test_Memory_Management(EchoTorchTestCase):
                 0.0004915953031741,
                 0.0016071919817477,
                 0.0002676959265955,
-                0.0014735902659595,
+                0.001473652918703289,
                 0.0008582514729577747,
                 0.0006031005177647,
                 0.0015809513861313,
                 0.0016617941437289,
-                0.0003109153185505,
-                0.0027175231371075,
+                0.00031093967192148073,
+                0.002717542114382126,
                 0.0012399877887219
             ]
         )
@@ -894,25 +904,24 @@ class Test_Memory_Management(EchoTorchTestCase):
             dtype=torch.float32,
             places=1,
             value_test_divider=100.0,
-            torch_seed=5,
-            np_seed=5,
+            seed=5,
             expected_NRMSEs=[
-                1.5947459979487746,
-                1.0849528617111965,
-                3.9557000620183347,
-                0.846830994704957,
-                1.0065152002429012,
-                1.5947459979487746,
-                1.0849528617111965,
-                3.9557000620183347,
-                1.003055969429993,
-                0.9761319546514667,
-                1.268995717876355,
-                1.9296821872159278,
-                0.9966122642764557,
-                1.0386132437866693,
-                1.7007420519130423,
-                1.241360755120375
+                1.0125993114792322,
+                1.0413587623752478,
+                0.955239186816499,
+                0.9804841302524069,
+                1.0033083667901683,
+                1.0125993114792322,
+                1.0413587623752478,
+                0.955239186816499,
+                1.8039649739047583,
+                0.9969519116140418,
+                0.9770814051063452,
+                1.0501053348566673,
+                0.9986308082338122,
+                1.0174260529212145,
+                1.1042106127840599,
+                0.9760610590052882
             ],
             print_debug=True
         )
