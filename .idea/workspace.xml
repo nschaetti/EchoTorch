@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test_memory_management.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_memory_management.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test_narma10_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_narma10_prediction.py" afterDir="false" />
     </list>
@@ -337,14 +335,14 @@
       <item itemvalue="Python.morphing_periodic_sine" />
       <item itemvalue="Python.subspace_demo" />
       <item itemvalue="Python tests.Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" />
-      <item itemvalue="Shell Script.Archive Model" />
-      <item itemvalue="Shell Script.Launch TorchServe" />
-      <item itemvalue="Shell Script.Stop TorchServe" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn" />
       <item itemvalue="Python tests.Nosetests in test_narma10_prediction.py" />
+      <item itemvalue="Shell Script.Archive Model" />
+      <item itemvalue="Shell Script.Launch TorchServe" />
+      <item itemvalue="Shell Script.Stop TorchServe" />
     </list>
     <recent_temporary>
       <list>
@@ -421,14 +419,8 @@
       <workItem from="1602768649649" duration="24000" />
       <workItem from="1602768767377" duration="93000" />
       <workItem from="1602769071969" duration="58000" />
-      <workItem from="1602774399070" duration="1251000" />
-    </task>
-    <task id="LOCAL-00034" summary="JoinStates : module to join several continuous states.">
-      <created>1573059873743</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1573059873743</updated>
+      <workItem from="1602774399070" duration="1325000" />
+      <workItem from="1602835881623" duration="289000" />
     </task>
     <task id="LOCAL-00035" summary="Work on ImageToTimeseries : transform an image dataset to a timeseries dataset ready for ESNs.">
       <created>1573059928419</created>
@@ -766,7 +758,14 @@
       <option name="project" value="LOCAL" />
       <updated>1602767503949</updated>
     </task>
-    <option name="localTasksCounter" value="83" />
+    <task id="LOCAL-00083" summary="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual">
+      <created>1602775695067</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1602775695069</updated>
+    </task>
+    <option name="localTasksCounter" value="84" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -790,7 +789,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="Work on memory management (memory_management.py)&#10;IncConceptorNet.py : Incremental version of ConceptorNet.py&#10;IncSPESN : Incremental version of SPESN&#10;IncSPESNCell : Incremental version of SPESNCell" />
     <MESSAGE value="Cosmetics" />
     <MESSAGE value="Added Networkx to the requirements.txt" />
     <MESSAGE value="- requirements.txt : added tqdm&#10;- test_narma10_prediction.py : use matrix generator for each matrices&#10;- test_memory_management.py : random generation changed (to check)&#10;- ESNs-Based-RC-for-MNIST-Handwritten-Digits-Recognition.py : pyhton3 like import&#10;- IncSPESN.py : added again ridge_param_wout" />
@@ -815,7 +813,8 @@
     <MESSAGE value="- python-package-testing.yml : must install pytest-cov" />
     <MESSAGE value="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal." />
     <MESSAGE value="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests." />
-    <option name="LAST_COMMIT_MESSAGE" value="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests." />
+    <MESSAGE value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
+    <option name="LAST_COMMIT_MESSAGE" value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
   </component>
   <component name="WindowStateProjectService">
     <state x="613" y="226" width="732" height="645" key="#Inspections" timestamp="1602592837433">
@@ -853,12 +852,12 @@
       <screen x="0" y="27" width="1440" height="933" />
     </state>
     <state x="421" y="96" width="594" height="808" key="#test_fold_cross_validation/0.27.1440.933@0.27.1440.933" timestamp="1599335084429" />
-    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602767503872">
+    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602775694891">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="100" y="25" width="1167" height="935" key="CommitChangelistDialog2/0.27.1440.933@0.27.1440.933" timestamp="1600089077664" />
     <state x="133" y="23" width="1556" height="1053" key="CommitChangelistDialog2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653192057" />
-    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602767503872" />
+    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775694891" />
     <state x="178" y="19" key="CommitChangelistDialog2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067931115" />
     <state x="274" y="236" width="1388" height="614" key="DiffContextDialog" timestamp="1602688864136">
       <screen x="42" y="27" width="1878" height="1053" />
@@ -872,33 +871,33 @@
     <state x="675" y="273" width="424" height="492" key="FileChooserDialogImpl/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601890144926" />
     <state x="702" y="263" width="424" height="492" key="FileChooserDialogImpl/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602768043744" />
     <state x="706" y="271" key="FileChooserDialogImpl/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601909936845" />
-    <state width="1836" height="147" key="GridCell.Tab.0.bottom" timestamp="1602775620997">
+    <state width="1836" height="147" key="GridCell.Tab.0.bottom" timestamp="1602775723819">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.bottom/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
     <state width="1080" height="629" key="GridCell.Tab.0.bottom/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="147" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775620997" />
+    <state width="1836" height="147" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723819" />
     <state width="1830" height="267" key="GridCell.Tab.0.bottom/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="147" key="GridCell.Tab.0.center" timestamp="1602775620997">
+    <state width="1836" height="147" key="GridCell.Tab.0.center" timestamp="1602775723819">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.center/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.center/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="147" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775620997" />
+    <state width="1836" height="147" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723819" />
     <state width="1830" height="267" key="GridCell.Tab.0.center/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="147" key="GridCell.Tab.0.left" timestamp="1602775620997">
+    <state width="1836" height="147" key="GridCell.Tab.0.left" timestamp="1602775723818">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.left/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.left/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="147" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775620997" />
+    <state width="1836" height="147" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723818" />
     <state width="1830" height="267" key="GridCell.Tab.0.left/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
-    <state width="1836" height="147" key="GridCell.Tab.0.right" timestamp="1602775620997">
+    <state width="1836" height="147" key="GridCell.Tab.0.right" timestamp="1602775723819">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state width="1396" height="276" key="GridCell.Tab.0.right/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
     <state width="1080" height="629" key="GridCell.Tab.0.right/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
-    <state width="1836" height="147" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775620997" />
+    <state width="1836" height="147" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723819" />
     <state width="1830" height="267" key="GridCell.Tab.0.right/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
     <state width="1836" height="349" key="GridCell.Tab.1.bottom" timestamp="1602691120759">
       <screen x="42" y="27" width="1878" height="1053" />
@@ -931,12 +930,12 @@
     <state x="292" y="121" width="1001" height="738" key="SettingsEditor/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601643750586" />
     <state x="328" y="105" width="1221" height="845" key="SettingsEditor/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602769085784" />
     <state x="333" y="115" key="SettingsEditor/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601906109421" />
-    <state x="456" y="185" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602767505821">
+    <state x="456" y="183" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602775696315">
       <screen x="42" y="27" width="1878" height="1053" />
     </state>
     <state x="318" y="204" width="800" height="565" key="Vcs.Push.Dialog.v2/0.27.1440.933@0.27.1440.933" timestamp="1600089079053" />
     <state x="424" y="225" key="Vcs.Push.Dialog.v2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653196739" />
-    <state x="456" y="185" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602767505821" />
+    <state x="456" y="183" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775696315" />
     <state x="461" y="221" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067932933" />
     <state x="803" y="458" width="361" height="182" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601910120036">
       <screen x="48" y="27" width="1872" height="1053" />

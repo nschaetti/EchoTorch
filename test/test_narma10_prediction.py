@@ -299,9 +299,9 @@ class Test_NARMA10_Prediction(EchoTorchTestCase):
         self.assertLessEqual(test_nrmse, 0.4)
 
         # Check results for 32 bits
-        self.assertLessEqual(train_mse32, 0.1)
+        self.assertLessEqual(train_mse32, 0.15)
         self.assertLessEqual(train_nrmse32, 3.0)
-        self.assertLessEqual(test_mse32, 0.1)
+        self.assertLessEqual(test_mse32, 0.15)
         self.assertLessEqual(test_nrmse32, 3.0)
     # end test_narma10_prediction_500neurons
 
