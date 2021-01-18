@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/transforms/__init__.py
-# Description : Transformers classes.
-# Date : 12th of April, 2020
+# File : echotorch/transforms/ToOneHot.py
+# Description : Transform integer targets to one-hot vectors.
+# Date : 21th of November, 2019
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,14 +19,5 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
-# Imports
-from .Transformer import Transformer
-from .Aggregator import Aggregator
-import echotorch.transforms.images
-import echotorch.transforms.targets
-import echotorch.transforms.text
-import echotorch.transforms.timeseries
 
-__all__ = [
-    'Transformer', 'Aggregator', 'text', 'images', 'targets', 'timeseries'
-]
+

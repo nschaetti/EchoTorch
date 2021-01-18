@@ -29,20 +29,23 @@ class Transformer(object):
     Base class for transformers
     """
 
+    # region CONSTRUCTORS
+
     # Constructor
-    def __init__(self, input_dim, output_dim, dtype=torch.float64):
+    def __init__(self, input_dim, output_dim, time_dim=1, dtype=torch.float64):
         """
         Constructor
         """
         # Properties
         self._input_dim = input_dim
         self._output_dim = output_dim
+        self._time_dim = time_dim
         self._dtype = dtype
     # end __init__
 
-    ##############################################
-    # Properties
-    ##############################################
+    # endregion CONSTRUCTORS
+
+    # region PROPERTIES
 
     # Dimension of the input timeseries
     @property
@@ -64,6 +67,16 @@ class Transformer(object):
         return self._output_dim
     # end output_dim
 
+    # Position of the time dimension
+    @property
+    def time_dim(self):
+        """
+        Position of the time dimension
+        :return: Position of the time dimension
+        """
+        return self._time_dim
+    # end time_dim
+
     # Output type
     @property
     def dtype(self):
@@ -74,16 +87,30 @@ class Transformer(object):
         return self._dtype
     # end output_dim
 
-    ##############################################
-    # Override
-    ##############################################
+    # endregion PROPERTIES
+
+    # region PRIVATE
+
+    # Transform
+    def _transform(self, x):
+        """
+        Transform input
+        :param x:
+        :return:
+        """
+        return x
+    # end _transform
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
 
     # Convert a string
     def __call__(self, x):
         """
-        Transform a timeseries
-        :param x: Timeseries to transform
-        :return: Transformed timeseries
+        Transform a time series
+        :param x: Time series to transform
+        :return: Transformed time series
         """
         return self._transform(x)
     # end convert
@@ -122,22 +149,10 @@ class Transformer(object):
         return init_str
     # end __str__
 
-    ##############################################
-    # Static
-    ##############################################
+    # endregion OVERRIDE
 
-    ##############################################
-    # Private
-    ##############################################
+    # region STATIC
 
-    # Transform
-    def _transform(self, x):
-        """
-        Transform input
-        :param x:
-        :return:
-        """
-        return x
-    # end _transform
+    # endregion STATIC
 
 # end Transformer
