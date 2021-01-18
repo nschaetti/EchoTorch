@@ -32,16 +32,17 @@ from ..Node import Node
 
 # Li-ESN with Feedbacks
 # TODO: Test
-class LiESN(FreeRunESNCell):
+class FreeRunESN(FreeRunESNCell):
     """
     Li-ESN with Feedbacks
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate, w_generator, win_generator, wbias_generator,
-                 spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
-                 ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None,
-                 dtype=torch.float32):
+    def __init__(
+            self, input_dim, hidden_dim, output_dim, leaky_rate, w_generator, win_generator, wbias_generator,
+            spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
+            ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None,
+            dtype=torch.float32):
         """
         Constructor
         :param input_dim: Input feature space dimension
@@ -64,7 +65,7 @@ class LiESN(FreeRunESNCell):
         :param test_case: Test case to call for test
         :param dtype: Data type
         """
-        super(LiESN, self).__init__(
+        super(FreeRunESN, self).__init__(
             input_dim=input_dim,
             hidden_dim=hidden_dim,
             output_dim=output_dim,
@@ -112,13 +113,15 @@ class LiESN(FreeRunESNCell):
         self.add_trainable(self._output)
     # end __init__
 
-    ###################
-    # PROPERTIES
-    ###################
+    # region PROPERTIES
 
-    ###################
-    # PUBLIC
-    ###################
+    # endregion PROPERTIES
+
+    # region PUBLIC
+
+    # endregion PUBLIC
+
+    # region OVERRIDE
 
     # Finish training
     def finalize(self):
@@ -135,8 +138,6 @@ class LiESN(FreeRunESNCell):
         self.train(False)
     # end finalize
 
-    ###################
-    # PRIVATE
-    ###################
+    # endregion OVERRIDE
 
-# end ESNCell
+# end FreeRunESN

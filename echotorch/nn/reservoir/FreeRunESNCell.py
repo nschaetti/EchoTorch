@@ -58,13 +58,11 @@ class FreeRunESNCell(LiESNCell, Observable):
         self._w_fdb = None
     # end __init__
 
-    ######################
-    # PROPERTIES
-    ######################
+    # region PROPERTIES
 
-    ######################
-    # PUBLIC
-    ######################
+    # endregion PROPERTIES
+
+    # region PUBLIC
 
     # Set feedbacks
     def set_feedbacks(self, w_fdb):
@@ -75,13 +73,9 @@ class FreeRunESNCell(LiESNCell, Observable):
         self._w_fdb = w_fdb
     # end set_feedbacks
 
-    ######################
-    # PRIVATE
-    ######################
+    # endregion PUBLIC
 
-    ######################
-    # OVERRIDE
-    ######################
+    # region OVERRIDE
 
     # Hook which gets executed before the update state equation for every timesteps.
     def _pre_step_update_hook(self, inputs, forward_i, sample_i, t):
@@ -98,5 +92,7 @@ class FreeRunESNCell(LiESNCell, Observable):
             return inputs
         # end if
     # end _pre_step_update_hook
+
+    # endregion OVERRIDE
 
 # end FreeRunESNCell

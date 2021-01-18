@@ -120,7 +120,7 @@ class ESN(Node):
         # end if
     # end __init__
 
-    #region PROPERTIES
+    # region PROPERTIES
 
     # Get washout
     @property
@@ -242,7 +242,7 @@ class ESN(Node):
         return self._output.w_out
     # end w_out
 
-    #endregion PROPRETIES
+    # endregion PROPRETIES
 
     # region OVERRIDE
 

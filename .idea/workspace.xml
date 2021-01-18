@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test_memory_management.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_memory_management.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test_narma10_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_narma10_prediction.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="ExportToHTMLSettings">
+    <option name="OPEN_IN_BROWSER" value="true" />
+    <option name="OUTPUT_DIRECTORY" value="$USER_HOME$" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Setup Script" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master2" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JupyterTrust" id="ee135a8d-533b-4cd5-9e4d-11c930b53fc4" />
+  <component name="ProjectId" id="1SqiPvcXuD2O0ffLdKXl1fYSzeR" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/horsetrack/models/autoencoders" />
+      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/horsetrack/models/embeddings" />
+      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/horsetrack/api/session/schema" />
+      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/lab/autoencoders" />
+      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/lab/conceptors" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python tests.Nosetests in test_narma10_prediction.py">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="memory_management" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.7" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/conceptors/memory_management.py" />
+      <option name="PARAMETERS" value="--w data/WstarRaw.mat --w-name WstarRaw --win data/WinRaw.mat --win-name WinRaw --wbias data/Wbias.mat --wbias-name Wbias" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="morphing_periodic_patterns" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.7" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/conceptors/morphing_periodic_patterns.py" />
+      <option name="PARAMETERS" value="--w data/WstarRaw.mat --w-name WstarRaw --win data/WinRaw.mat --win-name WinRaw --wbias data/Wbias.mat --wbias-name Wbias" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="morphing_periodic_sine" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.7" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/conceptors/morphing_periodic_sine.py" />
+      <option name="PARAMETERS" value="--w data/WstarRaw.mat --w-name WstarRaw --win data/WinRaw.mat --win-name WinRaw --wbias data/Wbias.mat --wbias-name Wbias" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="subspace_demo" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.7" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/conceptors/subspace_demo.py" />
+      <option name="PARAMETERS" value="--w data/WstarRaw.mat --w-name WstarRaw --win data/WinRaw.mat --win-name WinRaw --wbias data/Wbias.mat --wbias-name Wbias" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Archive Model" type="ShConfigurationType">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/scripts/archive_model.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Launch TorchServe" type="ShConfigurationType">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/scripts/launch_torchserve.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Stop TorchServe" type="ShConfigurationType">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/scripts/stop_torchserve.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" type="tests" factoryName="Nosetests" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests in test_narma10_prediction.py" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="EchoTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/test_narma10_prediction.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.memory_management" />
+      <item itemvalue="Python.morphing_periodic_patterns" />
+      <item itemvalue="Python.morphing_periodic_sine" />
+      <item itemvalue="Python.subspace_demo" />
+      <item itemvalue="Python tests.Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" />
+      <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001" />
+      <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01" />
+      <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn" />
+      <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn" />
+      <item itemvalue="Python tests.Nosetests in test_narma10_prediction.py" />
+      <item itemvalue="Shell Script.Archive Model" />
+      <item itemvalue="Shell Script.Launch TorchServe" />
+      <item itemvalue="Shell Script.Stop TorchServe" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.Nosetests in test_narma10_prediction.py" />
+        <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn" />
+        <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn" />
+        <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01" />
+        <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="" />
+      <created>1572297505968</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1572297505968</updated>
+      <workItem from="1575569032406" duration="1115000" />
+      <workItem from="1575573203898" duration="1021000" />
+      <workItem from="1575574389733" duration="545000" />
+      <workItem from="1575575080442" duration="7145000" />
+      <workItem from="1575626039955" duration="28000" />
+      <workItem from="1575629482883" duration="84000" />
+      <workItem from="1575737991570" duration="4972000" />
+      <workItem from="1575755395960" duration="91000" />
+      <workItem from="1575757266855" duration="113000" />
+      <workItem from="1575757685847" duration="12000" />
+      <workItem from="1575757716442" duration="7394000" />
+      <workItem from="1575906198327" duration="39000" />
+      <workItem from="1576079955281" duration="191000" />
+      <workItem from="1576096635327" duration="93000" />
+      <workItem from="1576096864395" duration="64000" />
+      <workItem from="1576097134713" duration="282000" />
+      <workItem from="1576097529523" duration="118000" />
+      <workItem from="1576100564744" duration="121000" />
+      <workItem from="1576143841679" duration="22000" />
+      <workItem from="1576536769221" duration="58000" />
+      <workItem from="1592375691259" duration="5614000" />
+      <workItem from="1599334203995" duration="360000" />
+      <workItem from="1599334617793" duration="621000" />
+      <workItem from="1599335252715" duration="5502000" />
+      <workItem from="1599893651326" duration="41000" />
+      <workItem from="1599893707383" duration="19000" />
+      <workItem from="1599895031826" duration="1382000" />
+      <workItem from="1599914886626" duration="1440000" />
+      <workItem from="1600065889026" duration="2040000" />
+      <workItem from="1600076000977" duration="8160000" />
+      <workItem from="1601541951372" duration="47000" />
+      <workItem from="1601542014909" duration="7719000" />
+      <workItem from="1601554125964" duration="3918000" />
+      <workItem from="1601642356005" duration="696000" />
+      <workItem from="1601643124994" duration="10071000" />
+      <workItem from="1601887610490" duration="1835000" />
+      <workItem from="1601889459522" duration="4763000" />
+      <workItem from="1601902476945" duration="8691000" />
+      <workItem from="1601973347816" duration="4877000" />
+      <workItem from="1601979266652" duration="2848000" />
+      <workItem from="1601995491758" duration="2100000" />
+      <workItem from="1602061213813" duration="3230000" />
+      <workItem from="1602080749709" duration="3977000" />
+      <workItem from="1602140869301" duration="9676000" />
+      <workItem from="1602486858282" duration="20974000" />
+      <workItem from="1602575850344" duration="13556000" />
+      <workItem from="1602661760783" duration="20103000" />
+      <workItem from="1602748363405" duration="7643000" />
+      <workItem from="1602758271640" duration="2924000" />
+      <workItem from="1602768047702" duration="7000" />
+      <workItem from="1602768311313" duration="177000" />
+      <workItem from="1602768649649" duration="24000" />
+      <workItem from="1602768767377" duration="93000" />
+      <workItem from="1602769071969" duration="58000" />
+      <workItem from="1602774399070" duration="1325000" />
+      <workItem from="1602835881623" duration="289000" />
+    </task>
+    <task id="LOCAL-00035" summary="Work on ImageToTimeseries : transform an image dataset to a timeseries dataset ready for ESNs.">
+      <created>1573059928419</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1573059928419</updated>
+    </task>
+    <task id="LOCAL-00036" summary="ESNCellObserver : added a function to draw matrix graph.">
+      <created>1573061336551</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1573061336551</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Work in progress on schaetti2016.">
+      <created>1573061377344</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1573061377344</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Work in progress on schaetti2016">
+      <created>1573488954483</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1573488954483</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Join state and init">
+      <created>1573510232646</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510232646</updated>
+    </task>
+    <task id="LOCAL-00040" summary="CropResize transformation for schaetti2016">
+      <created>1573510259738</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510259738</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Concat transformation for schaetti2016">
+      <created>1573510279200</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510279200</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Transformation init">
+      <created>1573510294947</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510294947</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Work on ESN + join states started">
+      <created>1573510322140</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510322140</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Work in progress on schaetti2016">
+      <created>1573510341571</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510341571</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Image to timeseries dataset">
+      <created>1573510364802</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1573510364802</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Image to timeseries dataset">
+      <created>1574329693735</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1574329693735</updated>
+    </task>
+    <task id="LOCAL-00047" summary="ConceptorSet, NeuralFilter, ObservationPoint">
+      <created>1574715755173</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1574715755173</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Visualizer">
+      <created>1574716388604</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1574716388604</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Fig 2. Morphing in progress (morphing_square.py)">
+      <created>1575585369431</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1575585369431</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Fig 17 : morphing periodic to sine ok, but debug and test to do (morphing_periodic_sine.py).&#10;Fig 16 : not working, complete debug to do (+test) (morphing_periodic_patterns.py)">
+      <created>1575742947547</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1575742947547</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Work on memory management (memory_management.py)&#10;IncConceptorNet.py : Incremental version of ConceptorNet.py&#10;IncSPESN : Incremental version of SPESN&#10;IncSPESNCell : Incremental version of SPESNCell">
+      <created>1575766133300</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1575766133301</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Cosmetics">
+      <created>1576100636281</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1576100636282</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Added Networkx to the requirements.txt">
+      <created>1592377884054</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1592377884054</updated>
+    </task>
+    <task id="LOCAL-00054" summary="- requirements.txt : added tqdm&#10;- test_narma10_prediction.py : use matrix generator for each matrices&#10;- test_memory_management.py : random generation changed (to check)&#10;- ESNs-Based-RC-for-MNIST-Handwritten-Digits-Recognition.py : pyhton3 like import&#10;- IncSPESN.py : added again ridge_param_wout">
+      <created>1592388018066</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1592388018066</updated>
+    </task>
+    <task id="LOCAL-00055" summary="- __init__.py : only EchoTorchTestCase&#10;- test_fold_cross_validation.py : Test 10-cv with small dataset (10 samples) and no dev set">
+      <created>1599340741730</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1599340741730</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;">
+      <created>1599896400566</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1599896400566</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;">
+      <created>1599916266543</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1599916266544</updated>
+    </task>
+    <task id="LOCAL-00058" summary="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;">
+      <created>1600067904017</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1600067904017</updated>
+    </task>
+    <task id="LOCAL-00059" summary="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;">
+      <created>1600085299363</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1600085299363</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;">
+      <created>1600085353551</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1600085353551</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;">
+      <created>1600089077741</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1600089077741</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Working on TorchServe :&#10;&#10;- Handler for timeseries. Does not work yet, error on model (NoneType)&#10;- Scripts to archive model, launch and stop TorchServe.&#10;&#10;metric_learning_cnn.py : early stopping, save the model.&#10;similarity_learning_cnn.py : early stopping, save the model.">
+      <created>1601653192144</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1601653192144</updated>
+    </task>
+    <task id="LOCAL-00063" summary="- TimeseriesEmbedding.py : handler for time series prediction&#10;- TimeseriesEncoder.py : handler for time series auto-encoder&#10;- TimeseriesHandler.py : base handle for time series&#10;- CNNSimilarity.py : CNN similarity model&#10;- SparseAutoEncoder.py : Sparse auto-encoder&#10;- scripts/ : all scripts for TorchServe&#10;- HorseTrackTestCase.py : Base class for test cases&#10;- test_timeseries_embedding.py : test dimensionality reduction of a time series from the TorchServe server.&#10;- test_torchserve_basic.py : test basic interaction with TorchServe (launch, stop, archive model)">
+      <created>1602067520834</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1602067520834</updated>
+    </task>
+    <task id="LOCAL-00064" summary="Cosmetic">
+      <created>1602067931204</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1602067931204</updated>
+    </task>
+    <task id="LOCAL-00065" summary="- HorseTrackAPI.py : utility module to connect to the HorseTrack API&#10;- HorseTrackSession.py : utility module to encode session data">
+      <created>1602084896112</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1602084896113</updated>
+    </task>
+    <task id="LOCAL-00066" summary="exception:&#10;- InvalidFormatException.py : Main exception for invalid data format&#10;&#10;session:&#10;- Segment.py : Segment of a session, object&#10;- Session.py : HorseTrack session, object&#10;&#10;api:&#10;- Connector.py : class to handle connection to the HorseTrack API&#10;&#10;lab:&#10;Moved all experiment files.&#10;&#10;tests:&#10;- test_session_objects.py : test data transformations.">
+      <created>1602515749706</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1602515749706</updated>
+    </task>
+    <task id="LOCAL-00067" summary="To describe...">
+      <created>1602605033358</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1602605033359</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Changed requirements.txt">
+      <created>1602666974913</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1602666974913</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Removed Python 3.5 for tests (to match PyTorch requirements)">
+      <created>1602667406472</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1602667406472</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Removed Python 3.5 for tests (to match PyTorch requirements)">
+      <created>1602667672757</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1602667672757</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Removed itertools in requirements.txt">
+      <created>1602667874727</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1602667874727</updated>
+    </task>
+    <task id="LOCAL-00072" summary="Removed math in requirements.txt">
+      <created>1602668011849</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1602668011850</updated>
+    </task>
+    <task id="LOCAL-00073" summary="Removed threading in requirements.txt">
+      <created>1602668152276</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1602668152276</updated>
+    </task>
+    <task id="LOCAL-00074" summary="Removed old code for SFA">
+      <created>1602676606186</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1602676606186</updated>
+    </task>
+    <task id="LOCAL-00075" summary="Cosmetics and tests for optimisation">
+      <created>1602680727368</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1602680727368</updated>
+    </task>
+    <task id="LOCAL-00076" summary="Removed echotorch.nn import">
+      <created>1602682313227</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1602682313227</updated>
+    </task>
+    <task id="LOCAL-00077" summary="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)">
+      <created>1602686026162</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1602686026162</updated>
+    </task>
+    <task id="LOCAL-00078" summary="- python-package-testing.yml : add codecov uploading">
+      <created>1602688875120</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1602688875120</updated>
+    </task>
+    <task id="LOCAL-00079" summary="- python-package-testing.yml : must install pytest-cov">
+      <created>1602689232364</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1602689232364</updated>
+    </task>
+    <task id="LOCAL-00080" summary="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal.">
+      <created>1602752830400</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1602752830401</updated>
+    </task>
+    <task id="LOCAL-00081" summary="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests.">
+      <created>1602754871275</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1602754871275</updated>
+    </task>
+    <task id="LOCAL-00082" summary="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests.">
+      <created>1602767503949</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1602767503949</updated>
+    </task>
+    <task id="LOCAL-00083" summary="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual">
+      <created>1602775695067</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1602775695069</updated>
+    </task>
+    <option name="localTasksCounter" value="84" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-MNIST" />
+      <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
+      <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
+    </ignored-roots>
+    <MESSAGE value="Cosmetics" />
+    <MESSAGE value="Added Networkx to the requirements.txt" />
+    <MESSAGE value="- requirements.txt : added tqdm&#10;- test_narma10_prediction.py : use matrix generator for each matrices&#10;- test_memory_management.py : random generation changed (to check)&#10;- ESNs-Based-RC-for-MNIST-Handwritten-Digits-Recognition.py : pyhton3 like import&#10;- IncSPESN.py : added again ridge_param_wout" />
+    <MESSAGE value="- __init__.py : only EchoTorchTestCase&#10;- test_fold_cross_validation.py : Test 10-cv with small dataset (10 samples) and no dev set" />
+    <MESSAGE value="Working on &quot;Deep Reservoir Computing : A Critical Experimental Analysis&quot;" />
+    <MESSAGE value="Working on TorchServe :&#10;&#10;- Handler for timeseries. Does not work yet, error on model (NoneType)&#10;- Scripts to archive model, launch and stop TorchServe.&#10;&#10;metric_learning_cnn.py : early stopping, save the model.&#10;similarity_learning_cnn.py : early stopping, save the model." />
+    <MESSAGE value="- TimeseriesEmbedding.py : handler for time series prediction&#10;- TimeseriesEncoder.py : handler for time series auto-encoder&#10;- TimeseriesHandler.py : base handle for time series&#10;- CNNSimilarity.py : CNN similarity model&#10;- SparseAutoEncoder.py : Sparse auto-encoder&#10;- scripts/ : all scripts for TorchServe&#10;- HorseTrackTestCase.py : Base class for test cases&#10;- test_timeseries_embedding.py : test dimensionality reduction of a time series from the TorchServe server.&#10;- test_torchserve_basic.py : test basic interaction with TorchServe (launch, stop, archive model)" />
+    <MESSAGE value="Cosmetic" />
+    <MESSAGE value="- HorseTrackAPI.py : utility module to connect to the HorseTrack API&#10;- HorseTrackSession.py : utility module to encode session data" />
+    <MESSAGE value="exception:&#10;- InvalidFormatException.py : Main exception for invalid data format&#10;&#10;session:&#10;- Segment.py : Segment of a session, object&#10;- Session.py : HorseTrack session, object&#10;&#10;api:&#10;- Connector.py : class to handle connection to the HorseTrack API&#10;&#10;lab:&#10;Moved all experiment files.&#10;&#10;tests:&#10;- test_session_objects.py : test data transformations." />
+    <MESSAGE value="To describe..." />
+    <MESSAGE value="Changed requirements.txt" />
+    <MESSAGE value="Removed Python 3.5 for tests (to match PyTorch requirements)" />
+    <MESSAGE value="Removed itertools in requirements.txt" />
+    <MESSAGE value="Removed math in requirements.txt" />
+    <MESSAGE value="Removed threading in requirements.txt" />
+    <MESSAGE value="Removed old code for SFA" />
+    <MESSAGE value="Cosmetics and tests for optimisation" />
+    <MESSAGE value="Removed echotorch.nn import" />
+    <MESSAGE value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
+    <MESSAGE value="- python-package-testing.yml : add codecov uploading" />
+    <MESSAGE value="- python-package-testing.yml : must install pytest-cov" />
+    <MESSAGE value="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal." />
+    <MESSAGE value="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests." />
+    <MESSAGE value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
+    <option name="LAST_COMMIT_MESSAGE" value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="613" y="226" width="732" height="645" key="#Inspections" timestamp="1602592837433">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="613" y="226" width="732" height="645" key="#Inspections/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602592837433" />
+    <state x="363" y="147" width="710" height="711" key="#Nosetests_for_test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" timestamp="1599337098095">
+      <screen x="0" y="27" width="1440" height="933" />
+    </state>
+    <state x="363" y="147" width="710" height="711" key="#Nosetests_for_test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev/0.27.1440.933@0.27.1440.933" timestamp="1599337098095" />
+    <state x="316" y="170" width="800" height="685" key="#Updates" timestamp="1599334683148">
+      <screen x="0" y="27" width="1440" height="933" />
+    </state>
+    <state x="316" y="170" width="800" height="685" key="#Updates/0.27.1440.933@0.27.1440.933" timestamp="1599334683148" />
+    <state x="517" y="195" width="1076" height="764" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602683909443">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="182" y="154" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.27.1440.933@0.27.1440.933" timestamp="1599337050116" />
+    <state x="503" y="210" width="1076" height="764" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601890216602" />
+    <state x="517" y="195" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602683909443" />
+    <state x="538" y="202" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601975595182" />
+    <state x="710" y="341" width="543" height="411" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1601977515704">
+      <screen x="48" y="27" width="1872" height="1053" />
+    </state>
+    <state x="710" y="341" width="543" height="411" key="#com.intellij.fileTypes.FileTypeChooser/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601977515704" />
+    <state x="406" y="235" width="624" height="530" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1599334494978">
+      <screen x="0" y="27" width="1440" height="933" />
+    </state>
+    <state x="406" y="235" width="624" height="530" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.27.1440.933@0.27.1440.933" timestamp="1599334494978" />
+    <state x="421" y="98" width="594" height="808" key="#test_boolean_operations" timestamp="1599335094992">
+      <screen x="0" y="27" width="1440" height="933" />
+    </state>
+    <state x="421" y="98" width="594" height="808" key="#test_boolean_operations/0.27.1440.933@0.27.1440.933" timestamp="1599335094992" />
+    <state x="421" y="96" width="594" height="808" key="#test_fold_cross_validation" timestamp="1599335084429">
+      <screen x="0" y="27" width="1440" height="933" />
+    </state>
+    <state x="421" y="96" width="594" height="808" key="#test_fold_cross_validation/0.27.1440.933@0.27.1440.933" timestamp="1599335084429" />
+    <state x="172" y="-2" width="1556" height="1053" key="CommitChangelistDialog2" timestamp="1602775694891">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="100" y="25" width="1167" height="935" key="CommitChangelistDialog2/0.27.1440.933@0.27.1440.933" timestamp="1600089077664" />
+    <state x="133" y="23" width="1556" height="1053" key="CommitChangelistDialog2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653192057" />
+    <state x="172" y="-2" key="CommitChangelistDialog2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775694891" />
+    <state x="178" y="19" key="CommitChangelistDialog2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067931115" />
+    <state x="274" y="236" width="1388" height="614" key="DiffContextDialog" timestamp="1602688864136">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="274" y="236" width="1388" height="614" key="DiffContextDialog/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602688864136" />
+    <state x="522" y="248" width="864" height="614" key="DiffContextDialog/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067917816" />
+    <state x="702" y="263" width="424" height="492" key="FileChooserDialogImpl" timestamp="1602768043744">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="506" y="252" width="424" height="492" key="FileChooserDialogImpl/0.27.1440.933@0.27.1440.933" timestamp="1601554757672" />
+    <state x="675" y="273" width="424" height="492" key="FileChooserDialogImpl/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601890144926" />
+    <state x="702" y="263" width="424" height="492" key="FileChooserDialogImpl/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602768043744" />
+    <state x="706" y="271" key="FileChooserDialogImpl/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601909936845" />
+    <state width="1836" height="147" key="GridCell.Tab.0.bottom" timestamp="1602775723819">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.0.bottom/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
+    <state width="1080" height="629" key="GridCell.Tab.0.bottom/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
+    <state width="1836" height="147" key="GridCell.Tab.0.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723819" />
+    <state width="1830" height="267" key="GridCell.Tab.0.bottom/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
+    <state width="1836" height="147" key="GridCell.Tab.0.center" timestamp="1602775723819">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.0.center/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
+    <state width="1080" height="629" key="GridCell.Tab.0.center/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
+    <state width="1836" height="147" key="GridCell.Tab.0.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723819" />
+    <state width="1830" height="267" key="GridCell.Tab.0.center/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
+    <state width="1836" height="147" key="GridCell.Tab.0.left" timestamp="1602775723818">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.0.left/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
+    <state width="1080" height="629" key="GridCell.Tab.0.left/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
+    <state width="1836" height="147" key="GridCell.Tab.0.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723818" />
+    <state width="1830" height="267" key="GridCell.Tab.0.left/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
+    <state width="1836" height="147" key="GridCell.Tab.0.right" timestamp="1602775723819">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.0.right/0.27.1440.933@0.27.1440.933" timestamp="1599340758124" />
+    <state width="1080" height="629" key="GridCell.Tab.0.right/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601889677069" />
+    <state width="1836" height="147" key="GridCell.Tab.0.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775723819" />
+    <state width="1830" height="267" key="GridCell.Tab.0.right/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601997591391" />
+    <state width="1836" height="349" key="GridCell.Tab.1.bottom" timestamp="1602691120759">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.1.bottom/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
+    <state width="1836" height="349" key="GridCell.Tab.1.bottom/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602691120759" />
+    <state width="1836" height="349" key="GridCell.Tab.1.center" timestamp="1602691120759">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.1.center/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
+    <state width="1836" height="349" key="GridCell.Tab.1.center/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602691120759" />
+    <state width="1836" height="349" key="GridCell.Tab.1.left" timestamp="1602691120759">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.1.left/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
+    <state width="1836" height="349" key="GridCell.Tab.1.left/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602691120759" />
+    <state width="1836" height="349" key="GridCell.Tab.1.right" timestamp="1602691120759">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state width="1396" height="276" key="GridCell.Tab.1.right/0.27.1440.933@0.27.1440.933" timestamp="1599340758125" />
+    <state width="1836" height="349" key="GridCell.Tab.1.right/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602691120759" />
+    <state x="455" y="135" width="522" height="750" key="RollbackChangesDialog" timestamp="1599334750372">
+      <screen x="0" y="27" width="1440" height="933" />
+    </state>
+    <state x="455" y="135" width="522" height="750" key="RollbackChangesDialog/0.27.1440.933@0.27.1440.933" timestamp="1599334750372" />
+    <state x="328" y="105" width="1221" height="845" key="SettingsEditor" timestamp="1602769085784">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="219" y="117" width="1001" height="738" key="SettingsEditor/0.27.1440.933@0.27.1440.933" timestamp="1601552573386" />
+    <state x="292" y="121" width="1001" height="738" key="SettingsEditor/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601643750586" />
+    <state x="328" y="105" width="1221" height="845" key="SettingsEditor/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602769085784" />
+    <state x="333" y="115" key="SettingsEditor/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601906109421" />
+    <state x="456" y="183" width="800" height="536" key="Vcs.Push.Dialog.v2" timestamp="1602775696315">
+      <screen x="42" y="27" width="1878" height="1053" />
+    </state>
+    <state x="318" y="204" width="800" height="565" key="Vcs.Push.Dialog.v2/0.27.1440.933@0.27.1440.933" timestamp="1600089079053" />
+    <state x="424" y="225" key="Vcs.Push.Dialog.v2/1920.0.1080.720/0.27.1920.1053@0.27.1920.1053" timestamp="1601653196739" />
+    <state x="456" y="183" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/42.27.1878.1053@42.27.1878.1053" timestamp="1602775696315" />
+    <state x="461" y="221" width="800" height="536" key="Vcs.Push.Dialog.v2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1602067932933" />
+    <state x="803" y="458" width="361" height="182" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601910120036">
+      <screen x="48" y="27" width="1872" height="1053" />
+    </state>
+    <state x="803" y="458" width="361" height="182" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601910120036" />
+    <state x="448" y="281" width="577" height="451" key="git4idea.merge.GitPullDialog" timestamp="1600200364934">
+      <screen x="48" y="27" width="1344" height="933" />
+    </state>
+    <state x="429" y="283" width="577" height="451" key="git4idea.merge.GitPullDialog/0.27.1440.933@0.27.1440.933" timestamp="1599893679547" />
+    <state x="448" y="281" width="577" height="451" key="git4idea.merge.GitPullDialog/48.27.1344.933@48.27.1344.933" timestamp="1600200364934" />
+    <state x="546" y="253" width="874" height="766" key="search.everywhere.popup" timestamp="1601907398793">
+      <screen x="48" y="27" width="1872" height="1053" />
+    </state>
+    <state x="383" y="227" width="672" height="678" key="search.everywhere.popup/0.27.1440.933@0.27.1440.933" timestamp="1600066532330" />
+    <state x="546" y="253" width="874" height="766" key="search.everywhere.popup/1920.0.1080.720/48.27.1872.1053@48.27.1872.1053" timestamp="1601907398793" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_subspace_first_demo_py.coverage" NAME="Nosetests in test_subspace_first_demo.py Coverage Results" MODIFIED="1602752747269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_random_200neurons_ridge1000_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons_ridge1000_32bits Coverage Results" MODIFIED="1602767270750" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_subspace_first_demo_Test_Subspace_First_Demo_test_subspace_first_demo_input_simulation_100neurons_32bits.coverage" NAME="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_simulation_100neurons_32bits Coverage Results" MODIFIED="1602752538336" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn_ridge10.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge10 Coverage Results" MODIFIED="1602774956438" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization_test_random_optimization_NARMA10.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization.test_random_optimization_NARMA10 Coverage Results" MODIFIED="1602680464731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn_ridge01.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01 Coverage Results" MODIFIED="1602775257831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_session_objects_Test_Session_Objects_test_generate_random_session.coverage" NAME="Unittests for test_session_objects.Test_Session_Objects.test_generate_random_session Coverage Results" MODIFIED="1602592112108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/tests" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_matlab.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_matlab Coverage Results" MODIFIED="1602753148682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_timeseries_embedding_Test_Timeseries_Embedding_test_timeseries_embedding.coverage" NAME="Unittests for test_timeseries_embedding.Test_Timeseries_Embedding.test_timeseries_embedding Coverage Results" MODIFIED="1602510317547" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test.coverage" NAME="Nosetests in test Coverage Results" MODIFIED="1602676813461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_input_simulation_100neurons_aperture10_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons_aperture10_32bits Coverage Results" MODIFIED="1602753246787" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn_500neurons.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons Coverage Results" MODIFIED="1602774833508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization Coverage Results" MODIFIED="1599336277381" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_random_200neurons.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_200neurons Coverage Results" MODIFIED="1602751820977" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$morphing_square.coverage" NAME="morphing_square Coverage Results" MODIFIED="1575585249182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_torchserve_basic_Test_TorchServe_Health_test_torchserve_archive_model.coverage" NAME="Unittests for test_torchserve_basic.Test_TorchServe_Health.test_torchserve_archive_model Coverage Results" MODIFIED="1601909755493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/tests" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_matrix_generation_py.coverage" NAME="Nosetests in test_matrix_generation.py Coverage Results" MODIFIED="1602684887097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_100neurons.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_100neurons Coverage Results" MODIFIED="1592380663845" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction Coverage Results" MODIFIED="1592378825193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_input_simulation_200neurons_ridge1000_32bits.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_200neurons_ridge1000_32bits Coverage Results" MODIFIED="1602753602337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_subspace_first_demo_Test_Subspace_First_Demo_test_subspace_first_demo_w_loading_100neurons.coverage" NAME="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_w_loading_100neurons Coverage Results" MODIFIED="1602752739710" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_morphing_square_py.coverage" NAME="Nosetests in test_morphing_square.py Coverage Results" MODIFIED="1602684897729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_fold_cross_validation_Test_Fold_Cross_Validation_test_10fold_cross_validation_no_dev.coverage" NAME="Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev Coverage Results" MODIFIED="1599340487160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_memory_management_py.coverage" NAME="Nosetests in test_memory_management.py Coverage Results" MODIFIED="1602752024117" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_boolean_operations_py.coverage" NAME="Nosetests in test_boolean_operations.py Coverage Results" MODIFIED="1602687367926" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_session_objects_Test_Session_Objects_test_create_session_object.coverage" NAME="Unittests for test_session_objects.Test_Session_Objects.test_create_session_object Coverage Results" MODIFIED="1602511483480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/tests" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_hyperparameters_optimization_Test_Hyperparameters_Optimization.coverage" NAME="Nosetests for test_hyperparameters_optimization.Test_Hyperparameters_Optimization Coverage Results" MODIFIED="1599336258804" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn_ridge001.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001 Coverage Results" MODIFIED="1602775100919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_hyperparameters_optimization_py.coverage" NAME="Nosetests in test_hyperparameters_optimization.py Coverage Results" MODIFIED="1602680687292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_MNIST_classification_py.coverage" NAME="Nosetests in test_MNIST_classification.py Coverage Results" MODIFIED="1602684947781" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_liesn.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn Coverage Results" MODIFIED="1602775610112" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization_test_genetic_optimization_NARMA10.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization.test_genetic_optimization_NARMA10 Coverage Results" MODIFIED="1602678674479" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_subspace_first_demo_Test_Subspace_First_Demo_test_subspace_first_demo_input_recreation_100neurons_32bits.coverage" NAME="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_recreation_100neurons_32bits Coverage Results" MODIFIED="1602767388979" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_latch_copy_repeat_tasks_py.coverage" NAME="Nosetests in test_latch_copy_repeat_tasks.py Coverage Results" MODIFIED="1602684892081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_torchserve_basic_Test_TorchServe_Basic_test_torchserve_start.coverage" NAME="Unittests for test_torchserve_basic.Test_TorchServe_Basic.test_torchserve_start Coverage Results" MODIFIED="1601976462054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization_test_grid_search_optimization_NARMA10.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization.test_grid_search_optimization_NARMA10 Coverage Results" MODIFIED="1602679703346" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_narma10_prediction_py.coverage" NAME="Nosetests in test_narma10_prediction.py Coverage Results" MODIFIED="1602775620975" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$test_fold_cross_validation.coverage" NAME="test_fold_cross_validation Coverage Results" MODIFIED="1599337063726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_matlab.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_matlab Coverage Results" MODIFIED="1602749639153" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_torchserve_basic_Test_TorchServe_Basic_test_torchserve_archive_model.coverage" NAME="Unittests for test_torchserve_basic.Test_TorchServe_Basic.test_torchserve_archive_model Coverage Results" MODIFIED="1601975205366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_object_serialization_Test_Object_Serialization_test_generate_random_session.coverage" NAME="Unittests for test_object_serialization.Test_Object_Serialization.test_generate_random_session Coverage Results" MODIFIED="1602666384537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/tests" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_input_recreation_random_100neurons.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_input_recreation_random_100neurons Coverage Results" MODIFIED="1602751567647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_memory_management_Test_Memory_Management_test_memory_management_random_input_simulation_100neurons.coverage" NAME="Nosetests for test.test_memory_management.Test_Memory_Management.test_memory_management_random_input_simulation_100neurons Coverage Results" MODIFIED="1602752004822" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn Coverage Results" MODIFIED="1602775415341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>

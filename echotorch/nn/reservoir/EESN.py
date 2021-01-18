@@ -31,23 +31,24 @@ class EESN(object):
     """
 
     # Constructor
-    def __init__(self, voc_size, embedding_dim, hidden_dim, output_dim, spectral_radius=0.9,
-                 bias_scaling=0, input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None,
-                 input_set=[1.0, -1.0], w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
-                 leaky_rate=1.0, train_leaky_rate=False, feedbacks=False, wfdb_sparsity=None,
-                 normalize_feedbacks=False):
+    def __init__(
+            self, voc_size, embedding_dim, hidden_dim, output_dim, spectral_radius=0.9,
+            bias_scaling=0, input_scaling=1.0, w=None, w_in=None, w_bias=None, sparsity=None,
+            input_set=[1.0, -1.0], w_sparsity=None, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0,
+            leaky_rate=1.0, train_leaky_rate=False, feedbacks=False, wfdb_sparsity=None,
+            normalize_feedbacks=False):
         # Embedding layer
         self.embedding = nn.Embedding(voc_size, embedding_dim)
 
         # Li-ESN
-        self.esn = LiESN(embedding_dim, hidden_dim, output_dim, spectral_radius, bias_scaling, input_scaling,
-                         w, w_in, w_bias, sparsity, input_set, w_sparsity, nonlin_func, learning_algo, ridge_param,
-                         leaky_rate, train_leaky_rate, feedbacks, wfdb_sparsity, normalize_feedbacks)
+        self.esn = LiESN(
+            embedding_dim, hidden_dim, output_dim, spectral_radius, bias_scaling, input_scaling,
+            w, w_in, w_bias, sparsity, input_set, w_sparsity, nonlin_func, learning_algo, ridge_param,
+            leaky_rate, train_leaky_rate, feedbacks, wfdb_sparsity, normalize_feedbacks
+        )
     # end __init__
 
-    ###############################################
-    # PROPERTIES
-    ###############################################
+    # region PROPERTIES
 
     # Hidden layer
     @property
@@ -91,9 +92,9 @@ class EESN(object):
         return self.embedding.weight
     # end weights
 
-    ###############################################
-    # PUBLIC
-    ###############################################
+    # endregion PROPERTIES
+
+    # region OVERRIDE
 
     # Forward
     def forward(self, u, y=None):
@@ -108,5 +109,7 @@ class EESN(object):
         # ESN
         return self.esn(emb, y)
     # end forward
+
+    # endregion OVERRIDE
 
 # end EESN

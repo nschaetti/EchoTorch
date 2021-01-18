@@ -27,8 +27,7 @@ Created on 26 January 2018
 # Imports
 import torch.sparse
 import torch
-import torch.nn as nn
-import echotorch.nn as etnn
+from ..Node import Node
 from torch.autograd import Variable
 
 
@@ -44,7 +43,7 @@ def time_derivative(x, time_step):
 
 
 # Slow feature analysis
-class SFACell(etnn.Node):
+class SFACell(Node):
     """
     Extract the slowly varying components from input data.
     """
@@ -214,173 +213,6 @@ class SFACell(etnn.Node):
         """
         return torch.index_select(V, 1, torch.argsort(L[:, 0])[:self._output_dim])
     # end _slowest_features
-
-    # Solve standard and generalized eigenvalue problem for symmetric (hermitian) definite positive matrices
-    def _symeig(self, A, B, range, eigenvectors=True):
-        """
-        Solve standard and generalized eigenvalue problem for symmetric (hermitian) definite positive matrices.
-        :param A: An N x N matrix
-        :param B: An N x N matrix
-        :param range: (lo, hi), the indexes of smallest and largest eigenvalues to be returned.
-        :param eigenvectors: Return eigenvalues and eigenvector or only engeivalues
-        :return: w, the eigenvalues and Z the eigenvectors
-        """
-        # To numpy
-        A = A.numpy()
-        B = B.numpy()
-
-        # Type
-        dtype = np.dtype()
-
-        # Make B the identity matrix
-        wB, ZB = np.linalg.eigh(B)
-
-        # Check eigenvalues
-        self._assert_eigenvalues_real(wB)
-
-        # No negative values
-        if wB.real.min() < 0:
-            raise Exception("Got negative eigenvalues: {}".format(wB))
-        # end if
-
-        # Old division
-        ZB = old_div(ZB.real, np.sqrt(wB.real))
-
-        # A = ZB^T * A * ZB
-        A = np.matmul(np.matmul(ZB.T, A), ZB)
-
-        # Diagonalize A
-        w, ZA = np.linalg.eigh(A)
-        Z = np.matmul(ZB, ZA)
-
-        # Check eigenvalues
-        self._assert_eigenvalues_real(w, dtype)
-
-        # Read
-        w = w.real
-        Z = Z.real
-
-        # Sort
-        idx = w.argsort()
-        w = w.take(idx)
-        Z = Z.take(idx, axis=1)
-
-        # Sanitize range
-        n = A.shape[0]
-        lo, hi = range
-        if lo < 1:
-            lo = 1
-        # end if
-        if lo > n:
-            lo = n
-        # end if
-        if hi > n:
-            hi = n
-        # end if
-        if lo > hi:
-            lo, hi = hi, lo
-        # end if
-
-        # Get values
-        Z = Z[:, lo-1:hi]
-        w = w[lo-1:hi]
-
-        # Cast
-        w = self.refcast(w, dtype)
-        Z = self.refcast(Z, dtype)
-
-        # Eigenvectors
-        if eigenvectors:
-            return torch.FloatTensor(w), torch.FloatTensor(Z)
-        else:
-            return torch.FloatTensor(w)
-        # end if
-    # end _symeig
-
-    # Check eigenvalues
-    def _check_eigenvalues(self, L):
-        """
-        Check eigenvalues
-        :param L: Matrix (n x 2) with real (1) and imaginary (2) parts.
-        """
-        if not (torch.all(L[:, 1] == 0) and torch.all(L[:, 0] >= 0.0)):
-            raise Exception("Error, got imaginary or negative eigenvalues for whitening : {}".format(D))
-        # end if
-    # end _check_eigenvalues
-
-    # Check eigenvalues
-    def _assert_eigenvalues_real(self, w, dtype):
-        """
-        Check eigenvalues
-        :param w:
-        :param dtype:
-        :return:
-        """
-        tol = np.finfo(dtype.type).eps * 100
-        if abs(w.imag).max() > tol:
-            err = "Some eigenvalues have significant imaginary part: %s " % str(w)
-            raise Exception(err)
-        # end if
-    # end _assert_eigenvalues_real
-
-    # Greatest common type
-    def _greatest_common_dtype(self, alist):
-        """
-        Apply conversion rules to find the common conversion type
-        dtype 'd' is default for 'i' or unknown types
-        (known types: 'f','d','F','D').
-        """
-        dtype = 'f'
-        for array in alist:
-            if array is None:
-                continue
-            tc = array.dtype.char
-            if tc not in self._type_keys:
-                tc = 'd'
-            transition = (dtype, tc)
-            if transition in self._type_conv:
-                dtype = self._type_conv[transition]
-        return dtype
-    # end _greatest_common_dtype
-
-    # Fix covariance matrix
-    def _fix(self, mtx, avg, tlen, center=True):
-        """
-        Returns a triple containing the covariance matrix, the average and
-        the number of observations.
-        :param mtx: The cumulated covariance matrix
-        :param avg: The cumulated average
-        :param tlen: The total length of samples
-        :param center: True if average must be removed of the covariance matrix
-        :return: Fixed covariance matrix, average and total length
-        """
-        # Divide the covariance matrix
-        # by the total length of training
-        # samples.
-        if self.use_bias:
-            mtx /= tlen
-        else:
-            mtx /= tlen - 1
-        # end if
-
-        # Remove the mean to the
-        # covariance matrix
-        if center:
-            avg_mtx = torch.ger(avg, avg)
-            if self.use_bias:
-                avg_mtx /= tlen * tlen
-            else:
-                avg_mtx /= tlen * (tlen - 1)
-            # end if
-            mtx -= avg_mtx
-        # end if
-
-        # Compute the average activation
-        # for each units.
-        avg /= tlen
-
-        return mtx, avg, tlen
-    # end fix
 
     # endregion PRIVATE
 

@@ -2,14 +2,16 @@
 --index-url https://pypi.python.org/simple/
 sphinx_bootstrap_theme
 future
-numpy>=1.18.3
-scipy
+numpy>=1.19.2
+scipy>=1.5.2
 scikit-learn
 matplotlib
+<<<<<<< HEAD
 torch==1.7.0
 torchvision==0.8.1
+=======
+torch>=1.6.0
+torchvision>=0.7.0
+>>>>>>> d2068552b28db5ff5e12ba48365be6dda6c4d712
 networkx
 tqdm
-itertools
-math
-threading
