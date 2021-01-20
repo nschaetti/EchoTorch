@@ -20,4 +20,17 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 
+# Imports
+import torch
 
+# EchoTorch imports
+from echotorch.transforms import Aggregator
+
+
+# Basic statistics
+class StatsAggregator(Aggregator):
+    """
+    An aggregator which compute the basic statistics about time series
+    """
+    pass
+# end StatsAggregator

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # File : echotorch/transforms/Aggregator.py
-# Description : Aggregators are used to compute statistics and informations about timeseries.
-# Date : 18th of January, 2021
+# Description : A special type of Transformer which compute only statistics based on data.
+# Date : 20th of January, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,6 +19,7 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
+
 # Imports
 import torch
 
@@ -26,153 +27,157 @@ import torch
 from .Transformer import Transformer
 
 
-# Base class for aggregators
+# Aggregator
 class Aggregator(Transformer):
     """
-    Base class for aggregators
+    A special type of Transformer which compute only statistics based on data.
     """
 
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, input_dim, dtype=torch.float64):
+    def __init__(self, input_dim, time_dim=0, dtype=torch.float64):
         """
         Constructor
-        :param input_dim: Input data dimension
-        :param dtype: Data type
         """
-        # Super
-        super(Aggregator, self).__init__(input_dim, 0, dtype)
+        # Super constructor
+        super(Aggregator, self).__init__(input_dim, input_dim, time_dim, dtype)
 
-        # Dictionary for data
-        self._aggregated_data = dict()
-        self._aggregated_count = dict()
+        # Data gathering
+        self._data = dict()
+        self._counters = dict()
 
-        # Flags
-        self._is_initialized = False
-        self._is_finalized = False
+        # State
+        self._initialized = False
 
-        # Initialize aggregator
+        # Initialize
         self._initialize()
     # end __init__
 
     # endregion CONSTRUCTORS
 
+    # region PROPERTIES
+
+    # Data
+    @property
+    def data(self):
+        """
+        Data
+        """
+        return self._data
+    # end data
+
+    # Counter
+    @property
+    def counters(self):
+        """
+        Counters
+        """
+        return self._counters
+    # end counters
+
+    # Registered entries
+    @property
+    def entries(self):
+        """
+        Registered entries
+        """
+        return self._data.keys()
+    # end entries
+
+    # Is initialized
+    @property
+    def initialized(self):
+        """
+        Initialized
+        """
+        return self._initialized
+    # end initialized
+
+    # endregion PROPERTIES
+
     # region PUBLIC
 
-    # Is initialized?
-    def is_initialized(self) -> bool:
+    # Counters
+    def counter(self, entry_name):
         """
-        Is the aggregator initialized?
-        :return: True or False
+        Counter
         """
-        return self._is_initialized
-    # end is_initialized
-
-    # Is finalized?
-    def is_finalized(self) -> bool:
-        """
-        Is the aggregator finalized?
-        :return: True or False
-        """
-        return self._is_finalized
-    # end is_finalized
+        return self._counters[entry_name]
+    # end counter
 
     # endregion PUBLIC
 
     # region PRIVATE
 
-    # Update entry
-    def _update_entry(self, entry_name, entry_value, inc=True):
+    # Register an entry
+    def _register(self, entry_name, initial_value):
         """
-        Update an entry in the registry
-        :param entry_name: Entry name
-        :param entry_value: New entry value
-        :param inc: Increment counter?
+        Register an entry
         """
-        self._aggregated_data[entry_name] = entry_value
-        if inc:
-            self._aggregated_count[entry_name] += 1.0
-        # end if
-    # end _update_entry
+        self._data[entry_name] = initial_value
+        self._counters[entry_name] = 0
+    # end _register
 
-    # Create an entry
-    def _create_entry(self, entry_name, entry_value=0, create_counter=True):
+    # Increment counter
+    def _inc(self, entry_name):
         """
-        Create an entry in the registry
-        :param entry_name: Entry name
-        :param entry_value: Entry value
-        :param create_counter: Create entry in counters?
+        Increment counter
         """
-        self._aggregated_data[entry_name] = entry_value
-        if create_counter:
-            self._aggregated_count[entry_name] = 0.0
-        # end if
-    # end _create_entry
-
-    # Get counter
-    def _get_counter(self, entry_name):
-        """
-        Get counter
-        :param entry_name: Entry name
-        :return: Counter for this entry
-        """
-        return self._aggregated_count[entry_name]
-    # end _get_counter
+        self._counters[entry_name] += 1
+        # print("_inc: {}".format(self._counters))
+    # end _inc
 
     # endregion PRIVATE
 
     # region OVERRIDE
 
-    # Transform to aggregate
+    # Transform
     def _transform(self, x):
         """
-        Transform to aggregate
-        :param x: Input data tensor
-        :return: None
+        Transform input
         """
         self._aggregate(x)
+        return x
     # end _transform
 
     # Get item
     def __getitem__(self, item):
         """
-        Get item (in the registry)
-        :param item: Entry name
-        :return: Entry value
+        Get item
         """
-        return self._aggregated_data[item]
+        return self._data[item], self._counters[item]
     # end __getitem__
+
+    # Set item
+    def __setitem__(self, key, value):
+        """
+        Set item
+        """
+        self._data[key] = value
+    # end __setitem__
 
     # endregion OVERRIDE
 
     # region TO_IMPLEMENT
 
-    # Init. the aggregator
+    # Initialize the aggregator
     def _initialize(self):
         """
-        Init the aggregator
+        Initialize the aggregator
         """
-        raise Exception("Initialization function must be implemented")
-    # end _init
+        raise Exception("Initialize not implemented")
+    # end _initialize
 
     # Aggregate information
     def _aggregate(self, x):
         """
         Aggregate information
-        :param x: Input data tensor
         """
-        raise Exception("Aggregate function must be implemented")
-    # end _aggregate
-
-    # Finalize aggregation
-    def _finalize(self):
-        """
-        Finalize aggregation
-        """
-        raise Exception("Finalize aggregation")
-    # end _finalize
+        pass
+    # end aggregate
 
     # endregion TO_IMPLEMENT
 
 # end Aggregator
+

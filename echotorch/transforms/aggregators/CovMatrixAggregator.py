@@ -37,38 +37,32 @@ class CovMatrixAggregator(Aggregator):
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, channels, **kwargs):
+    def __init__(self, input_dim, *args, **kwargs):
         """
         Constructor
-        :param n_lags:
+        :param input_dim:
+        :param args:
         :param kwargs:
         """
-        # Properties
-        self._channels = channels
-        self._n_channels = len(channels)
-
         # To Aggregator
-        super(CovMatrixAggregator, self).__init__(**kwargs)
+        super(CovMatrixAggregator, self).__init__(input_dim, *args, **kwargs)
     # end __init__
 
     # endregion CONSTRUCTOR
 
+    # region PUBLIC
+
+    # Get covariance matrix
+    def covariance_matrix(self):
+        """
+        Get covariance matrix
+        """
+        return self._data['cov_matrix'] / self._counters['cov_matrix']
+    # end covariance_matrix
+
+    # endregion PUBLIC
+
     # region PRIVATE
-
-    # Compute covariance for a lag
-    def _cov(self, x, y):
-        """
-        Compute covariance for a lag
-        :param x: t positioned time series (time length, n channels)
-        :param y: t + k positioned time series (time length, n channels)
-        :return: The covariance coefficients
-        """
-        # Average x
-        x_mu = torch.mean(x, dim=0)
-
-        # Average covariance over length
-        return torch.mean(torch.mul(x - x_mu, y - x_mu))
-    # end _cov
 
     # endregion PRIVATE
 
@@ -79,7 +73,7 @@ class CovMatrixAggregator(Aggregator):
         """
         Initialize
         """
-        self._create_entry("cov_matrix", torch.zeros(self._n_channels, self._n_channels))
+        self._register("cov_matrix", torch.zeros(self._input_dim, self._input_dim))
         self._initialized = True
     # end _initialize
 
@@ -90,15 +84,17 @@ class CovMatrixAggregator(Aggregator):
         :param x: Input tensor data
         """
         # Add batch if not present
-        if x.ndim() == 1:
+        if x.ndim == 1:
             raise Exception("Cannot compute covariance for a one time step time series")
-        elif x.ndim() == 2:
+        elif x.ndim == 2:
             x = torch.unsqueeze(x, dim=0)
-            self._time_dim += 1
+            time_dim = self._time_dim + 1
+        else:
+            time_dim = self._time_dim
         # end if
 
         # Sizes
-        if self._time_dim == 1:
+        if time_dim == 1:
             batch_size, time_length, n_channels = x.size()
         else:
             batch_size, n_channels, time_length = x.size()
@@ -107,36 +103,17 @@ class CovMatrixAggregator(Aggregator):
         # Compute covariance for each batch
         for batch_i in range(batch_size):
             # Batch data
-            batch_data = x[batch_i] if self._time_dim == 1 else torch.transpose(x[batch_i], 0, 1)
+            batch_data = x[batch_i] if time_dim == 1 else torch.transpose(x[batch_i], 0, 1)
 
-            # Current covariance matrix
-            cov_matrix = torch.zeros(n_channels, n_channels)
-
-            # For each pair of channel
-            for channel1_i in range(n_channels):
-                for channel2_i in range(n_channels):
-                    cov_matrix[channel1_i, channel2_i] = self._cov(
-                        batch_data[:, channel1_i],
-                        channel2_i[:, channel2_i]
-                    )
-                # end for
-            # end for
+            # Covariance matrix
+            cov_matrix = torch.matmul(batch_data.t(), batch_data) / time_length
 
             # Update entry
-            self._update_entry('cov_matrix', self['cov_matrix'] + cov_matrix)
+            self._data['cov_matrix'] += cov_matrix
+            self._inc('cov_matrix')
         # end for
     # end _aggregate
 
-    # Finalize
-    def _finalize(self):
-        """
-        Finalize aggregation
-        """
-        # Average
-        self._update_entry('cov_matrix', self['cov_matrix'] / self.get_counter('cov_matrix'), inc=False)
-
-        # For each
-        self._finalized = True
     # endregion OVERRIDE
 
-# end ACFAggregator
+# end CovMatrixAggregator

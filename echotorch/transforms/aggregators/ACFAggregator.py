@@ -21,6 +21,8 @@
 
 
 # Imports
+import sys
+
 import torch
 
 # EchoTorch imports
@@ -37,7 +39,7 @@ class ACFAggregator(Aggregator):
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, n_lags, channels, **kwargs):
+    def __init__(self, input_dim, n_lags, *args, **kwargs):
         """
         Constructor
         :param n_lags:
@@ -45,18 +47,29 @@ class ACFAggregator(Aggregator):
         """
         # Properties
         self._n_lags = n_lags
-        self._channels = channels
-        self._n_channels = len(channels)
+        self._channels = [i for i in range(input_dim)]
 
         # To Aggregator
-        super(ACFAggregator, self).__init__(**kwargs)
+        super(ACFAggregator, self).__init__(input_dim, *args, **kwargs)
     # end __init__
 
     # endregion CONSTRUCTOR
 
+    # region PUBLIC
+
+    # Get auto-covariance coefficients
+    def coefficients(self, entry_name):
+        """
+        Get auto-covariance coefficients
+        """
+        return self._data[entry_name] / self._counters[entry_name]
+    # end coefficients
+
+    # endregion PUBLIC
+
     # region PRIVATE
 
-    # Compute covariance for a lag
+    # Compute covariance for a  lag
     def _cov(self, x, y):
         """
         Compute covariance for a lag
@@ -75,19 +88,31 @@ class ACFAggregator(Aggregator):
     def _auto_cov_coefs(self, x):
         """
         Compute auto-covariance coefficients for a time series
-        :param x: A (time length x n channels) data tensor
+        :param x: A (time length) data tensor
         :return: The auto-covariance coefficients for each lag
         """
         # Store coefs
         autocov_coefs = torch.zeros(self._n_lags)
 
+        # Time length for comparison
+        com_time_length = x.size(0) - self._n_lags
+
+        # Covariance t to t
+        autocov_coefs[0] = self._cov(x[:-com_time_length], x[:-com_time_length])
+
         # For each lag
-        for lag_i in range(self._n_lags):
-            autocov_coefs[lag_i] = self._cov(x[:-lag_i], x[lag_i:])
+        for lag_i in range(1, self._n_lags):
+            autocov_coefs[lag_i] = self._cov(
+                x[:com_time_length],
+                x[lag_i:lag_i+com_time_length]
+            )
         # end for
 
+        # Co
+        c0 = autocov_coefs[0].item()
+
         # Normalize with first coef
-        autocov_coefs /= autocov_coefs[0]
+        autocov_coefs /= c0
 
         return autocov_coefs
     # end _auto_cov_coefs
@@ -102,8 +127,8 @@ class ACFAggregator(Aggregator):
         Initialize
         """
         # For each lag and channels
-        for channel_i in range(self._n_channels):
-            self._create_entry("autocov_coefs_" + str(channel_i), torch.zeros(self._n_lags))
+        for channel in self._channels:
+            self._register("autocov_coefs_" + str(channel), torch.zeros(self._n_lags))
         # end for
         self._initialized = True
     # end _initialize
@@ -115,52 +140,46 @@ class ACFAggregator(Aggregator):
         :param x: Input tensor data
         """
         # Add batch if not present
-        if x.ndim() == 1:
+        if x.ndim == 1:
             raise Exception("Cannot compute ACF for a one time step time series")
-        elif x.ndim() == 2:
+        elif x.ndim == 2:
             x = torch.unsqueeze(x, dim=0)
-            self._time_dim += 1
+            time_dim = self._time_dim + 1
+        else:
+            time_dim = self._time_dim
         # end if
 
         # Sizes
-        if self._time_dim == 1:
+        if time_dim == 1:
             batch_size, time_length, n_channels = x.size()
         else:
             batch_size, n_channels, time_length = x.size()
         # end if
 
-        # Compute covariance for each batch
-        for batch_i in range(batch_size):
-            # Batch data
-            batch_data = x[batch_i] if self._time_dim == 1 else torch.transpose(x[batch_i], 0, 1)
+        # Check the length of the TS
+        if time_length >= self._n_lags + 1:
+            # Compute covariance for each batch
+            for batch_i in range(batch_size):
+                # Batch data, we want time before
+                # channels
+                batch_data = x[batch_i] if time_dim == 1 else torch.transpose(x[batch_i], 0, 1)
 
-            # For each channels
-            for channel_i in range(n_channels):
-                # Entry name
-                entry_name = "autocov_coefs_" + str(channel_i)
+                # For each channels
+                for channel in self._channels:
+                    # Entry name
+                    entry_name = "autocov_coefs_" + str(channel)
 
-                # Compute autocov coefs
-                autocov_coefs = self._auto_cov_coefs(batch_data[:, channel_i])
+                    # Compute autocov coefs
+                    autocov_coefs = self._auto_cov_coefs(batch_data[:, channel])
 
-                # Update entry
-                self._update_entry(entry_name, self[entry_name] + autocov_coefs)
+                    # Update entry
+                    self._data[entry_name] += autocov_coefs
+                    self._inc(entry_name)
+                # end for
             # end for
-        # end for
+        # end if
     # end _aggregate
 
-    # Finalize
-    def _finalize(self):
-        """
-        Finalize aggregation
-        """
-        # For each channel
-        for channel_i in range(self._n_channels):
-            entry_name = "autocov_coefs_" + str(channel_i)
-            self._update_entry(entry_name, self[entry_name] / self.get_counter(entry_name), inc=False)
-        # end for
-
-        # Finalized
-        self._finalized = True
     # endregion OVERRIDE
 
 # end ACFAggregator

@@ -23,7 +23,8 @@
 from .AddNoise import AddNoise
 from .FourierTransform import FourierTransform
 from .Normalize import Normalize
+from .SelectChannels import SelectChannels
 from .ToOneHot import ToOneHot
 
 # All
-__all__ = ['AddNoise', 'FourierTransform', 'Normalize', 'ToOneHot']
+__all__ = ['AddNoise', 'FourierTransform', 'Normalize', 'SelectChannels', 'ToOneHot']

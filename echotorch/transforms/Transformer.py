@@ -32,7 +32,7 @@ class Transformer(object):
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, input_dim, output_dim, time_dim=1, dtype=torch.float64):
+    def __init__(self, input_dim, output_dim, time_dim=0, dtype=torch.float64):
         """
         Constructor
         """
