@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 # Installation setup
 setup(
     name='EchoTorch',
-    version='0.1.3',
+    version='0.2.2',
     description="A Python toolkit for Reservoir Computing",
     long_description="A Python toolkit for Reservoir Computing, Echo State Network and Conceptor experimentation "
                      "based on pyTorch",
