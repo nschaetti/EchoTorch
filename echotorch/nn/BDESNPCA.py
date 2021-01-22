@@ -203,7 +203,7 @@ class BDESNPCA(nn.Module):
         Get W's spectral radius
         :return: W's spectral radius
         """
-        return self.esn_cell.get_spectral_raduis()
+        return self.esn_cell.get_spectral_radius()
     # end spectral_radius
 
 # end BDESNPCA
