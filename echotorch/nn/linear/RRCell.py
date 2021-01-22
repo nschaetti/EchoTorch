@@ -178,9 +178,13 @@ class RRCell(Node):
             self.xTy = self.xTy / self._n_samples
         # end if
 
+        # Eye
+        eye_I = torch.eye(self._input_dim + self._with_bias, dtype=self._dtype)
+        eye_I = eye_I.cuda() if self.xTx.is_cuda else eye_I
+
         # We need to solve wout = (xTx)^(-1)xTy
         # Covariance matrix xTx
-        ridge_xTx = self.xTx + self._ridge_param * torch.eye(self._input_dim + self._with_bias, dtype=self._dtype)
+        ridge_xTx = self.xTx + self._ridge_param * eye_I
 
         # Inverse / pinverse
         if self._learning_algo == "inv":
