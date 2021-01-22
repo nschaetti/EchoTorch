@@ -32,5 +32,61 @@ class StatsAggregator(Aggregator):
     """
     An aggregator which compute the basic statistics about time series
     """
-    pass
+
+    # region PUBLIC
+
+    # Get statistics
+    def get_statistics(self, stat_type):
+        """
+        Get statistics
+        """
+        return self._data[stat_type] / self._counters[stat_type]
+    # end get_statistics
+
+    # endregion PUBLIC
+
+    # region PRIVATE
+
+    # Update entry
+    def _update_entry(self, entry_name, value):
+        """
+        Update entry
+        """
+        self._data[entry_name] += value
+        self._inc(entry_name)
+    # end _update_entry
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Initialize
+    def _initialize(self):
+        """
+        Initialize aggregators
+        """
+        self._register("mean", torch.zeros(self._input_dim))
+        self._register("std", torch.zeros(self._input_dim))
+        self._register("mean_length", 0)
+        self._register("max", torch.zeros(self._input_dim))
+        self._register("min", torch.zeros(self._input_dim))
+        self._initialized = True
+    # end _initialize
+
+    # Aggregate information
+    def _aggregate(self, x):
+        """
+        Aggregate information
+        :param x: Input tensor
+        """
+        # Mean, std, mean length, max, min
+        self._update_entry("mean", torch.mean(x, dim=0))
+        self._update_entry("std", torch.std(x, dim=0))
+        self._update_entry("mean_length", x.size(0))
+        self._update_entry("max", torch.max(x, dim=0)[0])
+        self._update_entry("min", torch.min(x, dim=0)[0])
+    # end _aggregate
+
+    # endregion OVERRIDE
+
 # end StatsAggregator
