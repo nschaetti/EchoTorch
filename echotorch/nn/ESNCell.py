@@ -210,6 +210,16 @@ class ESNCell(nn.Module):
         self.hidden.fill_(0.0)
     # end reset_hidden
 
+    # Set hidden layer
+    def set_hidden(self, x):
+        """
+        Set hidden layer
+        :param x:
+        :return:
+        """
+        self.hidden.data = x.data
+    # end set_hidden
+
     # Get W's spectral radius
     def get_spectral_radius(self):
         """

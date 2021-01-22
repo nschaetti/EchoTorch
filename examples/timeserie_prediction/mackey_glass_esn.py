@@ -42,59 +42,65 @@ n_hidden = 100
 use_cuda = False
 use_cuda = torch.cuda.is_available() if use_cuda else False
 
-# Mackey glass dataset
-mackey_glass_train_dataset = MackeyGlassDataset(train_sample_length, n_train_samples, tau=30)
-mackey_glass_test_dataset = MackeyGlassDataset(test_sample_length, n_test_samples, tau=30)
 
-# Data loader
-trainloader = DataLoader(mackey_glass_train_dataset, batch_size=1, shuffle=False, num_workers=2)
-testloader = DataLoader(mackey_glass_test_dataset, batch_size=1, shuffle=False, num_workers=2)
+def main():
+    # Mackey glass dataset
+    mackey_glass_train_dataset = MackeyGlassDataset(train_sample_length, n_train_samples, tau=30)
+    mackey_glass_test_dataset = MackeyGlassDataset(test_sample_length, n_test_samples, tau=30)
 
-# ESN cell
-esn = etnn.LiESN(
-    input_dim=input_dim,
-    hidden_dim=n_hidden,
-    output_dim=1,
-    spectral_radius=spectral_radius,
-    learning_algo='inv',
-    leaky_rate=leaky_rate
-)
-if use_cuda:
-    esn.cuda()
-# end if
+    # Data loader
+    trainloader = DataLoader(mackey_glass_train_dataset, batch_size=1, shuffle=False, num_workers=2)
+    testloader = DataLoader(mackey_glass_test_dataset, batch_size=1, shuffle=False, num_workers=2)
 
-# For each batch
-for data in trainloader:
-    # Inputs and outputs
-    inputs, targets = data
+    # ESN cell
+    esn = etnn.LiESN(
+        input_dim=input_dim,
+        hidden_dim=n_hidden,
+        output_dim=1,
+        spectral_radius=spectral_radius,
+        learning_algo='inv',
+        leaky_rate=leaky_rate
+    )
+    if use_cuda:
+        esn.cuda()
+    # end if
 
-    # To variable
-    inputs, targets = Variable(inputs), Variable(targets)
-    if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
+    # For each batch
+    for data in trainloader:
+        # Inputs and outputs
+        inputs, targets = data
 
-    # Accumulate xTx and xTy
-    esn(inputs, targets)
-# end for
+        # To variable
+        inputs, targets = Variable(inputs), Variable(targets)
+        if use_cuda: inputs, targets = inputs.cuda(), targets.cuda()
 
-# Finalize training
-esn.finalize()
+        # Accumulate xTx and xTy
+        esn(inputs, targets)
+    # end for
 
-# Train MSE
-dataiter = iter(trainloader)
-train_u, train_y = dataiter.next()
-train_u, train_y = Variable(train_u), Variable(train_y)
-if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
-y_predicted = esn(train_u)
-print(u"Train MSE: {}".format(echotorch.utils.mse(y_predicted.data, train_y.data)))
-print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, train_y.data)))
-print(u"")
+    # Finalize training
+    esn.finalize()
 
-# Test MSE
-dataiter = iter(testloader)
-test_u, test_y = dataiter.next()
-test_u, test_y = Variable(test_u), Variable(test_y)
-if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
-y_predicted = esn(test_u)
-print(u"Test MSE: {}".format(echotorch.utils.mse(y_predicted.data, test_y.data)))
-print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, test_y.data)))
-print(u"")
+    # Train MSE
+    dataiter = iter(trainloader)
+    train_u, train_y = dataiter.next()
+    train_u, train_y = Variable(train_u), Variable(train_y)
+    if use_cuda: train_u, train_y = train_u.cuda(), train_y.cuda()
+    y_predicted = esn(train_u)
+    print(u"Train MSE: {}".format(echotorch.utils.mse(y_predicted.data, train_y.data)))
+    print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, train_y.data)))
+    print(u"")
+
+    # Test MSE
+    dataiter = iter(testloader)
+    test_u, test_y = dataiter.next()
+    test_u, test_y = Variable(test_u), Variable(test_y)
+    if use_cuda: test_u, test_y = test_u.cuda(), test_y.cuda()
+    y_predicted = esn(test_u)
+    print(u"Test MSE: {}".format(echotorch.utils.mse(y_predicted.data, test_y.data)))
+    print(u"Test NRMSE: {}".format(echotorch.utils.nrmse(y_predicted.data, test_y.data)))
+    print(u"")
+
+
+if __name__ == "__main__":
+    main()
