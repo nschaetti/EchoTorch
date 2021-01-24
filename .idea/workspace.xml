@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Link to ZIP">
+    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Pages:&#10;- Page tuto narma10">
+      <change afterPath="$PROJECT_DIR$/echotorch/training_and_evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/EchoTorch.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/EchoTorch.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,8 +39,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Setup Script" />
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -51,10 +55,13 @@
       </map>
     </option>
   </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="dev" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master2" />
+        <entry key="$PROJECT_DIR$" value="release" />
         <entry key="$PROJECT_DIR$/../echotorch.github.io" value="master" />
       </map>
     </option>
@@ -346,15 +353,15 @@
       <item itemvalue="Python.morphing_periodic_patterns" />
       <item itemvalue="Python.morphing_periodic_sine" />
       <item itemvalue="Python.subspace_demo" />
-      <item itemvalue="Shell Script.Archive Model" />
-      <item itemvalue="Shell Script.Launch TorchServe" />
-      <item itemvalue="Shell Script.Stop TorchServe" />
       <item itemvalue="Python tests.Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_liesn" />
       <item itemvalue="Python tests.Nosetests in test_narma10_prediction.py" />
+      <item itemvalue="Shell Script.Archive Model" />
+      <item itemvalue="Shell Script.Launch TorchServe" />
+      <item itemvalue="Shell Script.Stop TorchServe" />
     </list>
     <recent_temporary>
       <list>
@@ -435,90 +442,7 @@
       <workItem from="1602835881623" duration="289000" />
       <workItem from="1610979019010" duration="11512000" />
       <workItem from="1611048262137" duration="593000" />
-    </task>
-    <task id="LOCAL-00062" summary="Working on TorchServe :&#10;&#10;- Handler for timeseries. Does not work yet, error on model (NoneType)&#10;- Scripts to archive model, launch and stop TorchServe.&#10;&#10;metric_learning_cnn.py : early stopping, save the model.&#10;similarity_learning_cnn.py : early stopping, save the model.">
-      <created>1601653192144</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1601653192144</updated>
-    </task>
-    <task id="LOCAL-00063" summary="- TimeseriesEmbedding.py : handler for time series prediction&#10;- TimeseriesEncoder.py : handler for time series auto-encoder&#10;- TimeseriesHandler.py : base handle for time series&#10;- CNNSimilarity.py : CNN similarity model&#10;- SparseAutoEncoder.py : Sparse auto-encoder&#10;- scripts/ : all scripts for TorchServe&#10;- HorseTrackTestCase.py : Base class for test cases&#10;- test_timeseries_embedding.py : test dimensionality reduction of a time series from the TorchServe server.&#10;- test_torchserve_basic.py : test basic interaction with TorchServe (launch, stop, archive model)">
-      <created>1602067520834</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1602067520834</updated>
-    </task>
-    <task id="LOCAL-00064" summary="Cosmetic">
-      <created>1602067931204</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1602067931204</updated>
-    </task>
-    <task id="LOCAL-00065" summary="- HorseTrackAPI.py : utility module to connect to the HorseTrack API&#10;- HorseTrackSession.py : utility module to encode session data">
-      <created>1602084896112</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
-      <option name="project" value="LOCAL" />
-      <updated>1602084896113</updated>
-    </task>
-    <task id="LOCAL-00066" summary="exception:&#10;- InvalidFormatException.py : Main exception for invalid data format&#10;&#10;session:&#10;- Segment.py : Segment of a session, object&#10;- Session.py : HorseTrack session, object&#10;&#10;api:&#10;- Connector.py : class to handle connection to the HorseTrack API&#10;&#10;lab:&#10;Moved all experiment files.&#10;&#10;tests:&#10;- test_session_objects.py : test data transformations.">
-      <created>1602515749706</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
-      <option name="project" value="LOCAL" />
-      <updated>1602515749706</updated>
-    </task>
-    <task id="LOCAL-00067" summary="To describe...">
-      <created>1602605033358</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1602605033359</updated>
-    </task>
-    <task id="LOCAL-00068" summary="Changed requirements.txt">
-      <created>1602666974913</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1602666974913</updated>
-    </task>
-    <task id="LOCAL-00069" summary="Removed Python 3.5 for tests (to match PyTorch requirements)">
-      <created>1602667406472</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1602667406472</updated>
-    </task>
-    <task id="LOCAL-00070" summary="Removed Python 3.5 for tests (to match PyTorch requirements)">
-      <created>1602667672757</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1602667672757</updated>
-    </task>
-    <task id="LOCAL-00071" summary="Removed itertools in requirements.txt">
-      <created>1602667874727</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1602667874727</updated>
-    </task>
-    <task id="LOCAL-00072" summary="Removed math in requirements.txt">
-      <created>1602668011849</created>
-      <option name="number" value="00072" />
-      <option name="presentableId" value="LOCAL-00072" />
-      <option name="project" value="LOCAL" />
-      <updated>1602668011850</updated>
-    </task>
-    <task id="LOCAL-00073" summary="Removed threading in requirements.txt">
-      <created>1602668152276</created>
-      <option name="number" value="00073" />
-      <option name="presentableId" value="LOCAL-00073" />
-      <option name="project" value="LOCAL" />
-      <updated>1602668152276</updated>
+      <workItem from="1611425170388" duration="6656000" />
     </task>
     <task id="LOCAL-00074" summary="Removed old code for SFA">
       <created>1602676606186</created>
@@ -779,7 +703,91 @@
       <option name="project" value="LOCAL" />
       <updated>1610991784129</updated>
     </task>
-    <option name="localTasksCounter" value="111" />
+    <task id="LOCAL-00111" summary="Version 0.2.3">
+      <created>1611351511794</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1611351511794</updated>
+    </task>
+    <task id="LOCAL-00112" summary="Bug fix: #13 (https://github.com/nschaetti/EchoTorch/issues/13), matrix not put on GPU device when required.&#10;NARMA-10 tests with CUDA">
+      <created>1611354930289</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1611354930289</updated>
+    </task>
+    <task id="LOCAL-00113" summary="Bug fix: #13 (https://github.com/nschaetti/EchoTorch/issues/13), matrix not put on GPU device when required.&#10;NARMA-10 tests with CUDA">
+      <created>1611356748831</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1611356748831</updated>
+    </task>
+    <task id="LOCAL-00114" summary="Bug fix: #13 (https://github.com/nschaetti/EchoTorch/issues/13), matrix not put on GPU device when required.&#10;NARMA-10 tests with CUDA">
+      <created>1611357695120</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1611357695120</updated>
+    </task>
+    <task id="LOCAL-00115" summary="Pages:&#10;- getting_started.md">
+      <created>1611426538373</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1611426538373</updated>
+    </task>
+    <task id="LOCAL-00116" summary="Pages:&#10;- getting_started.md">
+      <created>1611426672666</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1611426672666</updated>
+    </task>
+    <task id="LOCAL-00117" summary="Pages:&#10;- getting_started.md">
+      <created>1611426879236</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1611426879236</updated>
+    </task>
+    <task id="LOCAL-00118" summary="Pages:&#10;- getting_started.md">
+      <created>1611427071797</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1611427071797</updated>
+    </task>
+    <task id="LOCAL-00119" summary="Pages:&#10;- getting_started.md">
+      <created>1611429317663</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1611429317663</updated>
+    </task>
+    <task id="LOCAL-00120" summary="Pages:&#10;- Create tutorials/mnist_classification.md">
+      <created>1611429674790</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1611429674790</updated>
+    </task>
+    <task id="LOCAL-00121" summary="Pages:&#10;- Link to tutorials on index&#10;- Index page for tutorials">
+      <created>1611505679479</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
+      <option name="project" value="LOCAL" />
+      <updated>1611505679479</updated>
+    </task>
+    <task id="LOCAL-00122" summary="Pages:&#10;- Page tuto narma10">
+      <created>1611505927581</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
+      <option name="project" value="LOCAL" />
+      <updated>1611505927581</updated>
+    </task>
+    <option name="localTasksCounter" value="123" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,6 +796,31 @@
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State />
@@ -803,12 +836,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="Removed itertools in requirements.txt" />
-    <MESSAGE value="Removed math in requirements.txt" />
-    <MESSAGE value="Removed threading in requirements.txt" />
-    <MESSAGE value="Removed old code for SFA" />
-    <MESSAGE value="Cosmetics and tests for optimisation" />
-    <MESSAGE value="Removed echotorch.nn import" />
     <MESSAGE value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
     <MESSAGE value="- python-package-testing.yml : add codecov uploading" />
     <MESSAGE value="- python-package-testing.yml : must install pytest-cov" />
@@ -828,7 +855,13 @@
     <MESSAGE value="Override layout" />
     <MESSAGE value="Echo Torch logo and title in header" />
     <MESSAGE value="Link to ZIP" />
-    <option name="LAST_COMMIT_MESSAGE" value="Link to ZIP" />
+    <MESSAGE value="Version 0.2.3" />
+    <MESSAGE value="Bug fix: #13 (https://github.com/nschaetti/EchoTorch/issues/13), matrix not put on GPU device when required.&#10;NARMA-10 tests with CUDA" />
+    <MESSAGE value="Pages:&#10;- getting_started.md" />
+    <MESSAGE value="Pages:&#10;- Create tutorials/mnist_classification.md" />
+    <MESSAGE value="Pages:&#10;- Link to tutorials on index&#10;- Index page for tutorials" />
+    <MESSAGE value="Pages:&#10;- Page tuto narma10" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pages:&#10;- Page tuto narma10" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -847,7 +880,7 @@
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_subspace_first_demo_Test_Subspace_First_Demo_test_subspace_first_demo_input_recreation_100neurons_32bits.coverage" NAME="Nosetests for test.test_subspace_first_demo.Test_Subspace_First_Demo.test_subspace_first_demo_input_recreation_100neurons_32bits Coverage Results" MODIFIED="1602767388979" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_subspace_first_demo_py.coverage" NAME="Nosetests in test_subspace_first_demo.py Coverage Results" MODIFIED="1602752747269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_narma10_prediction_Test_NARMA10_Prediction_test_narma10_prediction_esn_500neurons.coverage" NAME="Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_500neurons Coverage Results" MODIFIED="1602774833508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_narma10_prediction_py.coverage" NAME="Nosetests in test_narma10_prediction.py Coverage Results" MODIFIED="1602775620975" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_narma10_prediction_py.coverage" NAME="Nosetests in test_narma10_prediction.py Coverage Results" MODIFIED="1611354680300" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_in_test_latch_copy_repeat_tasks_py.coverage" NAME="Nosetests in test_latch_copy_repeat_tasks.py Coverage Results" MODIFIED="1602684892081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EchoTorch$Unittests_for_test_torchserve_basic_Test_TorchServe_Basic_test_torchserve_start.coverage" NAME="Unittests for test_torchserve_basic.Test_TorchServe_Basic.test_torchserve_start Coverage Results" MODIFIED="1601976462054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/" />
     <SUITE FILE_PATH="coverage/EchoTorch$Nosetests_for_test_test_hyperparameters_optimization_Test_Hyperparameters_Optimization_test_random_optimization_NARMA10.coverage" NAME="Nosetests for test.test_hyperparameters_optimization.Test_Hyperparameters_Optimization.test_random_optimization_NARMA10 Coverage Results" MODIFIED="1602680464731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
