@@ -16,7 +16,7 @@ Join our community to create datasets and deep-learning models! Chat with us on 
 
 <p style="align: center;">
   <a href="https://discord.gg/aTEtQcSJCJ">
-    <img src="docs/images/join_discord.png" alt="Discord">
+    <img src="docs/images/join_discord.png" alt="Discord" width="120">
   </a>
 </p>
 
