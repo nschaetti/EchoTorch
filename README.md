@@ -14,11 +14,11 @@ architectures for future work and research.
 
 Join our community to create datasets and deep-learning models! Chat with us on [Gitter](https://gitter.im/EchoTorch/Lobby) and join the [Google Group](https://groups.google.com/forum/#!forum/echotorch/) to collaborate with us.
 
-<p style="align: center;">
+<center>
   <a href="https://discord.gg/aTEtQcSJCJ">
     <img src="docs/images/join_discord.png" alt="Discord" width="120">
   </a>
-</p>
+</center>
 
 ## Development status
 

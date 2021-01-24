@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Pages:&#10;- Page tuto narma10">
-      <change afterPath="$PROJECT_DIR$/echotorch/training_and_evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/EchoTorch.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/EchoTorch.iml" afterDir="false" />
+    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Join Discord width">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -442,28 +439,7 @@
       <workItem from="1602835881623" duration="289000" />
       <workItem from="1610979019010" duration="11512000" />
       <workItem from="1611048262137" duration="593000" />
-      <workItem from="1611425170388" duration="6656000" />
-    </task>
-    <task id="LOCAL-00074" summary="Removed old code for SFA">
-      <created>1602676606186</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1602676606186</updated>
-    </task>
-    <task id="LOCAL-00075" summary="Cosmetics and tests for optimisation">
-      <created>1602680727368</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1602680727368</updated>
-    </task>
-    <task id="LOCAL-00076" summary="Removed echotorch.nn import">
-      <created>1602682313227</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1602682313227</updated>
+      <workItem from="1611425170388" duration="6962000" />
     </task>
     <task id="LOCAL-00077" summary="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)">
       <created>1602686026162</created>
@@ -787,7 +763,28 @@
       <option name="project" value="LOCAL" />
       <updated>1611505927581</updated>
     </task>
-    <option name="localTasksCounter" value="123" />
+    <task id="LOCAL-00123" summary="Added link to join EchoTorch Discord server.">
+      <created>1611508901628</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1611508901628</updated>
+    </task>
+    <task id="LOCAL-00124" summary="Images">
+      <created>1611509023252</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1611509023252</updated>
+    </task>
+    <task id="LOCAL-00125" summary="Join Discord width">
+      <created>1611509089211</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1611509089211</updated>
+    </task>
+    <option name="localTasksCounter" value="126" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -836,9 +833,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="- python-package-testing.yml : timeout 10 hours&#10;- .idea : configurations&#10;- test_memory_management.py : cosmetics&#10;- test_narma10_prediction : cosmetics&#10;- setup.py : removed install requires (all in requirements.txt)" />
-    <MESSAGE value="- python-package-testing.yml : add codecov uploading" />
-    <MESSAGE value="- python-package-testing.yml : must install pytest-cov" />
     <MESSAGE value="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal." />
     <MESSAGE value="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests." />
     <MESSAGE value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
@@ -861,7 +855,10 @@
     <MESSAGE value="Pages:&#10;- Create tutorials/mnist_classification.md" />
     <MESSAGE value="Pages:&#10;- Link to tutorials on index&#10;- Index page for tutorials" />
     <MESSAGE value="Pages:&#10;- Page tuto narma10" />
-    <option name="LAST_COMMIT_MESSAGE" value="Pages:&#10;- Page tuto narma10" />
+    <MESSAGE value="Added link to join EchoTorch Discord server." />
+    <MESSAGE value="Images" />
+    <MESSAGE value="Join Discord width" />
+    <option name="LAST_COMMIT_MESSAGE" value="Join Discord width" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
