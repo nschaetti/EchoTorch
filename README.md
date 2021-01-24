@@ -14,6 +14,12 @@ architectures for future work and research.
 
 Join our community to create datasets and deep-learning models! Chat with us on [Gitter](https://gitter.im/EchoTorch/Lobby) and join the [Google Group](https://groups.google.com/forum/#!forum/echotorch/) to collaborate with us.
 
+<p style="align: center;">
+  <a href="https://discord.gg/aTEtQcSJCJ">
+    <img src="docs/images/join_discord.png" alt="Discord">
+  </a>
+</p>
+
 ## Development status
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/echotorch.svg?style=flat-square)

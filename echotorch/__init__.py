@@ -27,6 +27,9 @@ from . import nn
 from . import transforms
 from . import utils
 
+# Utility functions
+from .training_and_evaluation import fit, eval, cross_val_score
+
 
 # All echotorch's modules
-__all__ = ['datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils']
+__all__ = ['datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval', 'cross_val_score']
