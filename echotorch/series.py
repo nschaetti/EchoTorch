@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/timetensor.py
-# Description : A special tensor with a time dimension
+# File : echotorch/series.py
+# Description : Utility functions to generate timeseries
 # Date : 25th of January, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -20,20 +20,4 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 
-# Import
-import torch
 
-
-# TimeTensor
-class TimeTensor(torch.Tensor):
-    """
-    A special tensor with a time dimension
-    """
-
-    # region CONSTRUCTORS
-
-    pass
-
-    # endregion CONSTRUCTORS
-
-# end TimeTensor

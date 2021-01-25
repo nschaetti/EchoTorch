@@ -48,7 +48,7 @@ class Normalize(Transformer):
         self._dtype = dtype
     # end __init__
 
-    #region PROPERTIES
+    # region PROPERTIES
 
     # Dimension of the input timeseries
     @property
@@ -80,9 +80,9 @@ class Normalize(Transformer):
         return self._dtype
     # end output_dim
 
-    #endregion PROPERTIES
+    # endregion PROPERTIES
 
-    #region PRIVATE
+    # region PRIVATE
 
     # Transform
     def _transform(self, x):
@@ -91,17 +91,37 @@ class Normalize(Transformer):
         :param x:
         :return:
         """
-        return (x - self._mu) / self._std
+        """# Mu
+        if isinstance(self._mu, torch.Tensor):
+            for chan_i in range(x.size(1)):
+                x[:, chan_i] -= self._mu[chan_i]
+            # end for
+        else:
+            x -= self._mu
+        # end if
+
+        # Std
+        if isinstance(self._std, torch.Tensor):
+            for chan_i in range(x.size(1)):
+                x[:, chan_i] /= self._std[chan_i]
+            # end for
+        else:
+            x /= self._std
+        # end if"""
+
+        x = (x - self._mu) / self._std
+
+        return x
     # end _transform
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
-    #region OVERRIDE
+    # region OVERRIDE
 
-    #endregion OVERRIDE
+    # endregion OVERRIDE
 
-    #region STATIC
+    # region STATIC
 
-    #endregion STATIC
+    # endregion STATIC
 
 # end Normalize

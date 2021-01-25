@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/timetensor.py
-# Description : A special tensor with a time dimension
+# File : echotorch/datasets/EchoDataset.py
+# Description : Base class for EchoTorch datasets
 # Date : 25th of January, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -20,20 +20,27 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 
-# Import
+# Imports
 import torch
+from torch.utils.data.dataset import Dataset
 
 
-# TimeTensor
-class TimeTensor(torch.Tensor):
+# EchoDataset
+class EchoDataset(Dataset):
     """
-    A special tensor with a time dimension
+    Base class for EchoTorch datasets
     """
 
-    # region CONSTRUCTORS
+    # region TO_IMPLEMENT
 
-    pass
+    @staticmethod
+    def datafunc(*args, **kwargs):
+        """
+        Function to generate data
+        :param args: Positional arguments
+        :param kwargs: Arguments
+        """
+        pass
+    # end datafunc
 
-    # endregion CONSTRUCTORS
-
-# end TimeTensor
+# end EchoDataset
