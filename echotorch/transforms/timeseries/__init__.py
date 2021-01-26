@@ -25,8 +25,9 @@ from .Chain import Chain
 from .FourierTransform import FourierTransform
 from .Normalize import Normalize
 from .Range import Range
+from .Scale import Scale
 from .SelectChannels import SelectChannels
 from .ToOneHot import ToOneHot
 
 # All
-__all__ = ['AddNoise', 'Chain', 'FourierTransform', 'Normalize', 'Range', 'SelectChannels', 'ToOneHot']
+__all__ = ['AddNoise', 'Chain', 'FourierTransform', 'Normalize', 'Range', 'Scale', 'SelectChannels', 'ToOneHot']

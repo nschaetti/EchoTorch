@@ -31,7 +31,7 @@ class Normalize(Transformer):
     """
 
     # Constructor
-    def __init__(self, input_dim, mu, std, dtype=torch.float64):
+    def __init__(self, input_dim, mu=None, std=None, dtype=torch.float64):
         """
         Constructor
         """
@@ -91,25 +91,19 @@ class Normalize(Transformer):
         :param x:
         :return:
         """
-        """# Mu
-        if isinstance(self._mu, torch.Tensor):
-            for chan_i in range(x.size(1)):
-                x[:, chan_i] -= self._mu[chan_i]
-            # end for
+        # Mean
+        if self._mu is None:
+            x -= torch.mean(x, dim=0)
         else:
             x -= self._mu
         # end if
 
-        # Std
-        if isinstance(self._std, torch.Tensor):
-            for chan_i in range(x.size(1)):
-                x[:, chan_i] /= self._std[chan_i]
-            # end for
+        # Standard deviation
+        if self._std is None:
+            x /= torch.std(x, dim=0)
         else:
             x /= self._std
-        # end if"""
-
-        x = (x - self._mu) / self._std
+        # end if
 
         return x
     # end _transform

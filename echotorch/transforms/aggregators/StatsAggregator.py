@@ -33,6 +33,28 @@ class StatsAggregator(Aggregator):
     An aggregator which compute the basic statistics about time series
     """
 
+    # region PROPERTIES
+
+    # Get data
+    @property
+    def data(self):
+        """
+        Get data
+        """
+        return self._data
+    # end data
+
+    # Get counters
+    @property
+    def counters(self):
+        """
+        Get counters
+        """
+        return self._counters
+    # end counters
+
+    # endregion PROPERTIES
+
     # region PUBLIC
 
     # Get statistics
