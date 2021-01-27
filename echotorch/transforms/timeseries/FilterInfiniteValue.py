@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/transforms/timeseries/Scale.py
-# Description : Multiply channels by a constant
-# Date : 26th of January, 2021
+# File : echotorch/transforms/timeseries/FilterInfiniteValue.py
+# Description : Filter infinite values in time series
+# Date : 27th of January 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -25,40 +25,39 @@ import torch
 from ..Transformer import Transformer
 
 
-# Scale transformer
-class Scale(Transformer):
+# FilterInfiniteValue
+class FilterInfiniteValue(Transformer):
     """
-    Multiply channels by a constant
+    Filter infinite values in time series
     """
-
-    # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, input_dim, scales, dtype=torch.float64):
+    def __init__(self, input_dim, dummy_value, dtype=torch.float64):
         """
         Constructor
-        :param input_dim: Input dimension
-        :param scales: Scales as a scalar or a tensor
         """
         # Super constructor
-        super(Scale, self).__init__(input_dim=input_dim, output_dim=input_dim, dtype=dtype)
+        super(FilterInfiniteValue, self).__init__(
+            input_dim=input_dim,
+            output_dim=input_dim,
+            dtype=dtype
+        )
 
         # Properties
-        self._scales = scales
+        self._dummy_value = dummy_value
     # end __init__
-
-    # endregion CONSTRUCTORS
 
     # region PROPERTIES
 
-    # Scales
+    # Value to replace infinity
     @property
-    def scales(self):
+    def dummy_value(self):
         """
-        Scales
+        Value to replace infinity
+        :return: Value to replace infinity
         """
-        return self._scales
-    # end scales
+        return self._dummy_value
+    # end dummy_value
 
     # endregion PROPERTIES
 
@@ -68,16 +67,11 @@ class Scale(Transformer):
     def _transform(self, x):
         """
         Transform input
-        :param x:
-        :return:
         """
-        if isinstance(self._scales, torch.Tensor):
-            return torch.mm(x, torch.diag(self._scales))
-        else:
-            return x * self._scales
-        # end if
+        x[torch.isinf(x)] = self._dummy_value
+        return x
     # end _transform
 
     # endregion OVERRIDE
 
-# end Scale
+# end FilterInfiniteValue

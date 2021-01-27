@@ -38,14 +38,14 @@ class Normalize(Transformer):
         # Super constructor
         super(Normalize, self).__init__(
             input_dim=input_dim,
-            output_dim=input_dim
+            output_dim=input_dim,
+            dtype=dtype
         )
 
         # Properties
         self._mu = mu
         self._std = std
         self._input_dim = input_dim
-        self._dtype = dtype
     # end __init__
 
     # region PROPERTIES
@@ -79,6 +79,24 @@ class Normalize(Transformer):
         """
         return self._dtype
     # end output_dim
+
+    # Mean
+    @property
+    def mean(self):
+        """
+        Mean
+        """
+        return self._mu
+    # end mean
+
+    # Standard deviation
+    @property
+    def std(self):
+        """
+        Stanard deviation
+        """
+        return self._std
+    # end std
 
     # endregion PROPERTIES
 

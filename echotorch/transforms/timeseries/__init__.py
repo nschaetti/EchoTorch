@@ -22,6 +22,7 @@
 # Imports
 from .AddNoise import AddNoise
 from .Chain import Chain
+from .FilterInfiniteValue import FilterInfiniteValue
 from .FourierTransform import FourierTransform
 from .Normalize import Normalize
 from .Range import Range
@@ -30,4 +31,7 @@ from .SelectChannels import SelectChannels
 from .ToOneHot import ToOneHot
 
 # All
-__all__ = ['AddNoise', 'Chain', 'FourierTransform', 'Normalize', 'Range', 'Scale', 'SelectChannels', 'ToOneHot']
+__all__ = [
+    'AddNoise', 'Chain', 'FilterInfiniteValue', 'FourierTransform', 'Normalize', 'Range', 'Scale',
+    'SelectChannels', 'ToOneHot'
+]
