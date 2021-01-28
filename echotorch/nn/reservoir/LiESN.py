@@ -38,7 +38,7 @@ class LiESN(ESN):
 
     # Constructor
     def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate, w_generator, win_generator, wbias_generator,
-                 spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
+                 input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None,
                  dtype=torch.float32):
         """
@@ -47,8 +47,6 @@ class LiESN(ESN):
         :param hidden_dim: Reservoir hidden space dimension
         :param output_dim: Output space dimension
         :param leaky_rate: Leaky-rate
-        :param spectral_radius: Spectral radius
-        :param bias_scaling: Bias scaling
         :param input_scaling: Input scaling
         :param w_generator: Internal weight matrix generator
         :param win_generator: Input-reservoir weight matrix generator
