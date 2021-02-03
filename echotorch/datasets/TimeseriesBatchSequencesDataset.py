@@ -33,8 +33,8 @@ class TimeseriesBatchSequencesDataset(Dataset):
     """
 
     # Constructor
-    def __init__(self, root_dataset, window_size, data_indices, stride, time_axis=0, dataset_in_memory=False,
-                 *args, **kwargs):
+    def __init__(self, root_dataset, window_size, data_indices, stride, remove_indices, time_axis=0,
+                 dataset_in_memory=False, *args, **kwargs):
         """
         Constructor
         :param root_dataset: Root dataset
@@ -53,6 +53,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
         self.stride = stride
         self.time_axis = time_axis
         self.dataset_in_memory = dataset_in_memory
+        self.remove_indices = remove_indices
 
         # Dataset information
         self.timeseries_lengths = list()
@@ -66,7 +67,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
         self._load_dataset()
     # end __init__
 
-    #region PRIVATE
+    # region PRIVATE
 
     # Load dataset
     def _load_dataset(self):
@@ -108,9 +109,9 @@ class TimeseriesBatchSequencesDataset(Dataset):
         self.n_samples = item_position
     # end _load_dataset
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
-    #region OVERRIDE
+    # region OVERRIDE
 
     # Get a sample in the dataset
     def __getitem__(self, item):
@@ -119,6 +120,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
         :param item: Item index (start 0)
         :return: Dataset sample
         """
+        # print("__getitem__ {}".format(item))
         # Go through each samples in the root dataset
         for item_i in range(len(self.root_dataset)):
             # Timeserie info
@@ -153,8 +155,20 @@ class TimeseriesBatchSequencesDataset(Dataset):
                     data = torch.index_select(data, self.time_axis, torch.tensor(sequence_range))
                 # end if
 
+                # For each data to add batch to
+                new_data = list()
+                if self.remove_indices is not None:
+                    for data_i in range(len(data)):
+                        if data_i not in self.remove_indices:
+                            new_data.append(data[data_i])
+                        # end if
+                    # end for
+                else:
+                    new_data = data
+                # end if
+
                 # Return modified data
-                return data
+                return new_data
             # end if
         # end for
     # end __getitem__
@@ -179,7 +193,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
         return self.n_samples
     # end __len__
 
-    #endregion OVERRIDE
+    # endregion OVERRIDE
 
 # end TimeseriesBatchSequencesDataset
 
