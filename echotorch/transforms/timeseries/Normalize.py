@@ -31,7 +31,7 @@ class Normalize(Transformer):
     """
 
     # Constructor
-    def __init__(self, input_dim, mu=None, std=None, dtype=torch.float64):
+    def __init__(self, input_dim, mu=None, std=None, dummy_zero_std=1.0, dtype=torch.float64):
         """
         Constructor
         """
@@ -46,6 +46,7 @@ class Normalize(Transformer):
         self._mu = mu
         self._std = std
         self._input_dim = input_dim
+        self._dummy_zero_std = dummy_zero_std
     # end __init__
 
     # region PROPERTIES
@@ -118,7 +119,9 @@ class Normalize(Transformer):
 
         # Standard deviation
         if self._std is None:
-            x /= torch.std(x, dim=0)
+            x_std = torch.std(x, dim=0)
+            x_std[x_std == 0] = self._dummy_zero_std
+            x /= x_std
         else:
             x /= self._std
         # end if
