@@ -158,6 +158,27 @@ class CrossValidationWithDev(Dataset):
 
     #region OVERRIDE
 
+    # # Dataset size
+    # def __len__(self):
+    #     """
+    #     Dataset size
+    #     :return:
+    #     """
+    #     # Test length
+    #     dev_test_length = self.fold_sizes[self.fold]
+    #     train_length = len(self.root_dataset) - dev_test_length
+    #     dev_length = int(dev_test_length * self.dev_ratio)
+    #     test_length = dev_test_length - dev_length
+    #
+    #     if self.mode == 'train':
+    #         return int(train_length * self.train_size)
+    #     elif self.mode == 'dev':
+    #         return dev_length
+    #     else:
+    #         return test_length
+    #     # end if
+    # # end __len__
+
     # Dataset size
     def __len__(self):
         """
@@ -165,11 +186,12 @@ class CrossValidationWithDev(Dataset):
         :return:
         """
         # Test length
-        dev_test_length = self.fold_sizes[self.fold]
-        train_length = len(self.root_dataset) - dev_test_length
-        dev_length = int(dev_test_length * self.dev_ratio)
-        test_length = dev_test_length - dev_length
+        test_length = self.fold_sizes[self.fold]
+        dev_train_length = len(self.root_dataset) - test_length
+        dev_length = int(dev_train_length * self.dev_ratio)
+        train_length = dev_train_length - dev_length
 
+        # According to set
         if self.mode == 'train':
             return int(train_length * self.train_size)
         elif self.mode == 'dev':
@@ -187,21 +209,18 @@ class CrossValidationWithDev(Dataset):
         :return:
         """
         # Get target set
-        dev_test_set = self.folds[self.fold]
+        test_set = self.folds[self.fold]
         indexes_copy = self.indexes.copy()
-        train_set = np.setdiff1d(indexes_copy, dev_test_set)
-        train_length = len(self.root_dataset) - len(dev_test_set)
-        train_length = int(train_length * self.train_size)
-        train_set = train_set[:train_length]
+        train_dev_set = np.setdiff1d(indexes_copy, test_set)
+        dev_train_length = len(self.root_dataset) - len(test_set)
+        dev_length = int(dev_train_length * self.dev_ratio)
+        train_length = int((dev_train_length - dev_length) * self.train_size)
 
-        # Dev/test length
-        dev_length = int(len(dev_test_set) * self.dev_ratio)
+        # Train / dev sets
+        train_set = train_dev_set[:train_length]
+        dev_set = train_dev_set[:-dev_length]
 
-        # Dev/test sets
-        dev_set = dev_test_set[:dev_length]
-        test_set = dev_test_set[dev_length:]
-
-        # Train/test
+        # Train/dev/test
         if self.mode == 'train':
             return self.root_dataset[train_set[item]]
         elif self.mode == 'dev':
@@ -210,6 +229,38 @@ class CrossValidationWithDev(Dataset):
             return self.root_dataset[test_set[item]]
         # end if
     # end __getitem__
+
+    # # Get item
+    # def __getitem__(self, item):
+    #     """
+    #     Get item
+    #     :param item:
+    #     :return:
+    #     """
+    #     # Get target set
+    #     dev_test_set = self.folds[self.fold]
+    #     indexes_copy = self.indexes.copy()
+    #     train_set = np.setdiff1d(indexes_copy, dev_test_set)
+    #     train_length = len(self.root_dataset) - len(dev_test_set)
+    #     train_length = int(train_length * self.train_size)
+    #     train_set = train_set[:train_length]
+    #
+    #     # Dev/test length
+    #     dev_length = int(len(dev_test_set) * self.dev_ratio)
+    #
+    #     # Dev/test sets
+    #     dev_set = dev_test_set[:dev_length]
+    #     test_set = dev_test_set[dev_length:]
+    #
+    #     # Train/test
+    #     if self.mode == 'train':
+    #         return self.root_dataset[train_set[item]]
+    #     elif self.mode == 'dev':
+    #         return self.root_dataset[dev_set[item]]
+    #     else:
+    #         return self.root_dataset[test_set[item]]
+    #     # end if
+    # # end __getitem__
 
     #endregion OVERRIDE
 
