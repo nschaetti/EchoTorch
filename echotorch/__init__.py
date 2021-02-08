@@ -29,6 +29,7 @@ from . import utils
 
 # Utility functions
 from .modules import esn
+from .series import copytask, discrete_markov_chain, csv_file, henon
 from .tensor import TimeTensor
 from .training_and_evaluation import fit, eval, cross_val_score
 from .utility_functions import timetensor, timecat
@@ -37,5 +38,5 @@ from .utility_functions import timetensor, timecat
 # All echotorch's modules
 __all__ = [
     'esn', 'TimeTensor', 'timetensor', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
-    'cross_val_score', 'timecat'
+    'cross_val_score', 'timecat', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon'
 ]

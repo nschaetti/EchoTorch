@@ -49,10 +49,9 @@ class FromCSVDataset(Dataset):
         self._n_columns = len(columns)
         self._delimiter = delimiter
         self._quotechar = quotechar
-        self._column_indices = list()
 
         # Load
-        self._data = self._load_from_csv()
+        self._data, self._column_indices = self._load_from_csv()
     # end __init__
 
     # region PRIVATE
@@ -103,13 +102,14 @@ class FromCSVDataset(Dataset):
 
     # Find indices for each column
     @staticmethod
-    def find_columns_indices(header_row, columns, column_indices):
+    def find_columns_indices(header_row, columns):
         """
         Find indices for each column
         :param header_row: Header row
         :param columns: Columns
         :param column_indices: Column indices
         """
+        column_indices = list()
         for col in columns:
             if col in header_row:
                 column_indices.append(header_row.index(col))
@@ -117,10 +117,11 @@ class FromCSVDataset(Dataset):
                 raise Exception("Not column \'{}\' found in the CSV".format(col))
             # end if
         # end for
+        return column_indices
     # end find_columns_indices
 
     @staticmethod
-    def generate(csv_file, delimiter, quotechar, columns, column_indices):
+    def generate(csv_file, delimiter, quotechar, columns):
         """
         Generate data
         """
@@ -136,7 +137,7 @@ class FromCSVDataset(Dataset):
             for row_i, row in enumerate(spamreader):
                 # First row is the column name
                 if row_i == 0:
-                    FromCSVDataset.find_columns_indices(row, columns, column_indices)
+                    column_indices = FromCSVDataset.find_columns_indices(row, columns, column_indices)
                 else:
                     # Row list
                     row_list = list()
@@ -161,7 +162,7 @@ class FromCSVDataset(Dataset):
                 # end for
             # end for
 
-            return data_tensor
+            return data_tensor, column_indices
         # end for
 
     # endregion STATIC

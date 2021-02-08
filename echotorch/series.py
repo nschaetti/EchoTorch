@@ -50,6 +50,35 @@ def copytask(size, length_min, length_max, n_inputs, return_db=False, dtype=torc
 # end copytask
 
 
+# Load Time series from a CSV file
+def csv_file(csv_file, delimiter, quotechar, columns, return_db=False, dtype=torch.float64):
+    """
+    Load Timeseries from a CSV file
+    :param csv_file:
+    :param delimiter:
+    :param quotechar:
+    :param columns:
+    :param return_db:
+    :param dtype:
+    """
+    if return_db:
+        return echotorch.datasets.FromCSVDataset(
+            csv_file=csv_file,
+            columns=columns,
+            delimiter=delimiter,
+            quotechar=quotechar
+        )
+    else:
+        return echotorch.datasets.FromCSVDataset.generate(
+            csv_file=csv_file,
+            delimiter=delimiter,
+            quotechar=quotechar,
+            columns=columns
+        )
+    # end if
+# end csv_file
+
+
 # Generate Discrete Markov Chain dataset
 def discrete_markov_chain(size, length, n_states, probability_matrix, start_state=0, return_db=False,
                           dtype=torch.float64):
@@ -85,25 +114,119 @@ def discrete_markov_chain(size, length, n_states, probability_matrix, start_stat
 # end discrete_markov_chain
 
 
-# Load Time series from a CSV file
-def csv_file(csv_file, delimiter, quotechar, columns, return_db=False, dtype=torch.float64):
+# Henon attractor
+def henon(size, length, xy, a, b, washout=0, normalize=False, return_db=False, dtype=torch.float64):
     """
-    Load Timeseries from a CSV file
-    :param csv_file:
-    :param delimiter:
-    :param quotechar:
-    :param columns:
-    :param return_db:
-    :param dtype:
+    Henon attractor
     """
     if return_db:
-        return echotorch.datasets.FromCSVDataset(
-            csv_file=csv_file,
-            columns=columns,
-            delimiter=delimiter,
-            quotechar=quotechar
+        return echotorch.datasets.HenonAttractor(
+            sample_len=length,
+            n_samples=size,
+            xy=xy,
+            a=a,
+            b=b,
+            washout=washout,
+            normalize=normalize
         )
     else:
-        pass
+        return echotorch.datasets.HenonAttractor.generate(
+            n_samples=size,
+            sample_len=length,
+            xy=xy,
+            a=a,
+            b=b,
+            washout=washout,
+            normalize=normalize,
+            dtype=dtype
+        )
     # end if
-# end csv_file
+# end henon
+
+
+# Mackey Glass timeseries
+def mackey_glass(size, length, tau=17, return_db=False, dtype=torch.float64):
+    """
+    Mackey Glass timeseries
+    """
+    if return_db:
+        return echotorch.datasets.MackeyGlassDataset(
+            sample_len=length,
+            n_samples=size,
+            tau=tau
+        )
+    else:
+        samples = list()
+        for sample_i in range(size):
+            return echotorch.datasets.MackeyGlassDataset.generate(
+
+            )
+        # end for
+    # end if
+# end mackey_glass
+
+
+# NARMA
+def narma(size, length, order=10, return_db=False, dtype=torch.float64):
+    """
+    NARMA-10
+    """
+    if return_db:
+        return echotorch.datasets.NARMADataset(
+            sample_len=length,
+            n_samples=size,
+            system_order=order
+        )
+    else:
+        return echotorch.datasets.NARMADataset.generate(
+            sample_len=length,
+            n_samples=length,
+            system_order=order,
+            dtype=dtype
+        )
+    # end if
+# end narma
+
+
+# NARMA-10
+def narma10(size, length, return_db=False, dtype=torch.float64):
+    """
+    NARMA-10
+    """
+    if return_db:
+        return echotorch.datasets.NARMADataset(
+            sample_len=length,
+            n_samples=size,
+            system_order=10
+        )
+    else:
+        return echotorch.datasets.NARMADataset.generate(
+            sample_len=length,
+            n_samples=length,
+            system_order=10,
+            dtype=dtype
+        )
+    # end if
+# end narma10
+
+
+# NARMA-30
+def narma30(size, length, return_db=False, dtype=torch.float64):
+    """
+    NARMA-30
+    """
+    if return_db:
+        return echotorch.datasets.NARMADataset(
+            sample_len=length,
+            n_samples=size,
+            system_order=30
+        )
+    else:
+        return echotorch.datasets.NARMADataset.generate(
+            sample_len=length,
+            n_samples=length,
+            system_order=30,
+            dtype=dtype
+        )
+    # end if
+# end narma30
