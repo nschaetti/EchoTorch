@@ -57,69 +57,22 @@ class FromCSVDataset(Dataset):
 
     # region PRIVATE
 
-    # Find indices for each column
-    def _find_columns_indices(self, header_row):
-        """
-        Find indices for each column
-        :param header_row: Header row
-        """
-        for col in self._columns:
-            if col in header_row:
-                self._column_indices.append(header_row.index(col))
-            else:
-                raise Exception("Not column \'{}\' found in the CSV".format(col))
-            # end if
-        # end for
-    # end _find_columns_indices
-
     # Load from CSV file
     def _load_from_csv(self):
         """
         Load from CSV file
         :return:
         """
-        # Open CSV file
-        with open(self._csv_file, 'r') as csvfile:
-            # Read data
-            spamreader = csv.reader(csvfile, delimiter=self._delimiter, quotechar=self._quotechar)
-
-            # Data
-            data = list()
-
-            # For each row
-            for row_i, row in enumerate(spamreader):
-                # First row is the column name
-                if row_i == 0:
-                    self._find_columns_indices(row)
-                else:
-                    # Row list
-                    row_list = list()
-
-                    # Add each column
-                    for idx in self._column_indices:
-                        row_list.append(row[idx])
-                    # end for
-
-                    # Add to data
-                    data.append(row_list)
-                # end if
-            # end for
-
-            # Create tensor
-            data_tensor = torch.zeros(len(data), self._n_columns)
-
-            # Insert data in tensor
-            for row_i, row in enumerate(data):
-                for col_i, e in enumerate(row):
-                    data_tensor[row_i, col_i] = float(e)
-                # end for
-            # end for
-
-            return data_tensor
-        # end for
+        return FromCSVDataset.generate(
+            csv_file=self._csv_file,
+            delimiter=self._delimiter,
+            quotechar=self._quotechar,
+            n_columns=self._n_columns,
+            column_indices=self._column_indices
+        )
     # end _load_from_csv
 
-    # endregion ENDPRIVATE
+    # endregion PRIVATE
 
     # region OVERRIDE
 
@@ -145,5 +98,72 @@ class FromCSVDataset(Dataset):
     # end __getitem__
 
     # endregion OVERRIDE
+
+    # region STATIC
+
+    # Find indices for each column
+    @staticmethod
+    def find_columns_indices(header_row, columns, column_indices):
+        """
+        Find indices for each column
+        :param header_row: Header row
+        :param columns: Columns
+        :param column_indices: Column indices
+        """
+        for col in columns:
+            if col in header_row:
+                column_indices.append(header_row.index(col))
+            else:
+                raise Exception("Not column \'{}\' found in the CSV".format(col))
+            # end if
+        # end for
+    # end find_columns_indices
+
+    @staticmethod
+    def generate(csv_file, delimiter, quotechar, columns, column_indices):
+        """
+        Generate data
+        """
+        # Open CSV file
+        with open(csv_file, 'r') as csvfile:
+            # Read data
+            spamreader = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
+
+            # Data
+            data = list()
+
+            # For each row
+            for row_i, row in enumerate(spamreader):
+                # First row is the column name
+                if row_i == 0:
+                    FromCSVDataset.find_columns_indices(row, columns, column_indices)
+                else:
+                    # Row list
+                    row_list = list()
+
+                    # Add each column
+                    for idx in column_indices:
+                        row_list.append(row[idx])
+                    # end for
+
+                    # Add to data
+                    data.append(row_list)
+                # end if
+            # end for
+
+            # Create tensor
+            data_tensor = torch.zeros(len(data), len(columns))
+
+            # Insert data in tensor
+            for row_i, row in enumerate(data):
+                for col_i, e in enumerate(row):
+                    data_tensor[row_i, col_i] = float(e)
+                # end for
+            # end for
+
+            return data_tensor
+        # end for
+
+    # endregion STATIC
 
 # end DiscreteMarkovChainDataset

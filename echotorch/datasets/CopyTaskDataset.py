@@ -49,7 +49,7 @@ class CopyTaskDataset(Dataset):
         self.samples = self._generate()
     # end __init__
 
-    #region OVERRIDE
+    # region OVERRIDE
 
     # Length
     def __len__(self):
@@ -70,9 +70,9 @@ class CopyTaskDataset(Dataset):
         return self.samples[idx]
     # end __getitem__
 
-    #endregion OVERRIDE
+    # endregion OVERRIDE
 
-    #region PRIVATE
+    # region PRIVATE
 
     # Generate
     def _generate(self):
@@ -80,33 +80,57 @@ class CopyTaskDataset(Dataset):
         Generate dataset
         :return:
         """
+        return CopyTaskDataset.generate(
+            self.n_samples,
+            self.length_min,
+            self.length_max,
+            self.n_inputs,
+            self.dtype
+        )
+    # end _generate
+
+    # endregion PRIVATE
+
+    # region STATIC
+
+    # Generate samples
+    @staticmethod
+    def generate(n_samples, length_min, length_max, n_inputs, dtype=torch.float64):
+        """
+        Generate samples
+        :param n_samples:
+        :param length_min:
+        :param length_max:
+        :param n_inputs:
+        :param dtype:
+        """
         # List of samples
         samples = list()
 
         # For each sample
-        for i in range(self.n_samples):
+        for i in range(n_samples):
             # Generate length
-            sample_len = torch.randint(low=self.length_min, high=self.length_max, size=(1,)).item()
+            sample_len = torch.randint(low=length_min, high=length_max, size=(1,)).item()
 
             # Create empty inputs and output
-            sample_inputs = torch.zeros((sample_len * 2 + 1, self.n_inputs + 1), dtype=self.dtype)
-            sample_outputs = torch.zeros((sample_len * 2 + 1, self.n_inputs + 1), dtype=self.dtype)
+            sample_inputs = torch.zeros((sample_len * 2 + 1, n_inputs + 1), dtype=dtype)
+            sample_outputs = torch.zeros((sample_len * 2 + 1, n_inputs + 1), dtype=dtype)
 
             # Generate a random pattern
-            random_pattern = torch.randint(low=0, high=2, size=(sample_len, self.n_inputs))
+            random_pattern = torch.randint(low=0, high=2, size=(sample_len, n_inputs))
 
             # Set in inputs and outputs
-            sample_inputs[:sample_len, :self.n_inputs] = random_pattern
-            sample_outputs[sample_len+1:, :self.n_inputs] = random_pattern
-            sample_inputs[sample_len, self.n_inputs] = 1.0
+            sample_inputs[:sample_len, :n_inputs] = random_pattern
+            sample_outputs[sample_len + 1:, :n_inputs] = random_pattern
+            sample_inputs[sample_len, n_inputs] = 1.0
 
             # Append
             samples.append((sample_inputs, sample_outputs))
         # end for
 
         return samples
-    # end _generate
+    # end generate
 
-    #endregion PRIVATE
+    # endregion STATIC
 
 # end CopyTaskDataset

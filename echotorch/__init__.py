@@ -28,8 +28,14 @@ from . import transforms
 from . import utils
 
 # Utility functions
+from .modules import esn
+from .tensor import TimeTensor
 from .training_and_evaluation import fit, eval, cross_val_score
+from .utility_functions import timetensor, timecat
 
 
 # All echotorch's modules
-__all__ = ['datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval', 'cross_val_score']
+__all__ = [
+    'esn', 'TimeTensor', 'timetensor', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
+    'cross_val_score', 'timecat'
+]

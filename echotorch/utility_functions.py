@@ -22,10 +22,29 @@
 
 # Imports
 import torch
+from .tensor import TimeTensor
 
 
-# Create a TimeTensor
-def timetensor(data, *, time_dim=0, dtype=None, device=None, requires_grad=False, pin_memory=False) -> torch.Tensor:
-    pass
+# Create a time tensor
+def timetensor(data, time_dim):
+    """
+    Create a temporal tensor
+    """
+    return TimeTensor(data, time_dim)
 # end timetensor
 
+
+# Concatenate on time dim
+def timecat(tensor1, tensor2):
+    """
+    Concatenate
+    """
+    if tensor1.time_dim == tensor2.time_dim and tensor1.ndim == tensor2.ndim:
+        return torch.cat((tensor1, tensor2), dim=tensor1.time_dim)
+    else:
+        raise Exception(
+            "Tensor 1 and 2 must have the same number of dimension and the same time dimension (here {}/{} "
+            "and {}/{}".format(tensor1.ndim, tensor1.time_dim, tensor2.ndim, tensor2.time_dim)
+        )
+    # end if
+# end timecat
