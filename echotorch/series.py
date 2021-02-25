@@ -25,7 +25,7 @@ import torch
 import echotorch.datasets
 
 
-# Generate Copy Task series
+# Generate Copy Task seriesJFJJFJ
 def copytask(size, length_min, length_max, n_inputs, return_db=False, dtype=torch.float64):
     """
     Generate Copy Task series
