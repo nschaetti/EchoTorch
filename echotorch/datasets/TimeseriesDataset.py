@@ -24,10 +24,9 @@
 import os
 import torch
 import json
-import csv
+import numpy as np
 
 # echotorch imports
-from echotorch import timetensor
 from echotorch.transforms import Transformer
 
 # Imports local
@@ -36,7 +35,7 @@ from .EchoDataset import EchoDataset
 
 # Filenames
 INFO_DATA_FILE_OUTPUT = "{:07d}TS.pth"
-PROPERTIES_FILE = "dataset_properites.json"
+PROPERTIES_FILE = "dataset_properties.json"
 INFO_METADATA_FILE_OUTPUT = "{:07d}TS.json"
 
 
@@ -53,8 +52,8 @@ class TimeseriesDataset(EchoDataset):
         """
         Constructor
         :param root_directory: Base root directory
-        :param transform: An echotorch transformer
-        :param timestep: The timestep of timeseries (default: 1 second)
+        :param transform: An EchoTorch transformer
+        :param timestep: The time step of time series (default: 1 second)
         """
         # Properties
         self._root_directory = root_directory
@@ -120,7 +119,7 @@ class TimeseriesDataset(EchoDataset):
 
     # Sample length
     @property
-    def sample_lenght(self) -> int:
+    def sample_length(self) -> int:
         """
         Accumulated lengths ot the sample
         """
@@ -145,7 +144,7 @@ class TimeseriesDataset(EchoDataset):
         return self._dataset_properties['column_names']
     # end columns
 
-    # Columns properties
+    # Columns propertiesS
     @property
     def columns_properties(self):
         """
@@ -317,13 +316,46 @@ class TimeseriesDataset(EchoDataset):
         return json.load(open(metadata_file_path, 'r'))
     # end get_sample_metadata
 
+    # Get sample labels
+    def get_sample_labels(self, sample_index: int) -> list:
+        """
+        Get sample labels
+        """
+        return self._dataset_properties['samples'][sample_index]['labels']
+    # end get_sample_labels
+
     # Get sample class
     def get_sample_class(self, sample_index: int, label_index: int) -> int:
         """
         Get sample class
         """
-        return self._dataset_properties['samples'][sample_index]['labels'][label_index]
+        for sample_label in self.get_sample_labels(sample_index):
+            if sample_label['id'] == label_index:
+                return sample_label['class']
+            # end if
+        # end for
+        raise Exception("Unknown label index: {}".format(label_index))
     # end get_sample_class
+
+    # Get sample class tensor
+    def get_sample_class_tensor(self, sample_index: int, time_tensor=False) -> torch.Tensor:
+        """
+        Get sample class tensor
+        """
+        if time_tensor:
+            return self._create_class_time_tensor(
+                self._dataset_properties['samples'][sample_index]['labels'],
+                self.get_sample_length(sample_index)
+            )
+        else:
+            n_labels = len(self.labels)
+            class_array = np.zeros(n_labels)
+            for label in self.labels:
+                class_array[label['id']] = self.get_sample_class(sample_index, label['id'])
+            # end for
+            return torch.tensor(class_array)
+        # end if
+    # end get_sample_class_tensor
 
     # Get sample length
     def get_sample_length(self, sample_index: int) -> int:
@@ -417,6 +449,22 @@ class TimeseriesDataset(EchoDataset):
         return loaded_samples
     # end _loaded_samples
 
+    # Create time tensor for labels
+    def _create_class_time_tensor(self, sample_labels, sample_len) -> torch.Tensor:
+        """
+        Create time tensor for labels
+        """
+        # Np array
+        class_array = np.zeros(shape=(sample_len, len(sample_labels)), dtype=np.long)
+
+        # For each label
+        for label in sample_labels:
+            class_array[:, label['id']] = label['class']
+        # end for
+
+        return torch.tensor(class_array)
+    # end _create_class_time_tensor
+
     # endregion PRIVATE
 
     # region OVERRIDE
@@ -430,11 +478,15 @@ class TimeseriesDataset(EchoDataset):
     # end __len__
 
     # Get an item
-    def __getitem__(self, item: int) -> dict:
+    def __getitem__(self, item: int) -> tuple:
         """
         Get an item
         """
-        return self.get_sample(item)
+        return (
+            self.get_sample(item),
+            self.get_sample_class_tensor(sample_index=item, time_tensor=True),
+            self.get_sample_class_tensor(sample_index=item, time_tensor=False)
+        )
     # end __getitem__
 
     # endregion OVERRIDE

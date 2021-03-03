@@ -26,11 +26,11 @@ from .tensor import TimeTensor
 
 
 # Create a time tensor
-def timetensor(data, time_dim):
+def timetensor(data, time_dim=0):
     """
     Create a temporal tensor
     """
-    return TimeTensor(data, time_dim)
+    return TimeTensor(data, time_dim=time_dim)
 # end timetensor
 
 
