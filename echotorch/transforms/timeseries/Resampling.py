@@ -23,6 +23,7 @@
 # Imports
 import torch
 import torch.nn.functional
+import torch.nn as nn
 from ..Transformer import Transformer
 
 
@@ -46,6 +47,7 @@ class Resampling(Transformer):
 
         # Properties
         self._scaling_factor = scaling_factor
+
     # end __init__
 
     # endregion CONSTRUCTORS
@@ -79,7 +81,8 @@ class Resampling(Transformer):
                         torch.transpose(x, 0, 1),
                         dim=0
                     ),
-                    scale_factor=(self._scaling_factor,)
+                    scale_factor=(self._scaling_factor,),
+                    recompute_scale_factor=False
                 )
             ),
             0,
