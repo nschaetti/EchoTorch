@@ -49,14 +49,18 @@ class TimeseriesDataset(EchoDataset):
 
     # Constructor
     def __init__(self, root_directory, global_transform=None, transforms=None, global_label_transform=None,
-                 label_transforms=None, timestep=1.0, selected_columns=None, segment_label_to_return=None,
-                 in_memory=False, return_segments=True, return_events=True, dtype=torch.float64):
+                 label_transforms=None, segments_transform=None, events_transform=None, timestep=1.0,
+                 selected_columns=None, segment_label_to_return=None, in_memory=False, return_segments=True,
+                 return_events=True, return_metadata=True, dtype=torch.float64):
         """
         Constructor
         :param root_directory: Base root directory
         :param global_transform: An EchoTorch transformer for the whole time series
         :param transforms: EchoTorch transformers for each segment labels
-        :parma global_label_transform:
+        :parma global_label_transorm:
+        :param label_transforms:
+        :param segments_transform:
+        :param events_transform:
         :param timestep: The time step of time series (default: 1 second)
         :param selected_columns: Names of the columns to return in the tensor
         :param segment_label_to_return: Segment label to return ('all' for no selection)
@@ -73,11 +77,14 @@ class TimeseriesDataset(EchoDataset):
         self._segment_label_to_return = segment_label_to_return
         self._return_segments = return_segments
         self._return_events = return_events
+        self._return_metadata = return_metadata
         self._dtype = dtype
 
-        # Global transformer
+        # Transforms
         self._global_transform = global_transform
         self._global_label_transform = global_label_transform
+        self._segments_transform = segments_transform
+        self._events_transform = events_transform
 
         # Transformers
         if transforms is None:
@@ -426,7 +433,9 @@ class TimeseriesDataset(EchoDataset):
             data_file_path = os.path.join(self._root_directory, INFO_DATA_FILE_OUTPUT.format(sample_index))
 
             # Load tensor data
-            return torch.load(open(data_file_path, 'rb'))
+            with open(data_file_path, 'rb') as data_file:
+                return torch.load(data_file)
+            # end with
         # end if
     # end get_sample
 
@@ -439,7 +448,9 @@ class TimeseriesDataset(EchoDataset):
         metadata_file_path = os.path.join(self._root_directory, INFO_METADATA_FILE_OUTPUT.format(sample_index))
 
         # Load JSON
-        return json.load(open(metadata_file_path, 'r'))
+        with open(metadata_file_path, 'r') as metadata_file:
+            return json.load(metadata_file)
+        # end with
     # end get_sample_metadata
 
     # Get sample labels
@@ -756,12 +767,12 @@ class TimeseriesDataset(EchoDataset):
         # For each events
         for event in sample_events:
             if segment_label_name is None:
-                events_list.append([event['start'], event['end'], event['type']])
+                events_list.append([int(event['start']), int(event['end']), int(event['type'])])
             else:
                 found_event = self._pos_in_segment_label(sample_segments, event, segment_label_name)
                 # If in the segment
                 if found_event is not None:
-                    events_list.append([found_event['start'], found_event['end'], event['type']])
+                    events_list.append([int(found_event['start']), int(found_event['end']), int(event['type'])])
                 # end if
             # end if
         # end for
@@ -863,6 +874,8 @@ class TimeseriesDataset(EchoDataset):
                 self.get_sample_segments(item),
                 self._segment_label_to_return
             )
+            gait_segments_tensor = self._segments_transform(gait_segments_tensor) \
+                if self._segments_transform is not None else gait_segments_tensor
             return_list.append(gait_segments_tensor)
         # end if
 
@@ -873,7 +886,15 @@ class TimeseriesDataset(EchoDataset):
                 self.get_sample_segments(item),
                 self._segment_label_to_return
             )
+            events_tensor = self._events_transform(events_tensor) \
+                if self._events_transform is not None else events_tensor
             return_list.append(events_tensor)
+        # end if
+
+        # Return sample metadata
+        if self._return_metadata:
+            metadata_dict = self.get_sample_properties(item)
+            return_list.append(metadata_dict)
         # end if
 
         return return_list
