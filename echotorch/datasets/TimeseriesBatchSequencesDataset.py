@@ -88,6 +88,7 @@ class TimeseriesBatchSequencesDataset(Dataset):
 
             # Length of timeseries in number of samples (sequences)
             timeserie_length = timeserie_data.size(self.time_axis)
+
             # timeserie_seq_length = int(math.floor(timeserie_length / self.window_size))
             timeserie_seq_length = int(math.floor((timeserie_length - self.window_size) / self.stride) + 1)
 
