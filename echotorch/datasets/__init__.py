@@ -22,6 +22,7 @@
 # Imports
 from .CopyTaskDataset import CopyTaskDataset
 from .DatasetComposer import DatasetComposer
+from .DelayDataset import DelayDataset
 from .DiscreteMarkovChainDataset import DiscreteMarkovChainDataset
 from .FromCSVDataset import FromCSVDataset
 from .HenonAttractor import HenonAttractor
@@ -50,5 +51,5 @@ __all__ = [
    'LambdaDataset', 'LatchTaskDataset', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset', 'MemTestDataset',
    'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset', 'RandomSymbolDataset',
    'ImageToTimeseries', 'MarkovChainDataset', 'MixedSinesDataset', 'RepeatTaskDataset',
-   'TimeseriesBatchSequencesDataset', 'TransformDataset', 'TripletBatching'
+   'TimeseriesBatchSequencesDataset', 'TransformDataset', 'TripletBatching', 'DelayDataset'
 ]

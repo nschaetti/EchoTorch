@@ -475,15 +475,22 @@ class TimeseriesDataset(EchoDataset):
     # end get_sample_class
 
     # Get sample class tensor
-    def get_sample_class_tensor(self, sample_index: int, time_tensor=False) -> torch.Tensor:
+    def get_sample_class_tensor(self, sample_index: int, time_tensor=False, time_length=None) -> torch.Tensor:
         """
         Get sample class tensor
         """
         if time_tensor:
-            return self._create_class_time_tensor(
-                self._dataset_properties['samples'][sample_index]['labels'],
-                self.get_sample_length(sample_index)
-            )
+            if time_length is None:
+                return self._create_class_time_tensor(
+                    self._dataset_properties['samples'][sample_index]['labels'],
+                    self.get_sample_length(sample_index)
+                )
+            else:
+                return self._create_class_time_tensor(
+                    self._dataset_properties['samples'][sample_index]['labels'],
+                    time_length
+                )
+            # end if
         else:
             n_labels = len(self.labels)
             class_array = np.zeros(n_labels)
@@ -535,7 +542,7 @@ class TimeseriesDataset(EchoDataset):
     # end get_sample_events
 
     # From segment label index to name
-    def segment_label_index_to_name(self, segment_label_index: int) -> str:
+    def segment_label_index_to_name(self, segment_label_index) -> str:
         """
         From segment label index to name
         """
@@ -593,11 +600,11 @@ class TimeseriesDataset(EchoDataset):
 
     # Apply transformers
     def _apply_transformers(self, global_transform: Transformer, transforms: dict, data_tensor: torch.Tensor,
-                            sample_segments: list) -> torch.Tensor:
+                            segments_tensor: torch.Tensor) -> torch.Tensor:
         """
         Apply transformers
         :param data_tensor: Sample data tensors as a dict
-        :param sample_segments: Sample segments as a dict
+        :param segments_tensor: Sample segments as a dict
         :return: Transformed data tensors as a dict
         """
         # Apply global transformers
@@ -606,11 +613,11 @@ class TimeseriesDataset(EchoDataset):
         # end if
 
         # For each segment
-        for segment in sample_segments:
+        for segment_i in range(segments_tensor.size(0)):
             # Get segment info
-            segment_start = segment['start']
-            segment_end = segment['end']
-            segment_label = segment['label']
+            segment_start = segments_tensor[segment_i, 0]
+            segment_end = segments_tensor[segment_i, 1]
+            segment_label = self.segment_label_index_to_name(str(segments_tensor[segment_i, 2].item()))
 
             # There is a transformer for this?
             if segment_label in transforms.keys() and transforms[segment_label] is not None:
@@ -693,7 +700,7 @@ class TimeseriesDataset(EchoDataset):
     # end _create_input_tensor
 
     # Create a tensor for segments
-    def _create_segments_tensor(self, sample_segments: list, segment_label_name: str) -> torch.Tensor:
+    def _create_segments_tensor(self, sample_segments: list) -> torch.Tensor:
         """
         Create a tensor for segments
         :param sample_segments: Sample segments
@@ -703,23 +710,9 @@ class TimeseriesDataset(EchoDataset):
         # List of segments
         gait_segments_list = list()
 
-        # Name to index
-        segment_label_index = None
-        if segment_label_name is not None:
-            segment_label_index = self.segment_label_name_to_index(segment_label_name)
-        # end if
-
-        # Last starting position
-        last_start = 0
-
         # For each segment
         for segment in sample_segments:
-            if segment_label_name is None:
-                gait_segments_list.append([segment['start'], segment['end'], segment['label']])
-            elif segment['label'] == segment_label_index:
-                gait_segments_list.append([last_start, last_start + segment['length'], segment['label']])
-                last_start += segment['length']
-            # end for
+            gait_segments_list.append([segment['start'], segment['end'], segment['label']])
         # end for
 
         # return gait_segments_tensor
@@ -727,66 +720,123 @@ class TimeseriesDataset(EchoDataset):
     # end _create_gait_segments_tensor
 
     # Time t in a segment of gait type?
-    def _pos_in_segment_label(self, segments: list, event: dict, segment_label_name: str):
+    def _pos_in_segment_label(self, segments_tensor: torch.Tensor, event_tensor: torch.Tensor, segment_label_name: str):
         """
         Time t in a segment of gait type?
-        :param segments:
+        :param segments_tensor:
+        :param event_tensor:
         :param segment_label_name:
         :return:
         """
         # Name to index
         segment_label_index = self.segment_label_name_to_index(segment_label_name)
 
-        last_start = 0
-        for segment in segments:
-            if segment['label'] == segment_label_index:
-                if segment['start'] <= event['start'] <= segment['end'] and segment['start'] <= event['end'] <= \
-                        segment['end']:
-                    return {
-                        'start': last_start + (event['start'] - segment['start']),
-                        'end': last_start + (event['end'] - segment['start'])
-                    }
+        # For each segment
+        time_pos = 0
+        for segment_i in range(segments_tensor.size(0)):
+            # Segment info
+            segment_start = segments_tensor[segment_i, 0]
+            segment_end = segments_tensor[segment_i, 1]
+            segment_label = segments_tensor[segment_i, 2]
+            segment_length = segment_end - segment_start
+            if segment_label == segment_label_index:
+                if segment_start <= event_tensor[0] <= segment_end and segment_start <= event_tensor[1] <= segment_end:
+                    event_tensor[0] = time_pos + (event_tensor[0] - segment_start)
+                    event_tensor[1] = time_pos + (event_tensor[1] - segment_start)
+                    return event_tensor
                 # end if
-                last_start += segment['length']
+                time_pos += segment_length
             # end if
         # end for
-        return None
 
+        # Tag is not found
+        event_tensor[2] = -1
+
+        return event_tensor
     # end _pos_in_gait_type_segment
 
     # Create a tensor for events (jumps)
-    def _create_events_tensor(self, sample_events: list, sample_segments: list, segment_label_name: str) -> torch.Tensor:
+    def _create_events_tensor(self, sample_events: list) -> torch.Tensor:
         """
         Create a  tensor for events (jumps)
         :param sample_events:
         :return:
         """
-        # Create an empty tensor for events data
-        events_list = list()
+        if len(sample_events) > 0:
+            # Create an empty tensor for events data
+            events_list = list()
 
-        # For each events
-        for event in sample_events:
-            if segment_label_name is None:
+            # For each events
+            for event in sample_events:
                 events_list.append([int(event['start']), int(event['end']), int(event['type'])])
-            else:
-                found_event = self._pos_in_segment_label(sample_segments, event, segment_label_name)
-                # If in the segment
-                if found_event is not None:
-                    events_list.append([int(found_event['start']), int(found_event['end']), int(event['type'])])
-                # end if
-            # end if
-        # end for
+            # end for
 
-        return torch.LongTensor(events_list)
+            return torch.LongTensor(events_list)
+        else:
+            return torch.zeros(0, 0).long()
+        # end if
     # end _create_events_tensor
 
+    # Filter segment tensor
+    def _filter_segment_tensor(self, segments_tensor: torch.Tensor, segment_label_name: str):
+        """
+        Filter segment tensor
+        :param segments_tensor:
+        :param segment_label_name:
+        """
+        if segment_label_name is not None and segments_tensor.size(0) > 0:
+            # Filter tensor
+            filtered_tensor = segments_tensor[segments_tensor[:, 2] == self.segment_label_name_to_index(segment_label_name)]
+
+            # Change time position
+            time_pos = 0
+            for segment_i in range(filtered_tensor.size(0)):
+                # Segment info
+                segment_start = filtered_tensor[segment_i, 0]
+                segment_end = filtered_tensor[segment_i, 1]
+                segment_length = segment_end - segment_start
+                filtered_tensor[segment_i, 0] = time_pos
+                filtered_tensor[segment_i, 1] = time_pos + segment_length
+                time_pos = time_pos + segment_length
+            # end for
+
+            return filtered_tensor
+        else:
+            return segments_tensor
+        # end if
+    # end _filter_segment_tensor
+
+    # Filter event tensor
+    def _filter_event_tensor(self, events_tensor: torch.Tensor, segments_tensor: torch.Tensor, segment_label_name: str):
+        """
+        Filter segment tensor
+        :param events_tensor:
+        :param segment_label_name:
+        """
+        if segment_label_name is not None and events_tensor.size(0) > 0:
+            # Change time position
+            for event_i in range(events_tensor.size(0)):
+                # Is event in a target segment ?
+                events_tensor[event_i] = self._pos_in_segment_label(
+                    segments_tensor,
+                    events_tensor[event_i],
+                    segment_label_name
+                )
+            # end for
+
+            return events_tensor[events_tensor[:, 2] != -1]
+        else:
+            return events_tensor
+        # end if
+    # end _filter_event_tensor
+
     # Filter a timeseries as tensor for gait type
-    def _filter_ts_segment_label_name(self, timeseries_input: torch.Tensor, sample_segments: list,
+    def _filter_ts_segment_label_name(self, timeseries_input: torch.Tensor, segments_tensor: torch.Tensor,
                                       segment_label_name: str) -> torch.Tensor:
         """
-        Filter a timeseries as tensor for gait type
+        Filter a time series as tensor for gait type
         :param timeseries_input:
-        :param sample_segments:
+        :param segments_tensor:
         :param segment_label_name:
         :return:
         """
@@ -795,9 +845,15 @@ class TimeseriesDataset(EchoDataset):
             indices_list = []
 
             # For each segment
-            for segment in sample_segments:
-                if segment['label'] == self.segment_label_name_to_index(segment_label_name):
-                    indices_list += list(range(segment['start'], segment['end']))
+            for segment_i in range(segments_tensor.size(0)):
+                # Get segment info
+                segment_start = segments_tensor[segment_i, 0]
+                segment_end = segments_tensor[segment_i, 1]
+                segment_label = self.segment_label_index_to_name(str(segments_tensor[segment_i, 2].item()))
+
+                # Add to list of indices of in the selected segment
+                if segment_label == segment_label_name:
+                    indices_list += list(range(segment_start, segment_end))
                 # end if
             # end for
 
@@ -832,6 +888,14 @@ class TimeseriesDataset(EchoDataset):
         class_time_tensor = self.get_sample_class_tensor(sample_index=item, time_tensor=True)
         class_tensor = self.get_sample_class_tensor(sample_index=item, time_tensor=False)
 
+        # Create segment tensor
+        segments_tensor = self._create_segments_tensor(self.get_sample_segments(item))
+        segments_tensor = self._segments_transform(segments_tensor) if self._segments_transform is not None else segments_tensor
+
+        # Create jump segment tensor
+        events_tensor = self._create_events_tensor(self.get_sample_events(item))
+        events_tensor = self._events_transform(events_tensor) if self._events_transform is not None else events_tensor
+
         # Create a tensor from the dictionary
         timeseries_input = self._create_input_tensor(timeseries_dict, self.get_sample_length(item))
 
@@ -840,54 +904,47 @@ class TimeseriesDataset(EchoDataset):
             self._global_transform,
             self._transforms,
             timeseries_input,
-            self.get_sample_segments(item)
+            segments_tensor
+        )
+
+        # Apply label transforms to the class label time series
+        class_time_tensor = self._apply_transformers(
+            self._global_label_transform,
+            self._label_transforms,
+            class_time_tensor,
+            segments_tensor
         )
 
         # Filter input data for targeted segment label
         timeseries_input = self._filter_ts_segment_label_name(
             timeseries_input,
-            self.get_sample_segments(item),
+            segments_tensor,
             self._segment_label_to_return
         )
 
         # Filter time-related ground truth for targeted segment label
         class_time_tensor = self._filter_ts_segment_label_name(
             class_time_tensor,
-            self.get_sample_segments(item),
+            segments_tensor,
             self._segment_label_to_return
         )
 
-        # Apply label transforms to the class label timeseries
-        class_time_tensor = self._apply_transformers(
-            self._global_label_transform,
-            self._label_transforms,
-            class_time_tensor,
-            self.get_sample_segments(item)
-        )
+        # Filter even tensor
+        events_tensor = self._filter_event_tensor(events_tensor, segments_tensor, self._segment_label_to_return)
+
+        # Filter gait tensor
+        segments_tensor = self._filter_segment_tensor(segments_tensor, self._segment_label_to_return)
 
         # Add to returns
         return_list += [timeseries_input, class_time_tensor, class_tensor]
 
         # Create the tensor for segments (if needed)
         if self._return_segments:
-            gait_segments_tensor = self._create_segments_tensor(
-                self.get_sample_segments(item),
-                self._segment_label_to_return
-            )
-            gait_segments_tensor = self._segments_transform(gait_segments_tensor) \
-                if self._segments_transform is not None else gait_segments_tensor
-            return_list.append(gait_segments_tensor)
+            return_list.append(segments_tensor)
         # end if
 
         # Create the tensor for events (jumps) (if needed)
         if self._return_events:
-            events_tensor = self._create_events_tensor(
-                self.get_sample_events(item),
-                self.get_sample_segments(item),
-                self._segment_label_to_return
-            )
-            events_tensor = self._events_transform(events_tensor) \
-                if self._events_transform is not None else events_tensor
             return_list.append(events_tensor)
         # end if
 

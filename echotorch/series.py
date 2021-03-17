@@ -79,6 +79,19 @@ def csv_file(csv_file, delimiter, quotechar, columns, return_db=False, dtype=tor
 # end csv_file
 
 
+# Delay dataset
+def delaytask(root_dataset, delay, data_index=0):
+    """
+    Delay dataset
+    """
+    return echotorch.datasets.DelayDataset(
+        root_dataset=root_dataset,
+        n_delays=delay,
+        data_index=data_index
+    )
+# end delaytask
+
+
 # Generate Discrete Markov Chain dataset
 def discrete_markov_chain(size, length, n_states, probability_matrix, start_state=0, return_db=False,
                           dtype=torch.float64):
