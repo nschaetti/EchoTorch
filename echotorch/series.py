@@ -23,6 +23,7 @@
 # Imports
 import torch
 import echotorch.datasets
+import echotorch.evaluation
 
 
 # Generate Copy Task seriesJFJJFJ
@@ -48,6 +49,50 @@ def copytask(size, length_min, length_max, n_inputs, return_db=False, dtype=torc
         )
     # end if
 # end copytask
+
+
+# Create cross validation dataset
+def cross_eval(root_dataset, k=10, dev_ratio=0, shuffle=False, train_size=1.0, fold=0, mode='train',
+               sample_indices=None, return_multiple_dataset=False):
+    """
+    Create cross validation dataset
+    :param root_dataset:
+    :param k:
+    :param dev_ratio:
+    :param shuffle:
+    :param train_size:
+    :param fold:
+    :param mode:
+    :param sample_indices:
+    """
+    if not return_multiple_dataset:
+        return echotorch.evaluation.CrossValidationWithDev(
+            root_dataset=root_dataset,
+            k=k,
+            mode=mode,
+            samples_indices=sample_indices,
+            fold=fold,
+            train_size=train_size,
+            dev_ratio=dev_ratio,
+            shuffle=shuffle
+        )
+    else:
+        cv10_datasets = dict()
+        for dataset_type in ['train', 'dev', 'test']:
+            cv10_datasets[dataset_type] = echotorch.evaluation.CrossValidationWithDev(
+                root_dataset=root_dataset,
+                k=k,
+                dev_ratio=dev_ratio,
+                shuffle=shuffle,
+                train_size=train_size,
+                fold=fold,
+                mode=dataset_type,
+                samples_indices=sample_indices
+            )
+        # end for
+        return cv10_datasets
+    # end if
+# cross_eval
 
 
 # Load Time series from a CSV file
@@ -243,3 +288,32 @@ def narma30(size, length, return_db=False, dtype=torch.float64):
         )
     # end if
 # end narma30
+
+
+# Segment series
+def segment_series(root_dataset, window_size, data_indices, stride, remove_indices, time_axis=0,
+                   dataset_in_memory=False, *args, **kwargs):
+    """
+    Segment series
+    :param root_dataset:
+    :param window_size:
+    :param data_indices:
+    :param stride:
+    :param remove_indices:
+    :param time_axis:
+    :param dataset_in_memory:
+    :param args:
+    :param kwargs:
+    """
+    return echotorch.datasets.TimeseriesBatchSequencesDataset(
+        root_dataset=root_dataset,
+        window_size=window_size,
+        data_indices=data_indices,
+        stride=stride,
+        remove_indices=remove_indices,
+        time_axis=time_axis,
+        dataset_in_memory=dataset_in_memory,
+        *args,
+        **kwargs
+    )
+# end segment_series

@@ -105,6 +105,13 @@ class TimeseriesDataset(EchoDataset):
             self._load_properties_file(self._root_json_file)
         )
 
+        # Check that segment_label_to_return is ok
+        if segment_label_to_return is not None and segment_label_to_return not in self.segment_label_names:
+            raise Exception(
+                "Parameter segment_label_to_return should be None or in {}".format(list(self.segment_label_names.keys()))
+            )
+        # end if
+
         # Selected columns
         if selected_columns is None:
             self._selected_columns = self.columns

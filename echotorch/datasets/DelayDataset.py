@@ -72,19 +72,20 @@ class DelayDataset(Dataset):
         data = self._root_dataset[idx]
 
         # Get data
-        input_timeseries = data[self._data_index]
+        original_timeseries = data[self._data_index]
 
         # Future
         if self._n_delays > 0:
             # Prediction
-            input_timeseries = input_timeseries[:-self._n_delays]
-            output_timeseries = input_timeseries[self._n_delays:]
+            input_timeseries = original_timeseries[:-self._n_delays]
+            output_timeseries = original_timeseries[self._n_delays:]
         elif self._n_delays < 0:
             # Memory
-            input_timeseries = input_timeseries[self._n_delays:]
-            output_timeseries = input_timeseries[:-self._n_delays]
+            input_timeseries = original_timeseries[self._n_delays:]
+            output_timeseries = original_timeseries[:-self._n_delays]
         else:
-            output_timeseries = input_timeseries
+            input_timeseries = original_timeseries
+            output_timeseries = original_timeseries.copy()
         # end if
 
         return input_timeseries, output_timeseries
