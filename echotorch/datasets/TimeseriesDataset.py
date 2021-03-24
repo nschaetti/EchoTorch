@@ -51,7 +51,7 @@ class TimeseriesDataset(EchoDataset):
     def __init__(self, root_directory, global_transform=None, transforms=None, global_label_transform=None,
                  label_transforms=None, segments_transform=None, events_transform=None, timestep=1.0,
                  selected_columns=None, segment_label_to_return=None, in_memory=False, return_segments=True,
-                 return_events=True, return_metadata=True, dtype=torch.float64):
+                 return_events=True, return_metadata=True, index_mapping=None, dtype=torch.float64):
         """
         Constructor
         :param root_directory: Base root directory
@@ -124,6 +124,9 @@ class TimeseriesDataset(EchoDataset):
         if in_memory:
             self._loaded_samples = self._load_samples()
         # end if
+
+        # Build mapping
+        self._index_mapping = self._build_mapping()
     # end __init__
 
     # endregion CONSTRUCTORS
@@ -605,6 +608,14 @@ class TimeseriesDataset(EchoDataset):
 
     # region PRIVATE
 
+    # Build mapping
+    def _build_mapping(self):
+        """
+        Build mapping
+        """
+        return None
+    # end _build_mapping
+
     # Apply transformers
     def _apply_transformers(self, global_transform: Transformer, transforms: dict, data_tensor: torch.Tensor,
                             segments_tensor: torch.Tensor) -> torch.Tensor:
@@ -889,6 +900,11 @@ class TimeseriesDataset(EchoDataset):
         """
         # Return list
         return_list = []
+
+        # Remapping
+        if self._index_mapping is not None:
+            item = self._index_mapping[item]
+        # end if
 
         # Get sample from Timeseries dataset
         timeseries_dict = self.get_sample(item)

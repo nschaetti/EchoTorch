@@ -125,14 +125,15 @@ def csv_file(csv_file, delimiter, quotechar, columns, return_db=False, dtype=tor
 
 
 # Delay dataset
-def delaytask(root_dataset, delay, data_index=0):
+def delaytask(root_dataset, delay, data_index=0, keep_indices=None):
     """
     Delay dataset
     """
     return echotorch.datasets.DelayDataset(
         root_dataset=root_dataset,
         n_delays=delay,
-        data_index=data_index
+        data_index=data_index,
+        keep_indices=keep_indices
     )
 # end delaytask
 

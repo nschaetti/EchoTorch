@@ -36,7 +36,7 @@ class DelayDataset(Dataset):
     # region CONSTUCTORS
 
     # Constructor
-    def __init__(self, root_dataset, n_delays=10, data_index=0):
+    def __init__(self, root_dataset, n_delays=10, data_index=0, keep_indices=None):
         """
         Constructor
         :param root_dataset: Root dataset
@@ -46,6 +46,7 @@ class DelayDataset(Dataset):
         self._root_dataset = root_dataset
         self._n_delays = n_delays
         self._data_index = data_index
+        self._keep_indices = keep_indices
     # end __init__
 
     # endregion CONSTRUCTORS
@@ -68,6 +69,9 @@ class DelayDataset(Dataset):
         :param idx:
         :return:
         """
+        # Item list
+        item_list = list()
+
         # Get sample from root dataset
         data = self._root_dataset[idx]
 
@@ -88,7 +92,18 @@ class DelayDataset(Dataset):
             output_timeseries = original_timeseries.copy()
         # end if
 
-        return input_timeseries, output_timeseries
+        # Add input and output
+        item_list.append(input_timeseries)
+        item_list.append(output_timeseries)
+
+        # Add all additional data
+        if self._keep_indices is not None:
+            for keep_index in self._keep_indices:
+                item_list.append(data[keep_index])
+            # end for
+        # end if
+
+        return item_list
     # end __getitem__
 
     # endregion OVERRIDE
