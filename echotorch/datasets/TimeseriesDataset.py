@@ -51,7 +51,7 @@ class TimeseriesDataset(EchoDataset):
     def __init__(self, root_directory, global_transform=None, transforms=None, global_label_transform=None,
                  label_transforms=None, segments_transform=None, events_transform=None, timestep=1.0,
                  selected_columns=None, segment_label_to_return=None, in_memory=False, return_segments=True,
-                 return_events=True, return_metadata=True, index_mapping=None, dtype=torch.float64):
+                 return_events=True, return_metadata=True, dtype=torch.float64):
         """
         Constructor
         :param root_directory: Base root directory
@@ -894,7 +894,7 @@ class TimeseriesDataset(EchoDataset):
     # end __len__
 
     # Get an item
-    def __getitem__(self, item: int) -> tuple:
+    def __getitem__(self, item: int) -> list:
         """
         Get an item
         """
