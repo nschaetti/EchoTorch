@@ -56,7 +56,7 @@ class UniformMatrixGenerator(MatrixGenerator):
         self._set_parameters(args=kwargs)
     # end __init__
 
-    #region PRIVATE
+    # region PRIVATE
 
     # Generate the matrix
     def _generate_matrix(self, size, dtype=torch.float64):
@@ -115,7 +115,7 @@ class UniformMatrixGenerator(MatrixGenerator):
         return w
     # end _generate_matrix
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
 # end UniformMatrixGenerator
 

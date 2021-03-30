@@ -35,6 +35,8 @@ class MatlabLoader(MatrixGenerator):
     Load matrix from matlab file
     """
 
+    # region CONSTRUCTORS
+
     # Constructor
     def __init__(self, **kwargs):
         """
@@ -52,7 +54,9 @@ class MatlabLoader(MatrixGenerator):
         self._set_parameters(args=kwargs)
     # end __init__
 
-    #region PRIVATE
+    # endregion CONSTRUCTORS
+
+    # region PRIVATE
 
     # Generate the matrix
     def _generate_matrix(self, size, dtype=torch.float32):
@@ -70,7 +74,7 @@ class MatlabLoader(MatrixGenerator):
         m = io.loadmat(file_name)[entity_name]
 
         # Reshape
-        if 'shape' in self._parameters.keys():
+        if 'shape' in self._parameters.keys() and self._parameters['shape'] is not None:
             m = np.reshape(m, self.get_parameter('shape'))
         # end if
 
@@ -84,7 +88,7 @@ class MatlabLoader(MatrixGenerator):
         return m
     # end _generate_matrix
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
 # end MatlabLoader
 

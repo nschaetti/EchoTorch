@@ -28,6 +28,8 @@ from . import transforms
 from . import utils
 
 # Utility functions
+from .matrices import cycle_with_jumps, cycle_with_jumps_generator, matlab, matlab_generator, normal, normal_generator
+from .matrices import uniform, uniform_generator
 from .modules import esn
 from .series import copytask, cross_eval, delaytask, discrete_markov_chain, csv_file, henon, segment_series
 from .tensor import TimeTensor
@@ -40,5 +42,6 @@ from .utility_functions import timetensor, timecat
 __all__ = [
     'esn', 'TimeTensor', 'timetensor', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
     'cross_val_score', 'timecat', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon', 'from_numpy',
-    'delaytask', 'cross_eval', 'segment_series'
+    'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
+    'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator'
 ]

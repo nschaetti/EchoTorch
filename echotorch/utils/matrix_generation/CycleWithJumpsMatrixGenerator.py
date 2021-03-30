@@ -33,6 +33,8 @@ class CycleWithJumpsMatrixGenerator(MatrixGenerator):
     Generate cycle matrix with jumps (Rodan and Tino, 2012)
     """
 
+    # region CONSTRUCTORS
+
     # Constructor
     def __init__(self, **kwargs):
         """
@@ -54,7 +56,9 @@ class CycleWithJumpsMatrixGenerator(MatrixGenerator):
         self._set_parameters(args=kwargs)
     # end __init__
 
-    #region PRIVATE
+    # endregion CONSTRUCTORS
+
+    # region PRIVATE
 
     # Generate the matrix
     def _generate_matrix(self, size, dtype=torch.float64):
@@ -95,7 +99,7 @@ class CycleWithJumpsMatrixGenerator(MatrixGenerator):
         # end if
     # end _generate_matrix
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
 # end CycleWithJumpsMatrixGenerator
 
