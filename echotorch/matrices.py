@@ -31,7 +31,7 @@ def cycle_with_jumps_generator(connectivity=1.0, spectra_radius=1.0, apply_spect
     """
     Cycle matrix with jumps generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory(
+    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
         "cycle_with_jumps",
         connectivity=connectivity,
         spectra_radius=spectra_radius,
@@ -71,7 +71,7 @@ def matlab_generator(file_path, entity_name, shape=None, spectral_radius=1.0, ap
     """
     Matlab loader generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory(
+    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
         "matlab",
         file_path=file_path,
         entity_name=entity_name,
@@ -108,7 +108,7 @@ def normal_generator(connectivity=1.0, spectral_radius=1.0, scale=1.0, mean=0.0,
     """
     Normal matrix generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory(
+    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
         "normal",
         connectivity=connectivity,
         spectral_radius=spectral_radius,
@@ -149,7 +149,7 @@ def uniform_generator(connectivity=1.0, spectral_radius=1.0, scale=1.0, input_se
     """
     Uniform matrix generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory(
+    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
         "uniform",
         connectivity=connectivity,
         spectral_radius=spectral_radius,
