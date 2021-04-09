@@ -188,7 +188,7 @@ class CrossValidationWithDev(Dataset):
         # Test length
         test_length = self.fold_sizes[self.fold]
         dev_train_length = len(self.root_dataset) - test_length
-        dev_length = int(dev_train_length * self.dev_ratio)
+        dev_length = int(math.ceil(dev_train_length * self.dev_ratio))
         train_length = dev_train_length - dev_length
 
         # According to set
@@ -213,12 +213,12 @@ class CrossValidationWithDev(Dataset):
         indexes_copy = self.indexes.copy()
         train_dev_set = np.setdiff1d(indexes_copy, test_set)
         dev_train_length = len(self.root_dataset) - len(test_set)
-        dev_length = int(dev_train_length * self.dev_ratio)
-        train_length = int((dev_train_length - dev_length) * self.train_size)
+        dev_length = int(math.ceil(dev_train_length * self.dev_ratio))
+        train_length = int(math.floor((dev_train_length - dev_length) * self.train_size))
 
         # Train / dev sets
-        train_set = train_dev_set[:train_length]
-        dev_set = train_dev_set[:-dev_length]
+        train_set = train_dev_set[dev_length:dev_length + train_length]
+        dev_set = train_dev_set[:dev_length]
 
         # Train/dev/test
         if self.mode == 'train':

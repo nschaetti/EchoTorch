@@ -28,6 +28,8 @@ from . import transforms
 from . import utils
 
 # Utility functions
+from .conceptors import conceptor, cone, czero, cidentity, OR, AND, NOT, PHI, conceptor_set
+from .conceptors import csim, csimilarity
 from .matrices import cycle_with_jumps, cycle_with_jumps_generator, matlab, matlab_generator, normal, normal_generator
 from .matrices import uniform, uniform_generator
 from .modules import esn
@@ -43,5 +45,6 @@ __all__ = [
     'esn', 'TimeTensor', 'timetensor', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
     'cross_val_score', 'timecat', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon', 'from_numpy',
     'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
-    'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator'
+    'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
+    'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity'
 ]

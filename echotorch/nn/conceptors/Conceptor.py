@@ -522,6 +522,14 @@ class Conceptor(NeuralFilter):
         return new_C
     # end copy
 
+    # Make a copy of the conceptor
+    def clone(self):
+        """
+        Make a copy of the Conceptor
+        """
+        return self.copy()
+    # end clone
+
     # endregion PUBLIC
 
     # region PRIVATE
