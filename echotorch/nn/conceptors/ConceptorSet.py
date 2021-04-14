@@ -20,7 +20,9 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+from __future__ import annotations
 import torch
+from typing import Union, List
 from ..NeuralFilter import NeuralFilter
 from .Conceptor import Conceptor
 from echotorch.utils import quota, rank
@@ -169,6 +171,54 @@ class ConceptorSet(NeuralFilter):
             self.conceptors[conceptor_i].PHI(gamma)
         # end for
     # end PHI
+
+    # Similarity between conceptors and a given one
+    def sim(
+            self,
+            other: Union[Conceptor, List[Conceptor], ConceptorSet],
+            based_on='C',
+            sim_func=generalized_squared_cosine
+    ) -> torch.Tensor:
+        """
+        Similarity between conceptors and a given one
+        :param conceptor:
+        :param based_on:
+        :param sim_func:
+        """
+        if isinstance(other, Conceptor):
+            # Similarity vector
+            sim_vector = torch.zeros(self.count)
+
+            # For each conceptor
+            for i in range(self.count):
+                sim_vector[i] = Conceptor.similarity(
+                    other,
+                    self.conceptors[i],
+                    based_on=based_on,
+                    sim_func=sim_func
+                )
+            # end for
+
+            return sim_vector
+        elif isinstance(other, ConceptorSet) or isinstance(other, list):
+            # Similarity vector
+            sim_matrix = torch.zeros(self.count, len(other))
+
+            # For each pair of conceptor
+            for i in range(self.count):
+                for j in range(len(other)):
+                    sim_matrix[i, j] = Conceptor.similarity(
+                        self.conceptors[i],
+                        other[j],
+                        based_on=based_on,
+                        sim_func=sim_func
+                    )
+                # end for
+            # end for
+
+            return sim_matrix
+        # end if
+    # end sim
 
     # Similarity between two conceptors
     def similarity(self, conceptor_i, conceptor_j, based_on='C', sim_func=generalized_squared_cosine):
@@ -479,6 +529,14 @@ class ConceptorSet(NeuralFilter):
         s += ', count=' + str(self.count) + ', current={_current_conceptor_index}, conceptors={_conceptors}'
         return s.format(**self.__dict__)
     # end extra_repr
+
+    # Length
+    def __len__(self):
+        """
+        Length
+        """
+        return len(self._conceptors)
+    # end __len__
 
     # Get item
     def __getitem__(self, item):

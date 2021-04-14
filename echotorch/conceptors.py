@@ -22,7 +22,11 @@
 
 
 # Imports
+import torch
+from typing import Union, List
 import echotorch.nn.conceptors
+from echotorch.nn.conceptors import Conceptor, ConceptorSet
+from echotorch.utils.utility_functions import generalized_squared_cosine
 
 
 # conceptor zero
@@ -53,20 +57,74 @@ def cidentity(input_dim: int) -> echotorch.nn.Conceptor:
 
 
 # conceptor similarity
-def csim(c1: echotorch.nn.Conceptor, c2: echotorch.nn.Conceptor, based_on='C'):
+def csim(
+        c1: Union[Conceptor, List[Conceptor], ConceptorSet],
+        c2: Union[Conceptor, List[Conceptor], ConceptorSet],
+        based_on: str = 'C',
+        sim_func: callable = generalized_squared_cosine
+):
     """
     Conceptor similarity based on generalized square cosine
     """
-    return echotorch.nn.Conceptor.sim(c1, c2, based_on)
+    # Types
+    c1_list = isinstance(c1, list)
+    c2_list = isinstance(c2, list)
+
+    if not c1_list and not c2_list:
+        return c1.sim(c2, based_on, sim_func)
+    elif not c1_list and c2_list:
+        return c1.sim(c2, based_on, sim_func)
+    elif c1_list and not c2_list:
+        return c2.sim(c1, based_on, sim_func)
+    else:
+        sim_matrix = torch.zeros(len(c1), len(c2))
+        for c1_i, c1_c in enumerate(c1):
+            for c2_i, c2_c in enumerate(c2):
+                sim_matrix[c1_i, c2_i] = echotorch.nn.Conceptor.similarity(
+                    c1_c,
+                    c2_c,
+                    based_on,
+                    sim_func
+                )
+            # end for
+        # end for
+        return sim_matrix
+    # end if
 # end csim
 
 
 # conceptor similarity
-def csimilarity(c1: echotorch.nn.Conceptor, c2: echotorch.nn.Conceptor, based_on='C'):
+def csimilarity(
+        c1: Union[Conceptor, List[Conceptor], ConceptorSet],
+        c2: Union[Conceptor, List[Conceptor], ConceptorSet],
+        based_on: str = 'C',
+        sim_func: callable = generalized_squared_cosine
+):
     """
-    Conceptor similarity based on generalized square cosine
+    Conceptor similarity
     """
-    return echotorch.nn.Conceptor.sim(c1, c2, based_on)
+    if isinstance(c1, Conceptor) and isinstance(c1, Conceptor):
+        return echotorch.nn.Conceptor.similarity(c1, c2, based_on, sim_func)
+    elif isinstance(c1, ConceptorSet) and isinstance(c2, Conceptor) or \
+            isinstance(c1, Conceptor) and isinstance(c2, list):
+        return c1.sim(c2, based_on, sim_func)
+    elif isinstance(c1, Conceptor) and isinstance(c2, ConceptorSet) or \
+            isinstance(c1, list) and isinstance(c2, Conceptor):
+        return c2.sim(c1, based_on, sim_func)
+    elif isinstance(c1, list) and isinstance(c2, list):
+        sim_matrix = torch.zeros(len(c1), len(c2))
+        for c1_i, c1_c in c1:
+            for c2_i, c2_c in c2:
+                sim_matrix[c1_i, c2_i] = Conceptor.similarity(
+                    c1_c,
+                    c2_c,
+                    based_on,
+                    sim_func
+                )
+            # end for
+        # end for
+        return sim_matrix
+    # end if
 # end csimilarity
 
 

@@ -25,7 +25,9 @@ Created on 4 November 2019
 """
 
 # Imports
+from __future__ import annotations
 import torch
+from typing import Union, List
 from torch.autograd import Variable
 import math
 from ..NeuralFilter import NeuralFilter
@@ -479,7 +481,12 @@ class Conceptor(NeuralFilter):
     # end NOT_
 
     # Similarity
-    def sim(self, other, based_on='C', sim_func=generalized_squared_cosine):
+    def sim(
+            self,
+            other: Union[Conceptor, List[Conceptor]],
+            based_on='C',
+            sim_func=generalized_squared_cosine
+    ) -> Union[float, torch.Tensor]:
         """
         Generalized Cosine Similarity
         :param other: Second operand
@@ -487,7 +494,15 @@ class Conceptor(NeuralFilter):
         :param sim_func: Similarity function (default: generalized_squared_cosine)
         :return: Similarity between self and other ([0, 1])
         """
-        return Conceptor.similarity(self, other, based_on, sim_func)
+        if isinstance(other, Conceptor):
+            return Conceptor.similarity(self, other, based_on, sim_func)
+        elif isinstance(other, list):
+            sim_vector = torch.zeros(len(other))
+            for other_i, other_c in enumerate(other):
+                sim_vector[other_i] = Conceptor.similarity(self, other_c, based_on, sim_func)
+            # end for
+            return sim_vector
+        # end if
     # end sim
 
     # Delta measure (sensibility of Frobenius norm to change of aperture)
