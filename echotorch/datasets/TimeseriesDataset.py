@@ -356,7 +356,7 @@ class TimeseriesDataset(EchoDataset):
     # end label_index_to_name
 
     # Label classes
-    def label_classes(self, label_name: str) -> list:
+    def label_classes(self, label_name: str) -> dict:
         """
         Get label classes
         """
