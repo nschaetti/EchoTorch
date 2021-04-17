@@ -885,6 +885,15 @@ class TimeseriesDataset(EchoDataset):
 
     # region OVERRIDE
 
+    # Representation
+    def extra_repr(self):
+        """
+        Representation
+        """
+        s = '{}, {}'
+        return s.format(self._root_directory, self._root_json_file)
+    # end extra_repr
+
     # Length of the dataset
     def __len__(self):
         """

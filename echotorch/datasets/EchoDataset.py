@@ -21,7 +21,6 @@
 
 
 # Imports
-import torch
 from torch.utils.data.dataset import Dataset
 
 
@@ -31,8 +30,32 @@ class EchoDataset(Dataset):
     Base class for EchoTorch datasets
     """
 
+    # region OVERRIDE
+
+    # Representation
+    def __repr__(self):
+        """
+        Representation
+        """
+        return "{}({})".format(
+            self.__class__.__name__,
+            self.extra_repr()
+        )
+    # end __repr__
+
+    # endregion OVERRIDE
+
     # region TO_IMPLEMENT
 
+    # Extra representation
+    def extra_repr(self):
+        """
+        Extra representation
+        """
+        return ""
+    # end extra_repr
+
+    # Function to generate data
     @staticmethod
     def datafunc(*args, **kwargs):
         """
@@ -42,5 +65,7 @@ class EchoDataset(Dataset):
         """
         pass
     # end datafunc
+
+    # endregion TO_IMPLEMENT
 
 # end EchoDataset
