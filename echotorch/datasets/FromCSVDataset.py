@@ -20,8 +20,8 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+from typing import Tuple, List
 import torch
-from torch.utils.data.dataset import Dataset
 import csv
 
 # Local imports
@@ -65,7 +65,7 @@ class FromCSVDataset(EchoDataset):
         Load from CSV file
         :return:
         """
-        return FromCSVDataset.generate(
+        return self.generate(
             csv_file=self._csv_file,
             delimiter=self._delimiter,
             quotechar=self._quotechar,
@@ -123,8 +123,8 @@ class FromCSVDataset(EchoDataset):
         return column_indices
     # end find_columns_indices
 
-    @staticmethod
-    def generate(csv_file, delimiter, quotechar, columns):
+    # Generate data
+    def datafunc(self, csv_file, delimiter, quotechar, columns) -> Tuple[torch.Tensor, List]:
         """
         Generate data
         """

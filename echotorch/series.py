@@ -44,22 +44,19 @@ def copytask(
     @param dtype: Data type of the output series
     @return: An EchoDataset or a tensor of series
     """
+    # The dataset
+    dataset = etds.CopyTaskDataset(
+        n_samples=size,
+        length_min=length_min,
+        length_max=length_max,
+        n_inputs=n_inputs,
+        dtype=dtype
+    )
+
     if return_db:
-        return etds.CopyTaskDataset(
-            n_samples=size,
-            length_min=length_min,
-            length_max=length_max,
-            n_inputs=n_inputs,
-            dtype=dtype
-        )
+        return dataset
     else:
-        return etds.CopyTaskDataset.generate(
-            n_samples=size,
-            length_min=length_min,
-            length_max=length_max,
-            n_inputs=n_inputs,
-            dtype=dtype
-        )
+        return dataset.data
     # end if
 # end copytask
 
@@ -86,9 +83,9 @@ def cross_eval(
 ) -> Union[etds.EchoDataset, torch.Tensor]:
     """
     Create a cross validation dataset from a root dataset
-    @param root_dataset:
-    @param k:
-    @param dev_ratio:
+    @param root_dataset: Root dataset (EchoDataset)
+    @param k: Number of folds
+    @param dev_ratio: Ratio of the dev set
     @param shuffle:
     @param train_size:
     @param fold:

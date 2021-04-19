@@ -48,53 +48,22 @@ class EchoDataset(Dataset):
         )
     # end __repr__
 
-    # Override addition
-    def __add__(self, other):
-        """
-        Override addition
-        @param other: The other EchoDataset
-        @return: self + other
-        """
-        """return DatasetComposer(
-            [
-                self,
-                other
-            ]
-        )"""
-        return None
-    # end __add__
-
-    # Override addition
-    def __radd__(self, other):
-        """
-        Override addition
-        @param other: The other EchoDataset
-        @return: other + self
-        """
-        """return DatasetComposer(
-            [
-                self,
-                other
-            ]
-        )"""
-        return None
-    # end __radd__
-
     # endregion OVERRIDE
 
     # region TO_IMPLEMENT
 
     # Get the whole dataset
-    def generate_full(self) -> Union[torch.Tensor, List]:
+    @property
+    def data(self) -> Union[torch.Tensor, List]:
         """
         Get the whole dataset (according to init parameters)
         @return: The Torch Tensor
         """
-        raise Exception("generate_full not implemented")
-    # end generate_full
+        raise Exception("data not implemented")
+    # end data
 
     # Extra representation
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         """
         Extra representation
         """
@@ -102,14 +71,13 @@ class EchoDataset(Dataset):
     # end extra_repr
 
     # Function to generate data
-    @staticmethod
-    def datafunc(*args, **kwargs):
+    def datafunc(self, *args, **kwargs):
         """
         Function to generate data
         :param args: Positional arguments
         :param kwargs: Arguments
         """
-        pass
+        raise Exception("datafunc not implemented")
     # end datafunc
 
     # endregion TO_IMPLEMENT

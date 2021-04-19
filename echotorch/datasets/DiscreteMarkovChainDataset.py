@@ -20,10 +20,9 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-import math
+from typing import List, Tuple
 import torch
 import torch.distributions.multinomial
-from torch.utils.data.dataset import Dataset
 import numpy as np
 
 # Local imports
@@ -35,6 +34,8 @@ class DiscreteMarkovChainDataset(EchoDataset):
     """
     Discrete Markov chain dataset
     """
+
+    # region CONSTRUCTORS
 
     # Constructor
     def __init__(self, n_samples, sample_length, probability_matrix, *args, **kwargs):
@@ -54,6 +55,8 @@ class DiscreteMarkovChainDataset(EchoDataset):
         self._n_states = probability_matrix.size(0)
     # end __init__
 
+    # endregion CONSTRUCTORS
+
     # region PRIVATE
 
     # Generate a markov chain from a probability matrix
@@ -63,7 +66,7 @@ class DiscreteMarkovChainDataset(EchoDataset):
         :param length: Length of the sample to generate
         :param start_state: Starting state
         """
-        return DiscreteMarkovChainDataset.generate(
+        return self.datafunc(
             length=length,
             n_states=self._n_states,
             probability_matrix=self._probability_matrix,
@@ -71,9 +74,43 @@ class DiscreteMarkovChainDataset(EchoDataset):
         )
     # end _generate_markov_chain
 
-    # endregion ENDPRIVATE
+    # endregion PRIVATE
 
     # region OVERRIDE
+
+    # Get the whole dataset
+    @property
+    def data(self) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
+        """
+        Get the whole dataset (according to init parameters)
+        @return: The Torch Tensor
+        """
+        # List of x and y
+        samples_in = list()
+        samples_out = list()
+
+        # For each samples
+        for idx in range(self._n_samples):
+            states_vector, next_states_vector = self[idx]
+            samples_in.append(states_vector)
+            samples_out.append(next_states_vector)
+        # end for
+
+        return samples_in, samples_out
+    # end data
+
+    # Extra representation
+    def extra_repr(self) -> str:
+        """
+        Extra representation
+        """
+        return "n_samples={}, sample_length={}, probability_matrix={}, n_states={}".format(
+            self._n_samples,
+            self._sample_length,
+            self._probability_matrix,
+            self._n_states
+        )
+    # end extra_repr
 
     # Length
     def __len__(self):
@@ -99,19 +136,14 @@ class DiscreteMarkovChainDataset(EchoDataset):
         )
     # end __getitem__
 
-    # endregion OVERRIDE
-
-    # region STATIC
-
     # Generate
-    @staticmethod
-    def generate(length, n_states, probability_matrix, start_state=0, dtype=torch.float64):
+    def datafunc(self, length, n_states, probability_matrix, start_state=0, dtype=torch.float64):
         """
         Generate
-        :param length:
-        :param n_states:
-        :param start_state:
-        :param probability_matrix:
+        :param length: Length
+        :param n_states: How many states
+        :param start_state: Starting state
+        :param probability_matrix: Markov probability matrix
         """
         # One-hot vector of states
         states_vector = torch.zeros(length, n_states, dtype=dtype)
@@ -150,8 +182,8 @@ class DiscreteMarkovChainDataset(EchoDataset):
         # end for
 
         return states_vector, next_states_vector
-    # end generate
+    # end datafunc
 
-    # endregion STATIC
+    # endregion OVERRIDE
 
 # end DiscreteMarkovChainDataset
