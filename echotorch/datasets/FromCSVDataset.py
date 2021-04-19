@@ -24,9 +24,12 @@ import torch
 from torch.utils.data.dataset import Dataset
 import csv
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Load Time series from a CSV file
-class FromCSVDataset(Dataset):
+class FromCSVDataset(EchoDataset):
     """
     Load Time series from a CSV file
     """

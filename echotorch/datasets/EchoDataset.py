@@ -21,7 +21,12 @@
 
 
 # Imports
+from typing import Union, List
+import torch
 from torch.utils.data.dataset import Dataset
+
+# Local imports
+# from .DatasetComposer import DatasetComposer
 
 
 # EchoDataset
@@ -43,9 +48,50 @@ class EchoDataset(Dataset):
         )
     # end __repr__
 
+    # Override addition
+    def __add__(self, other):
+        """
+        Override addition
+        @param other: The other EchoDataset
+        @return: self + other
+        """
+        """return DatasetComposer(
+            [
+                self,
+                other
+            ]
+        )"""
+        return None
+    # end __add__
+
+    # Override addition
+    def __radd__(self, other):
+        """
+        Override addition
+        @param other: The other EchoDataset
+        @return: other + self
+        """
+        """return DatasetComposer(
+            [
+                self,
+                other
+            ]
+        )"""
+        return None
+    # end __radd__
+
     # endregion OVERRIDE
 
     # region TO_IMPLEMENT
+
+    # Get the whole dataset
+    def generate_full(self) -> Union[torch.Tensor, List]:
+        """
+        Get the whole dataset (according to init parameters)
+        @return: The Torch Tensor
+        """
+        raise Exception("generate_full not implemented")
+    # end generate_full
 
     # Extra representation
     def extra_repr(self):

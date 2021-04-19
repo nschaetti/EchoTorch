@@ -21,13 +21,15 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
 import math
 import numpy as np
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Sinusoidal Timeseries
-class SinusoidalTimeseries(Dataset):
+class SinusoidalTimeseries(EchoDataset):
     """
     Sinusoidal timeseries
     """

@@ -4,17 +4,21 @@
 # Imports
 import torch
 from torch.utils.data.dataset import Dataset
-import numpy as np
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Lambda dataset
-class LambdaDataset(Dataset):
+class LambdaDataset(EchoDataset):
     """
     Create simple periodic signal timeseries
     """
 
+    # region CONSTRUCTORS
+
     # Constructor
-    def __init__(self, sample_len, n_samples, func, start=0, dtype=torch.float32):
+    def __init__(self, sample_len, n_samples, func, start=0, dtype=None):
         """
         Constructor
         :param sample_len: Sample's length
@@ -31,32 +35,9 @@ class LambdaDataset(Dataset):
         self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
+    # endregion CONSTRUCTORS
 
-    # Length
-    def __len__(self):
-        """
-        Length
-        :return:
-        """
-        return self.n_samples
-    # end __len__
-
-    # Get item
-    def __getitem__(self, idx):
-        """
-        Get item
-        :param idx:
-        :return:
-        """
-        return self.outputs[idx]
-    # end __getitem__
-
-    ##############################################
-    # PRIVATE
-    ##############################################
+    # region PRIVATE
 
     # Generate
     def _generate(self):
@@ -83,5 +64,30 @@ class LambdaDataset(Dataset):
 
         return samples
     # end _generate
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Length
+    def __len__(self):
+        """
+        Length
+        :return:
+        """
+        return self.n_samples
+    # end __len__
+
+    # Get item
+    def __getitem__(self, idx):
+        """
+        Get item
+        :param idx:
+        :return:
+        """
+        return self.outputs[idx]
+    # end __getitem__
+
+    # endregion OVERRIDE
 
 # end LambdaDataset

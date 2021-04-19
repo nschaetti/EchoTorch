@@ -30,25 +30,25 @@ from echotorch.utils.utility_functions import generalized_squared_cosine
 
 
 # conceptor zero
-def czero(input_dim: int) -> echotorch.nn.Conceptor:
+def czero(input_dim: int) -> Conceptor:
     """
     Create an empty Conceptor (zero) of specific size
     """
-    return echotorch.nn.conceptors.Conceptor.zero(input_dim)
+    return Conceptor.zero(input_dim)
 # end czero
 
 
 # conceptor one
-def cone(input_dim: int) -> echotorch.nn.Conceptor:
+def cone(input_dim: int) -> Conceptor:
     """
     Create an unit Conceptor of specific size
     """
-    return echotorch.nn.conceptors.Conceptor.identity(input_dim)
+    return Conceptor.identity(input_dim)
 # end cone
 
 
 # conceptor one
-def cidentity(input_dim: int) -> echotorch.nn.Conceptor:
+def cidentity(input_dim: int) -> Conceptor:
     """
     Create an unit Conceptor of specific size
     """
@@ -129,29 +129,29 @@ def csimilarity(
 
 
 # OR operator
-def OR(c1: echotorch.nn.Conceptor, c2: echotorch.nn.Conceptor):
+def OR(c1: Conceptor, c2: Conceptor) -> Conceptor:
     """
     OR operator
     """
-    return echotorch.nn.Conceptor.operator_OR(c1, c2)
+    return Conceptor.operator_OR(c1, c2)
 # end OR
 
 
 # AND operator
-def AND(c1: echotorch.nn.Conceptor, c2: echotorch.nn.Conceptor):
+def AND(c1: Conceptor, c2: Conceptor):
     """
     AND operator
     """
-    return echotorch.nn.Conceptor.operator_AND(c1, c2)
+    return Conceptor.operator_AND(c1, c2)
 # end AND
 
 
 # NOT operator
-def NOT(c1: echotorch.nn.Conceptor):
+def NOT(c1: Conceptor):
     """
     NOT operator
     """
-    return echotorch.nn.Conceptor.operator_NOT(c1)
+    return Conceptor.operator_NOT(c1)
 # end NOT
 
 
@@ -163,7 +163,7 @@ def PHI(c, gamma):
     :param gamma:
     :return:
     """
-    return echotorch.nn.Conceptor.operator_PHI(c, gamma)
+    return Conceptor.operator_PHI(c, gamma)
 # end PHI
 
 
@@ -172,7 +172,7 @@ def conceptor(input_dim, aperture, *args, **kwargs):
     """
     Conceptor constructor
     """
-    return echotorch.nn.Conceptor(
+    return Conceptor(
         input_dim,
         aperture,
         *args,
@@ -190,7 +190,7 @@ def conceptor_set(input_dim, *args, **kwargs):
     :param kwargs:
     :return:
     """
-    return echotorch.nn.conceptors.ConceptorSet(
+    return ConceptorSet(
         input_dim,
         *args,
         **kwargs

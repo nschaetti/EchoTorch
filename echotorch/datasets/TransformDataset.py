@@ -22,11 +22,13 @@
 # Imports
 import math
 import torch
-from torch.utils.data import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Transform dataset
-class TransformDataset(Dataset):
+class TransformDataset(EchoDataset):
     """
     Apply a transformation to a dataset.
     """

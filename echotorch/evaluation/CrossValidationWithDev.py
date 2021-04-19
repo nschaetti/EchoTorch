@@ -25,9 +25,12 @@ import math
 from torch.utils.data.dataset import Dataset
 import numpy as np
 
+# Imports local
+from echotorch.datasets import EchoDataset
+
 
 # Do a k-fold cross validation with a dev set on a data set
-class CrossValidationWithDev(Dataset):
+class CrossValidationWithDev(EchoDataset):
     """
     Do K-fold cross validation with a dev set on a data set
     """

@@ -21,12 +21,15 @@
 
 # Imports
 import torch
+
 from torch.utils.data.dataset import Dataset
-import numpy as np
+
+# Imports local
+from .EchoDataset import EchoDataset
 
 
 # Copy task dataset
-class CopyTaskDataset(Dataset):
+class CopyTaskDataset(EchoDataset):
     """
     Copy task dataset
     """

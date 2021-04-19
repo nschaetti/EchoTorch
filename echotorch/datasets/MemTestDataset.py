@@ -1,16 +1,36 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/datasets/MemTestDataset.py
+# Description : Base class for EchoTorch datasets
+# Date : 25th of January, 2021
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Generates a series of input timeseries and delayed versions as outputs.
-class MemTestDataset(Dataset):
+class MemTestDataset(EchoDataset):
     """
-    Generates a series of input timeseries and delayed versions as outputs.
-    Delay is given in number of timesteps. Can be used to empirically measure the
+    Generates a series of input time series and delayed versions as outputs.
+    Delay is given in number of time steps. Can be used to empirically measure the
     memory capacity of a system.
     """
 
@@ -33,6 +53,8 @@ class MemTestDataset(Dataset):
             torch.manual_seed(seed)
         # end if
     # end __init__
+
+    # region OVERRIDE
 
     # Length
     def __len__(self):
@@ -57,5 +79,7 @@ class MemTestDataset(Dataset):
         # end for
         return inputs, outputs
     # end __getitem__
+
+    # endregion OVERRIDE
 
 # end MemTestDataset

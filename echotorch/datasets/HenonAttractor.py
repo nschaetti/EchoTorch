@@ -7,9 +7,12 @@ from torch.utils.data.dataset import Dataset
 from random import shuffle
 import numpy as np
 
+# Load imports
+from .EchoDataset import EchoDataset
+
 
 # Henon Attractor
-class HenonAttractor(Dataset):
+class HenonAttractor(EchoDataset):
     """
     The Rössler attractor is the attractor for the Rössler system, a system of three non-linear ordinary differential
     equations originally studied by Otto Rössler. These differential equations define a continuous-time dynamical

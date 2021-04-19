@@ -21,12 +21,13 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
-import numpy as np
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Latch task dataset
-class LatchTaskDataset(Dataset):
+class LatchTaskDataset(EchoDataset):
     """
     Latch task dataset
     """
@@ -49,7 +50,7 @@ class LatchTaskDataset(Dataset):
         self.samples = self._generate()
     # end __init__
 
-    #region OVERRIDE
+    # region OVERRIDE
 
     # Length
     def __len__(self):
@@ -70,9 +71,9 @@ class LatchTaskDataset(Dataset):
         return self.samples[idx]
     # end __getitem__
 
-    #endregion OVERRIDE
+    # endregion OVERRIDE
 
-    #region PRIVATE
+    # region PRIVATE
 
     # Generate
     def _generate(self):
@@ -142,6 +143,6 @@ class LatchTaskDataset(Dataset):
         return samples
     # end _generate
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
 # end LatchTaskDataset

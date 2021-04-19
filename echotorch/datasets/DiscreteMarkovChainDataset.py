@@ -26,9 +26,12 @@ import torch.distributions.multinomial
 from torch.utils.data.dataset import Dataset
 import numpy as np
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Discrete Markov chain dataset
-class DiscreteMarkovChainDataset(Dataset):
+class DiscreteMarkovChainDataset(EchoDataset):
     """
     Discrete Markov chain dataset
     """

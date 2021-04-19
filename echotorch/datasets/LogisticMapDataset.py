@@ -1,14 +1,34 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/datasets/LogisticMapDataset.py
+# Description : Generate series from the Logistic Map
+# Date : 16th of July, 2020
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
 import numpy as np
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Logistic Map dataset
-class LogisticMapDataset(Dataset):
+class LogisticMapDataset(EchoDataset):
     """
     Logistic Map dataset
     """
@@ -42,6 +62,8 @@ class LogisticMapDataset(Dataset):
         # end if
     # end __init__
 
+    # region OVERRIDE
+
     # Length
     def __len__(self):
         """
@@ -74,9 +96,9 @@ class LogisticMapDataset(Dataset):
         return series
     # end __getitem__
 
-    #######################################
-    # Private
-    #######################################
+    # endregion OVERRIDE
+
+    # region PRIVATE
 
     # Logistic map
     def _logistic_map(self, x, r):
@@ -88,5 +110,7 @@ class LogisticMapDataset(Dataset):
         """
         return r * x * (1-x)
     # end logistic_map
+
+    # endregion PRIVATE
 
 # end MackeyGlassDataset

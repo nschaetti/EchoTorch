@@ -25,9 +25,12 @@ from torch.utils.data.dataset import Dataset
 import math
 import numpy as np
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Mixed sines dataset
-class MixedSinesDataset(Dataset):
+class MixedSinesDataset(EchoDataset):
     """
     Mixed sines dataset
     """
@@ -53,9 +56,7 @@ class MixedSinesDataset(Dataset):
         self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
+    # region OVERRIDE
 
     # Length
     def __len__(self):
@@ -76,9 +77,9 @@ class MixedSinesDataset(Dataset):
         return self.outputs[idx]
     # end __getitem__
 
-    ##############################################
-    # PUBLIC
-    ##############################################
+    # endregion OVERRIDE
+
+    # region PUBLIC
 
     # Regenerate
     def regenerate(self):
@@ -90,9 +91,9 @@ class MixedSinesDataset(Dataset):
         self.outputs = self._generate()
     # end regenerate
 
-    ##############################################
-    # PRIVATE
-    ##############################################
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Random initial points
     def random_initial_points(self):
@@ -129,5 +130,7 @@ class MixedSinesDataset(Dataset):
 
         return samples
     # end _generate
+
+    # endregion PRIVATE
 
 # end MixedSinesDataset

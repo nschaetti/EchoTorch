@@ -1,14 +1,34 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/datasets/RosslerAttractor.py
+# Description : Rossler Attractor
+# Date : 25th of January, 2021
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
 import numpy as np
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Rossler Attractor
-class RosslerAttractor(Dataset):
+class RosslerAttractor(EchoDataset):
     """
     The Rössler attractor is the attractor for the Rössler system, a system of three non-linear ordinary differential
     equations originally studied by Otto Rössler. These differential equations define a continuous-time dynamical
@@ -45,9 +65,7 @@ class RosslerAttractor(Dataset):
         self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
+    # region OVERRIDE
 
     # Length
     def __len__(self):
@@ -68,9 +86,9 @@ class RosslerAttractor(Dataset):
         return self.outputs[idx]
     # end __getitem__
 
-    ##############################################
-    # PUBLIC
-    ##############################################
+    # endregion OVERRIDE
+
+    # region PUBLIC
 
     # Regenerate
     def regenerate(self):
@@ -82,9 +100,9 @@ class RosslerAttractor(Dataset):
         self.outputs = self._generate()
     # end regenerate
 
-    ##############################################
-    # PRIVATE
-    ##############################################
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Rossler
     def _rossler(self, x, y, z):
@@ -161,5 +179,7 @@ class RosslerAttractor(Dataset):
 
         return samples
     # end _generate
+
+    # endregion PRIVATE
 
 # end RosslerAttractor

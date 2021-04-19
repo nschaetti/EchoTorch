@@ -21,15 +21,16 @@
 
 # Imports
 import math
-import numpy as np
 import torch
 import torch.distributions.multinomial
-from torch.utils.data.dataset import Dataset
 import numpy as np
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Markov chain dataset from patterns
-class MarkovChainDataset(Dataset):
+class MarkovChainDataset(EchoDataset):
     """
     Markov chain dataset from patterns
     """
@@ -56,6 +57,8 @@ class MarkovChainDataset(Dataset):
         self._total_length = sample_length * (states_length + 2 * morphing_length)
         self._random_start = random_start
         self.n_samples = n_samples
+    # end __init__
+
     # region PRIVATE
 
     # Generate a markov chain from a probability matrix

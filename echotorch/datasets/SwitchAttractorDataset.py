@@ -6,9 +6,12 @@ import torch
 from torch.utils.data.dataset import Dataset
 import numpy as np
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Switch attractor dataset
-class SwitchAttractorDataset(Dataset):
+class SwitchAttractorDataset(EchoDataset):
     """
     Generate a dataset where the reservoir must switch
     between two attractors.
@@ -20,7 +23,6 @@ class SwitchAttractorDataset(Dataset):
         Constructor
         :param sample_len: Length of the time-series in time steps.
         :param n_samples: Number of samples to generate.
-        :param system_order: th order NARMA
         :param seed: Seed of random number generator.
         """
         # Properties
@@ -36,32 +38,7 @@ class SwitchAttractorDataset(Dataset):
         self.inputs, self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
-
-    # Length
-    def __len__(self):
-        """
-        Length
-        :return:
-        """
-        return self.n_samples
-    # end __len__
-
-    # Get item
-    def __getitem__(self, idx):
-        """
-        Get item
-        :param idx:
-        :return:
-        """
-        return self.inputs[idx], self.outputs[idx]
-    # end __getitem__
-
-    ##############################################
-    # PRIVATE
-    ##############################################
+    # region PRIVATE
 
     # Generate
     def _generate(self):
@@ -101,5 +78,30 @@ class SwitchAttractorDataset(Dataset):
 
         return inputs, outputs
     # end _generate
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Length
+    def __len__(self):
+        """
+        Length
+        :return:
+        """
+        return self.n_samples
+    # end __len__
+
+    # Get item
+    def __getitem__(self, idx):
+        """
+        Get item
+        :param idx:
+        :return:
+        """
+        return self.inputs[idx], self.outputs[idx]
+    # end __getitem__
+
+    # endregion OVERRIDE
 
 # end SwitchAttractorDataset

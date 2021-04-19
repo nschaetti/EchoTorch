@@ -20,16 +20,15 @@
 # Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>,
 # University of Geneva <nils.schaetti@unige.ch>
 
-# Imports
-import torch
-from torch.utils.data.dataset import Dataset
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Create a version of a dataset with delayed inputs.
-class DelayDataset(Dataset):
+class DelayDataset(EchoDataset):
     """
-    Generates a series of input timeseries and delayed versions as outputs.
-    Delay is given in number of timesteps. Can be used to empirically measure the
+    Generates a series of input time series and delayed versions as outputs.
+    Delay is given in number of time steps. Can be used to empirically measure the
     memory capacity of a system.
     """
 

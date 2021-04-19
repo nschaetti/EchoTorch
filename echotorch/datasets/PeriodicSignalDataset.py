@@ -24,9 +24,12 @@ import torch
 from torch.utils.data.dataset import Dataset
 import numpy as np
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Periodic signal timeseries
-class PeriodicSignalDataset(Dataset):
+class PeriodicSignalDataset(EchoDataset):
     """
     Create simple periodic signal timeseries
     """
@@ -58,32 +61,7 @@ class PeriodicSignalDataset(Dataset):
         self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
-
-    # Length
-    def __len__(self):
-        """
-        Length
-        :return:
-        """
-        return self.n_samples
-    # end __len__
-
-    # Get item
-    def __getitem__(self, idx):
-        """
-        Get item
-        :param idx:
-        :return:
-        """
-        return self.outputs[idx]
-    # end __getitem__
-
-    ##############################################
-    # PRIVATE
-    ##############################################
+    # region PRIVATE
 
     # Generate
     def _generate(self):
@@ -110,5 +88,31 @@ class PeriodicSignalDataset(Dataset):
 
         return samples
     # end _generate
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Length
+    def __len__(self):
+        """
+        Length
+        :return:
+        """
+        return self.n_samples
+    # end __len__
+
+    # Get item
+    def __getitem__(self, idx):
+        """
+        Get item
+        :param idx:
+        :return:
+        """
+        return self.outputs[idx]
+    # end __getitem__
+
+    # endregion OVERRIDE
+
 
 # end PeriodicSignalDataset

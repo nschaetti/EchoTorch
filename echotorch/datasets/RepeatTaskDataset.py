@@ -23,9 +23,12 @@
 import torch
 from torch.utils.data.dataset import Dataset
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Repeat task dataset
-class RepeatTaskDataset(Dataset):
+class RepeatTaskDataset(EchoDataset):
     """
     Repeat task dataset
     """

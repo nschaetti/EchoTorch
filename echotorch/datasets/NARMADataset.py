@@ -21,11 +21,13 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # 10th order NARMA task
-class NARMADataset(Dataset):
+class NARMADataset(EchoDataset):
     """
     xth order NARMA task
     WARNING: this is an unstable dataset. There is a small chance the system becomes

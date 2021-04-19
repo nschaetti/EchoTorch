@@ -23,19 +23,22 @@
 
 # Imports
 import random
-from torch.utils.data import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Triplet batching
-class TripletBatching(Dataset):
+class TripletBatching(EchoDataset):
     """
     Take a dataset with different classes and create a dataset of triplets with an anchor (A) and positive
     example (same class) and a negative one (different class).
     """
 
     # Constructor
-    def __init__(self, root_dataset, data_index, target_index, target_count, n_samples,
-                 target_type='int', *args, **kwargs):
+    def __init__(
+            self, root_dataset, data_index, target_index, target_count, n_samples, target_type='int', *args, **kwargs
+    ) -> None:
         """
         Constructor
         :param root_dataset: The main dataset
@@ -66,7 +69,7 @@ class TripletBatching(Dataset):
         self._analyse_dataset()
     # end __init__
 
-    #region PRIVATE
+    # region PRIVATE
 
     # Analyze the root dataset to determine the total number of samples
     def _analyse_dataset(self):
@@ -98,9 +101,9 @@ class TripletBatching(Dataset):
         # end for
     # end _analyse_dataset
 
-    #endregion PRIVATE
+    # endregion PRIVATE
 
-    #region OVERRIDE
+    # region OVERRIDE
 
     # Length of the dataset
     def __len__(self):
@@ -153,6 +156,6 @@ class TripletBatching(Dataset):
         return anchor_sample, positive_sample, negative_sample
     # end __getitem__
 
-    #endregion OVERRIDE
+    # endregion OVERRIDE
 
 # end TripletBatching

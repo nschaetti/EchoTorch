@@ -25,9 +25,12 @@ import math
 import torch
 from torch.utils.data import Dataset
 
+# Local imports
+from .EchoDataset import EchoDataset
+
 
 # Image to timeseries dataset
-class ImageToTimeseries(Dataset):
+class ImageToTimeseries(EchoDataset):
     """
     Image to timeseries dataset
     """

@@ -23,11 +23,13 @@
 # Imports
 import math
 import torch
-from torch.utils.data import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Timeseries batch cutting
-class TimeseriesBatchSequencesDataset(Dataset):
+class TimeseriesBatchSequencesDataset(EchoDataset):
     """
     Take a dataset of timeseries and cut all of them by window size and compose batches
     """

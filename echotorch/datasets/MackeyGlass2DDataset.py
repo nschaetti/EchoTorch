@@ -3,11 +3,13 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Mackey Glass dataset
-class MackeyGlass2DDataset(Dataset):
+class MackeyGlass2DDataset(EchoDataset):
     """
     Mackey Glass 2D dataset
     """

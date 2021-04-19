@@ -21,11 +21,13 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Sequences of symbols taken randomly
-class RandomSymbolDataset(Dataset):
+class RandomSymbolDataset(EchoDataset):
     """
     Sequences of symbols taken randomly
     """

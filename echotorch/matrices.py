@@ -22,16 +22,19 @@
 
 # Imports
 import torch
-import echotorch.utils.matrix_generation
+import echotorch.utils.matrix_generation as etmg
+from echotorch.utils.matrix_generation import MatrixGenerator
 
 
 # Cycle matrix with jumps generator
-def cycle_with_jumps_generator(connectivity=1.0, spectra_radius=1.0, apply_spectral_radius=False, scale=1.0,
-                               cycle_weight=1.0, jump_weight=1.0, jump_size=2.0):
+def cycle_with_jumps_generator(
+        connectivity: float = 1.0, spectra_radius: float = 1.0, apply_spectral_radius: bool = False, scale: float = 1.0,
+        cycle_weight: float = 1.0, jump_weight: float = 1.0, jump_size: float = 2.0
+) -> MatrixGenerator:
     """
     Cycle matrix with jumps generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
+    return etmg.matrix_factory.get_generator(
         "cycle_with_jumps",
         connectivity=connectivity,
         spectra_radius=spectra_radius,
@@ -45,8 +48,11 @@ def cycle_with_jumps_generator(connectivity=1.0, spectra_radius=1.0, apply_spect
 
 
 # Generate cycle matrix with jumps (Rodan and Tino, 2012)
-def cycle_with_jumps(*size, connectivity=1.0, spectra_radius=1.0, apply_spectral_radius=False, scale=1.0,
-                     cycle_weight=1.0, jump_weight=1.0, jump_size=2.0, dtype=None):
+def cycle_with_jumps(
+        *size, connectivity: float = 1.0, spectra_radius: float = 1.0, apply_spectral_radius: bool = False,
+        scale: float = 1.0, cycle_weight: float = 1.0, jump_weight: float = 1.0, jump_size: float = 2.0,
+        dtype=None
+) -> torch.Tensor:
     """
     Generate cycle matrix with jumps (Rodan and Tino, 2012)
     """
@@ -67,11 +73,14 @@ def cycle_with_jumps(*size, connectivity=1.0, spectra_radius=1.0, apply_spectral
 
 
 # Matlab loader generator
-def matlab_generator(file_path, entity_name, shape=None, spectral_radius=1.0, apply_spectral_radius=False, scale=1.0):
+def matlab_generator(
+        file_path: str, entity_name: str, shape: tuple = None, spectral_radius: float = 1.0,
+        apply_spectral_radius: bool = False, scale: float = 1.0
+) -> MatrixGenerator:
     """
     Matlab loader generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
+    return etmg.matrix_factory.get_generator(
         "matlab",
         file_path=file_path,
         entity_name=entity_name,
@@ -84,7 +93,10 @@ def matlab_generator(file_path, entity_name, shape=None, spectral_radius=1.0, ap
 
 
 # Load matrix from matlab file
-def matlab(file_path, entity_name, *size, spectral_radius=1.0, apply_spectral_radius=False, scale=1.0, dtype=None):
+def matlab(
+        file_path: str, entity_name: str, *size, spectral_radius: float = 1.0, apply_spectral_radius: bool = False,
+        scale: float = 1.0, dtype=None
+) -> torch.Tensor:
     """
     Load matrix from matlab file
     """
@@ -103,12 +115,22 @@ def matlab(file_path, entity_name, *size, spectral_radius=1.0, apply_spectral_ra
 
 
 # Normal matrix generator
-def normal_generator(connectivity=1.0, spectral_radius=1.0, scale=1.0, mean=0.0, std=1.0, minimum_edges=0,
-           apply_spectral_radius=False):
+def normal_generator(
+        connectivity: float = 1.0, spectral_radius: float = 1.0, scale: float = 1.0, mean: float = 0.0,
+        std: float = 1.0, minimum_edges: float = 0, apply_spectral_radius: bool = False
+) -> MatrixGenerator:
     """
-    Normal matrix generator
+    Create a generator to create normal matrices
+    @param connectivity: Connectivity coefficient
+    @param spectral_radius: Spectral radius
+    @param scale: Scaling factor for the generated matrices
+    @param mean: Mean parameter for the normal distribution
+    @param std: Standard deviation parameter for the normal distribution
+    @param minimum_edges: Minimum number of edge(s) present in the matrix
+    @param apply_spectral_radius: True to apply the spectral radius rescaling, False otherwise
+    @return: A MatrixGenerator to generate normal matrices
     """
-    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
+    return etmg.matrix_factory.get_generator(
         "normal",
         connectivity=connectivity,
         spectral_radius=spectral_radius,
@@ -125,7 +147,17 @@ def normal_generator(connectivity=1.0, spectral_radius=1.0, scale=1.0, mean=0.0,
 def normal(*size, connectivity=1.0, spectral_radius=1.0, scale=1.0, mean=0.0, std=1.0, minimum_edges=0,
            apply_spectral_radius=False, dtype=None):
     """
-    Normal matrix generation
+    Generate a matrix from a normal distribution
+    @param size: Size of the output matrix as a tuple
+    @param connectivity:
+    @param spectral_radius:
+    @param scale:
+    @param mean:
+    @param std:
+    @param minimum_edges:
+    @param apply_spectral_radius:
+    @param dtype:
+    @return:
     """
     # Matrix generator
     matrix_generator = normal_generator(
@@ -149,7 +181,7 @@ def uniform_generator(connectivity=1.0, spectral_radius=1.0, scale=1.0, input_se
     """
     Uniform matrix generator
     """
-    return echotorch.utils.matrix_generation.matrix_factory.get_generator(
+    return etmg.matrix_factory.get_generator(
         "uniform",
         connectivity=connectivity,
         spectral_radius=spectral_radius,

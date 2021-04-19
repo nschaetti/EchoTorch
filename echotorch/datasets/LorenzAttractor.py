@@ -1,14 +1,34 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/datasets/EchoDataset.py
+# Description : Base class for EchoTorch datasets
+# Date : 25th of January, 2021
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 import torch
 from torch.utils.data.dataset import Dataset
-import numpy as np
+
+# Local imports
+from .EchoDataset import EchoDataset
 
 
 # Lorenz Attractor
-class LorenzAttractor(Dataset):
+class LorenzAttractor(EchoDataset):
     """
     The Rössler attractor is the attractor for the Rössler system, a system of three non-linear ordinary differential
     equations originally studied by Otto Rössler. These differential equations define a continuous-time dynamical
@@ -45,32 +65,7 @@ class LorenzAttractor(Dataset):
         self.outputs = self._generate()
     # end __init__
 
-    #############################################
-    # OVERRIDE
-    #############################################
-
-    # Length
-    def __len__(self):
-        """
-        Length
-        :return:
-        """
-        return self.n_samples
-    # end __len__
-
-    # Get item
-    def __getitem__(self, idx):
-        """
-        Get item
-        :param idx:
-        :return:
-        """
-        return self.outputs[idx]
-    # end __getitem__
-
-    ##############################################
-    # PUBLIC
-    ##############################################
+    # region PUBLIC
 
     # Regenerate
     def regenerate(self):
@@ -82,9 +77,9 @@ class LorenzAttractor(Dataset):
         self.outputs = self._generate()
     # end regenerate
 
-    ##############################################
-    # PRIVATE
-    ##############################################
+    # endregion PUBLIC
+
+    # region PRIVATE
 
     # Lorenz
     def _lorenz(self, x, y, z):
@@ -99,6 +94,7 @@ class LorenzAttractor(Dataset):
         y_dot = self.r * x - y - x * z
         z_dot = x * y - self.b * z
         return x_dot, y_dot, z_dot
+
     # end _lorenz
 
     # Generate
@@ -159,5 +155,30 @@ class LorenzAttractor(Dataset):
 
         return samples
     # end _generate
+
+    # endregion PRIVATE
+
+    # region OVERRIDE
+
+    # Length
+    def __len__(self):
+        """
+        Length
+        :return:
+        """
+        return self.n_samples
+    # end __len__
+
+    # Get item
+    def __getitem__(self, idx):
+        """
+        Get item
+        :param idx:
+        :return:
+        """
+        return self.outputs[idx]
+    # end __getitem__
+
+    # endregion OVERRIDE
 
 # end LorenzAttractor
