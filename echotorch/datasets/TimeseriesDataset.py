@@ -25,6 +25,7 @@ import os
 import torch
 import json
 import numpy as np
+from typing import Union, List
 
 # echotorch imports
 from echotorch.transforms import Transformer
@@ -373,11 +374,31 @@ class TimeseriesDataset(EchoDataset):
         return self._dataset_properties['labels'][label_index]['class_names']
     # end label_class_names
 
+    # Number of samples for a class
+    def label_class_n_samples(self, label_name, class_name):
+        """
+        Number of samples for a class
+        @param label_name:
+        @return:
+        """
+        label_index = self.label_name_to_index(label_name)
+        class_index = self.class_name_to_index(label_index, class_name)
+        return self._dataset_properties["label"][label_index]["classes"][str(class_index)]
+    # end label_class_n_samples
+
     # Class name to index
-    def class_name_to_index(self, label_index: int, class_name: str) -> int:
+    def class_name_to_index(self, label_index: int, class_name: str) -> Union[int, None]:
         """
         Class name to index
         """
+        label_desc = self._dataset_properties["labels"][label_index]
+        for class_i, class_desc in label_desc["classes"].items():
+            if class_desc["name"] == class_name:
+                return class_desc["id"]
+            # end if
+        # end for
+        return None
+    # end class_name_to_index
 
     # Event type properties
     def event_type_properties(self, event_name: str) -> dict:
