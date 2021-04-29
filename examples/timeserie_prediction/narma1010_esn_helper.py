@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# File : examples/timeserie_classification/test.py
-# Description : Example of timeseries classification
+# File : examples/timeserie_prediction/narma10_esn_helper.py
+# Description : NARMA-10 prediction with ESN
 # Date : 27th of April, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
@@ -19,4 +19,6 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
+
+# Imports
 

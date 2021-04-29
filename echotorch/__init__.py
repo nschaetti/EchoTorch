@@ -19,7 +19,14 @@
 #
 # Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>
 
+
 # Imports
+import sys
+import warnings
+import pkg_resources
+from pkg_resources import parse_version
+
+# Echotorch imports
 from . import datasets
 from . import evaluation
 from . import models
@@ -38,6 +45,38 @@ from .tensor import TimeTensor
 from .tensor_utils import from_numpy
 from .training_and_evaluation import fit, eval, cross_val_score
 from .utility_functions import timetensor, timecat
+
+
+# Min Torch version
+MIN_TORCH_VERSION = '1.7.0'
+
+
+# Try import torch
+try:
+    # pylint: disable=wrong-import-position
+    import torch
+except ModuleNotFoundError:
+    raise ModuleNotFoundError(
+        "No module named 'torch', and skorch depends on PyTorch "
+        "(aka 'torch'). "
+        "Visit https://pytorch.org/ for installation instructions."
+    )
+# end try
+
+# Get Torch version
+torch_version = pkg_resources.get_distribution('torch').version
+
+# Torch version is too old
+if parse_version(torch_version) < parse_version(MIN_TORCH_VERSION):
+    # Message
+    msg = (
+        'echotorch depends on a newer version of PyTorch (at least {req}, not '
+        '{installed}). Visit https://pytorch.org for installation details'
+    )
+
+    # Import warning
+    raise ImportWarning(msg.format(req=MIN_TORCH_VERSION, installed=torch_version))
+# end if
 
 
 # All echotorch's modules

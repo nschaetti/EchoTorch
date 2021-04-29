@@ -838,6 +838,10 @@ class Conceptor(NeuralFilter):
         if torch.all(torch.eq(C, torch.eye(C_dim, dtype=C.dtype))):
             return None
         else:
+            targetC = torch.eye(C_dim) - C
+            print("I - C: {}".format(targetC))
+            U, S, V = torch.svd(targetC)
+            print("U of target: {}".format(U))
             return math.pow(aperture, -2) * torch.mm(C, inv_algo(torch.eye(C_dim) - C))
         # end if
     # end R

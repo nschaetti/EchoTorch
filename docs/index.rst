@@ -30,3 +30,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. _pytorch: http://pytorch.org/
+.. _sklearn: http://scikit-learn.org/

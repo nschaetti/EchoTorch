@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Join Discord center">
-      <change afterPath="$PROJECT_DIR$/examples/timeserie_classification/Bentner.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/timeserie_classification/DD_HTP_AeroCoefficients_AoA10.dat" afterDir="false" />
+    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Working on dataset and series">
+      <change afterPath="$PROJECT_DIR$/docs/index.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/echotorch/utils/esn_classifier.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/echotorch/utils/esn_predictor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/echotorch/utils/esn_regressor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/timeserie_prediction/narma1010_esn_helper.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/datasets/CopyTaskDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/datasets/CopyTaskDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/datasets/DelayDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/datasets/DelayDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/datasets/DiscreteMarkovChainDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/datasets/DiscreteMarkovChainDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/datasets/EchoDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/datasets/EchoDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/datasets/FromCSVDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/datasets/FromCSVDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/series.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/series.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/conf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.datasets.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.datasets.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.nn.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.nn.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.utils.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.utils.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/index.rst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/modules.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/source/notes/esn_learning.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/notes/esn_learning.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/lightning/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/nn/conceptors/Conceptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/nn/conceptors/Conceptor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/timeserie_classification/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/timeserie_classification/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -44,6 +55,7 @@
       <list>
         <option value="Setup Script" />
         <option value="HTML File" />
+        <option value="RMarkdown.notebook" />
         <option value="Python Script" />
       </list>
     </option>
@@ -96,7 +108,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/examples/timeserie_classification" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -110,11 +122,11 @@
       <recent name="$PROJECT_DIR$/examples/timeserie_classification" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docs" />
       <recent name="$PROJECT_DIR$/../echotorch.github.io/assets/css" />
       <recent name="$PROJECT_DIR$/../echotorch.github.io/assets" />
       <recent name="$PROJECT_DIR$/../echotorch.github.io/images" />
       <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/horsetrack/models/autoencoders" />
-      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/horsetrack/models/embeddings" />
     </key>
   </component>
   <component name="RunManager" selected="Python.Bentner">
@@ -122,6 +134,9 @@
       <module name="EchoTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/examples/timeserie_classification" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -377,6 +392,7 @@
       <item itemvalue="Python.morphing_periodic_patterns" />
       <item itemvalue="Python.morphing_periodic_sine" />
       <item itemvalue="Python.subspace_demo" />
+      <item itemvalue="Python.Bentner" />
       <item itemvalue="Python tests.Nosetests for test.test_fold_cross_validation.Test_Fold_Cross_Validation.test_10fold_cross_validation_no_dev" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge001" />
       <item itemvalue="Python tests.Nosetests for test.test_narma10_prediction.Test_NARMA10_Prediction.test_narma10_prediction_esn_ridge01" />
@@ -385,7 +401,6 @@
       <item itemvalue="Shell Script.Archive Model" />
       <item itemvalue="Shell Script.Launch TorchServe" />
       <item itemvalue="Shell Script.Stop TorchServe" />
-      <item itemvalue="Python.Bentner" />
     </list>
     <recent_temporary>
       <list>
@@ -471,21 +486,10 @@
       <workItem from="1618507024298" duration="599000" />
       <workItem from="1618558537722" duration="58000" />
       <workItem from="1618774205315" duration="8787000" />
-      <workItem from="1618858719683" duration="7577000" />
-    </task>
-    <task id="LOCAL-00078" summary="- python-package-testing.yml : add codecov uploading">
-      <created>1602688875120</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1602688875120</updated>
-    </task>
-    <task id="LOCAL-00079" summary="- python-package-testing.yml : must install pytest-cov">
-      <created>1602689232364</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1602689232364</updated>
+      <workItem from="1618858719683" duration="8081000" />
+      <workItem from="1618902262933" duration="35000" />
+      <workItem from="1619554028087" duration="7651000" />
+      <workItem from="1619603298586" duration="23000" />
     </task>
     <task id="LOCAL-00080" summary="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal.">
       <created>1602752830400</created>
@@ -816,7 +820,21 @@
       <option name="project" value="LOCAL" />
       <updated>1611509176342</updated>
     </task>
-    <option name="localTasksCounter" value="127" />
+    <task id="LOCAL-00127" summary="Working on dataset and series">
+      <created>1618868530196</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1618868530196</updated>
+    </task>
+    <task id="LOCAL-00128" summary="Working on dataset and series">
+      <created>1618868949871</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1618868949871</updated>
+    </task>
+    <option name="localTasksCounter" value="129" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -865,7 +883,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests." />
     <MESSAGE value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
     <MESSAGE value="Title and description" />
     <MESSAGE value="Override default HTML, moved image, overrided style.css" />
@@ -890,7 +907,8 @@
     <MESSAGE value="Images" />
     <MESSAGE value="Join Discord width" />
     <MESSAGE value="Join Discord center" />
-    <option name="LAST_COMMIT_MESSAGE" value="Join Discord center" />
+    <MESSAGE value="Working on dataset and series" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working on dataset and series" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
