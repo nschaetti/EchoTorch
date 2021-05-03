@@ -45,6 +45,7 @@ from .tensor import TimeTensor
 from .tensor_utils import from_numpy
 from .training_and_evaluation import fit, eval, cross_val_score
 from .utility_functions import timetensor, timecat
+from .utils.utility_functions import autocorrelation_coefs, cov
 
 
 # Min Torch version
@@ -85,5 +86,6 @@ __all__ = [
     'cross_val_score', 'timecat', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon', 'from_numpy',
     'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
     'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
-    'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity'
+    'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
+    'cov'
 ]

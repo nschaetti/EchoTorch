@@ -1,5 +1,23 @@
 # -*- coding: utf-8 -*-
 #
+# File : echotorch/utils/utility_functions.py
+# Description : Utility functions
+# Date : 23th of February, 2021
+#
+# This file is part of EchoTorch.  EchoTorch is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 51
+# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 import torch
@@ -457,3 +475,96 @@ def max_average_through_time(tensor, dim=0):
     average = torch.mean(tensor, dim=dim)
     return torch.max(average, dim=dim)[1]
 # end max_average_through_time
+
+
+# Compute covariance for a  lag
+def cov(x, y):
+    """
+    Compute covariance for a lag
+    :param x: Timeseries tensor
+    :param y: Timeseries tensor
+    :return: The covariance coefficients
+    """
+    # Average x and y
+    x_mu = torch.mean(x, dim=0)
+    y_mu = torch.mean(y, dim=0)
+
+    # Average covariance over length
+    return torch.mean(torch.mul(x - x_mu, y - y_mu))
+# end cov
+
+
+# AutoCorrelation coefficients function for a time series
+def autocorrelation_function(x: torch.Tensor, n_lags: int):
+    """
+    AutoCorrelation coefficients function for a time series
+    @param x: The 1-D timeseries
+    @param n_lags: Number of lags
+    @return: A 1-D tensor with n_lags+1 components
+    """
+    # Store coefs
+    autocov_coefs = torch.zeros(n_lags+1)
+
+    # Time length for comparison
+    com_time_length = x.size(0) - n_lags
+
+    # Covariance t to t
+    autocov_coefs[0] = cov(x[:com_time_length], x[:com_time_length])
+
+    # For each lag
+    for lag_i in range(1, n_lags+1):
+        autocov_coefs[lag_i] = cov(
+            x[:com_time_length],
+            x[lag_i:lag_i + com_time_length]
+        )
+    # end for
+
+    # Co
+    c0 = autocov_coefs[0].item()
+
+    # Normalize with first coef
+    autocov_coefs /= c0
+
+    return autocov_coefs
+# end autocorrelation_function
+
+
+# AutoCorrelation Coefficients for a time series
+def autocorrelation_coefs(x: torch.Tensor, n_coefs: int):
+    """
+    AutoCorrelation Coefficients for a time series
+    @param x: A 2D tensor (no batch) or 3D tensor (with batch)
+    @param n_coefs: Number of coefficients for each dimension
+    @return: A 2D tensor (n. channels x n. coefs) if no batch, 3D tensor (n. batch x n.channels x n. coefs) if batched
+    """
+    # Has batch?
+    use_batch = x.ndim == 3
+
+    # Add batch dim if necessary
+    if not use_batch:
+        x = torch.unsqueeze(x, dim=0)
+    # end if
+
+    # Sizes
+    batch_size, time_length, n_channels = x.size()
+
+    # Result collector
+    result_collector = torch.zeros(batch_size, n_channels, n_coefs+1)
+
+    # For each batch
+    for batch_i in range(batch_size):
+        # For each channel
+        for channel_i in range(n_channels):
+            result_collector[batch_i, channel_i] = autocorrelation_function(x[batch_i, :, channel_i], n_lags=n_coefs)
+        # end for
+    # end for
+
+    # Return result
+    if not use_batch:
+        return torch.squeeze(result_collector, dim=0)
+    # end if
+    return result_collector
+# end autocorrelation_coefs
+
+
+
