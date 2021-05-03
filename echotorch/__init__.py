@@ -45,7 +45,8 @@ from .tensor import TimeTensor
 from .tensor_utils import from_numpy
 from .training_and_evaluation import fit, eval, cross_val_score
 from .utility_functions import timetensor, timecat
-from .utils.utility_functions import autocorrelation_coefs, cov
+from .utils.esko import esn_regressor, esn_predictor, esn_classifier
+from .utils.utility_functions import autocorrelation_coefs, cov, autocorrelation_function
 
 
 # Min Torch version
@@ -58,7 +59,7 @@ try:
     import torch
 except ModuleNotFoundError:
     raise ModuleNotFoundError(
-        "No module named 'torch', and skorch depends on PyTorch "
+        "No module named 'torch', and echotorch depends on PyTorch "
         "(aka 'torch'). "
         "Visit https://pytorch.org/ for installation instructions."
     )
@@ -87,5 +88,5 @@ __all__ = [
     'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
     'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
     'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
-    'cov'
+    'cov', 'autocorrelation_function'
 ]

@@ -2,26 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Working on dataset and series">
-      <change afterPath="$PROJECT_DIR$/docs/index.rst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/echotorch/utils/esn_classifier.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/echotorch/utils/esn_predictor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/echotorch/utils/esn_regressor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/timeserie_prediction/narma1010_esn_helper.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn_predictor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn_regressor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/conf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.datasets.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.datasets.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.nn.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.nn.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/echotorch.utils.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/echotorch.utils.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/index.rst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/modules.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/source/notes/esn_learning.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/notes/esn_learning.rst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/echotorch/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/lightning/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/nn/conceptors/Conceptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/nn/conceptors/Conceptor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/timeserie_classification/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/timeserie_classification/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/utils/esn_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn_classifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/utils/esn_predictor.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/esko/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/echotorch/utils/esn_regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/esko/callbacks/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -122,11 +110,11 @@
       <recent name="$PROJECT_DIR$/examples/timeserie_classification" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/echotorch/utils/esko" />
       <recent name="$PROJECT_DIR$/docs" />
       <recent name="$PROJECT_DIR$/../echotorch.github.io/assets/css" />
       <recent name="$PROJECT_DIR$/../echotorch.github.io/assets" />
       <recent name="$PROJECT_DIR$/../echotorch.github.io/images" />
-      <recent name="$PROJECT_DIR$/../../../ZUCKER/HorseTrack/horsetrack/models/autoencoders" />
     </key>
   </component>
   <component name="RunManager" selected="Python.Bentner">
@@ -490,6 +478,7 @@
       <workItem from="1618902262933" duration="35000" />
       <workItem from="1619554028087" duration="7651000" />
       <workItem from="1619603298586" duration="23000" />
+      <workItem from="1620071364464" duration="3268000" />
     </task>
     <task id="LOCAL-00080" summary="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal.">
       <created>1602752830400</created>

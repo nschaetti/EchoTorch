@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : utils/helpers/ESN.py
-# Description : Helper class for ESN classifier
-# Date : 27th of April, 2021
+# File : utils/esko/esn_predictor.py
+# Description : Helper class for ESN prediction
+# Date : 3th of May, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -27,35 +27,21 @@ import echotorch.nn.reservoir
 from sklearn.base import ClassifierMixin
 
 
-# ESN classifier, documentation start
-esn_clf_doc_start = """NeuralNet for classification tasks
-    Use this specifically if you have a standard classification task,
-    with input data X and target y.
-"""
+# ESN prediction, documentation start
+esn_pred_doc_start = """TODO"""
 
-# ESN classifier, additional text
-esn_clf_additional_text = """
-    criterion : torch criterion (class, default=torch.nn.NLLLoss)
-      Negative log likelihood loss. Note that the module should return
-      probabilities, the log is applied during ``get_loss``.
-    classes : None or list (default=None)
-      If None, the ``classes_`` attribute will be inferred from the
-      ``y`` data passed to ``fit``. If a non-empty list is passed,
-      that list will be returned as ``classes_``. If the initial
-      skorch behavior should be restored, i.e. raising an
-      ``AttributeError``, pass an empty list."""
+# ESN prediction, additional text
+esn_pred_additional_text = """TODO"""
 
-# ESN classifier, additional attribute
-esn_clf_additional_attribute = """classes_ : array, shape (n_classes, )
-      A list of class labels known to the classifier.
-"""
+# ESN prediction, additional attribute
+esn_pred_additional_attribute = """TODO"""
 
 
-# ESN Helper class for classification
-class ESNClassifier(ClassifierMixin):
-    """ESN helper class for classification.
+# ESN Helper class for prediction
+class ESNPredictor(ClassifierMixin):
+    """ESN helper class for prediction
 
-    ESNClassifier description.
+    ESNPredictor description.
 
     Parameters
     ----------
@@ -171,4 +157,4 @@ class ESNClassifier(ClassifierMixin):
 
     # endregion PRIVATE
 
-# end ESNClassifier
+# end ESNPredictor
