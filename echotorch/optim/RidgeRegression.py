@@ -22,19 +22,28 @@
 
 
 # Imports
+from typing import Optional
 from torch.optim import Optimizer
 
 
 # RidgeRegression
 class RidgeRegression(Optimizer):
-    """
-    Ridge Regression (RR) optimizer
+    r"""Ridge Regression (RR) optimizer.
+
+    .. warning::
+        Parameters need to be specified as collections that have a deterministic
+        ordering that is consistent between runs. Examples of objects that don't
+        satisfy those properties are sets and iterators over values of dictionaries.
+
+    Args:
+        params (iterable): an iterable of :class:`torch.Tensor` s or
+            :class:`dict` s. Specifies what Tensors should be optimized.
     """
 
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, params, hidden_dim, output_dim, ridge_param=0.0):
+    def __init__(self, params, ridge_param=0.0):
         """
         Constructor
         """
@@ -42,6 +51,9 @@ class RidgeRegression(Optimizer):
         if ridge_param < 0:
             raise ValueError("Invalid ridge parameter: {}".format(ridge_param))
         # end if
+
+        # Properties
+        self._ridge_param = ridge_param
 
         # Default parameter
         defaults = dict(ridge_param=ridge_param)
@@ -51,5 +63,40 @@ class RidgeRegression(Optimizer):
     # end __init__
 
     # endregion CONSTRUCTORS
+
+    # region PROPERTIES
+
+    # Ridge parameter (getter)
+    @property
+    def ridge_param(self):
+        """Ridge parameter.
+        """
+        return self._ridge_param
+    # end ridge_param
+
+    # Ridge param (setter)
+    @ridge_param.setter
+    def ridge_param(self, value):
+        """Ridge param."""
+        self._ridge_param = value
+    # end ridge_param
+
+    # endregion PROPERTIES
+
+    # region OVERRIDE
+
+    # Step
+    def step(self, closure):
+        """Step."""
+        pass
+    # end step
+
+    # Zero grad
+    def zero_grad(self, set_to_none: bool = False):
+        r"""Do nothing"""
+        pass
+    # end zero_grad
+
+    # endregion OVERRIDE
 
 # end RidgeRegression
