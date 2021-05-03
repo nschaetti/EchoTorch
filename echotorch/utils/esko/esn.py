@@ -159,6 +159,107 @@ class ESN:
         pass
     # end initialize_module
 
+    # Initialize virtual parameters
+    def initialize_virtual_params(self):
+        """Initialize virtual parameters
+        TODO"""
+        pass
+    # end initialize_virtual_param
+
+    # Initialize history
+    def initialize_history(self):
+        """Initializes the history.
+        TODO"""
+        pass
+    # end initialize_history
+
+    # Initialize
+    def initialize(self):
+        """Initialize
+        TODO"""
+        pass
+    # end initialize
+
+    # Check data
+    def check_data(self, X, y=None):
+        """Check data
+        TODO"""
+        pass
+    # end check_data
+
+    # Train step
+    def train_step(self, Xi, yi, **fit_params):
+        """TODO"""
+        pass
+    # end  train_step
+
+    # Evaluation step
+    def evaluation_step(self, Xi, training=False):
+        """TODO"""
+        pass
+    # end evaluation_step
+
+    # Fit loop
+    def fit_loop(self, X, y=None, **fit_params):
+        """Fit loop.
+        TODO"""
+        pass
+    # end fit_loop
+
+    # Partial fit
+    def partial_fit(self, X, y=None, classes=None, **fit_params):
+        """Fit the module. TODO"""
+        pass
+    # end partial_loop
+
+    # Fit
+    def fit(self, X, y=None, **fit_params):
+        """Initialize and fit the module. TODO"""
+        pass
+    # end fit
+
+    # Check is fitted
+    def check_is_fitted(self, attributes=None, *args, **kwargs):
+        """Check is fitted. TODO"""
+        pass
+    # end check_is_fitted
+
+    # Forward iter
+    def forward_iter(self, X, training=False, device='cpu'):
+        """TODO"""
+        pass
+    # end forward_iter
+
+    # Forward
+    def forward(self, X, training=False, device='cpu'):
+        """TODO"""
+        pass
+    # end forward
+
+    # Infer
+    def infer(self, x, **fit_params):
+        """Perform a single inference step on a batch of data. TODO"""
+        pass
+    # end infer
+
+    # Predict probabilities
+    def predict_proba(self, X):
+        """Predict proba. TODO"""
+        pass
+    # end predict_proba
+
+    # Predict
+    def predict(self, X):
+        """TODO"""
+        pass
+    # end predict
+
+    # Get dataset
+    def get_dataset(self, X, y=None):
+        """TODO"""
+        pass
+    # end get_dataset
+
     # endregion PUBLIC
 
     # region PRIVATE
@@ -170,6 +271,37 @@ class ESN:
         """
         pass
     # end _yield_callbacks
+
+    # Callback grouped by name
+    def _callbacks_grouped_by_name(self):
+        """Callback grouped by name
+        TODO
+        """
+        pass
+    # end _callbacks_grouped_by_name
+
+    # Uniquely named callbacks
+    def _uniquely_named_callbacks(self):
+        """Make sure that the returned dict of named callbacks is unique...
+        TODO
+        """
+        pass
+    # end _uniquely_named_callbacks
+
+    # Format reinitialisation message
+    def _format_reinit_msg(self, name, kwargs=None, triggered_directly=True):
+        """Format reinitialisation message
+        TODO
+        """
+        pass
+    # end _format_reinit_msg
+
+    # Is virtual parameter
+    def _is_virtual_param(self, key):
+        """Is virtual parameter
+        TODO"""
+        pass
+    # end _is_virtual_param
 
     # endregion PRIVATE
 
