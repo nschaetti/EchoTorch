@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Working on dataset and series">
-      <change afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn_predictor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn_regressor.py" afterDir="false" />
+    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Ridge regression">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/utils/esn_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/esko/esn_classifier.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/utils/esn_predictor.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/esko/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echotorch/utils/esn_regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/echotorch/utils/esko/callbacks/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,7 +58,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="release" />
+        <entry key="$PROJECT_DIR$" value="dev" />
         <entry key="$PROJECT_DIR$/../echotorch.github.io" value="master" />
       </map>
     </option>
@@ -478,28 +471,8 @@
       <workItem from="1618902262933" duration="35000" />
       <workItem from="1619554028087" duration="7651000" />
       <workItem from="1619603298586" duration="23000" />
-      <workItem from="1620071364464" duration="3268000" />
-    </task>
-    <task id="LOCAL-00080" summary="- test_memory_management.py : set also seed for random package&#10;- test_narma10_prediction.py, test_subspace_first_demo.py : assertLessEqual instead of almost equal.">
-      <created>1602752830400</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1602752830401</updated>
-    </task>
-    <task id="LOCAL-00081" summary="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests.">
-      <created>1602754871275</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1602754871275</updated>
-    </task>
-    <task id="LOCAL-00082" summary="- test_memory_management.py : assertLessEqual instead of assertAlmostEqual for 32 bits tests.">
-      <created>1602767503949</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1602767503949</updated>
+      <workItem from="1620071364464" duration="6872000" />
+      <workItem from="1620118434055" duration="14000" />
     </task>
     <task id="LOCAL-00083" summary="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual">
       <created>1602775695067</created>
@@ -823,7 +796,28 @@
       <option name="project" value="LOCAL" />
       <updated>1618868949871</updated>
     </task>
-    <option name="localTasksCounter" value="129" />
+    <task id="LOCAL-00129" summary="Working on dataset and series">
+      <created>1620074835841</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1620074835841</updated>
+    </task>
+    <task id="LOCAL-00130" summary="Working on dataset and series">
+      <created>1620076506130</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1620076506130</updated>
+    </task>
+    <task id="LOCAL-00131" summary="Ridge regression">
+      <created>1620077845026</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1620077845026</updated>
+    </task>
+    <option name="localTasksCounter" value="132" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -872,7 +866,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual" />
     <MESSAGE value="Title and description" />
     <MESSAGE value="Override default HTML, moved image, overrided style.css" />
     <MESSAGE value="&quot;Skip to content&quot; removed&#10;Bad link to echo torch image" />
@@ -897,7 +890,8 @@
     <MESSAGE value="Join Discord width" />
     <MESSAGE value="Join Discord center" />
     <MESSAGE value="Working on dataset and series" />
-    <option name="LAST_COMMIT_MESSAGE" value="Working on dataset and series" />
+    <MESSAGE value="Ridge regression" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ridge regression" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
