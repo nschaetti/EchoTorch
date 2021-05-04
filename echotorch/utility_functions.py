@@ -21,30 +21,94 @@
 
 
 # Imports
+from typing import Tuple, Union, Any
 import torch
-from .tensor import TimeTensor
+# from .tensor import TimeTensor
+from .timetensor import TimeTensor
 
 
 # Create a time tensor
-def timetensor(data, time_dim=0):
+def timetensor(data, time_dim=0, with_batch=False):
     """
     Create a temporal tensor
     """
-    return TimeTensor(data, time_dim=time_dim)
+    return TimeTensor(data, time_dim=time_dim, with_batch=with_batch)
 # end timetensor
 
 
 # Concatenate on time dim
-def timecat(tensor1, tensor2):
+def tcat(tensors: Tuple[TimeTensor]) -> Union[TimeTensor, Any]:
     """
     Concatenate
     """
-    if tensor1.time_dim == tensor2.time_dim and tensor1.ndim == tensor2.ndim:
-        return torch.cat((tensor1, tensor2), dim=tensor1.time_dim)
-    else:
-        raise Exception(
-            "Tensor 1 and 2 must have the same number of dimension and the same time dimension (here {}/{} "
-            "and {}/{}".format(tensor1.ndim, tensor1.time_dim, tensor2.ndim, tensor2.time_dim)
-        )
+    # None
+    if len(tensors) == 0:
+        return None
     # end if
-# end timecat
+
+    # First time dim and ndim
+    time_dim = tensors[0].time_dim
+    ndim = tensors[0].ndim
+
+    # Check all tensor
+    for tensor in tensors:
+        if tensor.time_dim != time_dim or tensor.ndim != ndim:
+            raise Exception(
+                "Tensor 1 and 2 must have the same number of dimension and the same time dimension (here {}/{} "
+                "and {}/{}".format(ndim, time_dim, tensor.ndim, tensor.time_dim)
+            )
+        # end if
+    # end if
+
+    # Time tensor
+    return torch.cat(tensors, dim=time_dim)
+# end tcat
+
+
+# Concatenate time-related dimension
+def cat(tensors: Tuple[TimeTensor], dim: int = 0) -> Union[TimeTensor, Any]:
+    """Concatenate time-related dimensions
+    """
+    # None
+    if len(tensors) == 0:
+        return None
+    # end if
+
+    # First time dim and ndim
+    time_dim = tensors[0].time_dim
+    ndim = tensors[0].ndim
+    tlen = tensors[0].tlen
+
+    # Check all tensor
+    for tensor in tensors:
+        if tensor.time_dim != time_dim or tensor.ndim != ndim or tensor.tlen != tlen:
+            raise Exception(
+                "Tensor 1 and 2 must have the same number of dimension, the same time dimension and the same "
+                "time length (here {}/{}, {}/{} and {}/{})".format(
+                    ndim,
+                    tensor.ndim,
+                    time_dim,
+                    tensor.time_dim,
+                    tlen,
+                    tensor.tlen
+                )
+            )
+        # end if
+    # end if
+
+    # Time tensor
+    return torch.cat(tensors, dim=time_dim+1+dim)
+# end cat
+
+
+# Select time index in tensor
+def tindex_select(input: TimeTensor, indices: Union[torch.IntTensor, torch.LongTensor]) -> TimeTensor:
+    """Select time index in time tensor
+    """
+    return torch.index_select(
+        input,
+        input.time_dim,
+        indices
+    )
+# end tindex_select
+
