@@ -45,7 +45,7 @@ from .series import copytask, cross_eval, delaytask, discrete_markov_chain, csv_
 from .timetensor import TimeTensor
 from .tensor_utils import from_numpy
 from .training_and_evaluation import fit, eval, cross_val_score
-from .utility_functions import timetensor, tcat, cat, tindex_select
+from .utility_functions import timetensor, tcat, cat, tindex_select, zeros
 from .utils.esko import esn_regressor, esn_predictor, esn_classifier
 from .utils.utility_functions import autocorrelation_coefs, cov, autocorrelation_function
 
@@ -89,5 +89,5 @@ __all__ = [
     'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
     'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
     'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
-    'cov', 'autocorrelation_function', 'cat', 'tindex_select'
+    'cov', 'autocorrelation_function', 'cat', 'tindex_select', 'zeros'
 ]
