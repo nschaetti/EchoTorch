@@ -508,6 +508,16 @@ def autocorrelation_function(x: torch.Tensor, n_lags: int):
     # Time length for comparison
     com_time_length = x.size(0) - n_lags
 
+    # The time length for comparison must
+    # be superior (or equal) to the number of lags required
+    if com_time_length < n_lags:
+        raise ValueError(
+            "Time time length for comparison must "
+            "be superior (or equal) to the number of lags required (series of length "
+            "{}, {} lags, comparison length of {})".format(x.size(0), n_lags, com_time_length)
+        )
+    # end if
+
     # Covariance t to t
     autocov_coefs[0] = cov(x[:com_time_length], x[:com_time_length])
 

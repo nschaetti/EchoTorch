@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Ridge regression">
+    <list default="true" id="6788ba4d-2887-451d-8047-470c166e6561" name="Default Changelist" comment="Working on time tensors">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../echotorch.github.io/tutorials/index.md" afterDir="false" />
     </list>
@@ -473,20 +473,8 @@
       <workItem from="1619603298586" duration="23000" />
       <workItem from="1620071364464" duration="6872000" />
       <workItem from="1620118434055" duration="14000" />
-    </task>
-    <task id="LOCAL-00083" summary="- test_memory_management.py : increased test values for the CI.&#10;- test_narma10_prediction.py : assertLessEqual instead of assertAlmostEqual">
-      <created>1602775695067</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1602775695069</updated>
-    </task>
-    <task id="LOCAL-00084" summary="Title and description">
-      <created>1610981660857</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1610981660857</updated>
+      <workItem from="1620159566853" duration="7586000" />
+      <workItem from="1620202483082" duration="7655000" />
     </task>
     <task id="LOCAL-00085" summary="Override default HTML, moved image, overrided style.css">
       <created>1610982275780</created>
@@ -817,7 +805,21 @@
       <option name="project" value="LOCAL" />
       <updated>1620077845026</updated>
     </task>
-    <option name="localTasksCounter" value="132" />
+    <task id="LOCAL-00132" summary="Working on time tensors">
+      <created>1620167137704</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1620167137704</updated>
+    </task>
+    <task id="LOCAL-00133" summary="Working on time tensors">
+      <created>1620221326119</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1620221326120</updated>
+    </task>
+    <option name="localTasksCounter" value="134" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -866,7 +868,6 @@
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Conceptors-Sequence-Learning" />
       <path value="$PROJECT_DIR$/../../Recherches/Conceptors/Controlling-Recurrent-Neural-Networks-by-Conceptors" />
     </ignored-roots>
-    <MESSAGE value="Title and description" />
     <MESSAGE value="Override default HTML, moved image, overrided style.css" />
     <MESSAGE value="&quot;Skip to content&quot; removed&#10;Bad link to echo torch image" />
     <MESSAGE value="Header gradient" />
@@ -891,7 +892,8 @@
     <MESSAGE value="Join Discord center" />
     <MESSAGE value="Working on dataset and series" />
     <MESSAGE value="Ridge regression" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ridge regression" />
+    <MESSAGE value="Working on time tensors" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working on time tensors" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
