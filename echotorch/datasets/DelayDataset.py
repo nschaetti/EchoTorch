@@ -126,7 +126,7 @@ class DelayDataset(EchoDataset):
             output_timeseries = original_timeseries[:-self._n_delays]
         else:
             input_timeseries = original_timeseries
-            output_timeseries = original_timeseries.copy()
+            output_timeseries = original_timeseries.clone()
         # end if
 
         # Add input and output
