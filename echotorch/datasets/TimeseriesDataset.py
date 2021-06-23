@@ -638,8 +638,13 @@ class TimeseriesDataset(EchoDataset):
     # end _build_mapping
 
     # Apply transformers
-    def _apply_transformers(self, global_transform: Transformer, transforms: dict, data_tensor: torch.Tensor,
-                            segments_tensor: torch.Tensor) -> torch.Tensor:
+    def _apply_transformers(
+            self,
+            global_transform: Transformer,
+            transforms: dict,
+            data_tensor: torch.Tensor,
+            segments_tensor: torch.Tensor
+    ) -> torch.Tensor:
         """
         Apply transformers
         :param data_tensor: Sample data tensors as a dict
@@ -869,9 +874,13 @@ class TimeseriesDataset(EchoDataset):
         # end if
     # end _filter_event_tensor
 
-    # Filter a timeseries as tensor for gait type
-    def _filter_ts_segment_label_name(self, timeseries_input: torch.Tensor, segments_tensor: torch.Tensor,
-                                      segment_label_name: str) -> torch.Tensor:
+    # Filter a time series as tensor for gait type
+    def _filter_ts_segment_label_name(
+            self,
+            timeseries_input: torch.Tensor,
+            segments_tensor: torch.Tensor,
+            segment_label_name: str
+    ) -> torch.Tensor:
         """
         Filter a time series as tensor for gait type
         :param timeseries_input:
@@ -888,6 +897,7 @@ class TimeseriesDataset(EchoDataset):
                 # Get segment info
                 segment_start = segments_tensor[segment_i, 0]
                 segment_end = segments_tensor[segment_i, 1]
+
                 segment_label = self.segment_label_index_to_name(str(segments_tensor[segment_i, 2].item()))
 
                 # Add to list of indices of in the selected segment
@@ -943,6 +953,7 @@ class TimeseriesDataset(EchoDataset):
 
         # Create segment tensor
         segments_tensor = self._create_segments_tensor(self.get_sample_segments(item))
+
         segments_tensor = self._segments_transform(segments_tensor) if self._segments_transform is not None else segments_tensor
 
         # Create jump segment tensor
@@ -952,7 +963,7 @@ class TimeseriesDataset(EchoDataset):
         # Create a tensor from the dictionary
         timeseries_input = self._create_input_tensor(timeseries_dict, self.get_sample_length(item))
 
-        # Apply transforms to input timeseries
+        # Apply transforms to input time series
         timeseries_input = self._apply_transformers(
             self._global_transform,
             self._transforms,
