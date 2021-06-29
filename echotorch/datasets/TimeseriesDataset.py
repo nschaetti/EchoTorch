@@ -25,7 +25,7 @@ import os
 import torch
 import json
 import numpy as np
-from typing import Union, List
+from typing import Union, List, Optional
 
 # echotorch imports
 from echotorch.transforms import Transformer
@@ -49,10 +49,28 @@ class TimeseriesDataset(EchoDataset):
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, root_directory, global_transform=None, transforms=None, global_label_transform=None,
-                 label_transforms=None, segments_transform=None, events_transform=None, timestep=1.0,
-                 selected_columns=None, segment_label_to_return=None, in_memory=False, return_segments=True,
-                 return_events=True, return_metadata=True, dtype=torch.float64):
+    def __init__(
+            self,
+            root_directory: str,
+            global_transform: Optional[Transformer] = None,
+            transforms: Optional[List[Transformer]] = None,
+            global_label_transform: Optional[Transformer] = None,
+            label_transforms: Optional[List[Transformer]] = None,
+            segments_transform: Optional[Transformer] = None,
+            events_transform: Optional[Transformer] = None,
+            timestep: Optional[float] = 1.0,
+            range_value: Optional[float] = None,
+            scale: float = 1.0,
+            selected_columns: Optional[List[str]] = None,
+            label_columns: Optional[List[str]] = None,
+            segment_label_to_return: Optional[str] = None,
+            in_memory: bool = False,
+            return_segments: bool = True,
+            return_events: bool = True,
+            return_metadata: bool = True,
+            return_labels: bool = True,
+            dtype=torch.float64
+    ):
         """
         Constructor
         :param root_directory: Base root directory
@@ -73,12 +91,15 @@ class TimeseriesDataset(EchoDataset):
         # Properties
         self._root_directory = root_directory
         self._timestep = timestep
+        self._range_value = range_value
+        self._scale = scale
         self._root_json_file = os.path.join(self._root_directory, PROPERTIES_FILE)
         self._in_memory = False
         self._segment_label_to_return = segment_label_to_return
         self._return_segments = return_segments
         self._return_events = return_events
         self._return_metadata = return_metadata
+        self._return_labels = return_labels
         self._dtype = dtype
 
         # Transforms
@@ -118,6 +139,13 @@ class TimeseriesDataset(EchoDataset):
             self._selected_columns = self.columns
         else:
             self._selected_columns = selected_columns
+        # end if
+
+        # Alternative columns
+        if label_columns is None:
+            self._label_columns = []
+        else:
+            self._label_columns = label_columns
         # end if
 
         # Load in memory if necessary
@@ -674,6 +702,29 @@ class TimeseriesDataset(EchoDataset):
         return data_tensor
     # end _apply_transformers
 
+    # Apply scale
+    def _apply_scale(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Apply scale
+        :param x: Input time series
+        @return: Scaled time series
+        """
+        return x * self._scale
+    # end _apply_scale
+
+    # Apply range
+    def _apply_range(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Apply range
+        @param x: Input time series
+        @return: Time series ranged
+        """
+        # But value above/below max/min to max/min
+        x[x > self._range_value] = self._range_value
+        x[x < -self._range_value] = -self._range_value
+        return x
+    # end _apply_range
+
     # Load JSON file
     def _load_properties_file(self, json_file: str) -> dict:
         """
@@ -744,19 +795,27 @@ class TimeseriesDataset(EchoDataset):
     # end _create_input_tensor
 
     # Create a tensor for segments
-    def _create_segments_tensor(self, sample_segments: list) -> torch.Tensor:
+    def _create_segments_tensor(
+            self,
+            sample_segments: list,
+            time_length: int
+    ) -> torch.Tensor:
         """
         Create a tensor for segments
-        :param sample_segments: Sample segments
-        :param segment_label_name:
+        :param sample_segments: Sample segments (list of dict)
+        :param time_length: Time length of the series
         :return: Segments position and end as a tensor
         """
         # List of segments
         gait_segments_list = list()
 
         # For each segment
-        for segment in sample_segments:
-            gait_segments_list.append([segment['start'], segment['end'], segment['label']])
+        for seg_i, segment in enumerate(sample_segments):
+            if seg_i == len(sample_segments) - 1:
+                gait_segments_list.append([segment['start'], time_length, segment['label']])
+            else:
+                gait_segments_list.append([segment['start'], segment['end'], segment['label']])
+            # end if
         # end for
 
         # return gait_segments_tensor
@@ -948,12 +1007,15 @@ class TimeseriesDataset(EchoDataset):
 
         # Get sample from Timeseries dataset
         timeseries_dict = self.get_sample(item)
+
+        # Time length
+        time_length = timeseries_dict['gait'].size(0)
+
         class_time_tensor = self.get_sample_class_tensor(sample_index=item, time_tensor=True)
         class_tensor = self.get_sample_class_tensor(sample_index=item, time_tensor=False)
 
         # Create segment tensor
-        segments_tensor = self._create_segments_tensor(self.get_sample_segments(item))
-
+        segments_tensor = self._create_segments_tensor(self.get_sample_segments(item), time_length)
         segments_tensor = self._segments_transform(segments_tensor) if self._segments_transform is not None else segments_tensor
 
         # Create jump segment tensor
@@ -962,6 +1024,9 @@ class TimeseriesDataset(EchoDataset):
 
         # Create a tensor from the dictionary
         timeseries_input = self._create_input_tensor(timeseries_dict, self.get_sample_length(item))
+
+        # Create a tensor with label timeseries
+        timeseries_labels = self._create_label_tensor(timeseries_dict, self.get_sample_length(item))
 
         # Apply transforms to input time series
         timeseries_input = self._apply_transformers(
@@ -985,6 +1050,10 @@ class TimeseriesDataset(EchoDataset):
             segments_tensor,
             self._segment_label_to_return
         )
+
+        # Apply scale and range
+        timeseries_input = self._apply_scale(timeseries_input)
+        timeseries_input = self._apply_range(timeseries_input)
 
         # Filter time-related ground truth for targeted segment label
         class_time_tensor = self._filter_ts_segment_label_name(
@@ -1016,6 +1085,11 @@ class TimeseriesDataset(EchoDataset):
         if self._return_metadata:
             metadata_dict = self.get_sample_properties(item)
             return_list.append(metadata_dict)
+        # end if
+
+        # Return labeling tensor
+        if self._return_labels:
+            return_list.append(timeseries_labels)
         # end if
 
         return return_list

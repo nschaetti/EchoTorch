@@ -21,9 +21,12 @@
 
 
 # Imports
+import math
 import torch
 import torch.nn.functional
 import torch.nn as nn
+import numpy as np
+from scipy import interpolate
 from ..Transformer import Transformer
 
 
@@ -36,18 +39,20 @@ class Resampling(Transformer):
     # region CONSTRUCTORS
 
     # Constructor
-    def __init__(self, input_dim, scaling_factor=1.0, dtype=torch.float64):
+    def __init__(self, input_dim, scaling_factor=1.0, mode='scipy', kind='zero', dtype=torch.float64):
         """
         Constructor
         :param input_dim: Input dimension
         :param scaling_factor: Increasing/reducing factor for timeseries (1.0 returns the inputs)
+        :param mode: Use 'torch' or 'scipy' for different interpolation method.
         """
         # Super constructor
         super(Resampling, self).__init__(input_dim=input_dim, output_dim=input_dim, dtype=dtype)
 
         # Properties
         self._scaling_factor = scaling_factor
-
+        self._mode = mode
+        self._kind = kind
     # end __init__
 
     # endregion CONSTRUCTORS
@@ -74,20 +79,45 @@ class Resampling(Transformer):
         :param x:
         :return:
         """
-        return torch.transpose(
-            torch.squeeze(
-                torch.nn.functional.interpolate(
-                    torch.unsqueeze(
-                        torch.transpose(x, 0, 1),
-                        dim=0
-                    ),
-                    scale_factor=(self._scaling_factor,),
-                    recompute_scale_factor=False
-                )
-            ),
-            0,
-            1
-        )
+        if self._mode == 'torch':
+            return torch.transpose(
+                torch.squeeze(
+                    torch.nn.functional.interpolate(
+                        torch.unsqueeze(
+                            torch.transpose(x, 0, 1),
+                            dim=0
+                        ),
+                        scale_factor=(self._scaling_factor,),
+                        recompute_scale_factor=True
+                    )
+                ),
+                0,
+                1
+            )
+        elif self._mode == 'scipy':
+            # Sizes
+            time_length, n_channels = x.shape
+
+            # Reduced time length
+            r_time_len = int(math.floor(time_length * self._scaling_factor))
+
+            # Output tensor
+            output = torch.zeros(r_time_len, n_channels)
+
+            # For each channel
+            for chan_i in range(n_channels):
+                # Compute interpolation function
+                chan_func = interpolate.interp1d(np.arange(0, time_length), x[:, chan_i].numpy(), kind=self._kind)
+
+                # Downsampled data
+                down_data = chan_func(np.linspace(0, time_length - 1, r_time_len))
+
+                # Set output
+                output[:, chan_i] = torch.from_numpy(down_data)
+            # end for
+
+            return output
+        # end if
     # end _transform
 
     # endregion OVERRIDE
