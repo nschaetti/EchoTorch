@@ -112,26 +112,32 @@ class DelayDataset(EchoDataset):
         # Get sample from root dataset
         data = self._root_dataset[idx]
 
-        # Get data
-        original_timeseries = data[self._data_index]
+        # Data indices
+        data_indices = [self._data_index] if type(self._data_index) is int else self._data_index
 
-        # Future
-        if self._n_delays > 0:
-            # Prediction
-            input_timeseries = original_timeseries[:-self._n_delays]
-            output_timeseries = original_timeseries[self._n_delays:]
-        elif self._n_delays < 0:
-            # Memory
-            input_timeseries = original_timeseries[self._n_delays:]
-            output_timeseries = original_timeseries[:-self._n_delays]
-        else:
-            input_timeseries = original_timeseries
-            output_timeseries = original_timeseries.clone()
-        # end if
+        # For each data index
+        for data_index in data_indices:
+            # Get data
+            original_timeseries = data[data_index]
 
-        # Add input and output
-        item_list.append(input_timeseries)
-        item_list.append(output_timeseries)
+            # Future
+            if self._n_delays > 0:
+                # Prediction
+                input_timeseries = original_timeseries[:-self._n_delays]
+                output_timeseries = original_timeseries[self._n_delays:]
+            elif self._n_delays < 0:
+                # Memory
+                input_timeseries = original_timeseries[self._n_delays:]
+                output_timeseries = original_timeseries[:-self._n_delays]
+            else:
+                input_timeseries = original_timeseries
+                output_timeseries = original_timeseries.clone()
+            # end if
+
+            # Add input and output
+            item_list.append(input_timeseries)
+            item_list.append(output_timeseries)
+        # end for
 
         # Add all additional data
         if self._keep_indices is not None:
@@ -169,26 +175,32 @@ class DelayDataset(EchoDataset):
         # Get sample from root dataset
         data = self._root_dataset[idx]
 
-        # Get data
-        original_timeseries = data[self._data_index]
+        # Data indices
+        data_indices = [self._data_index] if type(self._data_index) is int else self._data_index
 
-        # Future
-        if self._n_delays > 0:
-            # Prediction
-            input_timeseries = original_timeseries[:-self._n_delays]
-            output_timeseries = original_timeseries[self._n_delays:]
-        elif self._n_delays < 0:
-            # Memory
-            input_timeseries = original_timeseries[self._n_delays:]
-            output_timeseries = original_timeseries[:-self._n_delays]
-        else:
-            input_timeseries = original_timeseries
-            output_timeseries = original_timeseries.copy()
-        # end if
+        # For each data index
+        for data_index in data_indices:
+            # Get data
+            original_timeseries = data[data_index]
 
-        # Add input and output
-        item_list.append(input_timeseries)
-        item_list.append(output_timeseries)
+            # Future
+            if self._n_delays > 0:
+                # Prediction
+                input_timeseries = original_timeseries[:-self._n_delays]
+                output_timeseries = original_timeseries[self._n_delays:]
+            elif self._n_delays < 0:
+                # Memory
+                input_timeseries = original_timeseries[self._n_delays:]
+                output_timeseries = original_timeseries[:-self._n_delays]
+            else:
+                input_timeseries = original_timeseries
+                output_timeseries = original_timeseries.clone()
+            # end if
+
+            # Add input and output
+            item_list.append(input_timeseries)
+            item_list.append(output_timeseries)
+        # end for
 
         # Add all additional data
         if self._keep_indices is not None:

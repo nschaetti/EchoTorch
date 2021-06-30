@@ -794,6 +794,27 @@ class TimeseriesDataset(EchoDataset):
         return timeseries_input
     # end _create_input_tensor
 
+    # Create label tensor
+    def _create_label_tensor(self, timeseries_dict: dict, sample_length: int) -> torch.Tensor:
+        """
+        Create label tensor
+        @param timeseries_dict: Dictionary of tensors for each columns
+        @param sample_length: Length of the sample
+        @return: The label tensor
+        """
+        # Create an empty float tensor
+        timeseries_label = torch.empty(sample_length, len(self._label_columns), dtype=self._dtype)
+
+        # For each label column
+        for col_i, col_name in enumerate(self._label_columns):
+            if col_name in timeseries_dict.keys():
+                timeseries_label[:, col_i] = timeseries_dict[col_name]
+            # end if
+        # end for
+
+        return timeseries_label
+    # end _create_label_tensor
+
     # Create a tensor for segments
     def _create_segments_tensor(
             self,
