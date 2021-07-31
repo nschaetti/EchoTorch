@@ -41,14 +41,15 @@ from .matrices import cycle_with_jumps, cycle_with_jumps_generator, matlab, matl
 from .matrices import uniform, uniform_generator
 from .modules import esn
 from .series import copytask, cross_eval, delaytask, discrete_markov_chain, csv_file, henon, segment_series
-# from .tensor import TimeTensor
 from .timetensor import TimeTensor
-from .timetensor_creation import new_timetensor, new_full
+from .timetensor_creation import timetensor, full, zeros, ones, empty
+from .timetensor_distrib import rand
 from .tensor_utils import from_numpy
 from .training_and_evaluation import fit, eval, cross_val_score
-from .utility_functions import timetensor, tcat, cat, tindex_select, zeros
+from .utility_functions import tcat, cat, tindex_select, is_timetensor
 from .utils.esko import esn_regressor, esn_predictor, esn_classifier
 from .utils.utility_functions import autocorrelation_coefs, cov, autocorrelation_function
+from .utils.utility_functions import autocorrelation_coefs as acc
 
 
 # Min Torch version
@@ -90,5 +91,6 @@ __all__ = [
     'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
     'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
     'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
-    'cov', 'autocorrelation_function', 'cat', 'tindex_select', 'zeros', 'new_timetensor', 'new_full'
+    'cov', 'autocorrelation_function', 'cat', 'tindex_select', 'zeros', 'acc', 'full', 'empty', 'ones', 'zeros',
+    'rand', 'is_timetensor'
 ]

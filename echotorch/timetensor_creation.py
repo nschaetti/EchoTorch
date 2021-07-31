@@ -25,6 +25,7 @@
 from typing import Optional, Tuple, Union
 import torch
 
+# Import local
 from .timetensor import TimeTensor
 
 
@@ -32,8 +33,7 @@ from .timetensor import TimeTensor
 def timetensor(
         data: torch.Tensor,
         time_dim: Optional[int] = 0,
-        with_batch: Optional[bool] = False,
-        with_channels: Optional[bool] = False,
+        time_first: Optional[bool] = False,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -43,8 +43,7 @@ def timetensor(
     otherwise data is converted to a tensor and copied with the as_tensor function.
     @param data: Data as a torch tensor
     @param time_dim: Position of the time dimension
-    @param with_batch: Batch dimension included
-    @param with_channels:
+    @param time_first:
     @param dtype: Torch data type
     @param device: Destination device
     @param requires_grad: Requires gradient computation?
@@ -53,8 +52,7 @@ def timetensor(
     return TimeTensor.new_timetensor(
         data,
         time_dim=time_dim,
-        with_batch=with_batch,
-        with_channels=with_channels,
+        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad
@@ -67,8 +65,7 @@ def full(
         size: Tuple[int],
         time_length: int,
         fill_value: Union[int, float],
-        n_channels: Optional[int] = None,
-        batch_size: Optional[int] = None,
+        time_first: Optional[bool] = True,
         dtype: torch.dtype = None,
         device: torch.device = None,
         requires_grad: bool = False
@@ -76,12 +73,10 @@ def full(
     """
     Returns a TimeTensor of size size and time length time_length filled with fill_value. By default,
     the returned Tensor has the same torch.dtype and torch.device as this tensor.
-    @param size:
-    @param time_length:
-    @param n_channels:
-    @param batch_size:
-    @param fill_value:
-    @param with_batch:
+    @param size: Size of the time series (without time dimension)
+    @param time_length: Size of the time dimension
+    @param fill_value: Value used to fill the timeseries
+    @param time_first:
     @param dtype:
     @param device:
     @param requires_grad:
@@ -89,101 +84,101 @@ def full(
     """
     # Size
     return TimeTensor.new_full(
-        size=size,
+        size,
         time_length=time_length,
-        n_channels=n_channels,
-        batch_size=batch_size,
+        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
         fill_value=fill_value
     )
-    return
 # end full
 
 
 # Returns empty tensor
-def new_empty(
-        size, time_length, n_channels, batch_size, with_batch=False, dtype=None, device=None,
-        requires_grad=False
+def empty(
+        size: Tuple[int],
+        time_length: int,
+        time_first: Optional[bool] = True,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
-    """Returns a TimeTensor of size size and time length time_length filled with uninitialized data. By default,
-    the returned TimeTensor has the same torch.dtype and torch.device as this tensor."""
-    return TimeTensor.new_timetensor_with_func(
-        size=size,
-        func=torch.Tensor.new_empty,
+    """
+    Returns a TimeTensor of size size and time length time_length filled with uninitialized data. By default,
+    the returned TimeTensor has the same torch.dtype and torch.device as this tensor.
+    @param size:
+    @param time_length:
+    @param time_first:
+    @param dtype:
+    @param device:
+    @param requires_grad:
+    """
+    return TimeTensor.new_empty(
+        size,
         time_length=time_length,
-        n_channels=n_channels,
-        batch_size=batch_size,
-        with_batch=with_batch,
+        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
     )
+# end empty
 
-# end new_empty
 
 # Returns time tensor filled with ones
-def new_ones(
-        size, time_length, n_channels, batch_size, with_batch=False, dtype=None, device=None,
-        requires_grad=False
+def ones(
+        size: Tuple[int],
+        time_length: int,
+        time_first: Optional[bool] = True,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
-    """Returns a TimeTensor of size size filled with 1. By default, the returned TimeTensor has the same
-    torch.dtype and torch.device as this tensor."""
-    return TimeTensor.new_timetensor_with_func(
-        size=size,
-        func=torch.Tensor.new_ones,
+    """
+    Returns a TimeTensor of size size filled with 1. By default, the returned TimeTensor has the same
+    torch.dtype and torch.device as this tensor.
+    @param size:
+    @param time_length:
+    @param time_first:
+    @param dtype:
+    @param device:
+    @param requires_grad:
+    """
+    return TimeTensor.new_ones(
+        size,
         time_length=time_length,
-        n_channels=n_channels,
-        batch_size=batch_size,
-        with_batch=with_batch,
+        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
     )
+# end ones
 
-# end new_ones
 
 # Returns time tensor filled with zeros
-def new_zeros(
-        size, time_length, n_channels, batch_size, with_batch=False, dtype=None, device=None,
-        requires_grad=False
-):
-    """Returns a TimeTensor of size size filled with 0.
+def zeros(
+        size: Tuple[int],
+        time_length: int,
+        time_first: Optional[bool] = True,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> 'TimeTensor':
     """
-    return TimeTensor.new_timetensor_with_func(
-        size=size,
-        func=torch.Tensor.new_zeros,
+    Returns a TimeTensor of size size filled with 0.
+    @param size:
+    @param time_length:
+    @param time_first:
+    @param dtype:
+    @param device:
+    @param requires_grad:
+    """
+    return TimeTensor.new_zeros(
+        size,
         time_length=time_length,
-        n_channels=n_channels,
-        batch_size=batch_size,
-        with_batch=with_batch,
+        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
     )
-
 # end new_zeros
-
-# Returns new time tensor with a specific function
-def new_timetensor_with_func(
-        size, func, time_length, n_channels, batch_size, with_batch=False, dtype=None, device=None,
-        requires_grad=False, **kwargs
-) -> 'TimeTensor':
-    """Returns a new time tensor with a specific function to generate the data.
-    """
-    # Size
-    tt_size = [batch_size, n_channels, time_length] if with_batch else [n_channels, time_length]
-    tt_size += size
-
-    # Create TimeTensor
-    return TimeTensor(
-        func(size=tuple(tt_size), **kwargs),
-        time_dim=1 if with_batch else 0,
-        with_batch=with_batch,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad
-    )
-# end new_timetensor_with_func
-
