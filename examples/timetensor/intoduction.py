@@ -58,7 +58,21 @@ x = echotorch.zeros((4, 4), time_length=20)
 # print(x)
 
 # Rand
-x = echotorch.rand((4, 4), 20)
-print(x)
+x = echotorch.rand((4, 4), 20).cpu()
+y = echotorch.rand((4, 4), 30).cpu()
+print("x size: {}".format(x.size()))
+print("x time_dim: {}".format(x.time_dim))
+print("")
+print("y size: {}".format(y.size()))
+print("y time_dim: {}".format(y.time_dim))
+print("")
 
-print(torch.is_complex(x))
+# Cat
+xy = torch.cat((x, y), dim=0)
+print("xy size: {}".format(xy.size()))
+
+# Unsqueeze
+xx = torch.unsqueeze(x, dim=0)
+print("xx size: {}".format(xx.size()))
+print("xx time dim: {}".format(xx.time_dim))
+

@@ -20,7 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from typing import Optional, Tuple, Union, List, Callable
+from typing import Optional, Tuple, Union, List, Callable, Any
 import torch
 import copy
 
@@ -47,7 +47,7 @@ class TimeTensor(object):
             time_first: Optional[bool] = True,
             dtype: Optional[torch.dtype] = None,
             device: Optional[torch.device] = None,
-            requires_grad: Optional[bool] = False,
+            requires_grad: Optional[bool] = True,
             copy_data: Optional[bool] = True
     ) -> None:
         """
@@ -70,17 +70,24 @@ class TimeTensor(object):
             # end if
         else:
             if copy_data:
-                # Copy tensor
-                tensor_data = copy.deepcopy(
-                    torch.as_tensor(data, dtype=dtype, device=device)
-                )
+                # Copy
+                if isinstance(data, torch.Tensor) and not data.is_leaf:
+                    tensor_data = torch.as_tensor(data, dtype=dtype, device=device)
+                else:
+                    # Copy tensor
+                    tensor_data = copy.deepcopy(
+                        torch.as_tensor(data, dtype=dtype, device=device)
+                    )
+                # end if
             else:
                 tensor_data = torch.as_tensor(data, dtype=dtype, device=device)
             # end if
         # end if
 
         # Set requires grad
-        tensor_data.requires_grad = requires_grad
+        if tensor_data.is_leaf:
+            tensor_data.requires_grad = requires_grad
+        # end if
 
         # The tensor must have enough dimension
         # for the time dimension
@@ -98,6 +105,36 @@ class TimeTensor(object):
     # endregion CONSTRUCTORS
 
     # region PROPERTIES
+
+    # Get timetensor device
+    @property
+    def device(self) -> torch.device:
+        """
+        Get timetensor device
+        @return: Device
+        """
+        return self._tensor.device
+    # end device
+
+    # Get timetensor gradient policy
+    @property
+    def requires_grad(self) -> bool:
+        """
+        Get timetensor gradient policy
+        @return: True/False
+        """
+        return self._tensor.requires_grad
+    # end requires_grad
+
+    # Set timetensor gradient policy
+    @requires_grad.setter
+    def requires_grad(self, value: bool) -> None:
+        """
+        Set timetensor gradient policy
+        @param value: Boolean value
+        """
+        self._tensor.requires_grad = value
+    # end requires_grad
 
     # Get tensor
     @property
@@ -384,9 +421,6 @@ class TimeTensor(object):
             func: Callable,
             time_length: int,
             time_first: Optional[bool] = True,
-            dtype: Optional[torch.dtype] = None,
-            device: Optional[torch.device] = None,
-            requires_grad: bool = False,
             **kwargs
     ) -> 'TimeTensor':
         """
@@ -401,19 +435,12 @@ class TimeTensor(object):
         # Size
         tt_size = [time_length] + list(size) if time_first else list(size) + [time_length]
 
-        # Set args
-        kwargs['dtype'] = dtype
-        kwargs['device'] = device
-        kwargs['requires_grad'] = requires_grad
-
         # Create TimeTensor
         return TimeTensor(
             func(tuple(tt_size), **kwargs),
             time_dim=0 if time_first else len(tt_size) - 1,
             time_first=time_first,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad
+            **kwargs
         )
     # end new_timetensor_with_func
 
@@ -440,7 +467,58 @@ class TimeTensor(object):
 
     # endregion PUBLIC
 
+    # region TORCH_FUNCTION
+
+    # After unsqueeze
+    def after_unsqueeze(
+            self,
+            func_output: Any,
+            dim
+    ) -> 'TimeTensor':
+        """
+        After unsqueeze
+        @param func_output:
+        @param dim:
+        @return:
+        """
+        return TimeTensor(
+            func_output,
+            time_dim=self._time_dim,
+            time_first=self._time_first,
+            device=self.device,
+        )
+    # end after_unsqueeze
+
+    # endregion TORCH_FUNCTION
+
     # region OVERRIDE
+
+    # To CUDA device
+    def cuda(
+            self,
+            **kwargs
+    ) -> 'TimeTensor':
+        """
+        To CUDA device
+        @return:
+        """
+        self._tensor = self._tensor.cuda(**kwargs)
+        return self
+    # end cuda
+
+    # To CPU device
+    def cpu(
+            self,
+            **kwargs
+    ) -> 'TimeTensor':
+        """
+        To CPU devices
+        @param kwargs:
+        @return:
+        """
+        self._tensor = self._tensor.cpu(**kwargs)
+        return self
+    # end cpu
 
     # To
     def to(
@@ -537,19 +615,28 @@ class TimeTensor(object):
             # end if
         # end convert
 
+        # Before callback
+        if hasattr(self, 'before_' + func.__name__): args = getattr(self, 'before_' + func.__name__)(*args, **kwargs)
+
         # Get the tensor in the arguments
         args = [convert(a) for a in args]
+
+        # Middle callback
+        if hasattr(self, 'middle_' + func.__name__): args = getattr(self, 'middle_' + func.__name__)(*args, **kwargs)
 
         # Execute function
         ret = func(*args, **kwargs)
 
         # Create TimeTensor and returns or returns directly
-        if isinstance(ret, TimeTensor) or isinstance(ret, torch.Tensor):
+        if hasattr(self, 'after_' + func.__name__):
+            return getattr(self, 'after_' + func.__name__)(ret, **kwargs)
+        elif isinstance(ret, TimeTensor) or isinstance(ret, torch.Tensor):
             # Return a new time tensor
             return TimeTensor(
                 ret,
                 time_dim=self._time_dim,
-                time_first=self._time_first
+                time_first=self._time_first,
+                device=self.device,
             )
         else:
             return ret

@@ -34,9 +34,7 @@ def rand(
         size: Tuple[int],
         time_length: int,
         time_first: Optional[bool] = True,
-        dtype: Optional[torch.dtype] = None,
-        device: Optional[torch.device] = None,
-        requires_grad: Optional[bool] = False
+        **kwargs
 ) -> TimeTensor:
     """
     Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
@@ -53,9 +51,7 @@ def rand(
         func=torch.rand,
         time_length=time_length,
         time_first=time_first,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad
+        **kwargs
     )
 # end rand
 
