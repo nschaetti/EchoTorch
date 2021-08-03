@@ -832,10 +832,20 @@ class TimeseriesDataset(EchoDataset):
 
         # For each segment
         for seg_i, segment in enumerate(sample_segments):
-            if seg_i == len(sample_segments) - 1:
-                gait_segments_list.append([segment['start'], time_length, segment['label']])
+            # Transform to integer if necessary
+            if type(segment['label']) is int:
+                segment_label = segment['label']
+            elif type(segment['label']) is str:
+                segment_label = self.segment_label_name_to_index(segment['label'])
             else:
-                gait_segments_list.append([segment['start'], segment['end'], segment['label']])
+                raise TypeError("Segment label must be an int or a str (here {})".format(type(segment['label'])))
+            # end if
+
+            # Add segment
+            if seg_i == len(sample_segments) - 1:
+                gait_segments_list.append([segment['start'], time_length, segment_label])
+            else:
+                gait_segments_list.append([segment['start'], segment['end'], segment_label])
             # end if
         # end for
 
