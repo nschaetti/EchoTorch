@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/timetensor_creation.py
+# File : echotorch/timetensor_creation_ops.py
 # Description : TimeTensor creation helper functions
 # Date : 27th of Jully, 2021
 #
@@ -22,76 +22,159 @@
 
 
 # Imports
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, Any
+
+import numpy as np
 import torch
 
 # Import local
 from .timetensor import TimeTensor
 
 
-# Returns a new TimeTensor with data as the tensor data.
+# Constructs a timetensor with data.
 def timetensor(
-        data: torch.Tensor,
+        data: Any,
         time_dim: Optional[int] = 0,
-        time_first: Optional[bool] = False,
+        time_lengths: Optional[torch.LongTensor] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-        requires_grad: Optional[bool] = False
+        requires_grad: Optional[bool] = False,
+        pin_memory: Optional[bool] = False
 ) -> 'TimeTensor':
     """
-    Returns a new TimeTensor with data as the tensor data. If data is already a timetensor, a copy is made,
-    otherwise data is converted to a tensor and copied with the as_tensor function.
-    @param data: Data as a torch tensor
-    @param time_dim: Position of the time dimension
-    @param time_first:
-    @param dtype: Torch data type
-    @param device: Destination device
+    Constructs a tensor with data.
+    @param data: Initial data for the timetensor. Can be a list, tuple, numpy ndarray, scalar, and other types.
+    @param time_dim: Index of the time dimension
+    @param time_lengths:
+    @param dtype: The desired data type of returned timetensor. Default: if None, infers data type from data.
+    @param device: ...
     @param requires_grad: Requires gradient computation?
+    @param pin_memory:
     @return: A TimeTensor object
     """
+    # Data
+    if isinstance(data, torch.Tensor):
+        src_data = data.clone().detach()
+    elif isinstance(data, TimeTensor):
+        src_data = data.tensor.clone().detach()
+    else:
+        src_data = torch.tensor(
+            data,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            pin_memory=pin_memory
+        )
+    # end if
+
     return TimeTensor.new_timetensor(
-        data,
+        src_data,
         time_dim=time_dim,
-        time_first=time_first,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad
+        time_lengths=time_lengths
     )
 # end timetensor
+
+
+# Convert data into an echotorch.TimeTensor.
+def as_timetensor(
+        data: Any,
+        time_lengths: Optional[torch.LongTensor] = None,
+        time_dim: Optional[int] = 0,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None
+) -> 'TimeTensor':
+    """
+    Convert data into an echotorch.TimeTensor
+    @param time_dim:
+    @param time_lengths:
+    @param data:
+    @param dtype:
+    @param device:
+    @return:
+    """
+    return TimeTensor.new_timetensor(
+        torch.as_tensor(
+            data,
+            dtype=dtype,
+            device=device
+        ),
+        time_dim=time_dim,
+        time_lengths=time_lengths
+    )
+# end as_timetensor
+
+
+# From Numpy
+def from_numpy(
+        ndarray: np.ndarray,
+        time_lengths: Optional[torch.LongTensor] = None,
+        time_dim: Optional[int] = 0,
+) -> TimeTensor:
+    """
+    Creates a TimeTensor from a numpy.ndarray.
+
+    @param time_dim:
+    @param time_lengths:
+    @param ndarray:
+    @return:
+    """
+    return TimeTensor.new_timetensor(
+        torch.from_numpy(ndarray),
+        time_dim=time_dim,
+        time_lengths=time_lengths
+    )
+# end from_numpy
 
 
 # Returns filled time tensor
 def full(
         size: Tuple[int],
-        time_length: int,
         fill_value: Union[int, float],
-        time_first: Optional[bool] = True,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
-        requires_grad: bool = False
+        time_length: Union[int, torch.LongTensor],
+        out: Optional[TimeTensor] = None,
+        dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = torch.strided,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
     """
     Returns a TimeTensor of size size and time length time_length filled with fill_value. By default,
     the returned Tensor has the same torch.dtype and torch.device as this tensor.
+    @param out:
+    @param layout:
     @param size: Size of the time series (without time dimension)
     @param time_length: Size of the time dimension
     @param fill_value: Value used to fill the timeseries
-    @param time_first:
     @param dtype:
     @param device:
     @param requires_grad:
     @return: A TimeTensor
     """
     # Size
-    return TimeTensor.new_full(
-        size,
-        time_length=time_length,
-        time_first=time_first,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad,
-        fill_value=fill_value
-    )
+    if out is not None:
+        out = TimeTensor.new_timetensor_with_func(
+            size=size,
+            func=torch.full,
+            time_length=time_length,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            fill_value=fill_value,
+            layout=layout
+        )
+        return out
+    else:
+        return TimeTensor.new_timetensor_with_func(
+            size=size,
+            func=torch.full,
+            time_length=time_length,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            fill_value=fill_value,
+            layout=layout
+        )
+    # end if
 # end full
 
 
@@ -99,7 +182,6 @@ def full(
 def empty(
         size: Tuple[int],
         time_length: int,
-        time_first: Optional[bool] = True,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -109,15 +191,14 @@ def empty(
     the returned TimeTensor has the same torch.dtype and torch.device as this tensor.
     @param size:
     @param time_length:
-    @param time_first:
     @param dtype:
     @param device:
     @param requires_grad:
     """
-    return TimeTensor.new_empty(
+    return TimeTensor.new_timetensor_with_func(
         size,
+        func=torch.empty,
         time_length=time_length,
-        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
@@ -129,7 +210,6 @@ def empty(
 def ones(
         size: Tuple[int],
         time_length: int,
-        time_first: Optional[bool] = True,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -139,15 +219,14 @@ def ones(
     torch.dtype and torch.device as this tensor.
     @param size:
     @param time_length:
-    @param time_first:
     @param dtype:
     @param device:
     @param requires_grad:
     """
-    return TimeTensor.new_ones(
+    return TimeTensor.new_timetensor_with_func(
         size,
+        func=torch.ones,
         time_length=time_length,
-        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
@@ -159,7 +238,6 @@ def ones(
 def zeros(
         size: Tuple[int],
         time_length: int,
-        time_first: Optional[bool] = True,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -168,15 +246,14 @@ def zeros(
     Returns a TimeTensor of size size filled with 0.
     @param size:
     @param time_length:
-    @param time_first:
     @param dtype:
     @param device:
     @param requires_grad:
     """
-    return TimeTensor.new_zeros(
-        size,
+    return TimeTensor.new_timetensor_with_func(
+        size=size,
+        func=torch.zeros,
         time_length=time_length,
-        time_first=time_first,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,

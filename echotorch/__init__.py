@@ -42,9 +42,8 @@ from .matrices import uniform, uniform_generator
 from .modules import esn
 from .series import copytask, cross_eval, delaytask, discrete_markov_chain, csv_file, henon, segment_series
 from .timetensor import TimeTensor
-from .timetensor_creation import timetensor, full, zeros, ones, empty
+from .timetensor_creation_ops import timetensor, as_timetensor, from_numpy, full, zeros, ones, empty
 from .timetensor_distrib import rand
-from .tensor_utils import from_numpy
 from .training_and_evaluation import fit, eval, cross_val_score
 from .utility_functions import tcat, cat, tindex_select, is_timetensor
 from .utils.esko import esn_regressor, esn_predictor, esn_classifier
@@ -87,10 +86,10 @@ if parse_version(torch_version) < parse_version(MIN_TORCH_VERSION):
 # All echotorch's modules
 __all__ = [
     'esn', 'TimeTensor', 'timetensor', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
-    'cross_val_score', 'tcat', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon', 'from_numpy',
+    'cross_val_score', 'tcat', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon',
     'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
     'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
     'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
     'cov', 'autocorrelation_function', 'cat', 'tindex_select', 'zeros', 'acc', 'full', 'empty', 'ones', 'zeros',
-    'rand', 'is_timetensor'
+    'rand', 'is_timetensor', 'as_timetensor', 'from_numpy'
 ]
