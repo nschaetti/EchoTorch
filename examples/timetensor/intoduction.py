@@ -60,19 +60,37 @@ x = echotorch.zeros((4, 4), time_length=20)
 # Rand
 x = echotorch.rand((4, 4), 20).cpu()
 y = echotorch.rand((4, 4), 30).cpu()
+print("Base timetenors: ")
 print("x size: {}".format(x.size()))
 print("x time_dim: {}".format(x.time_dim))
+print("x time_length: {}".format(len(x)))
+print("x tsize: {}".format(x.tsize()))
 print("")
 print("y size: {}".format(y.size()))
 print("y time_dim: {}".format(y.time_dim))
+print("y time_length: {}".format(len(y)))
+print("y tsize: {}".format(y.tsize()))
+print("")
+
+# Equal
+print("==")
+print("x == y: {}".format(x == y))
+print("x == x: {}".format(x == x))
 print("")
 
 # Cat
 xy = torch.cat((x, y), dim=0)
-print("xy size: {}".format(xy.size()))
+print("torch.cat dim=0:")
+print("out time_dim: {}".format(xy.time_dim))
+print("out time_length: {}".format(len(xy)))
+print("out size: {}".format(xy.tsize()))
+print("")
 
 # Unsqueeze
 xx = torch.unsqueeze(x, dim=0)
-print("xx size: {}".format(xx.size()))
-print("xx time dim: {}".format(xx.time_dim))
+print("torch.unsqueeze")
+print("out size: {}".format(xx.size()))
+print("out time_length: {}".format(len(xx)))
+print("out time dim: {}".format(xx.time_dim))
+print("")
 

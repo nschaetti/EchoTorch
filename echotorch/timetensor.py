@@ -29,9 +29,39 @@ import copy
 ERROR_TENSOR_TO_SMALL = "Time dimension does not exists in the data tensor " \
                         "(time dim at {}, {} dimension in tensor). The minimum tensor size " \
                         "is {}"
+ERROR_TIME_LENGTHS_TOO_BIG = "There is time lengths which are bigger than the actual tensor data"
+ERROR_WRONG_TIME_LENGTHS_SIZES = "The sizes of the time lengths tensor should be {}"
+ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 
 
 # TimeTensor
+def check_time_lengths(
+        time_len: int,
+        time_lengths: Optional[torch.LongTensor],
+        batch_sizes: torch.Size
+):
+    """
+    Check time lengths
+    @param time_lengths:
+    @param batch_sizes:
+    @return:
+    """
+    # Check that the given lengths tensor has the right
+    # dimensions
+    if time_lengths.size() != batch_sizes:
+        raise ValueError(ERROR_WRONG_TIME_LENGTHS_SIZES.format(batch_sizes))
+    # end if
+
+    # Check that all lengths are not bigger
+    # than the actual time-tensor
+    if torch.any(time_lengths > time_len):
+        raise ValueError(ERROR_TIME_LENGTHS_TOO_BIG)
+    # end if
+
+    return True
+# end check_time_lengths
+
+
 class TimeTensor(object):
     """
     A  special tensor with a time and a batch dimension
@@ -42,51 +72,22 @@ class TimeTensor(object):
     # Constructor
     def __init__(
             self,
-            data: torch.Tensor,
-            time_dim: Optional[int] = 0,
-            time_first: Optional[bool] = True,
-            dtype: Optional[torch.dtype] = None,
-            device: Optional[torch.device] = None,
-            requires_grad: Optional[bool] = True,
-            copy_data: Optional[bool] = True
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
     ) -> None:
         """
         Constructor
         @param data: The data in a torch tensor to transform to timetensor.
+        @param time_lengths: Lengths of each timeseries.
         @param time_dim: The position of the time dimension.
-        @param time_first: Is the time dimension place before the channel or after?
-        @param dtype: Data tensor type
-        @param device: Destination device
-        @param requires_grad: Requires gradient computation?
         """
         # Copy if already a timetensor
         # transform otherwise
         if type(data) is TimeTensor:
-            if copy_data:
-                # Copy
-                tensor_data = copy.deepcopy(data.tensor)
-            else:
-                tensor_data = data.tensor
-            # end if
+            tensor_data = data.tensor
         else:
-            if copy_data:
-                # Copy
-                if isinstance(data, torch.Tensor) and not data.is_leaf:
-                    tensor_data = torch.as_tensor(data, dtype=dtype, device=device)
-                else:
-                    # Copy tensor
-                    tensor_data = copy.deepcopy(
-                        torch.as_tensor(data, dtype=dtype, device=device)
-                    )
-                # end if
-            else:
-                tensor_data = torch.as_tensor(data, dtype=dtype, device=device)
-            # end if
-        # end if
-
-        # Set requires grad
-        if tensor_data.is_leaf:
-            tensor_data.requires_grad = requires_grad
+            tensor_data = data
         # end if
 
         # The tensor must have enough dimension
@@ -96,10 +97,24 @@ class TimeTensor(object):
             raise ValueError(ERROR_TENSOR_TO_SMALL.format(time_dim, tensor_data.ndim, time_dim + 1))
         # end if
 
-        # Properties
+        # Batch sizes and time length
+        time_len = tensor_data.size(time_dim)
+        batch_sizes = tensor_data.size()[:time_dim]
+
+        # Set tensor and time index
         self._tensor = tensor_data
         self._time_dim = time_dim
-        self._time_first = time_first
+
+        # Compute lengths if not given or check given ones
+        if time_lengths is None:
+            self._time_lengths = torch.full(batch_sizes, fill_value=time_len).long()
+        else:
+            # Check time lengths
+            check_time_lengths(time_len, time_lengths, batch_sizes)
+
+            # Lengths
+            self._time_lengths = time_lengths
+        # end if
     # end __init__
 
     # endregion CONSTRUCTORS
@@ -167,6 +182,8 @@ class TimeTensor(object):
         if value >= self.tensor.ndim:
             # Error
             raise ValueError(ERROR_TENSOR_TO_SMALL.format(value, self._tensor.ndim))
+        elif value < 0:
+            raise ValueError(ERROR_TIME_DIM_NEGATIVE)
         # end if
 
         # Set new time dim
@@ -182,6 +199,34 @@ class TimeTensor(object):
         return self._tensor.size(self._time_dim)
     # end tlen
 
+    # Time lengths
+    @property
+    def tlens(self) -> torch.LongTensor:
+        """
+        Time lengths
+        @return: Time lengths
+        """
+        return self._time_lengths
+    # end tlens
+
+    # Set time lengths
+    @tlens.setter
+    def tlens(
+            self,
+            value: torch.LongTensor
+    ) -> None:
+        """
+        Set time lengths
+        @param value:
+        @return:
+        """
+        # Check time lengths
+        check_time_lengths(self.tlen, value, self.bsize())
+
+        # Set
+        self._time_lengths = value
+    # end tlens
+
     # Number of dimension
     @property
     def ndim(self) -> int:
@@ -191,14 +236,23 @@ class TimeTensor(object):
         return self._tensor.ndim
     # end ndim
 
-    # Number of time-related dimension
+    # Number of channel dimensions
     @property
-    def tndim(self) -> int:
+    def cdim(self) -> int:
         """
-        Number of time-related dimension.
+        Number of channel dimensions
         """
         return self._tensor.ndim - self._time_dim - 1
-    # end tndim
+    # end cdim
+
+    # Number of batch dimensions
+    @property
+    def bdim(self) -> int:
+        """
+        Number of batch dimensions
+        """
+        return self._tensor.ndim - self.cdim - 1
+    # end bdim
 
     # Data type
     @property
@@ -230,10 +284,10 @@ class TimeTensor(object):
         return self._tensor.size()
     # end size
 
-    # Size of time-related dimension
-    def tsize(self) -> torch.Size:
+    # Size of channel dimensions
+    def csize(self) -> torch.Size:
         """
-        Size of time-related dimensions
+        Size of channel dimensions
         """
         if self._time_dim != self._tensor.ndim - 1:
             tensor_size = self._tensor.size()
@@ -241,7 +295,20 @@ class TimeTensor(object):
         else:
             return torch.Size([])
         # end if
-    # end tsize
+    # end csize
+
+    # Size of batch dimensions
+    def bsize(self) -> torch.Size:
+        """
+        Size of batch dimensions
+        """
+        if self._time_dim == 0:
+            return torch.Size([])
+        else:
+            tensor_size = self._tensor.size()
+            return tensor_size[:self._time_dim]
+        # end if
+    # end bsize
 
     # Long
     def long(self) -> 'TimeTensor':
@@ -261,188 +328,14 @@ class TimeTensor(object):
         return self
     # end float
 
-    # Returns a new TimeTensor with data as the tensor data.
-    def new_timetensor(
-            data: torch.Tensor,
-            time_dim: Optional[int] = 0,
-            time_first: Optional[bool] = True,
-            dtype: Optional[torch.dtype] = None,
-            device: Optional[torch.device] = None,
-            requires_grad: Optional[bool] = False
-    ) -> 'TimeTensor':
+    # Complex
+    def complex(self) -> 'TimeTensor':
         """
-        Returns a new TimeTensor with data as the tensor data.
-        @param data: The data in a torch tensor to transform to timetensor.
-        @param time_dim: The position of the time dimension.
-        @param time_first: Is the time dimension place before the channel or after?
-        @param dtype: Data tensor type
-        @param device: Destination device
-        @param requires_grad: Requires gradient computation?
-        @return: A new timetensor
+        Cast time-tensor to complex
         """
-        return TimeTensor(
-            data,
-            time_dim=time_dim,
-            time_first=time_first,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad
-        )
-    # end new_timetensor
-
-    # Returns filled time tensor
-    def new_full(
-            size: List[int],
-            fill_value: Union[int, float],
-            time_length: int = 0,
-            time_first: Optional[bool] = True,
-            dtype: torch.dtype = None,
-            device: torch.device = None,
-            requires_grad: bool = False
-    ) -> 'TimeTensor':
-        """
-        Returns a TimeTensor of size size and time length time_length filled with fill_value. By default,
-        the returned Tensor has the same torch.dtype and torch.device as this tensor.
-        @param time_first:
-        @param size: Size if the timeseries
-        @param time_length: Time-length of the timeseries
-        @param fill_value: Value to fill the tensor
-        @param dtype: Tensor data type
-        @param device: Destination device
-        @param requires_grad: Requires gradient computation
-        @return: The new timetensor
-        """
-        # Size
-        return TimeTensor.new_timetensor_with_func(
-            size=size,
-            func=torch.full,
-            time_length=time_length,
-            time_first=time_first,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            fill_value=fill_value
-        )
-    # end new_full
-
-    # Returns empty tensor
-    def new_empty(
-            size: Tuple[int],
-            time_length: int,
-            time_first: Optional[bool] = True,
-            dtype: Optional[torch.dtype] = None,
-            device: Optional[torch.device] = None,
-            requires_grad: Optional[bool] = False
-    ) -> 'TimeTensor':
-        """
-        Returns a TimeTensor of size size and time length time_length filled with uninitialized data. By default,
-        the returned TimeTensor has the same torch.dtype and torch.device as this tensor.
-        @param size:
-        @param time_length:
-        @param time_first:
-        @param dtype:
-        @param device:
-        @param requires_grad:
-        """
-        return TimeTensor.new_timetensor_with_func(
-            size,
-            func=torch.empty,
-            time_length=time_length,
-            time_first=time_first,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-        )
-
-    # end new_empty
-
-    # Returns time tensor filled with ones
-    def new_ones(
-            size,
-            time_length,
-            time_first: Optional[bool] = True,
-            dtype=None,
-            device=None,
-            requires_grad=False
-    ) -> 'TimeTensor':
-        """
-        Returns a TimeTensor of size size filled with 1. By default, the returned TimeTensor has the same
-        torch.dtype and torch.device as this tensor.
-        @param size:
-        @param time_length:
-        @param time_first:
-        @param dtype:
-        @param device:
-        @param requires_grad:
-        """
-        return TimeTensor.new_timetensor_with_func(
-            size,
-            func=torch.ones,
-            time_length=time_length,
-            time_first=time_first,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-        )
-    # end new_ones
-
-    # Returns time tensor filled with zeros
-    def new_zeros(
-            size: Tuple[int],
-            time_length: int,
-            time_first: Optional[bool] = True,
-            dtype: Optional[torch.dtype] = None,
-            device: Optional[torch.device] = None,
-            requires_grad: Optional[bool] = False
-    ):
-        """
-        Returns a TimeTensor of size size filled with 0.
-        @param size:
-        @param time_length:
-        @param time_first:
-        @param dtype:
-        @param device:
-        @param requires_grad:
-        """
-        return TimeTensor.new_timetensor_with_func(
-            size=size,
-            func=torch.zeros,
-            time_length=time_length,
-            time_first=time_first,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-        )
-    # end new_zeros
-
-    # Returns new time tensor with a specific function
-    def new_timetensor_with_func(
-            size: Tuple[int],
-            func: Callable,
-            time_length: int,
-            time_first: Optional[bool] = True,
-            **kwargs
-    ) -> 'TimeTensor':
-        """
-        Returns a new time tensor with a specific function to generate the data.
-        @param size:
-        @param time_length:
-        @param time_first:
-        @param dtype:
-        @param device:
-        @param requires_grad:
-        """
-        # Size
-        tt_size = [time_length] + list(size) if time_first else list(size) + [time_length]
-
-        # Create TimeTensor
-        return TimeTensor(
-            func(tuple(tt_size), **kwargs),
-            time_dim=0 if time_first else len(tt_size) - 1,
-            time_first=time_first,
-            **kwargs
-        )
-    # end new_timetensor_with_func
+        self._tensor = self._tensor.complex()
+        return self
+    # end complex
 
     # Indexing time tensor
     def indexing_timetensor(
@@ -457,7 +350,6 @@ class TimeTensor(object):
         return TimeTensor(
             self._tensor[item],
             time_dim=self._time_dim,
-            time_first=self._time_first,
             dtype=self._tensor.dtype,
             device=self._tensor.device,
             requires_grad=self._tensor.requires_grad,
@@ -473,20 +365,29 @@ class TimeTensor(object):
     def after_unsqueeze(
             self,
             func_output: Any,
-            dim
+            dim: int
     ) -> 'TimeTensor':
         """
         After unsqueeze
-        @param func_output:
-        @param dim:
-        @return:
+        @param func_output: The output of the torch.unsqueeze function
+        @param dim: The request dimension from unsqueeze
+        @return: The computed output
         """
-        return TimeTensor(
-            func_output,
-            time_dim=self._time_dim,
-            time_first=self._time_first,
-            device=self.device,
-        )
+        if dim <= self.time_dim:
+            return TimeTensor(
+                func_output,
+                time_dim=self._time_dim+1,
+                device=self.device,
+                copy_data=False
+            )
+        else:
+            return TimeTensor(
+                func_output,
+                time_dim=self._time_dim,
+                device=self.device,
+                copy_data=False
+            )
+        # end if
     # end after_unsqueeze
 
     # endregion TORCH_FUNCTION
@@ -583,8 +484,24 @@ class TimeTensor(object):
         """
         Get a string representation
         """
-        return "time dim:\n{}\n\ndata:\n{}".format(self._time_dim, self._tensor)
+        return "timetensor({}, time_dim: {})".format(self._tensor, self._time_dim)
     # end __repr__
+
+    # Are two time-tensors equivalent
+    def __eq__(
+            self,
+            other: 'TimeTensor'
+    ) -> bool:
+        """
+        Are two time-tensors equivalent?
+        @param other: The other time-tensor
+        @return: True of False if the two time-tensors are equivalent
+        """
+        return self.time_dim == other.time_dim and \
+               self.tensor.ndim == other.tensor.ndim and \
+               self.tensor.size() == other.tensor.size() and \
+               torch.all(self.tensor == other.tensor)
+    # end __eq__
 
     # Torch functions
     def __torch_function__(
@@ -637,6 +554,7 @@ class TimeTensor(object):
                 time_dim=self._time_dim,
                 time_first=self._time_first,
                 device=self.device,
+                copy_data=False
             )
         else:
             return ret
@@ -646,6 +564,63 @@ class TimeTensor(object):
     # endregion OVERRIDE
 
     # region STATIC
+
+    # Returns a new TimeTensor with data as the tensor data.
+    @classmethod
+    def new_timetensor(
+            cls,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> 'TimeTensor':
+        """
+        Returns a new TimeTensor with data as the tensor data.
+        @param data:
+        @param time_lengths:
+        @param time_dim:
+        @param copy_data:
+        @return:
+        """
+        return TimeTensor(
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+    # end new_timetensor
+
+    # Returns new time tensor with a specific function
+    @classmethod
+    def new_timetensor_with_func(
+            cls,
+            size: Tuple[int],
+            func: Callable,
+            time_length: Union[int, torch.LongTensor],
+            **kwargs
+    ) -> 'TimeTensor':
+        """
+        Returns a new time tensor with a specific function to generate the data.
+        @param func:
+        @param size:
+        @param time_length:
+        """
+        # Size
+        if type(time_length) is int:
+            tt_size = [time_length] + list(size)
+            t_lens = None
+            time_dim = 0
+        else:
+            tt_size = list(time_length.size()) + [torch.max(time_length).item()] + list(size)
+            t_lens = time_length
+            time_dim = time_length.ndim
+        # end if
+
+        # Create TimeTensor
+        return TimeTensor(
+            data=func(tuple(tt_size), **kwargs),
+            time_dim=time_dim,
+            time_lengths=t_lens
+        )
+    # end new_timetensor_with_func
 
     # endregion STATIC
 
