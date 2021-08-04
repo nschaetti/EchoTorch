@@ -3,20 +3,17 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
-      <excludeFolder url="file://$MODULE_DIR$/env" />
-      <excludeFolder url="file://$MODULE_DIR$/env3.9" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.9 (EchoTorch)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="echotorch.github.io" />
+    <orderEntry type="module" module-name="echotorch_sphinx_theme" />
     <orderEntry type="module" module-name="echotorch.github.io" />
   </component>
   <component name="PyDocumentationSettings">
-    <option name="format" value="EPYTEXT" />
-    <option name="myDocStringFormat" value="Epytext" />
-    <option name="renderExternalDocumentation" value="true" />
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
   </component>
-  <component name="TestRunnerService">
-    <option name="PROJECT_TEST_RUNNER" value="Nosetests" />
+  <component name="ReSTService">
+    <option name="DOC_DIR" value="$MODULE_DIR$/docs" />
   </component>
 </module>
