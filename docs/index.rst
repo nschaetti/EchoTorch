@@ -6,7 +6,14 @@
 EchoTorch documentation
 =======================
 
-EchoTorch is an pyTorch-based library for Reservoir Computing and Echo State Network using GPUs and CPUs.
+EchoTorch is an PyTorch-based library for Reservoir Computing (RC) and Echo State Network (ESN) using GPUs and CPUs. It
+is designed to simplify the evaluation and implementation of machine learning models based on ESNs and RC, but also to
+be a user-friendly time series analysis tool for researchers and engineers. EchoTorch is based on a fully modular
+architecture which allow developers to implement and evaluate quickly different RC architectures on timeseries tasks.
+
+It also allows to implement more advanced models based on Conceptors and on the Deep Learning paradigm such as
+DeepESN. You will also be able to integrate random recurring models into your PyTorch models and simply
+generate time series data for your research.
 
 .. toctree::
     :glob:
@@ -17,12 +24,26 @@ EchoTorch is an pyTorch-based library for Reservoir Computing and Echo State Net
 
 .. toctree::
     :maxdepth: 1
-    :caption: Package Reference
+    :caption: Python API
 
     echotorch
+    echotorch.callbacks
     echotorch.datasets
+    echotorch.evaluation
+    echotorch.helpers
+    echotorch.models
     echotorch.nn
+    echotorch.optim
+    echotorch.transforms
     echotorch.utils
+
+.. toctree::
+    :glob:
+    :maxdepth: 1
+    :caption: Community
+
+    PyTorch Contribution Guide (apply to EchoTorch) <https://pytorch.org/docs/stable/community/contribution_guide.html>
+    community/*
 
 Indices and tables
 ==================

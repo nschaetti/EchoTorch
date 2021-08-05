@@ -31,11 +31,27 @@ from .timetensor import TimeTensor
 # Concatenate on time dim
 def tcat(
         *tensors: Tuple[TimeTensor]
-) -> Union[TimeTensor, Any]:
-    """
-    Concatenate on time dimension
-    :@param tensors: Tensor to concatenate
-    :@return: Concatenated tensors
+) -> TimeTensor:
+    r"""Concatenate a given list of ``n`` tensors on the time dimension. All timetensors
+    must have the same shape (except the time dimensions) and the same time dimension
+    specified or be emoty.
+
+    ``echotorch.tcat()`` is the inverse of ``echotorch.tsplit()`` and ``echotorch.tchunk``.
+
+    Parameters:
+        tensors (sequence of TimeTensors) - any python sequence of timetensors of the same type. If timetensors are not empty, they must have the same shape, except the time dimension, and the same time dimension specified.
+
+    Key Arguments:
+        out (TimeTensor, optional) - the output timetensor.
+
+    Example::
+
+        >>> x = echotorch.randn(2, time_length=20)
+        >>> x
+        timetensor([[....]])
+        >>> echotorch.tcat((x, x, x))
+        timetensor([[...]])
+
     """
     # None
     if len(tensors) == 0:
@@ -115,10 +131,21 @@ def tindex_select(
 
 # Is timetensor
 def is_timetensor(self, obj) -> bool:
-    """
-    Returns True if obj is a PyTorch tensor.
-    @param obj: Object to check
-    @return:
+    r"""Returns True if `obj` is an EchoTorch timetensor.
+
+    Note that this function is simply doing ``isinstance(obj, TimeTensor)``.
+    Using that ``isinstance`` check is better for typechecking with mypy,
+    and more explicit - so it's recommended to use that instead of
+    ``is_timetensor``.
+
+    Args:
+        obj (Object): Object to test
+    Example::
+
+        >>> x = echotorch.timetensor([1,2,3], time_dim=0)
+        >>> echotorch.is_timetensor(x)
+        True
+
     """
     return isinstance(obj, TimeTensor)
 # end is_timetensor

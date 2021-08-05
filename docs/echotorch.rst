@@ -1,19 +1,23 @@
 echotorch package
 =================
+The echotorch main package contains data structures for timeseries and time-related tensors and
+supply specific mathematical and programming operations for these specific tensors. As for PyTorch,
+CUDA counterparts are given for you to run your experiments on NVIDIA GPUs.
 
-Subpackages
+.. currentmodule:: echotorch
+
+TimeTensors
 -----------
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
 
-.. toctree::
+    is_timetensor <is_timetensor>
+    echotorch.tcat
 
-    echotorch.datasets
-    echotorch.nn
-    echotorch.utils
+.. _timetensor-creation-ops:
 
-Module contents
----------------
+Creation Ops
+~~~~~~~~~~~~
 
-.. automodule:: echotorch
-    :members:
-    :undoc-members:
-    :show-inheritance:
+
