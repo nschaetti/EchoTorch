@@ -9590,7 +9590,7 @@ a.with-right-arrow, .btn.with-right-arrow {
 }
 
 .email-subscribe-form input.email {
-  color: #e44c2c;
+  color: #af67f8;
   border: none;
   border-bottom: 1px solid #939393;
   width: 100%;
@@ -10063,19 +10063,18 @@ pre {
   background-image: url("../images/logo-icon.svg");
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 20px 24px;
+  background-size: 100px 100px;
   display: block;
-  height: 24px;
+  height: 100px;
   margin-bottom: 2.8125rem;
-  width: 20px;
+  width: 100px;
 }
 @media screen and (min-width: 768px) {
   .footer-logo {
-    background-size: 29px 36px;
-    height: 36px;
+    background-size: 100px 100px;
+    height: 100px;
     margin-bottom: 0;
-    margin-bottom: 0;
-    width: 29px;
+    width: 100px;
   }
 }
 
@@ -11180,12 +11179,12 @@ a:hover {
 
 @media screen and (min-width: 768px) {
   .site-footer a:hover {
-    color: #7602ec;
+    color: #af67f8;
   }
 }
 
 .docs-tutorials-resources a {
-  color: #7602ec;
+  color: #af67f8;
 }
 
 .header-holder {
