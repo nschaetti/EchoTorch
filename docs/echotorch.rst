@@ -12,12 +12,88 @@ TimeTensors
     :toctree: generated
     :nosignatures:
 
-    is_timetensor <is_timetensor>
-    echotorch.tcat
+    is_timetensor
+    tcat
 
 .. _timetensor-creation-ops:
 
 Creation Ops
 ~~~~~~~~~~~~
 
+.. note::
+    Similarly to the PyTorch documentation, creation ops for random sampling are listed under :ref:`random-sampling`
+    and include the time version of PyTorch random sampling ops:
+    :func:`echotorch.rand`
+    :func:`echotorch.rand_like`
+    :func:`echotorch.randn`
+    :func:`echotorch.randn_like`
+    :func:`echotorch.randint`
+    :func:`echotorch.randint_like`
+    :func:`echotorch.randperm`
 
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+
+    timetensor
+    as_timetensor
+    from_numpy
+    full
+    empty
+    ones
+    zeros
+
+Indexing, Slicing, Joining, Mutating Ops
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Random sampling
+~~~~~~~~~~~~~~~
+
+.. note:
+    Random sampling creation ops in this section use the same corresponding ops from PyTorch but return timetensors
+    with additional parameters.
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+
+    bernoulli
+    multinomial
+    normal
+    poisson
+    rand
+    rand_like
+    randint
+    randint_like
+    randn
+    randn_like
+    randperm
+
+In-place random sampling
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Timeseries and random processes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+
+    random_walk
+    moving_average
+    markov_chain
+
+Attractors and chaotic timeseries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+
+    henon
+    logistic_map
+    lorenz_map
+    lorenz
+    mackey_glass
+    rossler

@@ -32,17 +32,27 @@ from .timetensor import TimeTensor
 def tcat(
         *tensors: Tuple[TimeTensor]
 ) -> TimeTensor:
-    r"""Concatenate a given list of ``n`` tensors on the time dimension. All timetensors
+    r"""Concatenate a given list of ``n`` timetensors or tensor on the time dimension. All timetensors
     must have the same shape (except the time dimensions) and the same time dimension
-    specified or be emoty.
+    specified or be empty. If PyTorch tensors are in the sequence, they must have the same shape and they
+    will be concatenated on the same dimension as specified as time dimension in  the timetensors. The concatenation
+    will fail if there is only PyTorch tensors in the sequence.
 
-    ``echotorch.tcat()`` is the inverse of ``echotorch.tsplit()`` and ``echotorch.tchunk``.
+    ``echotorch.tcat()`` is the inverse of ``echotorch.tsplit()`` and ``echotorch.tchunk()``.
+
+    :param tensors: A sequence of timetensors or tensors of the same type, same time dimension and same shape.
+    :return: The timetensors/tensors concatenated in a single timetensor.
+    :return: ``TimeTensor``
 
     Parameters:
-        tensors (sequence of TimeTensors) - any python sequence of timetensors of the same type. If timetensors are not empty, they must have the same shape, except the time dimension, and the same time dimension specified.
+        **tensors** (sequence of ``TimeTensors``) - any python sequence of timetensors or PyTorch tensors of the same
+        type. If timetensors are not empty, they must have the same shape, except the time dimension, and the same
+        time dimension specified. If PyTorch tensors are in the sequence, they must have the same shape and they
+        will be concatenated on the same dimension as specified as time dimension in  the timetensors. The concatenation
+        will fail if there is only PyTorch tensors in the sequence.
 
     Key Arguments:
-        out (TimeTensor, optional) - the output timetensor.
+        **out** (``TimeTensor``, optional) - the output timetensor.
 
     Example::
 
@@ -130,7 +140,7 @@ def tindex_select(
 
 
 # Is timetensor
-def is_timetensor(self, obj) -> bool:
+def is_timetensor(obj) -> bool:
     r"""Returns True if `obj` is an EchoTorch timetensor.
 
     Note that this function is simply doing ``isinstance(obj, TimeTensor)``.
@@ -138,8 +148,11 @@ def is_timetensor(self, obj) -> bool:
     and more explicit - so it's recommended to use that instead of
     ``is_timetensor``.
 
-    Args:
-        obj (Object): Object to test
+    :param obj: The object to test
+    :type obj: `object`
+    :return: True if `obj` is an EchoTorch timetensor
+    :rtype: bool
+
     Example::
 
         >>> x = echotorch.timetensor([1,2,3], time_dim=0)

@@ -33,25 +33,41 @@ from .timetensor import TimeTensor
 def rand(
         size: Tuple[int],
         time_length: int,
-        time_first: Optional[bool] = True,
-        **kwargs
+        out: Optional[TimeTensor] = None,
+        dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = torch.strided,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
 ) -> TimeTensor:
-    """
-    Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
-    @param size:
-    @param time_length:
-    @param time_first:
-    @param dtype:
-    @param device:
-    @param requires_grad:
-    @return:
+    r"""Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
+
+    :param size: Size
+    :type size: Tuple[int]
+    :param fill_value: the value to fill the output timetensor with.
+    :type fill_value: Scalar
+    :param time_length: Length of the timeseries
+    :type time_length: int
+    :param dtype: ``TimeTensor`` data type
+    :type dtype: torch.dtype
+    :param device: Destination device
+    :type device: torch.device
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool
+    :return: A ``TimeTensor`` of size size filled with zeros
+    :rtype: ``TimeTensor``
+
+    Example::
+        >>> x = echotorch.rand((1), time_length=10)
+        timetensor([[1.], [1.], [1.], [1.], [1.]])
     """
     return TimeTensor.new_timetensor_with_func(
         size,
         func=torch.rand,
         time_length=time_length,
-        time_first=time_first,
-        **kwargs
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+        layout=layout
     )
 # end rand
 
