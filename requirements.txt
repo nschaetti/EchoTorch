@@ -1,6 +1,7 @@
 # This is an implicit value, here for clarity
 --index-url https://pypi.python.org/simple/
 sphinx_bootstrap_theme
+sphinx-autodoc-typehints
 future
 numpy>=1.19.2
 scipy>=1.5.2

@@ -41,17 +41,6 @@ def timetensor(
         requires_grad: Optional[bool] = False,
         pin_memory: Optional[bool] = False
 ) -> 'TimeTensor':
-    """
-    Constructs a tensor with data.
-    @param data: Initial data for the timetensor. Can be a list, tuple, numpy ndarray, scalar, and other types.
-    @param time_dim: Index of the time dimension
-    @param time_lengths:
-    @param dtype: The desired data type of returned timetensor. Default: if None, infers data type from data.
-    @param device: ...
-    @param requires_grad: Requires gradient computation?
-    @param pin_memory:
-    @return: A TimeTensor object
-    """
     # Data
     if isinstance(data, torch.Tensor):
         src_data = data.clone().detach()
