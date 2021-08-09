@@ -176,3 +176,10 @@ numpydoc_show_class_members = False
 # generate autosummary even if no references
 autosummary_generate = True
 autosummary_imported_members = True
+
+# No module name
+add_module_names = True
+
+autodoc_remove_type_hints = [
+    "function", "method"
+]

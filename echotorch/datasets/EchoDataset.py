@@ -25,22 +25,52 @@ from typing import Union, List
 import torch
 from torch.utils.data.dataset import Dataset
 
-# Local imports
-# from .DatasetComposer import DatasetComposer
-
 
 # EchoDataset
 class EchoDataset(Dataset):
+    r"""An abstract class for EchoTorch dataset objects
     """
-    Base class for EchoTorch datasets
-    """
+
+    # region CONSTRUCTORS
+
+    # Constructors
+    def __init__(
+            self,
+            n: int,
+            stream: bool
+    ) -> None:
+        r"""Constructors
+
+        Args:
+            n: The size of the data set (number of samples)
+            stream: Do we generate samples on the fly?
+        """
+        # Properties
+        self._n = n
+        self._stream = stream
+    # end __init__
+
+    # endregion CONSTRUCTORS
 
     # region OVERRIDE
 
+    # Length
+    def __len__(self):
+        r"""Get the length of the dataset
+
+        Returns: The length of the dataset (Scalar)
+
+        """
+        return self._n
+    # end __len__
+
     # Representation
     def __repr__(self):
-        """
-        Representation
+        r"""Returns a displayable representation of the object
+
+        Returns:
+            A displayable representation of the object
+
         """
         return "{}({})".format(
             self.__class__.__name__,
@@ -67,7 +97,7 @@ class EchoDataset(Dataset):
         """
         Extra representation
         """
-        return ""
+        raise Exception("extra_repr not implemented")
     # end extra_repr
 
     # Function to generate data

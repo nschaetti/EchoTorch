@@ -40,6 +40,26 @@ def timetensor(
         requires_grad: Optional[bool] = False,
         pin_memory: Optional[bool] = False
 ) -> 'TimeTensor':
+    r"""Construct a timetensor with data as tensor, timetensor, list, etc.
+
+    :param data: Data as tensor, timetensor, list or Numpay array.
+    :type data: Tensor, TimeTensor, List, Numpy Array
+    :param time_dim:
+    :type time_dim: Integer
+    :param time_lengths: Length of the timeseries, or lengths as a LongTensor if the timetensor contained multiple timeseries with different lengths.
+    :type time_lengths: Integer or LongTensor
+    :param dtype: Torch Tensor data type
+    :type dtype: torch.dtype
+    :param device: Destination device (cpu, gpu, etc)
+    :type device: torch.device
+    :param requires_grad: Compute gradients?
+    :type requires_grad: Boolean
+    :param pin_memory:
+    :type pin_memory: Boolean
+    :return: The ``TimeTensor`` created from ``data``
+    :rtype: TimeTensor
+
+    """
     # Data
     if isinstance(data, torch.Tensor):
         src_data = data.clone().detach()
@@ -63,7 +83,7 @@ def timetensor(
 # end timetensor
 
 
-# Convert data into an echotorch.TimeTensor.
+# Convert data into a TimeTensor
 def as_timetensor(
         data: Any,
         time_lengths: Optional[torch.LongTensor] = None,
@@ -71,14 +91,28 @@ def as_timetensor(
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None
 ) -> 'TimeTensor':
-    """
-    Convert data into an echotorch.TimeTensor
-    @param time_dim:
-    @param time_lengths:
-    @param data:
-    @param dtype:
-    @param device:
-    @return:
+    r"""Convert data into a ``TimeTensor``.
+
+    :param data: Data to convert as TimeTensor, Tensor, List or Numpy array.
+    :type data: TimeTensor, Tensor, List, Numpy array
+    :param time_lengths: Length of the timeseries, or lengths as a LongTensor if the timetensor contained multiple timeseries with different lengths.
+    :type time_lengths: Integer or LongTensor
+    :param time_dim: The index of the time dimension.
+    :type time_dim: Integer
+    :param dtype: Tensor data type
+    :type dtype: torch.dtype
+    :param device: Destination device
+    :type device: torch.device
+    :return: The ``TimeTensor`` created from data.
+    :rtype: TimeTensor
+
+    Example::
+        >>> x = echotorch.as_timetensor([[0], [1], [2]], time_dim=0)
+        >>> x.tsize()
+        torch.Size([1])
+        >>> x.tlen
+        3
+
     """
     return TimeTensor.new_timetensor(
         torch.as_tensor(
@@ -98,13 +132,24 @@ def from_numpy(
         time_lengths: Optional[torch.LongTensor] = None,
         time_dim: Optional[int] = 0,
 ) -> TimeTensor:
-    """
-    Creates a TimeTensor from a numpy.ndarray.
+    r"""Creates a TimeTensor from a ``numpy.ndarray``.
 
-    @param time_dim:
-    @param time_lengths:
-    @param ndarray:
-    @return:
+    :param time_dim: Index of the time dimension.
+    :type time_dim: Integer
+    :param time_lengths:
+    :type time_lengths: ``int`` or ``LongTensor``
+    :param ndarray: The numpy array
+    :type ndarray: ``numpy.array`` or ``numpay.ndarray``
+    :return: ``TimeTensor`` created from Numpy data.
+    :rtype: TimeTensor
+
+    Examples::
+        >>> x = echotorch.from_numpy(np.zeros((100, 2)), time_dim=0)
+        >>> x.size()
+        torch.Size([100, 2])
+        >>> x.tlen
+        100
+
     """
     return TimeTensor.new_timetensor(
         torch.from_numpy(ndarray),
@@ -189,7 +234,7 @@ def empty(
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
-    r"""Returns a ``TimeTensor`` of size ``size`` and time length ``time_length`` filled with uninitialized data.
+    r"""Returns a :class:`TimeTensor` of size ``size`` and time length ``time_length`` filled with uninitialized data.
 
     :param size: Size
     :type size: Tuple[int]

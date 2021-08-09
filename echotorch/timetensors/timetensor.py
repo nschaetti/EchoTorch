@@ -22,7 +22,6 @@
 # Imports
 from typing import Optional, Tuple, Union, List, Callable, Any
 import torch
-import copy
 
 
 # Error
@@ -76,11 +75,12 @@ class TimeTensor(object):
             time_lengths: Optional[torch.LongTensor] = None,
             time_dim: Optional[int] = 0
     ) -> None:
-        """
-        Constructor
-        @param data: The data in a torch tensor to transform to timetensor.
-        @param time_lengths: Lengths of each timeseries.
-        @param time_dim: The position of the time dimension.
+        r"""TimeTensor constructor
+
+        Args:
+            data: The data in a torch tensor to transform to timetensor.
+            time_lengths: Lengths of each timeseries.
+            time_dim: The position of the time dimension.
         """
         # Copy if already a timetensor
         # transform otherwise
@@ -312,8 +312,10 @@ class TimeTensor(object):
 
     # Long
     def long(self) -> 'TimeTensor':
-        """
-        Long
+        r"""To long timetensor (no copy)
+
+        Returns: The timetensor with data casted to long
+
         """
         self._tensor = self._tensor.long()
         return self
@@ -321,8 +323,10 @@ class TimeTensor(object):
 
     # Float
     def float(self) -> 'TimeTensor':
-        """
-        Cast tensor to float
+        r"""To float32 timetensor (no copy)
+
+        Returns: The timetensor with data coasted to float32
+
         """
         self._tensor = self._tensor.float()
         return self
@@ -330,12 +334,59 @@ class TimeTensor(object):
 
     # Complex
     def complex(self) -> 'TimeTensor':
-        """
-        Cast time-tensor to complex
+        r"""To complex timetensor (no copy)
+
+        Returns: The timetensor with data casted to complex
+
         """
         self._tensor = self._tensor.complex()
         return self
     # end complex
+
+    # To float16 timetensor
+    def half(self) -> 'TimeTensor':
+        r"""To float16 timetensor (no copy)
+
+        Returns: The timetensor with data casted to float16
+
+        """
+        self._tensor = self._tensor.half()
+        return self
+    # end half
+
+    # To
+    def to(self, *args, **kwargs) -> 'TimeTensor':
+        r"""Performs TimeTensor dtype and/or device concersion. A ``torch.dtype`` and ``torch.device`` are inferred
+        from the arguments of ``self.to(*args, **kwargs)
+
+        .. note::
+            From PyTorch documentation: if the ``self`` TimeTensor already has the correct ``torch.dtype`` and
+            ``torch.device``, then ``self`` is returned. Otherwise, the returned timetensor is a copy of ``self``
+            with the desired ``torch.dtype`` and ``torch.device``.
+
+        Args:
+            *args:
+            **kwargs:
+
+        Example::
+            >>> ttensor = echotorch.randn((2,), time_lengths=20)
+            >>> ttensor.to(torch.float64)
+
+        """
+        # New tensor
+        ntensor = self._tensor.to(*args, **kwargs)
+
+        # Same tensor?
+        if self._tensor == ntensor:
+            return self
+        else:
+            return TimeTensor(
+                ntensor,
+                time_lengths=self._time_lengths,
+                time_dim=self._time_dim
+            )
+        # end if
+    # end to
 
     # Indexing time tensor
     def indexing_timetensor(
