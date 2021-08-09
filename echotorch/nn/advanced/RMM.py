@@ -27,8 +27,8 @@ Created on 17th of July, 2020
 # Imports
 import torch
 from echotorch.nn.linear.RRCell import RRCell
-from ..reservoir import ESN
-from ..Node import Node
+from echotorch.nn.reservoir import ESN
+from echotorch.nn.Node import Node
 
 
 # Reservoir Memory Machines

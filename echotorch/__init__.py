@@ -21,14 +21,12 @@
 
 
 # Imports
-import sys
-import warnings
 import pkg_resources
 from pkg_resources import parse_version
 
 # Echotorch imports
 from . import datasets
-from . import evaluation
+from .utils import evaluation
 from . import models
 from . import nn
 from . import transforms

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/models/__init__.py
-# Description : Models init.
-# Date : 09th of April, 2018
+# File : echotorch/nn/machines/__init__.py
+# Description : Turing/non-Turing machines models using Reservoir Computing
+# Date : 17th of July, 2020
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,8 +17,12 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>
+# Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
 from .HNilsNet import HNilsNet
 from .NilsNet import NilsNet
+from .RMM import RMM
+
+# All
+__all__ = ['HNilsNet', 'NilsNet', 'RMM']

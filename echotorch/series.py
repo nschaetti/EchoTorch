@@ -25,7 +25,7 @@ from typing import Union
 import torch
 import torchvision
 import echotorch.datasets as etds
-import echotorch.evaluation as etev
+import echotorch.utils.evaluation as etev
 import echotorch.transforms.images as etim
 import echotorch.transforms.targets as etta
 
