@@ -1,4 +1,4 @@
-echotorch\.tools package
+echotorch\.utils package
 ========================
 
 Submodules

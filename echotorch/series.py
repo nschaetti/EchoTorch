@@ -212,21 +212,46 @@ def discrete_markov_chain(
 
 # Henon attractor
 def henon(
-        size: int, length: int, xy: int, a: int, b: int, washout: int = 0, normalize: bool = False,
-        return_db: bool = False, dtype=None
+        size: int,
+        length: int,
+        xy: int,
+        a: int,
+        b: int,
+        washout: int = 0,
+        normalize: bool = False,
+        return_db: bool = False,
+        dtype=None
 ) -> Union[etds.EchoDataset, torch.Tensor]:
-    """
-    Henon attractor
-    @param size: How many samples
-    @param length: Length
-    @param xy:
-    @param a:
-    @param b:
-    @param washout:
-    @param normalize:
-    @param return_db:
-    @param dtype:
-    @return:
+    """Generate a series with the Hénon map dynamical system.
+
+    The Hénon-Pomean attractor is a dynamical system which exhibit chaotic behavior. Each point :math:`(x_n, y_n)` in
+    the plane is mapped to the new point
+
+    .. math::
+        \sum_{i=1}^{\\infty} x_{i}
+
+    :param size: How many samples to generate
+    :type size: int
+    :param length: Length of samples (time)
+    :type length: int
+    :param xy: Parameter
+    :type xy: int
+    :param a: Parameter
+    :type a: int
+    :param b: Parameter
+    :type b: int
+    :param washout: Time steps to remove at the beginning of samples
+    :type washout: int
+    :param normalize: Normalize samples
+    :type normalize: bool
+    :param return_db: Return the database object
+    :type return_db: bool
+    :param dtype: Tensor data type
+    :type dtype: ``torch.dtype``
+
+    Examples::
+        >>> echotorch.henon(1, 100, 1, 2, 3)
+        timetensor([...])
     """
     if return_db:
         return etds.HenonAttractor(
