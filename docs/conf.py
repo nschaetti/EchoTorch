@@ -40,7 +40,8 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
-    'sphinx.ext.imgmath'
+    'sphinx.ext.imgmath',
+    'rst2pdf.pdfbuilder'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -147,6 +148,7 @@ latex_documents = [
     (master_doc, 'EchoTorch.tex', u'EchoTorch Documentation',
      u'Nils Schaetti', 'manual'),
 ]
+latex_docclass = {'manual': 'book'}
 
 
 # -- Options for manual page output ---------------------------------------
@@ -170,7 +172,7 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
+# Don't show class members
 numpydoc_show_class_members = False
 
 # generate autosummary even if no references
@@ -183,3 +185,8 @@ add_module_names = True
 autodoc_remove_type_hints = [
     "function", "method"
 ]
+
+# Latex preamble
+imgmath_latex_preamble = r'\usepackage{amsmath}' \
+                         r'\usepackage[T1,T2A]{fontenc}'
+

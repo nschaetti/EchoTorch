@@ -26,12 +26,15 @@ Created on 5th November 2019
 
 # Imports
 import torch
-from ..linear import IncRRCell, IncForgRRCell
-from .IncSPESNCell import IncSPESNCell
-from .IncForgSPESNCell import IncForgSPESNCell
-from .SPESNCell import SPESNCell
-from ..reservoir import ESN
-from ..Node import Node
+
+# EchoTorch imports
+from echotorch.nn.linear.IncRRCell import IncRRCell
+from echotorch.nn.linear.IncForgRRCell import IncForgRRCell
+from echotorch.nn.conceptors.SPESNCell import SPESNCell
+from echotorch.nn.conceptors.IncSPESNCell import IncSPESNCell
+from echotorch.nn.conceptors.IncForgSPESNCell import IncForgSPESNCell
+from echotorch.nn.Node import Node
+from echotorch.models.reservoir.ESN import ESN
 
 
 # Self-Predicting Echo State Network module with incremental learning

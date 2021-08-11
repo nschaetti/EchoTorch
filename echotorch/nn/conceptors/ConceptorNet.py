@@ -25,9 +25,8 @@ Created on 26 January 2018
 """
 
 # Imports
-import torch
 from ..reservoir import ESN
-from .SPESN import SPESN
+from echotorch.models.conceptors.SPESN import SPESN
 
 
 # Conceptor Network

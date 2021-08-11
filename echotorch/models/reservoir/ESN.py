@@ -28,8 +28,8 @@ Created on 26 January 2018
 import torch
 import echotorch.utils.matrix_generation as mg
 from echotorch.nn.linear.RRCell import RRCell
-from ..Node import Node
-from .ESNCell import ESNCell
+from echotorch.nn.Node import Node
+from echotorch.nn.reservoir.ESNCell import ESNCell
 
 
 # Echo State Network module.

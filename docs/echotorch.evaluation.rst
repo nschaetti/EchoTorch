@@ -1,6 +1,0 @@
-echotorch\.evaluation package
-========================
-
-Submodules
-----------
-

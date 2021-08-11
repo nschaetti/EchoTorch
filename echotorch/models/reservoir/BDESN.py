@@ -27,7 +27,7 @@ Created on 26 January 2018
 # Imports
 import torch
 import torch.nn as nn
-from .BDESNCell import BDESNCell
+from echotorch.nn.reservoir.BDESNCell import BDESNCell
 from echotorch.nn.linear.RRCell import RRCell
 
 

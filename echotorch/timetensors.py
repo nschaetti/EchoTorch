@@ -33,6 +33,8 @@ ERROR_WRONG_TIME_LENGTHS_SIZES = "The sizes of the time lengths tensor should be
 ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 
 
+# region TIMETENSOR
+
 # TimeTensor
 def check_time_lengths(
         time_len: int,
@@ -676,3 +678,197 @@ class TimeTensor(object):
     # endregion STATIC
 
 # end TimeTensor
+
+# endregion TIMETENSOR
+
+
+# region VARIANTS
+
+# Float time tensor
+class FloatTimeTensor(TimeTensor):
+    r"""Float time tensor.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> None:
+        r"""Float TimeTensor constructor
+
+        Args:
+            data: The data in a torch tensor to transform to timetensor.
+            time_lengths: Lengths of each timeseries.
+            time_dim: The position of the time dimension.
+        """
+        # Super call
+        super(FloatTimeTensor, self).__init__(
+            self,
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+
+        # Transform type
+        self.float()
+    # end __init__
+
+# end FloatTimeTensor
+
+
+# Double time tensor
+class DoubleTimeTensor(TimeTensor):
+    r"""Double time tensor.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> None:
+        r"""Double TimeTensor constructor
+
+        Args:
+            data: The data in a torch tensor to transform to timetensor.
+            time_lengths: Lengths of each timeseries.
+            time_dim: The position of the time dimension.
+        """
+        # Super call
+        super(DoubleTimeTensor, self).__init__(
+            self,
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+
+        # Cast data
+        self.double()
+    # end __init__
+
+# end DoubleTimeTensor
+
+
+# Half time tensor
+class HalfTimeTensor(TimeTensor):
+    r"""Half time tensor.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> None:
+        r"""Half TimeTensor constructor
+
+        Args:
+            data: The data in a torch tensor to transform to timetensor.
+            time_lengths: Lengths of each timeseries.
+            time_dim: The position of the time dimension.
+        """
+        # Super call
+        super(HalfTimeTensor, self).__init__(
+            self,
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+
+        # Cast data
+        self.halt()
+    # end __init__
+
+# end HalfTimeTensor
+
+
+# 16-bit floating point 2 time tensor
+class BFloat16Tensor(TimeTensor):
+    r"""16-bit floating point 2 time tensor.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> None:
+        r"""16-bit TimeTensor constructor
+
+        Args:
+            data: The data in a torch tensor to transform to timetensor.
+            time_lengths: Lengths of each timeseries.
+            time_dim: The position of the time dimension.
+        """
+        # Super call
+        super(BFloat16Tensor, self).__init__(
+            self,
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+    # end __init__
+
+# end BFloat16Tensor
+
+
+# 8-bit integer (unsigned) time tensor
+class ByteTimeTensor(TimeTensor):
+    r"""8-bit integer (unsigned) time tensor.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> None:
+        r"""8-bit integer (unsigned) TimeTensor constructor
+
+        Args:
+            data: The data in a torch tensor to transform to timetensor.
+            time_lengths: Lengths of each timeseries.
+            time_dim: The position of the time dimension.
+        """
+        # Super call
+        super(ByteTimeTensor, self).__init__(
+            self,
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+    # end __init__
+
+# end ByteTimeTensor
+
+
+# 8-bit integer (signed) time tensor
+class CharTimeTensor(TimeTensor):
+    r"""8-bit integer (unsigned) time tensor.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'TimeTensor'],
+            time_lengths: Optional[torch.LongTensor] = None,
+            time_dim: Optional[int] = 0
+    ) -> None:
+        # Super call
+        super(CharTimeTensor, self).__init__(
+            self,
+            data,
+            time_lengths=time_lengths,
+            time_dim=time_dim
+        )
+    # end __init__
+
+# end CharTimeTensor
+
+# endregion VARIANTS

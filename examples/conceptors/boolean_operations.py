@@ -22,7 +22,7 @@
 # Imports
 import echotorch.nn.conceptors as ecnc
 import echotorch.utils.matrix_generation as mg
-import echotorch.utils.visualisation as ecvs
+import echotorch.visualisation as ecvs
 import argparse
 import torch
 import matplotlib.pyplot as plt

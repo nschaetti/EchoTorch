@@ -21,7 +21,7 @@
 
 import torch.sparse
 import torch.nn as nn
-from echotorch.nn.reservoir.LiESN import LiESN
+from echotorch.models.reservoir.LiESN import LiESN
 
 
 # An ESN with an embedding layer

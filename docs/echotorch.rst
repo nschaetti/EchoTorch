@@ -6,6 +6,8 @@ CUDA counterparts are given for you to run your experiments on NVIDIA GPUs.
 
 .. currentmodule:: echotorch
 
+.. _timetensor-base:
+
 TimeTensors
 -----------
 .. autosummary::
@@ -73,27 +75,3 @@ Random sampling
 In-place random sampling
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Timeseries and random processes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-    :toctree: generated
-    :nosignatures:
-
-    random_walk
-    moving_average
-    markov_chain
-
-Attractors and chaotic timeseries
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-    :toctree: generated
-    :nosignatures:
-
-    henon
-    logistic_map
-    lorenz_map
-    lorenz
-    mackey_glass
-    rossler

@@ -25,9 +25,8 @@ from .ConceptorNet import ConceptorNet
 from .ConceptorSet import ConceptorSet
 from .IncConceptorNet import IncConceptorNet
 from .IncForgSPESNCell import IncForgSPESNCell
-from .IncSPESN import IncSPESN
 from .IncSPESNCell import IncSPESNCell
-from .SPESN import SPESN
+from echotorch.models.conceptors.SPESN import SPESN
 from .SPESNCell import SPESNCell
 
 # All

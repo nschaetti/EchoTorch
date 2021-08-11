@@ -28,9 +28,9 @@ Created on 5th November 2019
 import math
 import torch
 from torch.autograd import Variable
-from echotorch.nn.reservoir.ESNCell import ESNCell
+
+# EchoTorch imports
 from .SPESNCell import SPESNCell
-import matplotlib.pyplot as plt
 
 
 # Self-Predicting ESN Cell with incremental learning

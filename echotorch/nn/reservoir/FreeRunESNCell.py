@@ -30,7 +30,7 @@ import torch.sparse
 from torch.autograd import Variable
 
 import echotorch.utils
-from echotorch.utils.visualisation import Observable
+from echotorch.visualisation import Observable
 from .LiESNCell import LiESNCell
 
 

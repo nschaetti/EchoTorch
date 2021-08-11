@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/nn/reservoir/__init__.py
-# Description : nn/reservoir init file.
-# Date : 29th of October, 2019
+# File : echotorch/nn/ESN.py
+# Description : An Echo State Network module.
+# Date : 26th of January, 2018
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,20 +17,9 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright Nils Schaetti <nils.schaetti@unine.ch>
+# Copyright Nils Schaetti, University of Neuchâtel <nils.schaetti@unine.ch>
+
 
 # Imports
-from .BDESNCell import BDESNCell
-from .BDESNPCA import BDESNPCA
-from .DeepESN import DeepESN
-from .EESN import EESN
-from echotorch.models.reservoir.ESN import ESN
-from .ESNCell import ESNCell
-from .GatedESN import GatedESN
-from .HESN import HESN
-from .LiESNCell import LiESNCell
-
-# All
-__all__ = [
-    'BDESN', 'BDESNPCA', 'DeepESN', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'StackedESN'
-]
+from .IncSPESN import IncSPESN
+from .SPESN import SPESN

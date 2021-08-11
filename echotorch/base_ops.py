@@ -27,8 +27,10 @@ import numpy as np
 import torch
 
 # Import local
-from .timetensor import TimeTensor
+from echotorch import TimeTensor
 
+
+# region CREATION_OPS
 
 # Constructs a timetensor with data.
 def timetensor(
@@ -363,3 +365,190 @@ def zeros(
         requires_grad=requires_grad,
     )
 # end new_zeros
+
+# endregion CREATION_OPS
+
+# region DISTRIBUTION_OPS
+
+# Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
+def rand(
+        size: Tuple[int],
+        time_length: int,
+        out: Optional[TimeTensor] = None,
+        dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = torch.strided,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> TimeTensor:
+    r"""Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
+
+    :param size: Size
+    :type size: Tuple[int]
+    :param fill_value: the value to fill the output timetensor with.
+    :type fill_value: Scalar
+    :param time_length: Length of the timeseries
+    :type time_length: int
+    :param dtype: ``TimeTensor`` data type
+    :type dtype: torch.dtype
+    :param device: Destination device
+    :type device: torch.device
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool
+    :return: A ``TimeTensor`` of size size filled with zeros
+    :rtype: ``TimeTensor``
+
+    Example::
+        >>> x = echotorch.rand((1), time_length=10)
+        timetensor([[1.], [1.], [1.], [1.], [1.]])
+    """
+    return TimeTensor.new_timetensor_with_func(
+        size,
+        func=torch.rand,
+        time_length=time_length,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+        layout=layout
+    )
+# end rand
+
+# endregion DISTRIB_OPS
+
+# region UTILITY_OPS
+
+# Concatenate on time dim
+def tcat(
+        *tensors: Tuple[TimeTensor]
+) -> TimeTensor:
+    r"""Concatenate a given list of ``n`` timetensors or tensor on the time dimension. All timetensors
+    must have the same shape (except the time dimensions) and the same time dimension
+    specified or be empty. If PyTorch tensors are in the sequence, they must have the same shape and they
+    will be concatenated on the same dimension as specified as time dimension in  the timetensors. The concatenation
+    will fail if there is only PyTorch tensors in the sequence.
+
+    ``echotorch.tcat()`` is the inverse of ``echotorch.tsplit()`` and ``echotorch.tchunk()``.
+
+    :param tensors: A sequence of timetensors or tensors of the same type, same time dimension and same shape.
+    :return: The timetensors/tensors concatenated in a single timetensor.
+    :return: ``TimeTensor``
+
+    Parameters:
+        **tensors** (sequence of ``TimeTensors``) - any python sequence of timetensors or PyTorch tensors of the same
+        type. If timetensors are not empty, they must have the same shape, except the time dimension, and the same
+        time dimension specified. If PyTorch tensors are in the sequence, they must have the same shape and they
+        will be concatenated on the same dimension as specified as time dimension in  the timetensors. The concatenation
+        will fail if there is only PyTorch tensors in the sequence.
+
+    Key Arguments:
+        **out** (``TimeTensor``, optional) - the output timetensor.
+
+    Example::
+
+        >>> x = echotorch.randn(2, time_length=20)
+        >>> x
+        timetensor([[....]])
+        >>> echotorch.tcat((x, x, x))
+        timetensor([[...]])
+
+    """
+    # None
+    if len(tensors) == 0:
+        return None
+    # end if
+
+    # First time dim and ndim
+    time_dim = tensors[0].time_dim
+    ndim = tensors[0].ndim
+
+    # Check all tensor
+    for tensor in tensors:
+        if tensor.time_dim != time_dim or tensor.ndim != ndim:
+            raise Exception(
+                "Tensor 1 and 2 must have the same number of dimension and the same time dimension (here {}/{} "
+                "and {}/{}".format(ndim, time_dim, tensor.ndim, tensor.time_dim)
+            )
+        # end if
+    # end if
+
+    # Time tensor
+    return torch.cat(tensors, dim=time_dim)
+# end tcat
+
+
+# Concatenate time-related dimension
+def cat(tensors: Tuple[TimeTensor], dim: int = 0) -> Union[TimeTensor, Any]:
+    """Concatenate time-related dimensions
+    """
+    # None
+    if len(tensors) == 0:
+        return None
+    # end if
+
+    # First time dim and ndim
+    time_dim = tensors[0].time_dim
+    ndim = tensors[0].ndim
+    tlen = tensors[0].tlen
+
+    # Check all tensor
+    for tensor in tensors:
+        if tensor.time_dim != time_dim or tensor.ndim != ndim or tensor.tlen != tlen:
+            raise Exception(
+                "Tensor 1 and 2 must have the same number of dimension, the same time dimension and the same "
+                "time length (here {}/{}, {}/{} and {}/{})".format(
+                    ndim,
+                    tensor.ndim,
+                    time_dim,
+                    tensor.time_dim,
+                    tlen,
+                    tensor.tlen
+                )
+            )
+        # end if
+    # end if
+
+    # Time tensor
+    return torch.cat(tensors, dim=time_dim+1+dim)
+# end cat
+
+
+# Select time index in tensor
+def tindex_select(
+        input: TimeTensor,
+        indices: Union[torch.IntTensor, torch.LongTensor]
+) -> TimeTensor:
+    """
+    Select time index in time tensor
+    """
+    return torch.index_select(
+        input,
+        input.time_dim,
+        indices
+    )
+# end tindex_select
+
+
+# Is timetensor
+def is_timetensor(obj) -> bool:
+    r"""Returns True if `obj` is an EchoTorch timetensor.
+
+    Note that this function is simply doing ``isinstance(obj, TimeTensor)``.
+    Using that ``isinstance`` check is better for typechecking with mypy,
+    and more explicit - so it's recommended to use that instead of
+    ``is_timetensor``.
+
+    :param obj: The object to test
+    :type obj: `object`
+    :return: True if `obj` is an EchoTorch timetensor
+    :rtype: bool
+
+    Example::
+
+        >>> x = echotorch.timetensor([1,2,3], time_dim=0)
+        >>> echotorch.is_timetensor(x)
+        True
+
+    """
+    return isinstance(obj, TimeTensor)
+# end is_timetensor
+
+# endregion UTILITY_OPS

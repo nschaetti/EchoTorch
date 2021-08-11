@@ -27,7 +27,7 @@ import echotorch.utils.matrix_generation as mg
 import argparse
 import echotorch.utils
 import echotorch.datasets as etds
-import echotorch.utils.visualisation as ecvs
+import echotorch.visualisation as ecvs
 from echotorch.datasets import DatasetComposer
 from torch.utils.data.dataloader import DataLoader
 import matplotlib.pyplot as plt

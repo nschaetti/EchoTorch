@@ -24,31 +24,14 @@
 import pkg_resources
 from pkg_resources import parse_version
 
-# Echotorch imports
-from . import datasets
-from .utils import evaluation
-from . import nn
-from . import timetensors
-from . import transforms
-from . import utils
-
-# Utility functions
-from .conceptors import conceptor, cone, czero, cidentity, OR, AND, NOT, PHI, conceptor_set
-from .conceptors import csim, csimilarity
-from .matrices import cycle_with_jumps, cycle_with_jumps_generator, matlab, matlab_generator, normal, normal_generator
-from .matrices import uniform, uniform_generator
-from .modules import esn
-from .series import copytask, cross_eval, delaytask, discrete_markov_chain, csv_file, henon, segment_series
-
 # TimeTensors
-from .timetensors import TimeTensor, as_timetensor, timetensor, is_timetensor, from_numpy, cat, zeros, tcat, empty
-from .timetensors import tcat, tindex_select, ones, full, rand
+from .timetensors import TimeTensor, CharTimeTensor, DoubleTimeTensor, ByteTimeTensor, FloatTimeTensor
+from .timetensors import BFloat16Tensor, HalfTimeTensor
+from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, timetensor, is_timetensor, as_timetensor
+from .base_ops import tindex_select
 
-# Utils
-from .training_and_evaluation import fit, eval, cross_val_score
-from .utils.esko import esn_regressor, esn_predictor, esn_classifier
-from .utils.utility_functions import autocorrelation_coefs, cov, autocorrelation_function
-from .utils.utility_functions import autocorrelation_coefs as acc
+# Nodes
+from .nodes import Node
 
 
 # Min Torch version
@@ -85,13 +68,15 @@ if parse_version(torch_version) < parse_version(MIN_TORCH_VERSION):
 
 # All echotorch's modules
 __all__ = [
-    'esn', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
-    'cross_val_score', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon',
-    'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
-    'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
-    'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
-    'cov', 'autocorrelation_function', 'acc',
-    # TimeTensors
+    # 'esn', 'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils', 'fit', 'eval',
+    # 'cross_val_score', 'copytask', 'discrete_markov_chain', 'csv_file', 'henon',
+    # 'delaytask', 'cross_eval', 'segment_series', 'cycle_with_jumps', 'matlab', 'normal', 'uniform',
+    # 'cycle_with_jumps_generator', 'matlab_generator', 'normal_generator', 'uniform_generator', 'conceptor', 'cone',
+    # 'czero', 'cidentity', 'OR', 'AND', 'NOT', 'PHI', 'conceptor_set', 'csim', 'csimilarity', 'autocorrelation_coefs',
+    # 'cov', 'autocorrelation_function', 'acc',
+    # Submodels
+    # 'data', 'models', 'nn', 'skecho', 'transforms', 'utils', 'viz',
+    # TimeTensors and base ops
     'TimeTensor', 'as_timetensor', 'timetensor', 'is_timetensor', 'from_numpy', 'cat', 'zeros', 'tcat', 'empty', 'tcat',
     'tindex_select', 'ones', 'full', 'rand'
 ]

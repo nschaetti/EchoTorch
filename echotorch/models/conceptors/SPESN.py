@@ -26,10 +26,12 @@ Created on 26 January 2018
 
 # Imports
 import torch
+
+# EchoTorch imports
 from echotorch.nn.linear.RRCell import RRCell
-from .SPESNCell import SPESNCell
-from ..reservoir import ESN
-from ..Node import Node
+from echotorch.nn.Node import Node
+from echotorch.nn.conceptors.SPESNCell import SPESNCell
+from echotorch.models.reservoir.ESN import ESN
 
 
 # Self-Predicting Echo State Network module.

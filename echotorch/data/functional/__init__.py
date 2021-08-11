@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/nn/reservoir/__init__.py
-# Description : nn/reservoir init file.
-# Date : 29th of October, 2019
+# File : echotorch/datasets/functional/__init__.py
+# Description : Series generation functions init file for subpackage
+# Date : 10th of August, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,18 +19,12 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
+
 # Imports
-from .BDESNCell import BDESNCell
-from .BDESNPCA import BDESNPCA
-from .DeepESN import DeepESN
-from .EESN import EESN
-from echotorch.models.reservoir.ESN import ESN
-from .ESNCell import ESNCell
-from .GatedESN import GatedESN
-from .HESN import HESN
-from .LiESNCell import LiESNCell
+from .chaotic import henon
 
 # All
 __all__ = [
-    'BDESN', 'BDESNPCA', 'DeepESN', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'StackedESN'
+    # Chaotic
+    'henon'
 ]

@@ -1,38 +1,27 @@
 echotorch\.datasets package
 ===========================
+The echotorch datasets package contains functions and Dataset object for timeseries generation.
 
-Submodules
-----------
+.. currentmodule:: echotorch.datasets
 
-echotorch\.datasets\.MackeyGlassDataset module
-----------------------------------------------
+Random processes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: echotorch.datasets.MackeyGlassDataset
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
 
-echotorch\.datasets\.MemTestDataset module
-------------------------------------------
+    functional.random_walk <random_walk>
+    functional.moving_average <moving_average>
+    functional.markov_chain <markov_chain>
 
-.. automodule:: echotorch.datasets.MemTestDataset
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Attractors and chaotic timeseries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-echotorch\.datasets\.NARMADataset module
-----------------------------------------
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
 
-.. automodule:: echotorch.datasets.NARMADataset
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    functional.henon <henon>
 
 
-Module contents
----------------
-
-.. automodule:: echotorch.datasets
-    :members:
-    :undoc-members:
-    :show-inheritance:

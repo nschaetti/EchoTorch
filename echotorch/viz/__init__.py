@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/nn/reservoir/__init__.py
-# Description : nn/reservoir init file.
-# Date : 29th of October, 2019
+# File : echotorch/utils/visualisation/__init__.py
+# Description : Utility classes and functions for visualisation, init file.
+# Date : 6th of November, 2019
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,17 +20,20 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from .BDESNCell import BDESNCell
-from .BDESNPCA import BDESNPCA
-from .DeepESN import DeepESN
-from .EESN import EESN
-from echotorch.models.reservoir.ESN import ESN
-from .ESNCell import ESNCell
-from .GatedESN import GatedESN
-from .HESN import HESN
-from .LiESNCell import LiESNCell
+from .ESNCellObserver import ESNCellObserver
+from .NodeObserver import NodeObserver
+from .Observable import Observable
+from .ObservationPoint import ObservationPoint
+from .StateVisualiser import StateVisualiser
+from .timeplots import timescatter
+from .visualisation import show_similarity_matrix, plot_2D_ellipse
+from .Visualiser import Visualiser
 
-# All
+# ALL
 __all__ = [
-    'BDESN', 'BDESNPCA', 'DeepESN', 'EESN', 'ESN', 'ESNCell', 'GatedESN', 'HESN', 'LiESN', 'LiESNCell', 'StackedESN'
+    'ESNCellObserver', 'NodeObserver', 'Observable', 'ObservationPoint', 'StateVisualiser', 'Visualiser',
+    # Timeplots
+    'timescatter',
+    # Visualisation
+    'show_similarity_matrix', 'plot_2D_ellipse'
 ]

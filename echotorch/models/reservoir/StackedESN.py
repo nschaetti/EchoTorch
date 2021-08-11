@@ -29,9 +29,9 @@ import torch.sparse
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from .LiESNCell import LiESNCell
-from ..linear.RRCell import RRCell
-from .ESNCell import ESNCell
+from echotorch.nn.reservoir.LiESNCell import LiESNCell
+from echotorch.nn.linear.RRCell import RRCell
+from echotorch.nn.reservoir.ESNCell import ESNCell
 import numpy as np
 
 

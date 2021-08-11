@@ -25,9 +25,9 @@ Created on 26 January 2018
 """
 
 import torch
-from .LiESNCell import LiESNCell
-from echotorch.nn.reservoir.ESN import ESN
-from ..Node import Node
+from echotorch.nn.reservoir.LiESNCell import LiESNCell
+from echotorch.models.reservoir.ESN import ESN
+from echotorch.nn.Node import Node
 
 
 # Leaky-Integrated Echo State Network module
