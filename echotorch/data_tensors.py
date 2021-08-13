@@ -46,6 +46,11 @@ class DataIndexer(object):
             raise ValueError("Int cannot be used as key")
         # end if
 
+        # Check if there is duplicates
+        if len(keys) != len(set(keys)):
+            raise ValueError("Key indexing of a tensor cannot accept duplicates")
+        # end if
+
         # Properties
         self._size = len(keys)
         self._keys_to_indices = self._create_keys_to_indices(keys)
@@ -94,7 +99,11 @@ class DataIndexer(object):
         elif isinstance(key, dict):
             return {k: self.to_index(v) for k, v in key.items()}
         else:
-            return self._keys_to_indices[key]
+            if type(key) is int:
+                return key
+            else:
+                return self._keys_to_indices[key]
+            # end if
         # end if
     # end to_index
 
@@ -300,6 +309,26 @@ class DataTensor(BaseTensor):
         # end if
     # end get_index
 
+    # Get key for an index
+    def get_key(self, dim: int, key: Any) -> Any:
+        r"""Get key for an index
+        """
+        if type(key) is int:
+            # Get dict for this dim
+            dim_indexer = self._keys[dim]
+
+            # If not empty
+            if dim_indexer is not None:
+                # Return value
+                return dim_indexer.to_keys(key)
+            else:
+                return None
+            # end if
+        else:
+            return key
+        # end if
+    # end get_key
+
     # Key exists
     def is_in(self, dim: int, key: Any) -> bool:
         r"""Does the key exists.
@@ -345,9 +374,22 @@ class DataTensor(BaseTensor):
         elif isinstance(item, tuple):
             return tuple([self.get_index(el_i, el) for el_i, el in enumerate(item)])
         else:
-            return self.get_index(item, 0)
+            return self.get_index(0, item)
         # end if
     # end _trans_idx_item
+
+    # Transform indexing item to keys
+    def _trans_key_item(self, item):
+        r"""Transform indexing item to keys
+        """
+        # List, tuple or list
+        if isinstance(item, list):
+            return [self.get_key(0, el) for el in item]
+        elif isinstance(item, tuple):
+            return tuple([self.get_key(el_i, el) for el_i, el in enumerate(item)])
+        else:
+            return self.get_key(0, item)
+    # end _trans_key_item
 
     # endregion PRIVATE
 
@@ -395,7 +437,13 @@ class DataTensor(BaseTensor):
         # Get data
         tensor_data = self._tensor[self._trans_idx_item(item)]
 
-        return DataTensor(tensor_data)
+        # Get keys
+        tensor_keys = self._trans_key_item(item)
+        print("")
+        print("item: {}".format(item))
+        print("data: {}".format(tensor_data.size()))
+        print("keys: {}".format(tensor_keys))
+        return DataTensor(tensor_data, tensor_keys)
     # end __getitem__
 
     # Set item
