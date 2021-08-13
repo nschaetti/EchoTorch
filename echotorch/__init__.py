@@ -24,11 +24,18 @@
 import pkg_resources
 from pkg_resources import parse_version
 
+# BaseTensors
+from .base_tensors import BaseTensor, CharBaseTensor, DoubleBaseTensor, ByteBaseTensor, FloatBaseTensor
+from .base_tensors import BFloat16Tensor, HalfBaseTensor
+
+# DataTensors
+from .data_tensors import DataTensor, DataIndexer
+
 # TimeTensors
 from .timetensors import TimeTensor, CharTimeTensor, DoubleTimeTensor, ByteTimeTensor, FloatTimeTensor
 from .timetensors import BFloat16Tensor, HalfTimeTensor
 from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, timetensor, is_timetensor, as_timetensor
-from .base_ops import tindex_select
+from .base_ops import tindex_select, randn
 
 # Nodes
 from .nodes import Node
@@ -76,7 +83,13 @@ __all__ = [
     # 'cov', 'autocorrelation_function', 'acc',
     # Submodels
     # 'data', 'models', 'nn', 'skecho', 'transforms', 'utils', 'viz',
+    # BaseTensors
+    'BaseTensor',
+    'ByteBaseTensor', 'CharBaseTensor', 'HalfBaseTensor', 'DoubleBaseTensor', 'FloatBaseTensor',
+    # DataTensors
+    'DataTensor', 'DataIndexer',
     # TimeTensors and base ops
     'TimeTensor', 'as_timetensor', 'timetensor', 'is_timetensor', 'from_numpy', 'cat', 'zeros', 'tcat', 'empty', 'tcat',
-    'tindex_select', 'ones', 'full', 'rand'
+    'tindex_select', 'ones', 'full', 'rand', 'randn',
+    'ByteTimeTensor', 'CharTimeTensor', 'HalfTimeTensor', 'DoubleTimeTensor', 'FloatTimeTensor'
 ]

@@ -25,7 +25,7 @@ from .NodeObserver import NodeObserver
 from .Observable import Observable
 from .ObservationPoint import ObservationPoint
 from .StateVisualiser import StateVisualiser
-from .timeplots import timescatter
+from .timeplots import timescatter, timeplot
 from .visualisation import show_similarity_matrix, plot_2D_ellipse
 from .Visualiser import Visualiser
 
@@ -33,7 +33,7 @@ from .Visualiser import Visualiser
 __all__ = [
     'ESNCellObserver', 'NodeObserver', 'Observable', 'ObservationPoint', 'StateVisualiser', 'Visualiser',
     # Timeplots
-    'timescatter',
+    'timescatter', 'timeplot',
     # Visualisation
     'show_similarity_matrix', 'plot_2D_ellipse'
 ]

@@ -257,15 +257,6 @@ def empty(
         timetensor([[[1., 1., 1.],
                      [1., 1., 1.]]], device='cuda:0', dtype=torch.int32)
     """
-    """
-    Returns a TimeTensor of size size and time length time_length filled with uninitialized data. By default,
-    the returned TimeTensor has the same torch.dtype and torch.device as this tensor.
-    @param size:
-    @param time_length:
-    @param dtype:
-    @param device:
-    @param requires_grad:
-    """
     return TimeTensor.new_timetensor_with_func(
         size,
         func=torch.empty,
@@ -370,7 +361,7 @@ def zeros(
 
 # region DISTRIBUTION_OPS
 
-# Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
+# Random time series (uniform)
 def rand(
         size: Tuple[int],
         time_length: int,
@@ -384,8 +375,6 @@ def rand(
 
     :param size: Size
     :type size: Tuple[int]
-    :param fill_value: the value to fill the output timetensor with.
-    :type fill_value: Scalar
     :param time_length: Length of the timeseries
     :type time_length: int
     :param dtype: ``TimeTensor`` data type
@@ -401,20 +390,94 @@ def rand(
         >>> x = echotorch.rand((1), time_length=10)
         timetensor([[1.], [1.], [1.], [1.], [1.]])
     """
-    return TimeTensor.new_timetensor_with_func(
-        size,
-        func=torch.rand,
-        time_length=time_length,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad,
-        layout=layout
-    )
+    if out is not None:
+        out = TimeTensor.new_timetensor_with_func(
+            size,
+            func=torch.rand,
+            time_length=time_length,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            layout=layout
+        )
+        return out
+    else:
+        return TimeTensor.new_timetensor_with_func(
+            size,
+            func=torch.rand,
+            time_length=time_length,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            layout=layout
+        )
+    # end if
 # end rand
+
+
+# Random time series (uniform)
+def randn(
+        size: Tuple[int],
+        time_length: int,
+        out: Optional[TimeTensor] = None,
+        dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = torch.strided,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> TimeTensor:
+    r"""Returns a timetensor filled with random numbers from a normal distribution with mean :math:`\mu` 0 and
+    a standard :math:`\sigma^2` of 1 (standard normal distribution)
+
+    :param size: Size
+    :type size: Tuple[int]
+    :param time_length: Length of the timeseries
+    :type time_length: int
+    :param out: the output tensor.
+    :type out: ``TimeTensor``, optional
+    :param dtype: ``TimeTensor`` data type
+    :type dtype: torch.dtype
+    :param device: Destination device
+    :type device: torch.device
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool
+    :return: A ``TimeTensor`` of size *size* filled with zeros
+    :rtype: ``TimeTensor``
+
+    Example::
+        >>> x = echotorch.randn((), time_length=10)
+        timetensor(tensor([ 0.2610,  0.4589,  0.1833, -0.1209, -0.0103,  1.1757,  0.9236, -0.6117, 0.7906,
+        -0.1704]), time_dim: 0)
+    """
+    if out is not None:
+        out = TimeTensor.new_timetensor_with_func(
+            size,
+            func=torch.randn,
+            time_length=time_length,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            layout=layout
+        )
+        return out
+    else:
+        return TimeTensor.new_timetensor_with_func(
+            size,
+            func=torch.randn,
+            time_length=time_length,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad,
+            layout=layout
+        )
+    # end if
+# end randn
+
 
 # endregion DISTRIB_OPS
 
+
 # region UTILITY_OPS
+
 
 # Concatenate on time dim
 def tcat(

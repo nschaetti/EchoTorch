@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/timetensors/timetensor.py
+# File : echotorch/timetensor.py
 # Description : A special tensor with a time dimension
 # Date : 25th of January, 2021
 #
@@ -22,6 +22,7 @@
 # Imports
 from typing import Optional, Tuple, Union, List, Callable, Any
 import torch
+import numpy as np
 
 
 # Error
@@ -402,11 +403,7 @@ class TimeTensor(object):
         """
         return TimeTensor(
             self._tensor[item],
-            time_dim=self._time_dim,
-            dtype=self._tensor.dtype,
-            device=self._tensor.device,
-            requires_grad=self._tensor.requires_grad,
-            copy_data=False
+            time_dim=self._time_dim
         )
     # end indexing_timetensor
 
@@ -446,6 +443,14 @@ class TimeTensor(object):
     # endregion TORCH_FUNCTION
 
     # region OVERRIDE
+
+    # To numpy
+    def numpy(self) -> np.ndarray:
+        r"""To Numpy array
+
+        """
+        return self._tensor.numpy()
+    # end numpy
 
     # To CUDA device
     def cuda(
@@ -555,6 +560,50 @@ class TimeTensor(object):
                self.tensor.size() == other.tensor.size() and \
                torch.all(self.tensor == other.tensor)
     # end __eq__
+
+    # Scalar addition
+    def __add__(self, other):
+        r"""Scalar addition with timetensors
+
+        :param other: Scalar to add
+        :type other: Scalar
+        """
+        self._tensor += other
+        return self
+    # end __add__
+
+    # Scalar addition (right)
+    def __radd__(self, other):
+        r"""Scalar addition with timetensors (right)
+
+        :param other: Scalar to add
+        :type other: Scalar
+        """
+        self._tensor += other
+        return self
+    # end __radd__
+
+    # Scalar multiplication
+    def __mul__(self, other):
+        r"""Scalar multiplication with timetensors
+
+        :param other: Scalar multiplier
+        :type other: Scalar
+        """
+        self._tensor *= other
+        return self
+    # end __mul__
+
+    # Scalar multiplication (right)
+    def __rmul__(self, other):
+        r"""Scalar multiplication with timetensors
+
+        :param other: Scalar multiplier
+        :param type: Scalar
+        """
+        self._tensor *= other
+        return self
+    # end __rmul__
 
     # Torch functions
     def __torch_function__(

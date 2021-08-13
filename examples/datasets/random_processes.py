@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/datasets/functional/__init__.py
-# Description : Series generation functions init file for subpackage
-# Date : 10th of August, 2021
+# File : examples/datasets/random_processes.py
+# Description : Examples of time series generation based on random processes
+# Date : 12th of August, 2021
 #
 # This file is part of EchoTorch.  EchoTorch is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -21,13 +21,24 @@
 
 
 # Imports
-from .chaotic import henon
-from .random_processes import random_walk
+import matplotlib.pyplot as plt
+import torch
+import echotorch.data
+import echotorch.viz
 
-# All
-__all__ = [
-    # Chaotic
-    'henon',
-    # Random processes
-    'random_walk'
-]
+# Random seed
+torch.manual_seed(1)
+
+# Random walk
+random_walk = echotorch.data.random_walk(1, length=10000, shape=())
+
+# Plot random walk
+plt.figure()
+echotorch.viz.timeplot(
+    random_walk[0],
+    tstart=0.0,
+    tstep=0.01,
+    title="Random walk",
+    xlab="X_t"
+)
+plt.show()

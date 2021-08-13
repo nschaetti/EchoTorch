@@ -20,8 +20,9 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from typing import List, Any
+from typing import List, Dict, Optional, Tuple
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Import echotorch
 from echotorch import TimeTensor
@@ -30,45 +31,104 @@ from echotorch import TimeTensor
 # Show a 2D-timeseries as a set of points
 def timescatter(
         data: TimeTensor,
-        create_figure: bool = True,
-        show_figure: bool = True,
-        figure_options: List[Any] = None,
-        plot_options: List[Any] = None
+        title: Optional[str] = None,
+        xlab: Optional[str] = None,
+        ylab: Optional[str] = None,
+        xticks: Optional[List[float]] = None,
+        yticks: Optional[List[float]] = None,
+        xlim: Optional[Tuple[float]] = None,
+        ylim: Optional[Tuple[float]] = None,
+        **kwargs
 ) -> None:
-    r"""Show a 2D-timeseries on a 2D-plane as a set of points
+    r"""Show a 2D-timeseries as a set of points on a 2D scatter plot.
 
-    :param data:
-    :type data:
-    :param create_figure:
-    :type create_figure:
-    :param show_figure:
-    :type show_figure:
-    :param figure_options:
-    :type figure_options:
-    :param plot_options:
-    :type plot_options:
+    :param data: The ``TimeTensor`` to plot, there should be no batch dimensions and 2 channel dimensions.
+    :type data: ``TimeTensor`` of size (time length x 2)
+    :param title: Plot title
+    :type title: ``str``
+    :param xlab: X-axis label
+    :type xlab: ``str``
+    :param ylab: Y-axis label
+    :type ylab: ``str``
+    :param xticks: X-axis ticks
+    :type xticks: List of ``float``
+    :param yticks: Y-axis ticks
+    :type yticks: List of ``float``
+    :param xlim: X-axis start and end
+    :type xlim: Tuple of ``float``
+    :param ylim: Y-axis start and end
+    :type ylim: Tuple of ``float``
 
     Example
-        >>> echotorch.timepoints2d(...)
+        >>> x = echotorch.data.henon(1, 100, (0, 0), 1.4, 0.3, 0)
+        >>> echotorch.timescatter(x[0], title="Henon Attractor", xlab="x", ylab="y")
 
     """
-    # Create figure?
-    if create_figure and figure_options is not None:
-        plt.figure(**figure_options)
-    elif create_figure:
-        plt.figure()
-    # end if
+    # Plot properties
+    if title is not None: plt.title(title)
+    if xlab is not None: plt.xlabel(xlab)
+    if ylab is not None: plt.ylabel(ylab)
+    if xlim is not None: plt.xlim(xlim)
+    if ylim is not None: plt.ylim(ylim)
+    if xticks is not None: plt.xticks(xticks)
+    if yticks is not None: plt.yticks(yticks)
 
     # Plot
-    if plot_options is not None:
-        plt.scatter(data[:, 0], data[:, 1], **plot_options)
-    else:
-        plt.scatter(data[:, 0], data[:, 1])
-    # end if
-
-    # Show
-    if show_figure:
-        plt.show()
-    # end if
+    plt.scatter(data[:, 0], data[:, 1], **kwargs)
 # end timescatter
+
+
+# Plot a timetensor
+def timeplot(
+        data: TimeTensor,
+        title: Optional[str] = None,
+        tstart: Optional[float] = 0.0,
+        tstep: Optional[float] = 1.0,
+        tlab: Optional[str] = "Time",
+        xlab: Optional[str] = None,
+        tticks: Optional[List[float]] = None,
+        xticks: Optional[List[float]] = None,
+        tlim: Optional[Tuple[float]] = None,
+        xlim: Optional[Tuple[float]] = None,
+        **kwargs
+) -> None:
+    r"""Show a timeseries as lines on a plot.
+
+    :param data: The ``TimeTensor`` to plot, there should be no batch dimensions and 2 channel dimensions.
+    :type data: ``TimeTensor`` of size (time length x 2)
+    :param title: Plot title
+    :type title: ``str``
+    :param tstart: Starting time position on the Time-axis
+    :type tstart: ``float``
+    :param tstep: Time step on the Time-axis
+    :type tstep: ``float``
+    :param tlab: Time-axis label
+    :type tlab: ``str``
+    :param xlab: X-axis label
+    :type xlab: ``str``
+    :param tticks: Time-axis ticks
+    :type tticks: List of ``float``
+    :param xticks: X-axis ticks
+    :type xticks: List of ``float``
+    :param tlim: Time-axis start and end
+    :type tlim: Tuple of ``float``
+    :param xlim: X-axis start and end
+    :type xlim: Tuple of ``float``
+
+    Example
+        >>> x = echotorch.data.random_walk(1, length=10000, shape=())
+        >>> echotorch.timeplot(x[0], title="Random Walk", xlab="X_t")
+    """
+    # Plot properties
+    if title is not None: plt.title(title)
+    if tlab is not None: plt.xlabel(tlab)
+    if xlab is not None: plt.ylabel(xlab)
+    if tlim is not None: plt.xlim(tlim)
+    if xlim is not None: plt.ylim(xlim)
+    if tticks is not None: plt.xticks(tticks)
+    if xticks is not None: plt.yticks(xticks)
+
+    # Plot
+    plt.plot(np.arange(tstart, tstep * data.tlen, tstep), data[:], **kwargs)
+# end timeplot
 

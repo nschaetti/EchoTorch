@@ -34,7 +34,7 @@ def henon(
         a: float = 1.4,
         b: float = 0.3,
         washout: int = 0
-) -> List[echotorch.TimeTensor]:
+) -> Tuple[echotorch.TimeTensor]:
     """Generate a series with the Hénon map dynamical system.
 
     Definition
@@ -57,9 +57,9 @@ def henon(
         chaotic, intermittent, or converge to a periodic orbit.
 
     :param size: How many samples to generate
-    :type size: int
+    :type size: ``int``
     :param length: Length of samples (time)
-    :type length: int
+    :type length: ``int``
     :param xy: Starting position in the xy-plane
     :type xy: Tuple of ints
     :param a: System parameter (default: 1.4)
@@ -68,8 +68,8 @@ def henon(
     :type b: Float
     :param washout: Time steps to remove at the beginning of samples
     :type washout: int (default: 0)
-    :return: A list of ``TimeTensor`` with series generated from Henon's equations
-    :rtype: Tuple of ``TimeTensor``
+    :return: A ``list`` of ``TimeTensor`` with series generated from Henon's equations
+    :rtype: ``tuple`` of ``TimeTensor``
 
     Example
         >>> x = echotorch.datasets.functional.henon(1, 100, xy=(0, 0), a=1.4, b=0.3)

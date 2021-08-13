@@ -27,15 +27,13 @@ generate time series data for your research.
     :caption: Python API
 
     echotorch
-    echotorch.callbacks
-    echotorch.datasets
-    echotorch.evaluation
-    echotorch.helpers
+    echotorch.data
     echotorch.models
     echotorch.nn
-    echotorch.optim
+    echotorch.skecho
     echotorch.transforms
     echotorch.utils
+    echotorch.viz
 
 .. toctree::
     :glob:

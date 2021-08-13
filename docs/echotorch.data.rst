@@ -1,17 +1,17 @@
-echotorch\.datasets package
+echotorch\.data package
 ===========================
-The echotorch datasets package contains functions and Dataset object for timeseries generation.
+The echotorch data package contains functions and Dataset object for timeseries generation.
 
-.. currentmodule:: echotorch.datasets
+.. currentmodule:: echotorch.data
 
 Random processes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. autosummary::
     :toctree: generated
     :nosignatures:
 
-    functional.random_walk <random_walk>
+    random_walk
     functional.moving_average <moving_average>
     functional.markov_chain <markov_chain>
 
@@ -22,6 +22,6 @@ Attractors and chaotic timeseries
     :toctree: generated
     :nosignatures:
 
-    functional.henon <henon>
+    henon
 
 

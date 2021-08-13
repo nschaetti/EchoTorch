@@ -19,7 +19,11 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
-# Imports
+# Import functions
+from .functional.chaotic import henon
+from .functional.random_processes import random_walk
+
+# Imports datasets
 from .CopyTaskDataset import CopyTaskDataset
 from .DatasetComposer import DatasetComposer
 from .DelayDataset import DelayDataset
@@ -49,6 +53,9 @@ from .TransformDataset import TransformDataset
 from .TripletBatching import TripletBatching
 
 __all__ = [
+   # Functionals
+   'henon', 'random_walk',
+   # Datasets
    'CopyTaskDataset', 'DatasetComposer', 'DiscreteMarkovChainDataset', 'FromCSVDataset', 'HenonAttractor',
    'LambdaDataset', 'LatchTaskDataset', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset', 'MemTestDataset',
    'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset', 'RandomSymbolDataset',
