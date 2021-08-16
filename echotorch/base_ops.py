@@ -315,7 +315,7 @@ def ones(
 
 # Returns time tensor filled with zeros
 def zeros(
-        size: Tuple[int],
+        *size,
         time_length: int,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
@@ -348,7 +348,7 @@ def zeros(
         timetensor([ 0., 0., 0., 0., 0.])
     """
     return TimeTensor.new_timetensor_with_func(
-        size=size,
+        *size,
         func=torch.zeros,
         time_length=time_length,
         dtype=dtype,
@@ -361,9 +361,10 @@ def zeros(
 
 # region DISTRIBUTION_OPS
 
+
 # Random time series (uniform)
 def rand(
-        size: Tuple[int],
+        *size,
         time_length: int,
         out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
@@ -373,26 +374,32 @@ def rand(
 ) -> TimeTensor:
     r"""Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
 
-    :param size: Size
-    :type size: Tuple[int]
+    :param size: a sequence of integers defining the shape of the output timeseries. Can be a variable number of
+    arguments or a collection like a list or tuple.
+    :type size: int...
+    :param out: the output tensor.
+    :type out: ``TimeTensor``, optional
     :param time_length: Length of the timeseries
     :type time_length: int
-    :param dtype: ``TimeTensor`` data type
-    :type dtype: torch.dtype
+    :param dtype: the desired data type of returned timetensor. Default: if None, uses a global default
+    (see torch.set_default_tensor_type()).
+    :type dtype: ``torch.dtype``, optional
+    :param layout: the desired layout of returned TimeTensor. Default: torch.strided.
+    :type layout: ``torch.layout``, optional
     :param device: Destination device
-    :type device: torch.device
+    :type device: ``torch.device``, optional
     :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
+    :type requires_grad: ``bool``, optional
     :return: A ``TimeTensor`` of size size filled with zeros
     :rtype: ``TimeTensor``
 
     Example::
-        >>> x = echotorch.rand((1), time_length=10)
+        >>> x = echotorch.rand(1, time_length=10)
         timetensor([[1.], [1.], [1.], [1.], [1.]])
     """
     if out is not None:
         out = TimeTensor.new_timetensor_with_func(
-            size,
+            *size,
             func=torch.rand,
             time_length=time_length,
             dtype=dtype,
@@ -403,7 +410,7 @@ def rand(
         return out
     else:
         return TimeTensor.new_timetensor_with_func(
-            size,
+            *size,
             func=torch.rand,
             time_length=time_length,
             dtype=dtype,
@@ -475,7 +482,6 @@ def randn(
 
 # endregion DISTRIB_OPS
 
-
 # region UTILITY_OPS
 
 
@@ -539,7 +545,10 @@ def tcat(
 
 
 # Concatenate time-related dimension
-def cat(tensors: Tuple[TimeTensor], dim: int = 0) -> Union[TimeTensor, Any]:
+def cat(
+        tensors: Tuple[TimeTensor],
+        dim: int = 0
+) -> Union[TimeTensor, Any]:
     """Concatenate time-related dimensions
     """
     # None

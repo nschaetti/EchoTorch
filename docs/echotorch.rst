@@ -75,3 +75,14 @@ Random sampling
 In-place random sampling
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+Statistical Operations
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+
+    tmean
+    cov
+

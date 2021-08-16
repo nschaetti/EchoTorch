@@ -233,6 +233,15 @@ class BaseTensor(object):
 
     # region OVERRIDE
 
+    # Transpose
+    def t(self) -> torch.Tensor:
+        r"""Expects the basetensor to be <= 2-D tensor and transposes dimensions 0 and 1.
+
+        0-D and 1-D tensors are returned as is. When input is a 2-D tensor this is equivalent to ``transpose(input, 0, 1)``.
+        """
+        return self._tensor.t()
+    # end t
+
     # To numpy
     def numpy(self) -> np.ndarray:
         r"""To Numpy array
@@ -319,9 +328,31 @@ class BaseTensor(object):
                torch.all(self.tensor == other.tensor)
     # end __eq__
 
+    # Object addition
+    def __iadd__(self, other):
+        r"""Object addition with time tensors.
+
+        :param other: object to add
+        :type other: ``TimeTensor`` or ``torch.Tensor``
+        """
+        self._tensor += other
+        return self
+    # end __iadd__
+
+    # Object substraction
+    def __isub__(self, other):
+        r"""Object subtraction with time tensors.
+
+        :param other: object to add
+        :type other: ``TimeTensor`` or ``torch.Tensor``
+        """
+        self._tensor += other
+        return self
+    # end __isub__
+
     # Scalar addition
     def __add__(self, other):
-        r"""Scalar addition with timetensors
+        r"""Scalar addition with time tensors.
 
         :param other: Scalar to add
         :type other: Scalar
@@ -332,7 +363,7 @@ class BaseTensor(object):
 
     # Scalar addition (right)
     def __radd__(self, other):
-        r"""Scalar addition with timetensors (right)
+        r"""Scalar addition with time tensors (right)
 
         :param other: Scalar to add
         :type other: Scalar
@@ -341,9 +372,31 @@ class BaseTensor(object):
         return self
     # end __radd__
 
+    # Scalar subtraction
+    def __sub__(self, other):
+        r"""Scalar subtraction with time tensors.
+
+        :param other: Scalar to subtract.
+        :type other: scalar
+        """
+        self._tensor -= other
+        return self
+    # end __sub__
+
+    # Scalar subtraction (right)
+    def __rsub__(self, other):
+        r"""Scalar subtraction with time tensors (right).
+
+        :param other: Scalar to subtract.
+        :type other: scalar.
+        """
+        self._tensor -= other
+        return self
+    # end __rsub__
+
     # Scalar multiplication
     def __mul__(self, other):
-        r"""Scalar multiplication with timetensors
+        r"""Scalar multiplication with time tensors
 
         :param other: Scalar multiplier
         :type other: Scalar
@@ -354,7 +407,7 @@ class BaseTensor(object):
 
     # Scalar multiplication (right)
     def __rmul__(self, other):
-        r"""Scalar multiplication with timetensors
+        r"""Scalar multiplication with time tensors
 
         :param other: Scalar multiplier
         :param type: Scalar
@@ -362,6 +415,16 @@ class BaseTensor(object):
         self._tensor *= other
         return self
     # end __rmul__
+
+    def __truediv__(self, other):
+        r"""Scalar division with time tensors.
+
+        :param other: Scalar divisor.
+        :param type: Scalar.
+        """
+        self._tensor /= other
+        return self
+    # end __truediv__
 
     # Torch functions
     def __torch_function__(

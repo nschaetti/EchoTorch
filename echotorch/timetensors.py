@@ -24,6 +24,9 @@ from typing import Optional, Tuple, Union, List, Callable, Any
 import torch
 import numpy as np
 
+# EchoTorch imports
+from .base_tensors import BaseTensor
+
 
 # Error
 ERROR_TENSOR_TO_SMALL = "Time dimension does not exists in the data tensor " \
@@ -64,7 +67,7 @@ def check_time_lengths(
 # end check_time_lengths
 
 
-class TimeTensor(object):
+class TimeTensor(BaseTensor):
     """
     A  special tensor with a time and a batch dimension
     """
@@ -199,7 +202,7 @@ class TimeTensor(object):
         """
         Time length
         """
-        return self._tensor.size(self._time_dim)
+        return self._tensor.size()[self._time_dim]
     # end tlen
 
     # Time lengths
@@ -426,19 +429,41 @@ class TimeTensor(object):
         if dim <= self.time_dim:
             return TimeTensor(
                 func_output,
-                time_dim=self._time_dim+1,
-                device=self.device,
-                copy_data=False
+                time_dim=self._time_dim+1
             )
         else:
             return TimeTensor(
                 func_output,
-                time_dim=self._time_dim,
-                device=self.device,
-                copy_data=False
+                time_dim=self._time_dim
             )
         # end if
     # end after_unsqueeze
+
+    # After cat
+    def after_cat(
+            self,
+            func_output: Any,
+            *args,
+            **kwargs
+    ) -> 'TimeTensor':
+        r"""
+
+        Args:
+            func_output:
+            *args:
+            **kwargs:
+
+        Returns:
+
+        """
+        print("func_output: {}".format(func_output))
+        print("args: {}".format(args))
+        print("kwargs: {}".format(kwargs))
+        return TimeTensor(
+            data=func_output,
+            time_dim=self._time_dim
+        )
+    # end after cat
 
     # endregion TORCH_FUNCTION
 
@@ -555,55 +580,8 @@ class TimeTensor(object):
         @param other: The other time-tensor
         @return: True of False if the two time-tensors are equivalent
         """
-        return self.time_dim == other.time_dim and \
-               self.tensor.ndim == other.tensor.ndim and \
-               self.tensor.size() == other.tensor.size() and \
-               torch.all(self.tensor == other.tensor)
+        return super(TimeTensor, self).__eq__(other) and self.time_dim == other.time_dim
     # end __eq__
-
-    # Scalar addition
-    def __add__(self, other):
-        r"""Scalar addition with timetensors
-
-        :param other: Scalar to add
-        :type other: Scalar
-        """
-        self._tensor += other
-        return self
-    # end __add__
-
-    # Scalar addition (right)
-    def __radd__(self, other):
-        r"""Scalar addition with timetensors (right)
-
-        :param other: Scalar to add
-        :type other: Scalar
-        """
-        self._tensor += other
-        return self
-    # end __radd__
-
-    # Scalar multiplication
-    def __mul__(self, other):
-        r"""Scalar multiplication with timetensors
-
-        :param other: Scalar multiplier
-        :type other: Scalar
-        """
-        self._tensor *= other
-        return self
-    # end __mul__
-
-    # Scalar multiplication (right)
-    def __rmul__(self, other):
-        r"""Scalar multiplication with timetensors
-
-        :param other: Scalar multiplier
-        :param type: Scalar
-        """
-        self._tensor *= other
-        return self
-    # end __rmul__
 
     # Torch functions
     def __torch_function__(
@@ -649,14 +627,11 @@ class TimeTensor(object):
         # Create TimeTensor and returns or returns directly
         if hasattr(self, 'after_' + func.__name__):
             return getattr(self, 'after_' + func.__name__)(ret, **kwargs)
-        elif isinstance(ret, TimeTensor) or isinstance(ret, torch.Tensor):
+        elif isinstance(ret, torch.Tensor):
             # Return a new time tensor
             return TimeTensor(
                 ret,
-                time_dim=self._time_dim,
-                time_first=self._time_first,
-                device=self.device,
-                copy_data=False
+                time_dim=self._time_dim
             )
         else:
             return ret
@@ -694,7 +669,7 @@ class TimeTensor(object):
     @classmethod
     def new_timetensor_with_func(
             cls,
-            size: Tuple[int],
+            *size: Tuple[int],
             func: Callable,
             time_length: Union[int, torch.LongTensor],
             **kwargs

@@ -34,8 +34,13 @@ from .data_tensors import DataTensor, DataIndexer
 # TimeTensors
 from .timetensors import TimeTensor, CharTimeTensor, DoubleTimeTensor, ByteTimeTensor, FloatTimeTensor
 from .timetensors import BFloat16Tensor, HalfTimeTensor
+
+# Base operations
 from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, timetensor, is_timetensor, as_timetensor
 from .base_ops import tindex_select, randn
+
+# Stat operations
+from .stat_ops import tmean, cov
 
 # Nodes
 from .nodes import Node
