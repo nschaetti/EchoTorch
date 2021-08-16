@@ -31,15 +31,15 @@ from .base_tensors import BaseTensor
 
 # region DataIndexer
 class DataIndexer(object):
-    r"""Make the one-one relation between keys and indices
+    r"""Make the one-one relation between keys and indices.
     """
 
     # Constructor
     def __init__(self, keys: List[Any]) -> None:
         r"""Create a data indexer from a dictionary
 
-        :param keys:
-        :type keys:
+        :param keys: List of keys that will be assigned to row/column in a dimension.
+        :type keys: ``list`
         """
         # Check keys (not ints)
         if not self._check_keys(keys):
@@ -73,13 +73,20 @@ class DataIndexer(object):
         r"""List of indices
         """
         return list(self._indices_to_keys.keys())
+    # end indices
+
     # endregion PROPERTIES
 
     # region PUBLIC
 
     # To index
     def to_index(self, key: Union[List[Any], slice, Any]) -> Union[List[int], int, Dict, slice]:
-        r"""From key to index
+        r"""Transform a key to an index (int).
+
+        :param key: A key, a list of key, or a slice
+        :type key: A ``list``, a ``slice`` or any key value.
+        :return: The input transformed to an index.
+        :rtype: A ``list`` of ``int``, a ``int``, a ``dict`` or a ``slice``
         """
         if isinstance(key, list):
             return [self.to_index(el) for el in key]
@@ -100,8 +107,10 @@ class DataIndexer(object):
             return {k: self.to_index(v) for k, v in key.items()}
         else:
             if type(key) is int:
+                # It is not a key
                 return key
             else:
+                # Transform the key to an index
                 return self._keys_to_indices[key]
             # end if
         # end if
@@ -109,7 +118,7 @@ class DataIndexer(object):
 
     # To keys
     def to_keys(self, index: Union[List[int], int, Dict[Any, int]]) -> Union[List[Any], Any]:
-        r"""From index to keys
+        r"""Transform an index to a key.
         """
         if isinstance(index, list):
             return [self.to_keys(el) for el in index]
@@ -291,7 +300,12 @@ class DataTensor(BaseTensor):
 
     # Get index for a key
     def get_index(self, dim: int, key: Any) -> Any:
-        r"""Get index
+        r"""Get index for a key.
+
+        :param dim: The index of the dimension.
+        :type dim: ``int``
+        :param key: A key
+        :type key: Any value
         """
         if type(key) is int:
             return key
@@ -311,7 +325,7 @@ class DataTensor(BaseTensor):
 
     # Get key for an index
     def get_key(self, dim: int, key: Any) -> Any:
-        r"""Get key for an index
+        r"""Get key for an index.
         """
         if type(key) is int:
             # Get dict for this dim
@@ -364,9 +378,50 @@ class DataTensor(BaseTensor):
         return key_indexers
     # end _build_keys
 
+    # Remove keys
+    def _new_dataindex(self, index_item):
+        r"""Remove keys which are not in the final tensor.
+
+        :param item:
+        :type item:
+        :param keys:
+        :type keys:
+        :return:
+        :rtype:
+        """
+        # Keys
+        output_keys = list()
+        print("_remove_keys, item: {}".format(index_item))
+        print("_dataindex keys: {}".format(self.keys))
+        item_values = index_item if isinstance(index_item, tuple) else tuple((index_item, ))
+
+        # Transform in type
+        item_types = [type(el) for el in item_values]
+        # Number of dimension specified in items
+        n_dim = len(index_item) if isinstance(index_item, tuple) else 1
+        print("n_dim: {}".format(n_dim))
+        print("item_values: {}".format(item_values))
+        print("item_types: {}".format(item_types))
+        # Build data index
+        for el_i, data_index in enumerate(self.keys):
+            if el_i >= len(item_types) or item_types[el_i] is list or item_types[el_i] is slice:
+                if isinstance(data_index, DataIndexer):
+                    output_keys.append(data_index.keys)
+                else:
+                    output_keys.append(None)
+                # end if
+            # end if
+        # end for
+
+        return output_keys
+    # end _new_dataindex
+
     # Transform indexing item
-    def _trans_idx_item(self, item):
-        r"""Transform indexing item
+    def _item_to_index(self, item) -> Union[List[int], Tuple[int], Any]:
+        r"""Transform an item (with keys) for indexing to an index.
+
+        :param item: An item element (tuple, key, slice, index)
+        :type item:
         """
         # List, tuple or list
         if isinstance(item, list):
@@ -376,10 +431,10 @@ class DataTensor(BaseTensor):
         else:
             return self.get_index(0, item)
         # end if
-    # end _trans_idx_item
+    # end _item_to_index
 
     # Transform indexing item to keys
-    def _trans_key_item(self, item):
+    def _item_to_key(self, item) -> Union[List[Any], Tuple[Any], Any]:
         r"""Transform indexing item to keys
         """
         # List, tuple or list
@@ -389,7 +444,7 @@ class DataTensor(BaseTensor):
             return tuple([self.get_key(el_i, el) for el_i, el in enumerate(item)])
         else:
             return self.get_key(0, item)
-    # end _trans_key_item
+    # end _item_to_key
 
     # endregion PRIVATE
 
@@ -430,20 +485,26 @@ class DataTensor(BaseTensor):
     # end to
 
     # Get item
-    def __getitem__(self, item) -> 'DataTensor':
+    def __getitem__(self, key_item) -> 'DataTensor':
+        r"""Get data in the tensor.
         """
-        Get data in the tensor
-        """
-        # Get data
-        tensor_data = self._tensor[self._trans_idx_item(item)]
-
-        # Get keys
-        tensor_keys = self._trans_key_item(item)
         print("")
-        print("item: {}".format(item))
+        print("key_item: {}".format(key_item))
+        # Transform item to index
+        index_item = self._item_to_index(key_item)
+        print("index_item: {}".format(index_item))
+        # Get data
+        tensor_data = self._tensor[index_item]
         print("data: {}".format(tensor_data.size()))
+        # Get keys
+        tensor_keys = self._item_to_key(key_item)
         print("keys: {}".format(tensor_keys))
+        # Remove key if the dimension is deleted
+        tensor_keys = self._new_dataindex(index_item)
+        print("tensor_keys: {}".format(tensor_keys))
+        # Create a DataTensor
         return DataTensor(tensor_data, tensor_keys)
+        # return DataTensor(tensor_data)
     # end __getitem__
 
     # Set item
