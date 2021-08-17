@@ -20,12 +20,69 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from typing import List, Any, Tuple
+from typing import List, Any, Tuple, Optional
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import numpy.linalg as lin
 import math
+import echotorch
+
+
+# Show pairs of variables against each others
+def pairs(
+        x: echotorch.TimeTensor,
+        labels: Optional[List[str]] = None,
+        figsize: Optional[Tuple[int, int]] = None,
+        pad: Optional[float] = None,
+        **kwargs
+) -> None:
+    r"""Show matrix of scatterplots with all pairs of the :math:`p` channels contained in *timetensors*.
+
+    Plots displayed with be placed in a :math:`p \times p` matrix.
+
+    :param x: A 1-D timeseries with :math:`p` channels.
+    :type x: ``TimeTensor``
+    :param labels: List of :math:`p` channels to be used as title in the scatterplot matrix.
+    :type labels: List of str
+    """
+    # Must be a 1-D channel
+    if x.cdim != 1:
+        raise ValueError(
+            "Expected a 1-D timetensors (got {})".format(x.cdim)
+        )
+    # end if
+
+    # Number of channels
+    nc = x.csize()[0]
+
+    # Labels
+    if labels is None:
+        labels = [str(i) for i in range(nc)]
+    # end if
+
+    # Figure
+    fig, axs = plt.subplots(nc, nc, figsize=figsize)
+
+    # Tight layour
+    if pad is not None:
+        fig.tight_layout(pad=pad)
+    # end if
+
+    # For each pair
+    for i in range(nc):
+        for j in range(nc):
+            if i != j:
+                axs[i, j].set_title("{} vs {}".format(labels[i], labels[j]))
+                axs[i, j].scatter(x[:, i], x[:, j], **kwargs)
+                axs[i, j].set(xlabel=labels[i], ylabel=labels[j])
+            # end if
+        # end for
+    # end for
+
+    # Show
+    plt.show()
+# end pairs
 
 
 # Show singular values increasing aperture

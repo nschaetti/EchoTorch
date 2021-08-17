@@ -40,7 +40,7 @@ from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, tim
 from .base_ops import tindex_select, randn
 
 # Stat operations
-from .stat_ops import tmean, cov
+from .stat_ops import tmean, tstd, tvar, cov, cor
 
 # Nodes
 from .nodes import Node

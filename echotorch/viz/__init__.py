@@ -26,7 +26,7 @@ from .Observable import Observable
 from .ObservationPoint import ObservationPoint
 from .StateVisualiser import StateVisualiser
 from .timeplots import timescatter, timeplot
-from .visualisation import show_similarity_matrix, plot_2D_ellipse
+from .visualisation import show_similarity_matrix, plot_2D_ellipse, pairs
 from .Visualiser import Visualiser
 
 # ALL
@@ -35,5 +35,5 @@ __all__ = [
     # Timeplots
     'timescatter', 'timeplot',
     # Visualisation
-    'show_similarity_matrix', 'plot_2D_ellipse'
+    'show_similarity_matrix', 'plot_2D_ellipse', 'pairs'
 ]

@@ -418,13 +418,17 @@ class TimeTensor(BaseTensor):
     def after_unsqueeze(
             self,
             func_output: Any,
+            input: Any,
             dim: int
     ) -> 'TimeTensor':
-        """
-        After unsqueeze
-        @param func_output: The output of the torch.unsqueeze function
-        @param dim: The request dimension from unsqueeze
-        @return: The computed output
+        r"""After unsqueeze
+
+        :param func_output: The output of the torch.unsqueeze function.
+        :type func_output:
+        :param dim: The request dimension from unsqueeze.
+        :type dim:
+        :return: The computed output.
+        :rtype:
         """
         if dim <= self.time_dim:
             return TimeTensor(
@@ -443,8 +447,8 @@ class TimeTensor(BaseTensor):
     def after_cat(
             self,
             func_output: Any,
-            *args,
-            **kwargs
+            *tensors,
+            dim: int = 0
     ) -> 'TimeTensor':
         r"""
 
@@ -456,15 +460,28 @@ class TimeTensor(BaseTensor):
         Returns:
 
         """
-        print("func_output: {}".format(func_output))
-        print("args: {}".format(args))
-        print("kwargs: {}".format(kwargs))
         return TimeTensor(
             data=func_output,
             time_dim=self._time_dim
         )
     # end after cat
 
+    # After mm (matrix multiplication)
+    def mm(
+            self,
+            func_output: Any,
+            m1,
+            m2
+    ) -> Union['TimeTensor', torch.Tensor]:
+        r"""After mm (matrix multiplication)
+
+        :param m1: first tensor.
+        :type m1: ``TimeTensor`` or ``torch.Tensor``
+        :param m2: second tensor.
+        :type m2: ``TimeTensor`` or ``torch.Tensor``
+
+        """
+        return func_output
     # endregion TORCH_FUNCTION
 
     # region OVERRIDE
@@ -564,8 +581,10 @@ class TimeTensor(BaseTensor):
 
     # Get representation
     def __repr__(self) -> str:
-        """
-        Get a string representation
+        r"""Get a string representation
+
+        :return: ``TimeTensor`` representation.
+        :rtype: ``str``
         """
         return "timetensor({}, time_dim: {})".format(self._tensor, self._time_dim)
     # end __repr__
@@ -575,10 +594,13 @@ class TimeTensor(BaseTensor):
             self,
             other: 'TimeTensor'
     ) -> bool:
-        """
-        Are two time-tensors equivalent?
-        @param other: The other time-tensor
-        @return: True of False if the two time-tensors are equivalent
+        r"""Are two time-tensors equivalent?
+
+        :param other: The other time-tensor
+        :type other: ``TimeTensor``
+        :return: True of False if the two time-tensors are equivalent
+        :rtype: ``bool``
+
         """
         return super(TimeTensor, self).__eq__(other) and self.time_dim == other.time_dim
     # end __eq__
@@ -616,23 +638,17 @@ class TimeTensor(BaseTensor):
         if hasattr(self, 'before_' + func.__name__): args = getattr(self, 'before_' + func.__name__)(*args, **kwargs)
 
         # Get the tensor in the arguments
-        args = [convert(a) for a in args]
+        conv_args = [convert(a) for a in args]
 
         # Middle callback
         if hasattr(self, 'middle_' + func.__name__): args = getattr(self, 'middle_' + func.__name__)(*args, **kwargs)
 
         # Execute function
-        ret = func(*args, **kwargs)
+        ret = func(*conv_args, **kwargs)
 
         # Create TimeTensor and returns or returns directly
         if hasattr(self, 'after_' + func.__name__):
-            return getattr(self, 'after_' + func.__name__)(ret, **kwargs)
-        elif isinstance(ret, torch.Tensor):
-            # Return a new time tensor
-            return TimeTensor(
-                ret,
-                time_dim=self._time_dim
-            )
+            return getattr(self, 'after_' + func.__name__)(ret, *args, **kwargs)
         else:
             return ret
         # end if

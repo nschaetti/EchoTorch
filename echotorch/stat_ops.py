@@ -21,7 +21,9 @@
 
 
 # Imports
-from torch import Tensor, mean, mm
+from typing import Optional
+import torch
+from torch import Tensor, mean, mm, std, var
 
 # Import local
 from .timetensors import TimeTensor
@@ -40,29 +42,133 @@ def tmean(
 # end tmean
 
 
+# Standard deviation over time dimension
+def tstd(
+        input: TimeTensor,
+        unbiased: bool = True
+) -> Tensor:
+    r"""Returns the standard deviation over time dimension of all elements in the ``input`` timetensor.
+
+    :param input: the input timetensor.
+    :type input: ``TimeTensor``
+    :param unbiased: whether to used Bessel's correction (:math:`\delta N = 1`)
+    :type unbiased: bool
+
+    Example:
+
+        >>> x = echotorch.rand(5, time_length=10)
+        >>> echotorch.tstd(x)
+        tensor([0.2756, 0.2197, 0.2963, 0.2962, 0.2853])
+        """
+    return std(input, dim=input.time_dim, unbiased=unbiased)
+# end tstd
+
+
+# Variance over time dimension
+def tvar(
+        input: TimeTensor,
+        unbiased: bool = True
+) -> Tensor:
+    r"""Returns the variance over time dimension of all elements in the ``input`` timetensor.
+
+    :param input: the input timetensor.
+    :type input: ``TimeTensor``
+    :param unbiased: whether to used Bessel's correction (:math:`\delta N = 1`)
+    :type unbiased: bool
+
+    Example:
+
+        >>> x = echotorch.rand(5, time_length=10)
+        >>> echotorch.tvar(x)
+        tensor([0.0726, 0.0542, 0.0754, 0.0667, 0.0675])
+
+    """
+    return var(input, dim=input.time_dim, unbiased=unbiased)
+# end tvar
+
+
+# Correlation matrix
+def cor(
+        t1: TimeTensor,
+        t2: Optional[TimeTensor] = None,
+        bias: Optional[bool] = False,
+        ddof: Optional[int] = None
+) -> Tensor:
+    r"""Returns the correlation matrix between two 1-D timeseries, ``x`` and ``y``, with the same number of channels.
+
+    :param t1: first timetensor containing the uni or multivariate timeseries. The time dimension should be at position 0.
+    :type t1: ``TimeTensor``
+    :param t2: An additional ``TimeTensor`` with same shape and time length. If ``None``, the auto-correlation of *t1* is returned.
+    :type t2: ``TimeTensor``, optional
+    :param bias: Default normalization (False) is by :math:`(N - 1)`, where :math:`N` is the number of observations given (unbiased) or length of the timeseries. If *bias* is True, then normalization is by :math:`N`. These values can be overriden by using the keyword *ddof*.
+    :type bias: ``bool``, optional
+    :param ddof: If not *None* the default value implied by *bias* is overridden. Not that ``ddof=1`` will return the unbiased estimate and ``ddof=0`` will return the simple average.
+    :return: The correlation matrix of the two timeseries with the time dimension as samples.
+    :rtype: ``Tensor``
+    """
+    # Get covariance matrix
+    cov_m = cov(t1, t2, bias, ddof)
+
+    # Get sigma for t1 and t2
+    t1_std = torch.unsqueeze(tstd(t1), dim=1)
+    t2_std = torch.unsqueeze(tstd(t2), dim=0)
+
+    # Inner product of s(t1) and s(t2)
+    t_inner = torch.mm(t1_std, t2_std)
+
+    # Divide covariance matrix
+    return torch.divide(cov_m, t_inner)
+# end cor
+
+
 # Covariance matrix
 def cov(
         t1: TimeTensor,
-        t2: TimeTensor
+        t2: Optional[TimeTensor] = None,
+        bias: Optional[bool] = False,
+        ddof: Optional[int] = None
 ) -> Tensor:
-    r"""Returns the covariance matrix of two 1-D timeseries with the same number of channels.
+    r"""Returns the covariance matrix of two 1-D or 0-D timeseries with the same number of channels.
 
-    :param t1: first timetensor.
+    As the size of the two timetensors is :math:`(T, p)`, the returned
+    matrix :math:`C` has a size :math:`(p, p)`. Each element :math:`C_{ij}` of
+    matrix :math:`C` is the covariance :math:`Cov(x_i, y_i)` between :math:`x_i` and :math:`y_i`,
+    such that,
+
+    .. math::
+        :nowrap:
+
+        $$
+        C =
+        \begin{pmatrix}
+        \sigma_{x_{1}y_{1}} & \sigma_{x_{1}y_{2}} &  \cdots & \sigma_{x_{1}y_{p}} \\
+        \sigma_{x_{2}y_{1}} & \ddots & \cdots & \vdots \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \sigma_{x_{p}y_{1}} & \cdots & \cdots & \sigma_{x_{p}y_{p}}
+        \end{pmatrix}
+        $$
+
+    where :math:`p` is the number of channels.
+
+    :param t1: first timetensor containing the uni or multivariate timeseries. The time dimension should be at position 0.
     :type t1: ``TimeTensor``
-    :param t2: second timetensor.
-    :type t2: ``TimeTensor``
-    :return: The covariance matrix of the two timeseries computed over the time dimension.
+    :param t2: An additional ``TimeTensor`` with same shape and time length. If ``None``, the auto-covariance matrix of *t1* is returned.
+    :type t2: ``TimeTensor``, optional
+    :param bias: Default normalization (False) is by :math:`(N - 1)`, where :math:`N` is the number of observations given (unbiased) or length of the timeseries. If *bias* is True, then normalization is by :math:`N`. These values can be overriden by using the keyword *ddof*.
+    :type bias: ``bool``, optional
+    :param ddof: If not *None* the default value implied by *bias* is overriden. Not that ``ddof=1`` will return the unbiased estimate and ``ddof=0`` will return the simple average.
+    :return: The covariance matrix of the two timeseries with the time dimension as samples.
     :rtype: ``Tensor``
 
     Example:
         >>> x = echotorch.randn(5, time_length=100)
         >>> y = echotorch.randn(5, time_length=100)
         >>> echotorch.cov(x, y)
-        tensor([[-0.1720,  0.1031,  0.1089,  0.0310, -0.1076],
-            [-0.1715, -0.0077,  0.0133,  0.1061,  0.0222],
-            [ 0.0762, -0.0763, -0.0502, -0.0925, -0.0855],
-            [-0.0147, -0.0295, -0.1638, -0.0070, -0.1023],
-            [ 0.1776, -0.2714,  0.0152, -0.0449,  0.0721]])
+        tensor([[-0.0754, -0.0818, -0.0063, -0.0484,  0.0499],
+                [ 0.0290,  0.2155,  0.0735,  0.2179, -0.0991],
+                [ 0.0117,  0.0356, -0.0438,  0.0088, -0.0487],
+                [ 0.0080,  0.0390, -0.0212,  0.0773,  0.1014],
+                [-0.1000, -0.0774,  0.0011,  0.0819, -0.0735]])
     """
     # Check that t1 and t2 have the time dim at pos 0
     if t1.time_dim != 0 or t2.time_dim != 0:
@@ -78,11 +184,34 @@ def cov(
         )
     # end if
 
+    # Only 1-D or 0-D timetensors
+    if t1.cdim > 1 or t2.cdim > 1 or t1.cdim != t2.cdim:
+        raise ValueError(
+            "Expected 1-D or 0-D timeseries, with same shape, but got {} and {}".format(t1.cdim, t2.cdim)
+        )
+    # end if
+
+    # If 0-D, transform in 1-D
+    if t1.cdim == 0:
+        t1 = torch.unsqueeze(t1, dim=t1.time_dim+1)
+        t2 = torch.unsqueeze(t2, dim=t2.time_dim + 1)
+    # end if
+
     # Compute means
     t1_mean = tmean(t1)
     t2_mean = tmean(t2)
 
+    # Bias value
+    if ddof is None:
+        add_bias = 1
+        if bias:
+            add_bias = 0
+        # end if
+    else:
+        add_bias = ddof
+    # end if
+
     # Compute covariance
-    return mm((t1 - t1_mean).t(), t2 - t2_mean) / t1.tlen
+    return mm((t1 - t1_mean).t(), t2 - t2_mean) / (t1.tlen - add_bias)
 # end cov
 

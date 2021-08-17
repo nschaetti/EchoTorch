@@ -84,5 +84,7 @@ Statistical Operations
     :nosignatures:
 
     tmean
+    tstd
+    tvar
     cov
-
+    cor

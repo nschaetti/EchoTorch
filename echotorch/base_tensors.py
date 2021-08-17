@@ -346,7 +346,7 @@ class BaseTensor(object):
         :param other: object to add
         :type other: ``TimeTensor`` or ``torch.Tensor``
         """
-        self._tensor += other
+        self._tensor -= other
         return self
     # end __isub__
 

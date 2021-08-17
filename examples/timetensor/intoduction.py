@@ -23,7 +23,7 @@
 
 # Imports
 import torch
-
+import numpy as np
 import echotorch
 
 
@@ -102,3 +102,11 @@ print("z size: {}".format(z.size()))
 print("z tmean: {}".format(echotorch.tmean(z)))
 print("z z1 cov: {}".format(echotorch.cov(z, z2)))
 print("z z cov: {}".format(echotorch.cov(z, z)))
+z_n = z.numpy()
+z2_n = z2.numpy()
+print("z_n: {}".format(z_n.shape))
+z_n_cov = np.cov(z_n, rowvar=False)
+print("z_n_cov: {}".format(z_n_cov.shape))
+print("z z cov with numpy: {}".format(z_n_cov))
+z_z2_n_cov = np.cov(z_n, z2_n, rowvar=False)
+print("z z2 cov with numpy: {}".format(z_z2_n_cov[:5, 5:]))

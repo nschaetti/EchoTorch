@@ -13,3 +13,4 @@ Random processes
 
     timescatter
     timeplot
+    pairs
