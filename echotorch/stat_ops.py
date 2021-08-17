@@ -96,6 +96,26 @@ def cor(
 ) -> Tensor:
     r"""Returns the correlation matrix between two 1-D timeseries, ``x`` and ``y``, with the same number of channels.
 
+    As the size of the two timetensors is :math:`(T, p)`, the returned
+    matrix :math:`R` has a size :math:`(p, p)`. Each element :math:`R_{ij}` of
+    matrix :math:`R` is the correlation :math:`Cor(x_i, y_i)` between :math:`x_i` and :math:`y_i`,
+    such that,
+
+    .. math::
+        :nowrap:
+
+        $$
+        R =
+        \begin{pmatrix}
+        Cor(x_{1}, y_{1}) & Cor(x_{1}, y_{2}) & \cdots & Cor(x_{1}, y_{p}) \\
+        Cor(x_{2}, y_{1}) & \ddots & \cdots & \vdots \\
+        \vdots & \vdots & \ddots & \vdots \\
+        Cor(x_{p}, y_{1}) & \cdots & \cdots & Cor(x_{p}, y_{p})
+        \end{pmatrix}
+        $$
+
+    where :math:`p` is the number of channels.
+
     :param t1: first timetensor containing the uni or multivariate timeseries. The time dimension should be at position 0.
     :type t1: ``TimeTensor``
     :param t2: An additional ``TimeTensor`` with same shape and time length. If ``None``, the auto-correlation of *t1* is returned.
@@ -105,6 +125,17 @@ def cor(
     :param ddof: If not *None* the default value implied by *bias* is overridden. Not that ``ddof=1`` will return the unbiased estimate and ``ddof=0`` will return the simple average.
     :return: The correlation matrix of the two timeseries with the time dimension as samples.
     :rtype: ``Tensor``
+
+    Example:
+
+        >>> x = echotorch.randn(5, time_length=100)
+        >>> y = echotorch.randn(5, time_length=100)
+        >>> echotorch.cor(x, y)
+        tensor([[-0.1257,  0.3849, -0.2094, -0.2107,  0.1781],
+                [-0.0990, -0.5916,  0.3169, -0.1333, -0.0315],
+                [ 0.0443, -0.0571, -0.2228, -0.3075,  0.0995],
+                [ 0.2477, -0.5867,  0.4337, -0.2673,  0.0725],
+                [ 0.2607,  0.4544,  0.5199,  0.2562,  0.4110]])
     """
     # Get covariance matrix
     cov_m = cov(t1, t2, bias, ddof)
