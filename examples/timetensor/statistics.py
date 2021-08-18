@@ -22,13 +22,14 @@
 
 # Imports
 import numpy as np
-from scipy.stats import pearsonr
+import matplotlib.pyplot as plt
 import echotorch
+import echotorch.viz
 
 
 # Create a two timetensors
-x = echotorch.rand(5, time_length=10)
-y = echotorch.rand(5, time_length=10)
+x = echotorch.rand(5, time_length=100)
+y = echotorch.rand(5, time_length=100)
 
 # Print tensors
 print("Timetensor x: {}".format(x))
@@ -77,3 +78,18 @@ print("Cor(X, Y): {}".format(cor_xy))
 print("Cor(X, X): {}".format(echotorch.cor(x, x)))
 print("")
 
+# Compute auto-covariance coefficients
+autocov_coeffs = echotorch.autocovariance_coeffs(x, k=50)
+
+# Show autocov coeffs
+plt.figure()
+echotorch.viz.timeplot(autocov_coeffs, title="Auto-covariance coefficients")
+plt.show()
+
+# Compute auto-correlation coefficients
+autocor_coeffs = echotorch.autocorrelation_coeffs(x, k=50)
+
+# Show autocor coeffs
+plt.figure()
+echotorch.viz.timeplot(autocor_coeffs, title="Auto-correlation coefficients")
+plt.show()

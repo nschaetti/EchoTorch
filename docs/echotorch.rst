@@ -88,3 +88,4 @@ Statistical Operations
     tvar
     cov
     cor
+    autocovariance_coeffs

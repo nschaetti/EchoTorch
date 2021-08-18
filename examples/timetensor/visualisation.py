@@ -20,6 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
+import matplotlib.pyplot as plt
 import echotorch
 import echotorch.viz
 
@@ -29,3 +30,11 @@ x = echotorch.randn(5, time_length=100)
 
 # Pairs visualisation
 echotorch.viz.pairs(x, figsize=(12, 8), s=3, sign_level=0.5)
+
+# Difference operators
+dx = echotorch.diff(x)
+
+# Show difference
+plt.figure()
+echotorch.viz.timeplot(dx, title="diff(x)")
+plt.show()

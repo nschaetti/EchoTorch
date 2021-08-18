@@ -40,7 +40,10 @@ from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, tim
 from .base_ops import tindex_select, randn
 
 # Stat operations
-from .stat_ops import tmean, tstd, tvar, cov, cor
+from .stat_ops import tmean, tstd, tvar, cov, cor, autocovariance_coeffs, autocorrelation_coeffs
+
+# Timeseries operations
+from .series_ops import diff
 
 # Nodes
 from .nodes import Node
@@ -96,5 +99,9 @@ __all__ = [
     # TimeTensors and base ops
     'TimeTensor', 'as_timetensor', 'timetensor', 'is_timetensor', 'from_numpy', 'cat', 'zeros', 'tcat', 'empty', 'tcat',
     'tindex_select', 'ones', 'full', 'rand', 'randn',
-    'ByteTimeTensor', 'CharTimeTensor', 'HalfTimeTensor', 'DoubleTimeTensor', 'FloatTimeTensor'
+    'ByteTimeTensor', 'CharTimeTensor', 'HalfTimeTensor', 'DoubleTimeTensor', 'FloatTimeTensor',
+    # Stats ops
+    'tmean', 'tstd', 'cov', 'cor', 'autocovariance_coeffs', 'autocorrelation_coeffs',
+    # Series ops
+    'diff'
 ]

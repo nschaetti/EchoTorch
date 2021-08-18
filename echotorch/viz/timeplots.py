@@ -92,28 +92,28 @@ def timeplot(
         xlim: Optional[Tuple[float]] = None,
         **kwargs
 ) -> None:
-    r"""Show a timeseries as lines on a plot.
+    r"""Show a 0-D or 1-D timeseries, one line per channel, on a plot with time as the X-axis.
 
-    :param data: The ``TimeTensor`` to plot, there should be no batch dimensions and 2 channel dimensions.
-    :type data: ``TimeTensor`` of size (time length x 2)
+    :param data: The ``TimeTensor`` to plot, there must be no batch dimensions.
+    :type data: ``TimeTensor``
     :param title: Plot title
-    :type title: ``str``
+    :type title: ``str``, optional
     :param tstart: Starting time position on the Time-axis
-    :type tstart: ``float``
+    :type tstart: ``float``, optional
     :param tstep: Time step on the Time-axis
-    :type tstep: ``float``
+    :type tstep: ``float``, optional
     :param tlab: Time-axis label
-    :type tlab: ``str``
+    :type tlab: ``str``, optional
     :param xlab: X-axis label
-    :type xlab: ``str``
+    :type xlab: ``str``, optional
     :param tticks: Time-axis ticks
-    :type tticks: List of ``float``
+    :type tticks: List of ``float``, optional
     :param xticks: X-axis ticks
-    :type xticks: List of ``float``
+    :type xticks: List of ``float``, optional
     :param tlim: Time-axis start and end
-    :type tlim: Tuple of ``float``
+    :type tlim: Tuple of ``float``, optional
     :param xlim: X-axis start and end
-    :type xlim: Tuple of ``float``
+    :type xlim: Tuple of ``float``, optional
 
     Example
         >>> x = echotorch.data.random_walk(1, length=10000, shape=())
@@ -128,7 +128,21 @@ def timeplot(
     if tticks is not None: plt.xticks(tticks)
     if xticks is not None: plt.yticks(xticks)
 
+    # 0-D or 1-D
+    multi_dim = data.cdim > 0
+
+    # Number of channels
+    n_chan = data.csize()[0] if multi_dim else 0
+
+    # X-axis
+    if multi_dim:
+        x_data = np.expand_dims(np.arange(tstart, tstep * data.tlen, tstep), axis=1)
+        x_data = np.repeat(x_data, n_chan, axis=1)
+    else:
+        x_data = np.arange(tstart, tstep * data.tlen, tstep)
+    # end if
+
     # Plot
-    plt.plot(np.arange(tstart, tstep * data.tlen, tstep), data[:], **kwargs)
+    plt.plot(x_data, data.numpy(), **kwargs)
 # end timeplot
 
