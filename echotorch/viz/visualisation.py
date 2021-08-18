@@ -20,7 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from typing import List, Any, Tuple, Optional
+from typing import List, Any, Tuple, Optional, Dict
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,54 +31,132 @@ import echotorch
 
 # Show pairs of variables against each others
 def pairs(
-        x: echotorch.TimeTensor,
+        input: echotorch.TimeTensor,
         labels: Optional[List[str]] = None,
         figsize: Optional[Tuple[int, int]] = None,
-        pad: Optional[float] = None,
+        tight_layout: Optional[Dict] = None,
+        bins: Optional[int] = 10,
+        plot_correlations: Optional[bool] = True,
+        sign_level: Optional[float] = 0.05,
         **kwargs
 ) -> None:
-    r"""Show matrix of scatterplots with all pairs of the :math:`p` channels contained in *timetensors*.
+    r"""Show matrix of scatter plots for pairs of :math:`p` channels contained in *input*. Scatter plots will be placed in a :math:`p \times p` matrix.
 
-    Plots displayed with be placed in a :math:`p \times p` matrix.
+    :param input: A 1-D time series with :math:`p` channels.
+    :type input: ``TimeTensor``
+    :param labels: List of :math:`p` channels to be used as title in the scatter plot matrix (default: None).
+    :type labels: List of str, optional
+    :param figsize: Width and height of the figure in inches (default: None).
+    :type figsize: (``float``, ``float``), optional
+    :param tight_layout: Padding options for matplotlib (pad, h_pad, w_pad, rect) (default: None).
+    :type tight_layout: ``dict``, optional
+    :param bins: How many bins for histograms (default: 10).
+    :type bins: ``int``, optional
+    :param plot_correlations: Show Pearson correlation coefficients (default: True).
+    :type plot_correlations: ``bool``, optional
+    :param sign_level: Significance level for correlation (default: 0.05)
+    :type sign_level: ``float``, optional
+    :param kwargs: Additional positional argument for the scatter function.
 
-    :param x: A 1-D timeseries with :math:`p` channels.
-    :type x: ``TimeTensor``
-    :param labels: List of :math:`p` channels to be used as title in the scatterplot matrix.
-    :type labels: List of str
+    Example:
+
+        >>> x = echotorch.randn(5, time_length=100)
+        >>> echotorch.viz.pairs(x, figsize=(12, 8), s=3, sign_level=0.5)
     """
     # Must be a 1-D channel
-    if x.cdim != 1:
+    if input.cdim != 1:
         raise ValueError(
-            "Expected a 1-D timetensors (got {})".format(x.cdim)
+            "Expected a 1-D timetensors (got {})".format(input.cdim)
         )
     # end if
 
     # Number of channels
-    nc = x.csize()[0]
+    nc = input.csize()[0]
 
     # Labels
     if labels is None:
         labels = [str(i) for i in range(nc)]
     # end if
 
+    # Compute correlation matrix R and p-values
+    if plot_correlations:
+        R, pvs = echotorch.cor(input, input, pvalue=True)
+    # end if
+
     # Figure
     fig, axs = plt.subplots(nc, nc, figsize=figsize)
-
-    # Tight layour
-    if pad is not None:
-        fig.tight_layout(pad=pad)
-    # end if
 
     # For each pair
     for i in range(nc):
         for j in range(nc):
+            # Default, no ticks
+            axs[i, j].get_xaxis().set_visible(False)
+            axs[i, j].get_yaxis().set_visible(False)
+
+            # Not diagonal plot
             if i != j:
-                axs[i, j].set_title("{} vs {}".format(labels[i], labels[j]))
-                axs[i, j].scatter(x[:, i], x[:, j], **kwargs)
-                axs[i, j].set(xlabel=labels[i], ylabel=labels[j])
+                # Show scatter plot
+                axs[i, j].scatter(input[:, i], input[:, j], **kwargs)
+
+                # X-labels
+                if (i == 0 and j > 0) or (i == nc - 1 and j == 0):
+                    # Enable ticks
+                    axs[i, j].get_xaxis().set_visible(True)
+
+                    # Top or bottom?
+                    if i == 0:
+                        axs[i, j].get_xaxis().set_ticks_position('top')
+                    # end if
+                # end if
+
+                # Y-labels
+                if (j == 0 and i > 0) or (j == nc - 1 and i == 0):
+                    # Enable ticks
+                    axs[i, j].get_yaxis().set_visible(True)
+
+                    # Right of left
+                    if i == 0:
+                        axs[i, j].get_yaxis().set_ticks_position('right')
+                    # end if
+                # end if
+
+                # Plot text
+                if plot_correlations:
+                    # Coef background color
+                    back_color = 'white' if pvs[i, j] >= sign_level else 'green'
+
+                    # Show correlation coefficient
+                    axs[i, j].text(
+                        0.04,
+                        0.07,
+                        "{}".format(round(R[i, j].item(), 2)),
+                        fontsize=10,
+                        verticalalignment='bottom',
+                        horizontalalignment='left',
+                        bbox=dict(boxstyle='square', facecolor=back_color, alpha=0.75),
+                        transform=axs[i, j].transAxes
+                    )
+                # end if
+            else:
+                # Show titles
+                axs[i, j].set_title("{}".format(labels[i]))
+
+                # Activate avis
+                axs[i, j].get_xaxis().set_visible(True)
+                axs[i, j].get_yaxis().set_visible(True)
+
+                # Plot histogram
+                axs[i, j].hist(input.tensor[:, i].numpy(), bins=bins)
             # end if
         # end for
     # end for
+
+    # Tight layout
+    if tight_layout is not None:
+        fig.tight_layout(*tight_layout)
+    else:
+        fig.tight_layout()
+    # end if
 
     # Show
     plt.show()

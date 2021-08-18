@@ -28,4 +28,4 @@ import echotorch.viz
 x = echotorch.randn(5, time_length=100)
 
 # Pairs visualisation
-echotorch.viz.pairs(x, figsize=(8, 8), pad=3.0, s=3)
+echotorch.viz.pairs(x, figsize=(12, 8), s=3, sign_level=0.5)

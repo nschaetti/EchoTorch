@@ -21,7 +21,11 @@
 
 
 # Imports
-from typing import Optional
+from typing import Optional, Tuple, Union
+import math
+from scipy.stats import t
+
+# Torch
 import torch
 from torch import Tensor, mean, mm, std, var
 
@@ -92,8 +96,9 @@ def cor(
         t1: TimeTensor,
         t2: Optional[TimeTensor] = None,
         bias: Optional[bool] = False,
-        ddof: Optional[int] = None
-) -> Tensor:
+        ddof: Optional[int] = None,
+        pvalue: Optional[bool] = False
+) -> Union[Tensor, Tuple[Tensor, Tensor]]:
     r"""Returns the correlation matrix between two 1-D timeseries, ``x`` and ``y``, with the same number of channels.
 
     As the size of the two timetensors is :math:`(T, p)`, the returned
@@ -123,6 +128,9 @@ def cor(
     :param bias: Default normalization (False) is by :math:`(N - 1)`, where :math:`N` is the number of observations given (unbiased) or length of the timeseries. If *bias* is True, then normalization is by :math:`N`. These values can be overriden by using the keyword *ddof*.
     :type bias: ``bool``, optional
     :param ddof: If not *None* the default value implied by *bias* is overridden. Not that ``ddof=1`` will return the unbiased estimate and ``ddof=0`` will return the simple average.
+    :type ddof: ``int``
+    :param pvalue: Return also the p-value from a Pearson significant test.
+    :type pvalue: ``bool``
     :return: The correlation matrix of the two timeseries with the time dimension as samples.
     :rtype: ``Tensor``
 
@@ -147,8 +155,26 @@ def cor(
     # Inner product of s(t1) and s(t2)
     t_inner = torch.mm(t1_std, t2_std)
 
-    # Divide covariance matrix
-    return torch.divide(cov_m, t_inner)
+    # Correlation coefficients
+    corr_coefs = torch.divide(cov_m, t_inner)
+
+    # Return coef (and p-value)
+    if pvalue:
+        # Compute t-value
+        t_values = torch.divide(
+            corr_coefs * math.sqrt(t1.tlen - 2),
+            torch.sqrt(1 - torch.pow(corr_coefs, 2))
+        )
+
+        # Compute p-values
+        # TODO: replace with in-house student distrib
+        pvals = 2.0 * t.cdf(-torch.abs(t_values).numpy(), df=t1.tlen-2)
+
+        # Return coef + pvalues
+        return corr_coefs, torch.tensor(pvals)
+    else:
+        return corr_coefs
+    # end if
 # end cor
 
 

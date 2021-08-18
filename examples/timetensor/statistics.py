@@ -22,6 +22,7 @@
 
 # Imports
 import numpy as np
+from scipy.stats import pearsonr
 import echotorch
 
 
@@ -69,9 +70,10 @@ print("Cov(X, Y): {}".format(cov_xy))
 print("")
 
 # Compute correlation matrix
-cor_xy = echotorch.cor(x, y)
+cor_xy = echotorch.cor(x, y, pvalue=True)
 
 # Show correlation matrix
 print("Cor(X, Y): {}".format(cor_xy))
 print("Cor(X, X): {}".format(echotorch.cor(x, x)))
 print("")
+
