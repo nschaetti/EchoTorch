@@ -12,8 +12,8 @@ Random processes
     :nosignatures:
 
     random_walk
-    functional.moving_average <moving_average>
-    functional.markov_chain <markov_chain>
+    moving_average
+    autoregressive_process
 
 Attractors and chaotic timeseries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

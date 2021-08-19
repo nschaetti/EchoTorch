@@ -346,6 +346,7 @@ class BaseTensor(object):
         :param other: object to add
         :type other: ``TimeTensor`` or ``torch.Tensor``
         """
+        print("__isub__")
         self._tensor -= other
         return self
     # end __isub__
@@ -357,7 +358,12 @@ class BaseTensor(object):
         :param other: Scalar to add
         :type other: Scalar
         """
-        self._tensor += other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor + other.tensor
+        else:
+            self._tensor = self._tensor + other
+        # end if
+
         return self
     # end __add__
 
@@ -368,7 +374,12 @@ class BaseTensor(object):
         :param other: Scalar to add
         :type other: Scalar
         """
-        self._tensor += other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor + other.tensor
+        else:
+            self._tensor = self._tensor + other
+        # end if
+
         return self
     # end __radd__
 
@@ -379,7 +390,12 @@ class BaseTensor(object):
         :param other: Scalar to subtract.
         :type other: scalar
         """
-        self._tensor -= other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor - other.tensor
+        else:
+            self._tensor = self._tensor - other
+        # end if
+
         return self
     # end __sub__
 
@@ -390,7 +406,12 @@ class BaseTensor(object):
         :param other: Scalar to subtract.
         :type other: scalar.
         """
-        self._tensor -= other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor - other.tensor
+        else:
+            self._tensor = self._tensor - other
+        # end if
+
         return self
     # end __rsub__
 
@@ -401,7 +422,11 @@ class BaseTensor(object):
         :param other: Scalar multiplier
         :type other: Scalar
         """
-        self._tensor *= other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor * other.tensor
+        else:
+            self._tensor = self._tensor * other
+        # end if
         return self
     # end __mul__
 
@@ -412,7 +437,12 @@ class BaseTensor(object):
         :param other: Scalar multiplier
         :param type: Scalar
         """
-        self._tensor *= other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor * other.tensor
+        else:
+            self._tensor = self._tensor * other
+        # end if
+
         return self
     # end __rmul__
 
@@ -422,7 +452,12 @@ class BaseTensor(object):
         :param other: Scalar divisor.
         :param type: Scalar.
         """
-        self._tensor /= other
+        if isinstance(other, BaseTensor):
+            self._tensor = self._tensor / other.tensor
+        else:
+            self._tensor = self._tensor / other
+        # end if
+
         return self
     # end __truediv__
 

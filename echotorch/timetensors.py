@@ -544,15 +544,15 @@ class TimeTensor(BaseTensor):
             # If time dim is in
             if len(item) > self._time_dim:
                 # Selection or slice?
-                if type(item[self._time_dim]) is slice:
+                if type(item[self._time_dim]) in [slice, list]:
                     return self.indexing_timetensor(item)
                 else:
                     return self._tensor[item]
                 # end if
             else:
-                pass
+                return self.indexing_timetensor(item)
             # end if
-        elif type(item) is slice:
+        elif type(item) in [slice, list]:
             return self.indexing_timetensor(item)
         else:
             # Time selection?

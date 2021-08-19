@@ -57,6 +57,6 @@ def diff(
     tp_index = list(t_index)
     tp_index[input.time_dim] = slice(1, None)
 
-    return input[tp_index] - input[t_index]
+    return input[tuple(tp_index)] - input[tuple(t_index)]
 # end diff
 

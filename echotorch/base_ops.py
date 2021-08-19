@@ -424,7 +424,7 @@ def rand(
 
 # Random time series (uniform)
 def randn(
-        size: Tuple[int],
+        *size,
         time_length: int,
         out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
@@ -451,13 +451,13 @@ def randn(
     :rtype: ``TimeTensor``
 
     Example::
-        >>> x = echotorch.randn((), time_length=10)
+        >>> x = echotorch.randn(time_length=10)
         timetensor(tensor([ 0.2610,  0.4589,  0.1833, -0.1209, -0.0103,  1.1757,  0.9236, -0.6117, 0.7906,
         -0.1704]), time_dim: 0)
     """
     if out is not None:
         out = TimeTensor.new_timetensor_with_func(
-            size,
+            *size,
             func=torch.randn,
             time_length=time_length,
             dtype=dtype,
@@ -468,7 +468,7 @@ def randn(
         return out
     else:
         return TimeTensor.new_timetensor_with_func(
-            size,
+            *size,
             func=torch.randn,
             time_length=time_length,
             dtype=dtype,

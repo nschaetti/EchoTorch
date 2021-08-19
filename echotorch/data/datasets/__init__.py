@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# File : echotorch/data/__init__.py
+# File : echotorch/data/datasets/__init__.py
 # Description : Dataset subpackages init file
 # Date : 3th of March, 2021
 #
@@ -19,11 +19,15 @@
 #
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
-# Import functions
-from .random_processes import random_walk, moving_average, autoregressive_process
-from .chaotic import henon
+# Imports datasets
+from echotorch.data.datasets.LogisticMapDataset import LogisticMapDataset
 
 __all__ = [
-   # Functionals
-   'henon', 'random_walk', 'moving_average', 'autoregressive_process'
+   # Datasets
+   'CopyTaskDataset', 'DatasetComposer', 'DiscreteMarkovChainDataset', 'FromCSVDataset', 'HenonAttractor',
+   'LambdaDataset', 'LatchTaskDataset', 'LogisticMapDataset', 'LorenzAttractor', 'MackeyGlassDataset', 'MemTestDataset',
+   'NARMADataset', 'RosslerAttractor', 'SinusoidalTimeseries', 'PeriodicSignalDataset', 'RandomSymbolDataset',
+   'ImageToTimeseries', 'MarkovChainDataset', 'MixedSinesDataset', 'RepeatTaskDataset',
+   'TimeseriesBatchSequencesDataset', 'TransformDataset', 'TripletBatching', 'DelayDataset', 'EchoDataset',
+   'MackeyGlass2DDataset'
 ]

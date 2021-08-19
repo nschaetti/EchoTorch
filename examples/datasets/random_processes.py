@@ -39,6 +39,34 @@ echotorch.viz.timeplot(
     tstart=0.0,
     tstep=0.01,
     title="Random walk",
-    xlab="X_t"
+    xlab="X(t)"
+)
+plt.show()
+
+# Multivariate moving average (VMA)
+moving_average = echotorch.data.moving_average(1, length=200, order=30, size=1)
+
+# Plot MA(q)
+plt.figure()
+echotorch.viz.timeplot(
+    moving_average[0][:, 0],
+    tstart=0.0,
+    tstep=0.01,
+    title="Multivariate Moving Average MA(q)",
+    xlab="X(t)"
+)
+plt.show()
+
+# Autoregressive process
+autoregressive_process = echotorch.data.autoregressive_process(1, length=200, order=2, size=1)
+
+# Plot AR(p)
+plt.figure()
+echotorch.viz.timeplot(
+    autoregressive_process[0][:, 0],
+    tstart=0.0,
+    tstep=0.01,
+    title="Autoregressive Process AR(p)",
+    xlab="X(t)"
 )
 plt.show()
