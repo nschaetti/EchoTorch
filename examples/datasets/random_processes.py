@@ -44,7 +44,7 @@ echotorch.viz.timeplot(
 plt.show()
 
 # Multivariate moving average (VMA)
-moving_average = echotorch.data.moving_average(1, length=200, order=30, size=1)
+moving_average = echotorch.data.ma(1, length=200, order=30, size=1)
 
 # Plot MA(q)
 plt.figure()
@@ -58,7 +58,7 @@ echotorch.viz.timeplot(
 plt.show()
 
 # Autoregressive process
-autoregressive_process = echotorch.data.autoregressive_process(1, length=200, order=2, size=1)
+autoregressive_process = echotorch.data.ar(1, length=200, order=5, size=1)
 
 # Plot AR(p)
 plt.figure()
@@ -70,3 +70,16 @@ echotorch.viz.timeplot(
     xlab="X(t)"
 )
 plt.show()
+
+#  ARMA
+arma_process = echotorch.data.arma(1, length=200, regressive_order=5, moving_average_order=7, size=1)
+
+# Plot ARMA(p, q)
+plt.figure()
+echotorch.viz.timeplot(
+    arma_process[0],
+    tstart=0,
+    tstep=0.01,
+    title="AutoRegressive Moving Average process ARMA(p, q)",
+    xlab="x(t)"
+)

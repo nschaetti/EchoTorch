@@ -233,6 +233,36 @@ class BaseTensor(object):
 
     # region OVERRIDE
 
+    # Is complex
+    def is_complex(self) -> bool:
+        r"""Returns *True* if the data type of ``self`` is a complex data type.
+        """
+        return self._tensor.is_complex()
+    # end is_complex
+
+    # Is floating point
+    def is_floating_point(self) -> bool:
+        r"""Returns *True* if the data type of ``self`` is a floating point data type.
+        """
+        return self._tensor.is_floating_point()
+    # end is_floating_point
+
+    # Is leaf?
+    def is_leaf(self) -> bool:
+        r"""
+        TODO: doc
+        """
+        return self._tensor.is_leaf()
+    # end is_leaf
+
+    # Data
+    @property
+    def data(self):
+        r"""Returns data contained in the timetensor
+        """
+        return self._tensor
+    # end data
+
     # Transpose
     def t(self) -> torch.Tensor:
         r"""Expects the basetensor to be <= 2-D tensor and transposes dimensions 0 and 1.

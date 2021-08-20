@@ -85,6 +85,39 @@ def timetensor(
 # end timetensor
 
 
+# Sparse COO timetensor
+def sparse_coo_timetensor(
+        indices,
+        values,
+        time_dim: Optional[int] = 0,
+        size=None,
+        dtype=None,
+        device=None,
+        requires_grad=False
+) -> TimeTensor:
+    r"""Construct a sparse timetensor in COO(rdinate) format with specified values at the given indices.
+
+    .. note::
+        The contained tensor is an uncoalesced tensor.
+    """
+    # Create sparse tensor
+    coo_tensor = torch.sparse_coo_tensor(
+        indices=indices,
+        values=values,
+        size=size,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad
+    )
+
+    return TimeTensor.new_timetensor(
+        data=coo_tensor,
+        time_lengths=None,
+        time_dim=time_dim
+    )
+# end sparse_coo_timetensor
+
+
 # Convert data into a TimeTensor
 def as_timetensor(
         data: Any,
@@ -128,6 +161,32 @@ def as_timetensor(
 # end as_timetensor
 
 
+# As strided
+def as_strided(
+        input,
+        size,
+        stride,
+        storage_offset=0,
+        time_lengths: Optional[torch.LongTensor] = None,
+        time_dim: Optional[int] = 0,
+) -> TimeTensor:
+    r"""Create a view of an existing ``echotorch.TimeTensor`` with specified ``size``, ``stride`` and ``storage_offset``.
+
+    """
+    return TimeTensor.new_timetensor(
+        torch.as_strided(
+            input,
+            size,
+            stride,
+            stride,
+            storage_offset
+        ),
+        time_lengths=time_lengths,
+        time_dim=time_dim
+    )
+# end as_strided
+
+
 # From Numpy
 def from_numpy(
         ndarray: np.ndarray,
@@ -161,9 +220,120 @@ def from_numpy(
 # end from_numpy
 
 
+# Returns time tensor filled with zeros
+def zeros(
+        *size,
+        time_length: int,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> 'TimeTensor':
+    r"""Returns a ``TimeTensor`` of size ``size`` filled with 0.
+
+    :param size: Size
+    :type size: Tuple[int]
+    :param time_length: Length of the timeseries
+    :type time_length: int
+    :param dtype: ``TimeTensor`` data type
+    :type dtype: torch.dtype
+    :param device: Destination device
+    :type device: torch.device
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool
+    :return: A ``TimeTensor`` of size size filled with zeros
+    :rtype: ``TimeTensor``
+
+    Example::
+        >>> x = echotorch.zeros((2, 2), time_length=100)
+        >>> x.size()
+        torch.Size([100, 2, 2])
+        >>> x.tsize()
+        torch.Size([2, 2])
+        >>> x.tlen
+        100
+        >>> echotorch.zeros((), time_length=5)
+        timetensor([ 0., 0., 0., 0., 0.])
+    """
+    return TimeTensor.new_timetensor_with_func(
+        *size,
+        func=torch.zeros,
+        time_length=time_length,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+    )
+# end new_zeros
+
+
+# Zeros like
+def zeros_like(
+        input,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False,
+        memory_format=torch.preserve_format
+) -> TimeTensor:
+    r"""Returns a timetensor filled with the scalar value 0, with the same size as ``input``.
+
+    """
+    return zeros(
+        *list(input.csize()),
+        time_length=input.tlen,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad
+    )
+# end zeros_like
+
+
+# Returns time tensor filled with ones
+def ones(
+        size: Tuple[int],
+        time_length: int,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> 'TimeTensor':
+    r"""Returns a ``TimeTensor`` of size ``size`` filled with 1.
+
+    :param size: Size
+    :type size: Tuple[int]
+    :param time_length: Length of the timeseries
+    :type time_length: int
+    :param dtype: ``TimeTensor`` data type
+    :type dtype: torch.dtype
+    :param device: Destination device
+    :type device: torch.device
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool
+    :return: A ``TimeTensor`` of size size filled with zeros
+    :rtype: ``TimeTensor``
+
+    Example::
+        >>> x = echotorch.ones((2, 2), time_length=100)
+        >>> x.size()
+        torch.Size([100, 2, 2])
+        >>> x.tsize()
+        torch.Size([2, 2])
+        >>> x.tlen
+        100
+        >>> echotorch.ones((), time_length=5)
+        timetensor([ 1., 1., 1., 1., 1.])
+    """
+    return TimeTensor.new_timetensor_with_func(
+        size,
+        func=torch.ones,
+        time_length=time_length,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+    )
+# end ones
+
+
 # Returns filled time tensor
 def full(
-        size: Tuple[int],
+        *size,
         fill_value: Union[int, float],
         time_length: Union[int, torch.LongTensor],
         out: Optional[TimeTensor] = None,
@@ -190,20 +360,20 @@ def full(
     :rtype: ``TimeTensor``
 
     Example::
-        >>> x = echotorch.full((2, 2), time_length=100)
+        >>> x = echotorch.full(2, 2, time_length=100)
         >>> x.size()
         torch.Size([100, 2, 2])
         >>> x.tsize()
         torch.Size([2, 2])
         >>> x.tlen
         100
-        >>> echotorch.full((), time_length=5)
+        >>> echotorch.full(time_length=5)
         timetensor([ 1., 1., 1., 1., 1.])
     """
     # Size
     if out is not None:
         out = TimeTensor.new_timetensor_with_func(
-            size=size,
+            *size,
             func=torch.full,
             time_length=time_length,
             dtype=dtype,
@@ -215,7 +385,7 @@ def full(
         return out
     else:
         return TimeTensor.new_timetensor_with_func(
-            size=size,
+            *size,
             func=torch.full,
             time_length=time_length,
             dtype=dtype,
@@ -268,96 +438,8 @@ def empty(
 # end empty
 
 
-# Returns time tensor filled with ones
-def ones(
-        size: Tuple[int],
-        time_length: int,
-        dtype: Optional[torch.dtype] = None,
-        device: Optional[torch.device] = None,
-        requires_grad: Optional[bool] = False
-) -> 'TimeTensor':
-    r"""Returns a ``TimeTensor`` of size ``size`` filled with 1.
-
-    :param size: Size
-    :type size: Tuple[int]
-    :param time_length: Length of the timeseries
-    :type time_length: int
-    :param dtype: ``TimeTensor`` data type
-    :type dtype: torch.dtype
-    :param device: Destination device
-    :type device: torch.device
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :return: A ``TimeTensor`` of size size filled with zeros
-    :rtype: ``TimeTensor``
-
-    Example::
-        >>> x = echotorch.ones((2, 2), time_length=100)
-        >>> x.size()
-        torch.Size([100, 2, 2])
-        >>> x.tsize()
-        torch.Size([2, 2])
-        >>> x.tlen
-        100
-        >>> echotorch.ones((), time_length=5)
-        timetensor([ 1., 1., 1., 1., 1.])
-    """
-    return TimeTensor.new_timetensor_with_func(
-        size,
-        func=torch.ones,
-        time_length=time_length,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad,
-    )
-# end ones
-
-
-# Returns time tensor filled with zeros
-def zeros(
-        *size,
-        time_length: int,
-        dtype: Optional[torch.dtype] = None,
-        device: Optional[torch.device] = None,
-        requires_grad: Optional[bool] = False
-) -> 'TimeTensor':
-    r"""Returns a ``TimeTensor`` of size ``size`` filled with 0.
-
-    :param size: Size
-    :type size: Tuple[int]
-    :param time_length: Length of the timeseries
-    :type time_length: int
-    :param dtype: ``TimeTensor`` data type
-    :type dtype: torch.dtype
-    :param device: Destination device
-    :type device: torch.device
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :return: A ``TimeTensor`` of size size filled with zeros
-    :rtype: ``TimeTensor``
-
-    Example::
-        >>> x = echotorch.zeros((2, 2), time_length=100)
-        >>> x.size()
-        torch.Size([100, 2, 2])
-        >>> x.tsize()
-        torch.Size([2, 2])
-        >>> x.tlen
-        100
-        >>> echotorch.zeros((), time_length=5)
-        timetensor([ 0., 0., 0., 0., 0.])
-    """
-    return TimeTensor.new_timetensor_with_func(
-        *size,
-        func=torch.zeros,
-        time_length=time_length,
-        dtype=dtype,
-        device=device,
-        requires_grad=requires_grad,
-    )
-# end new_zeros
-
 # endregion CREATION_OPS
+
 
 # region DISTRIBUTION_OPS
 
@@ -481,6 +563,7 @@ def randn(
 
 
 # endregion DISTRIB_OPS
+
 
 # region UTILITY_OPS
 
@@ -622,5 +705,6 @@ def is_timetensor(obj) -> bool:
     """
     return isinstance(obj, TimeTensor)
 # end is_timetensor
+
 
 # endregion UTILITY_OPS

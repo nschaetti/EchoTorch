@@ -45,11 +45,11 @@ def check_time_lengths(
         time_lengths: Optional[torch.LongTensor],
         batch_sizes: torch.Size
 ):
-    """
-    Check time lengths
-    @param time_lengths:
-    @param batch_sizes:
-    @return:
+    r"""Check time lengths
+
+    :param time_lengths:
+    :param batch_sizes:
+    :return:
     """
     # Check that the given lengths tensor has the right
     # dimensions
@@ -645,7 +645,9 @@ class TimeTensor(BaseTensor):
 
         # Execute function
         ret = func(*conv_args, **kwargs)
-
+        # print("FUNC NAME: {}".format(func.__name__))
+        # print("FUNC RET: {}".format(type(ret)))
+        # print("")
         # Create TimeTensor and returns or returns directly
         if hasattr(self, 'after_' + func.__name__):
             return getattr(self, 'after_' + func.__name__)(ret, *args, **kwargs)

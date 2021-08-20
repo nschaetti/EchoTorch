@@ -20,10 +20,19 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Import functions
-from .random_processes import random_walk, moving_average, autoregressive_process
+from .random_processes import random_walk, moving_average, autoregressive_process, autoregressive_moving_average
 from .chaotic import henon
 
+# Alias
+rw = random_walk
+ma = moving_average
+ar = autoregressive_process
+arma = autoregressive_moving_average
+
 __all__ = [
-   # Functionals
-   'henon', 'random_walk', 'moving_average', 'autoregressive_process'
+   # Chaotic
+   'henon',
+   # Random process
+   'random_walk', 'moving_average', 'autoregressive_process', 'autoregressive_moving_average',
+   'rw', 'ma', 'ar', 'arma'
 ]

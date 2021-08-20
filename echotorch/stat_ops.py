@@ -27,11 +27,48 @@ from scipy.stats import t
 
 # Torch
 import torch
-from torch import Tensor, mean, mm, std, var
+from torch import Tensor, mean, mm, std, var, sum
 
 # Import local
 from .base_ops import zeros
 from .timetensors import TimeTensor
+
+
+# Summation over time dimension
+def tsum(
+        input: TimeTensor
+) -> Tensor:
+    r"""Returns the sum over time dimension of all elements in the ``input`` timetensor.
+
+    :param input: the input timetensor.
+    :type input: ``TimeTensor``
+    """
+    return sum(input, dim=input.time_dim)
+# end tsum
+
+
+# Quantile
+def tquantile(
+        input: TimeTensor,
+        q
+) -> Tensor:
+    r"""Computes the :math:`q`-th quantiles of each row of the ``input`` timetensor along the time dimension.
+
+    .. note::
+        From Torch documentation:
+        To compute the quantile, we map q in [0, 1] to the range of indices [0, n] to find the location of the quantile in the sorted input. If the quantile lies between two data points a < b with indices i and j in the sorted order, result is computed using linear interpolation as follows:
+
+        a + (b - a) * fraction, where fraction is the fractional part of the computed quantile index.
+
+        If q is a 1D tensor, the first dimension of the output represents the quantiles and has size equal to the size of q, the remaining dimensions are what remains from the reduction.
+
+    :param input: the input timetensor.
+    :type input: ``TimeTensor``
+
+    Example:
+
+        >>> x = echotorch.randn(5, time_length=100)
+    """
 
 
 # Average over time dimension

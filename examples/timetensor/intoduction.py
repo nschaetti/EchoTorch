@@ -110,3 +110,4 @@ print("z_n_cov: {}".format(z_n_cov.shape))
 print("z z cov with numpy: {}".format(z_n_cov))
 z_z2_n_cov = np.cov(z_n, z2_n, rowvar=False)
 print("z z2 cov with numpy: {}".format(z_z2_n_cov[:5, 5:]))
+

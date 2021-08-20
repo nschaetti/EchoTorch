@@ -245,10 +245,13 @@ def autoregressive_process(
     n = phi.size()[1] if phi is not None else size
 
     # If theta null, generate parameters
-    if phi is None: phi = parameters_func(p, n, n)
+    if phi is None:
+        phi = parameters_func(p, n, n)
+        phi /= torch.sum(phi, dim=0)
+    # end if
 
     # Add identity for t
-    phi = torch.cat((torch.unsqueeze(torch.eye(n), 0), phi), dim=0)
+    # phi = torch.cat((torch.unsqueeze(torch.eye(n), 0), phi), dim=0)
 
     # Samples
     samples = list()
@@ -274,3 +277,109 @@ def autoregressive_process(
     return samples
 # end autoregressive_process
 
+
+# Multivariate AutoRegressive Moving Average process (ARMA)
+def autoregressive_moving_average(
+        samples: int,
+        length: int,
+        regressive_order: Optional[int] = None,
+        moving_average_order: Optional[int] = None,
+        size: Optional[int] = None,
+        theta: Optional[torch.Tensor] = None,
+        phi: Optional[torch.Tensor] = None,
+        noise_mean: Optional[float] = 0.0,
+        noise_std: Optional[float] = 1.0,
+        noise_func: Optional[Callable] = echotorch.randn,
+        parameters_func: Optional[Callable] = torch.rand
+) -> List[echotorch.TimeTensor]:
+    r"""Create uni or multivariate time series based on AutoRegressive Moving Average process (ARMA) or
+    Vector ARMA  (ARMAV).
+
+    :param samples: How many samples to generate.
+    :type samples: ``ìnt``
+    :param length: Length of the time series to generate.
+    :type length: ``ìnt``
+    :param order: Value of of :math:`q`, the order of the moving average :math:`MA(q)`.
+    :type order: ``ìnt``
+    :param size: Number of variables in the output time series.
+    :type size: ``ìnt``
+    :param theta: A tensor of size (order, size, size) containing parameter for each timestep as a matrix.
+    :type theta: ``torch.Tensor``
+    :param noise_mean: Mean :math:`\mu` of the white noise
+    :type noise_mean: ``float``
+    :param noise_std: Standard deviation :math:`\Sigma` of the white noise
+    :type noise_std: ``float``
+    :param noise_func: Callable object to generate noise compatible with echotorch creation operator interace.
+    :type noise_func: ``callable``
+
+    """
+    # Check that parameters or theta or given
+    if (regressive_order is None or moving_average_order is None or size is None) \
+            and phi is None and theta is None:
+        raise ValueError(
+            "Regressive order, moving average order and size, or theta must at least be "
+            "given (here {}, {} and {}".format(regressive_order, moving_average_order, size, theta)
+        )
+    # end if
+
+    # Check theta size if given
+    if phi is not None and theta is not None:
+        # 3D tensor
+        if phi.ndim != 3 or theta.ndim != 3:
+            raise ValueError(
+                "Expected 3D tensor for theta and phi with size (order, size, size), but {}D given".format(phi.ndim)
+            )
+        # end if
+
+        # First two dim are square
+        if phi.size()[1] != phi.size()[2] or theta.size()[1] != theta.size()[2] or theta.size()[1] != phi.size()[1]:
+            raise ValueError(
+                "Expected 3D tensor with first two dimension squared (order, size, size) and equal, "
+                "but tensors of shape {} and {} given".format(phi.size(), theta.size())
+            )
+        # end if
+    # end if
+
+    # Order, number of variables
+    s = samples
+    p = phi.size()[0] if phi is not None else regressive_order
+    q = theta.size()[0] if theta is not None else moving_average_order
+    n = phi.size()[1] if phi is not None else size
+
+    # If phi null, generate parameters
+    if phi is None:
+        phi = parameters_func(p, n, n)
+        phi /= torch.sum(phi, dim=0)
+    # end if
+
+    # If phi null, generate parameters
+    if theta is None: theta = parameters_func(q, n, n)
+
+    # Add identity for t
+    # theta = torch.cat((torch.unsqueeze(torch.eye(n), 0), theta), dim=0)
+
+    # Samples
+    samples = list()
+
+    # For each sample
+    for s_i in range(s):
+        # Generate noise Zt
+        # zt = noise_func(n, time_length=length + q) * noise_std + noise_mean
+        zt = noise_func(n, time_length=length + q) * noise_std + noise_mean
+
+        # Space for output
+        xt = echotorch.zeros(n, time_length=length)
+
+        # For each timestep
+        for t in range(length):
+            xt[t] = zt[t]
+            xt[t] += sum([torch.mv(phi[k], xt[t - k]) for k in range(0, p) if t - k >= 0])
+            xt[t] -= sum([torch.mv(theta[k-1], zt[t+q-k]) for k in range(1, q+1)])
+        # end for
+
+        # Add
+        samples.append(xt)
+    # end for
+
+    return samples
+# end autoregressive_moving_average
