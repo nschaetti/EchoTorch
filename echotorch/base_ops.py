@@ -288,7 +288,7 @@ def zeros_like(
 
 # Returns time tensor filled with ones
 def ones(
-        size: Tuple[int],
+        *size,
         time_length: int,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
@@ -329,6 +329,217 @@ def ones(
         requires_grad=requires_grad,
     )
 # end ones
+
+
+# Ones like
+def ones_like(
+        input,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False,
+        memory_format=torch.preserve_format
+) -> TimeTensor:
+    r"""Returns a timetensor filled with the scalar value 1, with the same size as ``input``.
+
+    Args:
+        input:
+        dtype:
+        device:
+        requires_grad:
+        memory_format:
+
+    Returns:
+
+    """
+    return ones(
+        *list(input.csize()),
+        time_length=input.tlen,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad
+    )
+# end ones_like
+
+
+# Arange
+def arange(
+        *args,
+        out: TimeTensor = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> TimeTensor:
+    r"""Returns a 0-D timetensor of length :math:`\ceil[\bigg]{\frac{end-start}{step}}` with values from the interval
+    `[start, end)` taken into common difference ``step`` beginning from *start*.
+
+    .. note::
+        **From PyTorch documentation**:
+        Note that non-integer ``step`` is subject to floating point rounding errors when comparing against ``end``;
+        to avoid inconsistency, we advise a small epsilon to ``end`` in such case.
+
+        :math:`out_{i+1} = out_{i} + step`
+
+    :param start: the starting value of the time related set of points (default: 0).
+    :type start: Number
+    :param end: the ending value for the time related set of points.
+    :type end: Number
+    :param step: the gap between each pair of adjacent time points (default: 1).
+    :type step: Number
+    :param out:
+    :param dtype:
+    :param device:
+    :param requires_grad:
+    :return: a 0-D timetensor of length :math:`\ceil[\bigg]{\frac{end-start}{step}}` with values from the interval
+    `[start, end)` taken into common difference ``step`` beginning from *start*.
+    :rtype: ``TimeTensor``
+
+    Examples:
+
+        >>> echotorch.tarange(0, 5)
+        timetensor(tensor([0, 1, 2, 3, 4]), time_dim: 0)
+        >>> echotorch.tarange(1, 4)
+        timetensor(tensor([1, 2, 3]), time_dim: 0)
+        >>> echotorch.tarange(1, 2.5, 0.5)
+        timetensor(tensor([1.0000, 1.5000, 2.0000]), time_dim: 0)
+    """
+    # Get start, end, step
+    if len(args) == 1:
+        start = 0
+        end = args[0]
+        step = 1
+    elif len(args) == 2:
+        start = args[0]
+        end = args[1]
+        step = 1
+    elif len(args) > 2:
+        start = args[0]
+        end = args[1]
+        step = args[2]
+    else:
+        raise ValueError("At least end must be given (here nothing)")
+    # end if
+
+    # arange tensor
+    ar_tensor = torch.arange(start, end, step, dtype=dtype, device=device, requires_grad=requires_grad)
+
+    # Create timetensor
+    return TimeTensor.new_timetensor(
+        data=ar_tensor,
+        time_dim=0
+    )
+# end arange
+
+
+# linspace
+def linspace(
+        start: int,
+        end: int,
+        steps: float,
+        out: TimeTensor = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> TimeTensor:
+    r"""Create a 0-D timetensor of length ``steps`` whose values are evenly spaced from ``start`` to ``end``, inclusive.
+    That is, values are:
+
+    .. math::
+        (start, start + \frac{end - start}{steps - 1}, \dots, start + (steps - 2) * \frac{end - start}{steps - 1}, end)
+
+    :param start: the starting value of the time related set of points.
+    :type start: float
+    :param end: the ending value for the time related set of points.
+    :type end: float
+    :param steps: size of the constructed tensor.
+    :type steps: int
+    :param out: the output tensor.
+    :type out: Tensor, optional
+    :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
+    :type dtype: ``torch.dtype``, optional
+    :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
+    :type device: ``torch.device``, optional
+    :param requires_grad: if autograd should record operations on the returned tensor (default: *False*).
+    :type requires_grad: ``bool``
+    :return: A 0-D timetensor of length ``steps`` whose values are evenly spaced from ``start`` to ``end``, inclusive.
+    :rtype: ``TimeTensor``
+
+    Example:
+
+        >>> echotorch.linspace(3, 10, steps=5)
+        timetensor(tensor([ 3.0000,  4.7500,  6.5000,  8.2500, 10.0000]), time_dim: 0)
+        >>> echotorch.linspace(-10, 10, steps=5)
+        timetensor(tensor([-10.,  -5.,   0.,   5.,  10.]), time_dim: 0)
+        >>> echotorch.linspace(start=-10, end=10, steps=5)
+        timetensor(tensor([-10.,  -5.,   0.,   5.,  10.]), time_dim: 0)
+        >>> echotorch.linspace(start=-10, end=10, steps=1)
+        timetensor(tensor([-10.]), time_dim: 0)
+    """
+    # linspace tensor
+    ls_tensor = torch.linspace(start, end, steps, dtype=dtype, device=device, requires_grad=requires_grad)
+
+    # Create timetensor
+    return TimeTensor.new_timetensor(
+        data=ls_tensor,
+        time_dim=0
+    )
+# end linspace
+
+
+# logspace
+def logspace(
+        start: int,
+        end: int,
+        steps: float,
+        base: float = 10,
+        out: TimeTensor = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+        requires_grad: Optional[bool] = False
+) -> TimeTensor:
+    r"""Create a 0-D timetensor of length ``steps`` whose values are evenly spaced from :math:`base^{start}` to :math:`base^{end}`,
+    inclusive, on a logarithm scale with base ``base``. That is, the values are:
+
+    .. math::
+        (base^{start}, base^{\frac{end - start}{steps - 1}}, \dots, base^{start + (steps - 2) * \frac{end - start}{steps - 1}}, base^{end})
+
+    :param start: the starting value of the time related set of points.
+    :type start: float
+    :param end: the ending value for the time related set of points.
+    :type end: float
+    :param steps: size of the constructed tensor.
+    :type steps: int
+    :param out: the output tensor.
+    :type out: ``TimeTensor``
+    :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
+    :type dtype: ``torch.dtype``, optional
+    :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
+    :type device: ``torch.device``, optional
+    :param requires_grad: if autograd should record operations on the returned tensor (default: *False*).
+    :type requires_grad: ``bool``
+    :return: A 0-D timetensor of length ``steps`` whose values are evenly spaced from :math:`base^{start}` to :math:`base^{end}`,
+    inclusive, on a logarithm scale with base ``base``.
+    :rtype: ``TimeTensor``
+
+    Example:
+
+        >>> echotorch.logspace(start=-10, end=10, steps=5)
+        timetensor(tensor([1.0000e-10, 1.0000e-05, 1.0000e+00, 1.0000e+05, 1.0000e+10]), time_dim: 0)
+        >>> echotorch.logspace(start=0.1, end=1.0, steps=5)
+        timetensor(tensor([ 1.2589,  2.1135,  3.5481,  5.9566, 10.0000]), time_dim: 0)
+        >>> echotorch.logspace(start=0.1, end=1.0, steps=1)
+        timetensor(tensor([1.2589]), time_dim: 0)
+        >>> echotorch.logspace(start=2, end=2, steps=1, base=2)
+        timetensor(tensor([4.]), time_dim: 0)
+    """
+    # linspace tensor
+    ls_tensor = torch.logspace(start, end, steps, base, dtype=dtype, device=device, requires_grad=requires_grad)
+
+    # Create timetensor
+    return TimeTensor.new_timetensor(
+        data=ls_tensor,
+        time_dim=0
+    )
+# end logspace
 
 
 # Returns filled time tensor

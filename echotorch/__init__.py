@@ -37,7 +37,7 @@ from .timetensors import BFloat16Tensor, HalfTimeTensor
 
 # Base operations
 from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, timetensor, is_timetensor, as_timetensor
-from .base_ops import sparse_coo_timetensor, as_strided
+from .base_ops import sparse_coo_timetensor, as_strided, zeros_like, ones_like, arange, linspace, logspace
 from .base_ops import tindex_select, randn
 
 # Stat operations
@@ -102,7 +102,7 @@ __all__ = [
     'tindex_select', 'ones', 'full', 'rand', 'randn',
     'ByteTimeTensor', 'CharTimeTensor', 'HalfTimeTensor', 'DoubleTimeTensor', 'FloatTimeTensor',
     # Creation ops
-    'sparse_coo_timetensor', 'as_strided',
+    'sparse_coo_timetensor', 'as_strided', 'zeros_like', 'ones_like', 'arange', 'linspace', 'logspace',
     # Stats ops
     'tmean', 'tstd', 'cov', 'cor', 'autocovariance_coeffs', 'autocorrelation_coeffs',
     # Series ops

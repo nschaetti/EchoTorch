@@ -188,5 +188,9 @@ autodoc_remove_type_hints = [
 
 # Latex preamble
 imgmath_latex_preamble = r'\usepackage{amsmath}' \
-                         r'\usepackage[T1,T2A]{fontenc}'
+                         r'\usepackage[T1,T2A]{fontenc}' \
+                         r'\usepackage{amsfonts}' \
+                         r'\usepackage{amssymb}' \
+                         r'\usepackage{mathtools}' \
+                         r'\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}'
 

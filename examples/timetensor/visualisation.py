@@ -21,7 +21,6 @@
 
 # Imports
 import matplotlib.pyplot as plt
-import echotorch
 import echotorch.viz
 
 

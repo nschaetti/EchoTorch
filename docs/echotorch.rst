@@ -39,11 +39,18 @@ Creation Ops
 
     timetensor
     as_timetensor
+    sparse_coo_timetensor
+    as_strided
     from_numpy
+    zeros
+    zeros_like
+    ones
+    ones_like
+    arange
+    linspace
+    logspace
     full
     empty
-    ones
-    zeros
 
 Indexing, Slicing, Joining, Mutating Ops
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

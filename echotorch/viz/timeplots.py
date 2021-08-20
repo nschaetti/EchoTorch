@@ -116,6 +116,7 @@ def timeplot(
     :type xlim: Tuple of ``float``, optional
 
     Example
+
         >>> x = echotorch.data.random_walk(1, length=10000, shape=())
         >>> echotorch.timeplot(x[0], title="Random Walk", xlab="X_t")
     """
