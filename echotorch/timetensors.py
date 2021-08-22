@@ -486,6 +486,35 @@ class TimeTensor(BaseTensor):
 
     # region OVERRIDE
 
+    # As strided
+    def as_strided(self, size, stride, storage_offset=0, time_dim=None) -> 'TimeTensor':
+        r"""
+
+        Args:
+            size:
+            stride:
+            storage_offset:
+
+        Returns:
+
+        """
+        # Strided tensor
+        data_tensor = self._tensor.as_strided(size, stride, storage_offset)
+
+        # Time dim still present
+        if len(size) >= self._time_dim + 1:
+            # Return timetensor
+            return TimeTensor.new_timetensor(
+                data=data_tensor,
+                time_dim=self._time_dim if time_dim is None else time_dim
+            )
+        elif time_dim is not None:
+            pass
+        else:
+            return data_tensor
+        # end if
+    # end as_strided
+
     # To numpy
     def numpy(self) -> np.ndarray:
         r"""To Numpy array

@@ -21,18 +21,15 @@
 
 # Import functions
 from .random_processes import random_walk, moving_average, autoregressive_process, autoregressive_moving_average
+from .random_processes import weighted_moving_average, cumulative_moving_average, exponential_moving_average
+from .random_processes import rw, unirw, ma, unima, wma, cma, ema, ar, arma
 from .chaotic import henon
 
-# Alias
-rw = random_walk
-ma = moving_average
-ar = autoregressive_process
-arma = autoregressive_moving_average
-
+# ALL
 __all__ = [
    # Chaotic
    'henon',
    # Random process
-   'random_walk', 'moving_average', 'autoregressive_process', 'autoregressive_moving_average',
-   'rw', 'ma', 'ar', 'arma'
+   'random_walk', 'moving_average', 'weighted_moving_average', 'exponential_moving_average', 'autoregressive_process',
+   'autoregressive_moving_average', 'rw', 'unirw', 'ma', 'unima', 'wma', 'cma', 'ema', 'ar', 'arma'
 ]

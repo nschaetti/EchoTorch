@@ -30,7 +30,10 @@ import echotorch.viz
 torch.manual_seed(1)
 
 # Random walk
-random_walk = echotorch.data.random_walk(1, length=10000, shape=())
+# random_walk = echotorch.data.unirw(1, length=10000)
+# print("Univariate Random walk: {}".format(random_walk))
+random_walk = echotorch.data.random_walk(1, length=10000, shape=(2,))
+print("Multivariate Random Walk: {}".format(random_walk[0]))
 
 # Plot random walk
 plt.figure()
@@ -39,7 +42,7 @@ echotorch.viz.timeplot(
     tstart=0.0,
     tstep=0.01,
     title="Random walk",
-    xlab="X(t)"
+    xlab="x(t)"
 )
 plt.show()
 
@@ -53,7 +56,7 @@ echotorch.viz.timeplot(
     tstart=0.0,
     tstep=0.01,
     title="Multivariate Moving Average MA(q)",
-    xlab="X(t)"
+    xlab="x(t)"
 )
 plt.show()
 

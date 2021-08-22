@@ -27,6 +27,7 @@ generate time series data for your research.
     :caption: Python API
 
     echotorch
+    timetensors
     echotorch.data
     echotorch.models
     echotorch.nn

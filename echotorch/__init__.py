@@ -36,8 +36,10 @@ from .timetensors import TimeTensor, CharTimeTensor, DoubleTimeTensor, ByteTimeT
 from .timetensors import BFloat16Tensor, HalfTimeTensor
 
 # Base operations
-from .base_ops import from_numpy, cat, zeros, tcat, empty, ones, full, rand, timetensor, is_timetensor, as_timetensor
-from .base_ops import sparse_coo_timetensor, as_strided, zeros_like, ones_like, arange, linspace, logspace
+from .base_ops import timetensor, sparse_coo_timetensor, as_timetensor, as_strided, from_numpy, zeros, zeros_like
+from .base_ops import ones, ones_like, arange, linspace, logspace, empty, empty_like, empty_strided, full, full_like
+from .base_ops import quantize_per_timetensor, quantize_per_channel, dequantize, complex, polar
+from .base_ops import cat, tcat, rand
 from .base_ops import tindex_select, randn
 
 # Stat operations
@@ -98,11 +100,12 @@ __all__ = [
     # DataTensors
     'DataTensor', 'DataIndexer',
     # TimeTensors and base ops
-    'TimeTensor', 'as_timetensor', 'timetensor', 'is_timetensor', 'from_numpy', 'cat', 'zeros', 'tcat', 'empty', 'tcat',
-    'tindex_select', 'ones', 'full', 'rand', 'randn',
+    'TimeTensor', 'cat', 'tcat', 'tcat', 'tindex_select', 'rand', 'randn',
     'ByteTimeTensor', 'CharTimeTensor', 'HalfTimeTensor', 'DoubleTimeTensor', 'FloatTimeTensor',
     # Creation ops
-    'sparse_coo_timetensor', 'as_strided', 'zeros_like', 'ones_like', 'arange', 'linspace', 'logspace',
+    'timetensor', 'sparse_coo_timetensor', 'as_timetensor', 'as_strided', 'from_numpy', 'zeros', 'zeros_like',
+    'ones', 'ones_like', 'arange', 'linspace', 'logspace', 'empty', 'empty_like', 'empty_strided', 'full', 'full_like',
+    'quantize_per_timetensor', 'quantize_per_channel', 'dequantize', 'complex', 'polar',
     # Stats ops
     'tmean', 'tstd', 'cov', 'cor', 'autocovariance_coeffs', 'autocorrelation_coeffs',
     # Series ops

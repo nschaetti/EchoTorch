@@ -179,6 +179,9 @@ numpydoc_show_class_members = False
 autosummary_generate = True
 autosummary_imported_members = True
 
+# No typing
+autodoc_typehints = "none"
+
 # No module name
 add_module_names = True
 

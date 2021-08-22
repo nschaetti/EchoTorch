@@ -161,3 +161,36 @@ print("x12.bsize(): {}".format(x12.bsize()))
 print("x12.tlen: {}".format(x12.tlen))
 print("x12.lengths: {}".format(x12.tlens))
 print("")
+
+# Create timetensor with empty
+x13 = echotorch.empty(2, time_length=100)
+print("x13.time_dim: {}".format(x13.time_dim))
+print("x13.size(): {}".format(x13.size()))
+print("x13.csize(): {}".format(x13.csize()))
+print("x13.bsize(): {}".format(x13.bsize()))
+print("x13.tlen: {}".format(x13.tlen))
+print("x13.lengths: {}".format(x13.tlens))
+print("")
+
+# Create timetensor with empty_like
+x13 = echotorch.empty_like(x13)
+print("x13.time_dim: {}".format(x13.time_dim))
+print("x13.size(): {}".format(x13.size()))
+print("x13.csize(): {}".format(x13.csize()))
+print("x13.bsize(): {}".format(x13.bsize()))
+print("x13.tlen: {}".format(x13.tlen))
+print("x13.lengths: {}".format(x13.tlens))
+print("")
+
+
+# Create timetensor with empty_strided
+x14 = echotorch.empty_strided((2, 3), (1, 2), time_length=100, time_stride=2)
+print("x14.time_dim: {}".format(x14.time_dim))
+print("x14.size(): {}".format(x14.size()))
+print("x14.csize(): {}".format(x14.csize()))
+print("x14.bsize(): {}".format(x14.bsize()))
+print("x14.tlen: {}".format(x14.tlen))
+print("x14.lengths: {}".format(x14.tlens))
+print("")
+
+

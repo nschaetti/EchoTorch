@@ -49,12 +49,59 @@ Creation Ops
     arange
     linspace
     logspace
-    full
     empty
+    empty_like
+    empty_strided
+    full
+    full_like
+    quantize_per_timetensor
+    quantize_per_channel
+    dequantize
+    complex
+    polar
+
 
 Indexing, Slicing, Joining, Mutating Ops
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+
+    tcat
+    tchunk
+    tdsplit
+    channel_stack
+    cstack
+    batch_stack
+    bstack
+    time_stack
+    tstack
+    tindex_select
+    tmasked_select
+    movecdim
+    movebdim
+    movetdim
+    tnarrow
+    creshape
+    breshape
+    tsplit
+    csplit
+    bsplit
+    tt
+    bt
+    ct
+    take_along_time
+    timetensor_split
+    ttile
+    ctile
+    btile
+    transpose
+    btranspose
+    ctranspose
+    unbind
+    tunbind
+    tselect
 
 Random sampling
 ~~~~~~~~~~~~~~~

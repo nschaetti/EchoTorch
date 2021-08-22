@@ -12,8 +12,21 @@ Random processes
     :nosignatures:
 
     random_walk
+    rw
+    unirw
     moving_average
+    ma
+    unima
+    weighted_moving_average
+    wma
+    cumulative_moving_average
+    cma
+    exponential_moving_average
+    ema
     autoregressive_process
+    ar
+    autoregressive_moving_average
+    arma
 
 Attractors and chaotic timeseries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
