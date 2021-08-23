@@ -42,29 +42,39 @@ def timetensor(
         requires_grad: Optional[bool] = False,
         pin_memory: Optional[bool] = False
 ) -> 'TimeTensor':
-    r"""Construct a :class:`TimeTensor` with data as tensor, timetensor, list, etc.
+    r"""Construct a :class:`TimeTensor` with given data as tensor, timetensor, list, etc.
 
-    :param data: Data as tensor, timetensor, list or Numpay array.
-    :type data: Tensor, :class:`TimeTensor`, List, Numpy Array
-    :param time_dim:
-    :type time_dim: Integer
-    :param dtype: Torch Tensor data type
-    :type dtype: :class:`torch.dtype`
-    :param device: Destination device (cpu, gpu, etc)
-    :type device: :class:`torch.device`
-    :param requires_grad: Compute gradients?
-    :type requires_grad: `bool`
-    :param pin_memory:
-    :type pin_memory: `bool`
-    :return: The :class:`TimeTensor` created from ``data``
-    :rtype: :class:`TimeTensor`
+    .. warning::
+        Similarly to ``torch.tensor()``, :func:`echotorch.timetensor()` copies the data. For more information on how
+        to avoid copy, check the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.tensor.html#torch.tensor>`__.
 
+    .. warning::
+        Like ``torch.tensor()``, :func:`echotorch.timetensor()` reads out data and construct a leaf variable. Check
+        the `PyTorch documentation on torch.tensor() <https://pytorch.org/docs/stable/generated/torch.tensor.html#torch.tensor>`__ for more information.
+
+    :param data: Data for the wrapped :class:`torch.Tensor` as a tensor, timetensor, list or Numpy array.
+    :type data: array_like
+    :param time_dim: the index of the time dimension (default: 0).
+    :type time_dim: ``int``, optional
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+    :param requires_grad: Should operations been recorded by autograd for this timetensor?
+    :type requires_grad: `bool`, optional
+    :param pin_memory: If set, returned timetensor would be allocated in the pinned memory. Works only for CPU timetensors (default: ``False``)
+    :type pin_memory: `bool`, optional
+
+    Example:
+
+        >>> echotorch.timetensor([1, 2, 3, 4], device='cuda:0')
+        timetensor([1, 2, 3, 4], device='cuda:0', time_dim: 0)
     """
     # Data
     if isinstance(data, torch.Tensor):
-        src_data = data.clone().detach()
+        src_data = data.clone().detach().requires_grad_(requires_grad)
     elif isinstance(data, TimeTensor):
-        src_data = data.tensor.clone().detach()
+        src_data = data.tensor.clone().detach().requires_grad_(requires_grad)
     else:
         src_data = torch.tensor(
             data,
@@ -75,11 +85,63 @@ def timetensor(
         )
     # end if
 
+    # Set parameters
+    src_data = src_data.to(dtype=dtype, device=device)
+    if pin_memory: src_data = src_data.pin_memory()
+
+    # Create timetensor
     return TimeTensor.new_timetensor(
         src_data,
         time_dim=time_dim
     )
 # end timetensor
+
+
+# Convert data into a TimeTensor
+def as_timetensor(
+        data: Any,
+        time_dim: Optional[int] = 0,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None
+) -> 'TimeTensor':
+    r"""Convert data into a :class:`TimeTensor`. If a :class:`torch.Tensor` or a :class:`TimeTensor` is given as data,
+    no copy will be made, otherwise a new :class:`torch.Tensor` will be wrapped with computational graph retained if
+    the tensor has ``requires_grad`` set to ``True``. If the data comes frome Numpy (:class:`ndarray`) with the same
+    *dtype* and is on the cpu, the no copy will be made. This behavior is similar to :func:`torch.as_tensor()`. See
+    the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.as_tensor.html#torch.as_tensor>`__ for more information.
+
+    :param data: data to convert for the wrapper tensor as :class:`TimeTensor`, Tensor, List, scalar or Numpy array.
+    :type data: array-like
+    :param time_dim: the index of the time dimension.
+    :type time_dim: ``int``, optional
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+
+    Example:
+
+        >>> x = echotorch.as_timetensor([[0], [1], [2]], time_dim=0)
+        >>> x
+        timetensor([[0],
+                    [1],
+                    [2]], time_dim: 0)
+        >>> x.csize()
+        torch.Size([1])
+        >>> x.bsize()
+        torch.Size([])
+        >>> x.tlen
+        3
+    """
+    return TimeTensor.new_timetensor(
+        torch.as_tensor(
+            data,
+            dtype=dtype,
+            device=device
+        ),
+        time_dim=time_dim
+    )
+# end as_timetensor
 
 
 # Sparse COO timetensor
@@ -92,10 +154,33 @@ def sparse_coo_timetensor(
         device=None,
         requires_grad=False
 ) -> TimeTensor:
-    r"""Construct a sparse :class:`TimeTensor` in COO(rdinate) format with specified values at the given indices.
+    r"""Construct a :class:`TimeTensor` with a wrapped `sparse *tensor* in COO(rdinate) format <https://pytorch.org/docs/stable/sparse.html#sparse-coo-docs>`__ with specified values at the given indices.
 
     .. note::
         The contained tensor is an uncoalesced tensor.
+
+    :param indices: the data indices for the wrapped tensor as a list, tuple, Numpy ``ndarray``, scalar, etc. Indices will casted to ``torch.LongTensor``. Indices are the coordinates of data inside the matrix.
+    :type indices: array_like
+    :param values: the data values for the wrapped tensor as a list, tuple, Numpy ``ndarray``, scalar, etc.
+    :type values: array_like
+    :param time_dim: the index of the time dimension.
+    :type time_dim: ``int``, optional
+    :param size: size of the timetensor, if not give, size will be deduce from *indices*.
+    :type size: list, tuple, or ``torch.Size``, optional
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+    :param requires_grad: Should operations been recorded by autograd for this timetensor?
+    :type requires_grad: `bool`, optional
+
+    Example:
+
+        >>> echotorch.sparse_coo_timetensor(indices=torch.tensor([[0, 1, 1], [2, 0, 2]]), values=torch.tensor([3, 4, 5], dtype=torch.float32), size=[2, 4])
+        timetensor(indices=tensor([[0, 1, 1],
+                                   [2, 0, 2]]),
+                   values=tensor([3., 4., 5.]),
+                   size=(2, 4), nnz=3, layout=torch.sparse_coo, time_dim: 0)
     """
     # Create sparse tensor
     coo_tensor = torch.sparse_coo_tensor(
@@ -113,45 +198,6 @@ def sparse_coo_timetensor(
         time_dim=time_dim
     )
 # end sparse_coo_timetensor
-
-
-# Convert data into a TimeTensor
-def as_timetensor(
-        data: Any,
-        time_dim: Optional[int] = 0,
-        dtype: Optional[torch.dtype] = None,
-        device: Optional[torch.device] = None
-) -> 'TimeTensor':
-    r"""Convert data into a :class:`TimeTensor`.
-
-    :param data: Data to convert as :class:`TimeTensor`, Tensor, List or Numpy array.
-    :type data: :class:`TimeTensor`, Tensor, List, Numpy array
-    :param time_dim: The index of the time dimension.
-    :type time_dim: Integer
-    :param dtype: Tensor data type
-    :type dtype: torch.dtype
-    :param device: Destination device
-    :type device: torch.device
-    :return: The :class:`TimeTensor` created from data.
-    :rtype: :class:`TimeTensor`
-
-    Example::
-        >>> x = echotorch.as_timetensor([[0], [1], [2]], time_dim=0)
-        >>> x.tsize()
-        torch.Size([1])
-        >>> x.tlen
-        3
-
-    """
-    return TimeTensor.new_timetensor(
-        torch.as_tensor(
-            data,
-            dtype=dtype,
-            device=device
-        ),
-        time_dim=time_dim
-    )
-# end as_timetensor
 
 
 # As strided
@@ -220,7 +266,8 @@ def from_numpy(
 # Returns time tensor filled with zeros
 def zeros(
         *size,
-        time_length: int,
+        length: int,
+        batch_size: Optional[Tuple[int]] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -229,8 +276,8 @@ def zeros(
 
     :param size: Size
     :type size: Tuple[int]
-    :param time_length: Length of the timeseries
-    :type time_length: int
+    :param length: Length of the timeseries
+    :type length: int
     :param dtype: :class:`TimeTensor` data type
     :type dtype: torch.dtype
     :param device: Destination device
@@ -241,7 +288,7 @@ def zeros(
     :rtype: :class:`TimeTensor`
 
     Example::
-        >>> x = echotorch.zeros((2, 2), time_length=100)
+        >>> x = echotorch.zeros((2, 2), length=100)
         >>> x.size()
         torch.Size([100, 2, 2])
         >>> x.tsize()
@@ -254,7 +301,8 @@ def zeros(
     return TimeTensor.new_timetensor_with_func(
         *size,
         func=torch.zeros,
-        time_length=time_length,
+        length=length,
+        batch_size=batch_size,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
@@ -286,7 +334,8 @@ def zeros_like(
 # Returns time tensor filled with ones
 def ones(
         *size,
-        time_length: int,
+        length: int,
+        batch_size: Optional[Tuple[int]] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -320,7 +369,8 @@ def ones(
     return TimeTensor.new_timetensor_with_func(
         size,
         func=torch.ones,
-        time_length=time_length,
+        length=length,
+        batch_size=batch_size,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
@@ -542,7 +592,8 @@ def logspace(
 # Returns empty tensor
 def empty(
         size: Tuple[int],
-        time_length: int,
+        length: int,
+        batch_size: Optional[Tuple[int]] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
@@ -551,8 +602,8 @@ def empty(
 
     :param size: Size
     :type size: Tuple[int]
-    :param time_length: Length of the timeseries
-    :type time_length: int
+    :param length: Length of the timeseries
+    :type length: int
     :param dtype: ``TimeTensor`` data type
     :type dtype: torch.dtype
     :param device: Destination device
@@ -564,14 +615,15 @@ def empty(
 
     Example:
 
-        >>> echotorch.empty(2, 3, time_length=1, dtype=torch.int32, device = 'cuda')
+        >>> echotorch.empty(2, 3, length=1, dtype=torch.int32, device = 'cuda')
         timetensor([[[1., 1., 1.],
                      [1., 1., 1.]]], device='cuda:0', dtype=torch.int32)
     """
     return TimeTensor.new_timetensor_with_func(
         size,
         func=torch.empty,
-        time_length=time_length,
+        length=length,
+        batch_size=batch_size,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
@@ -610,7 +662,7 @@ def empty_like(
     """
     return empty(
         *list(input.csize()),
-        time_length=input.tlen,
+        length=input.tlen,
         dtype=input.dtype if dtype is None else dtype,
         device=input.device if device is None else device,
         requires_grad=input.requires_grad if requires_grad is None else  requires_grad
@@ -622,8 +674,10 @@ def empty_like(
 def empty_strided(
         size,
         stride,
-        time_length: int,
+        length: int,
         time_stride: int,
+        batch_size: Optional[Tuple[int]] = None,
+        batch_stride: Optional[Tuple[int]] = None,
         dtype: torch.device = None,
         layout: torch.layout = torch.strided,
         device: torch.device = None,
@@ -648,7 +702,7 @@ def empty_strided(
     """
     # Data tensor
     data_tensor = torch.empty_strided(
-        [time_length] + list(size),
+        [length] + list(size),
         [time_stride] + list(stride),
         dtype=dtype,
         layout=layout,
@@ -850,43 +904,53 @@ def polar(
 # Random time series (uniform)
 def rand(
         *size,
-        time_length: int,
+        length: int,
+        batch_size: Optional[Tuple[int]] = None,
         out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
         layout: Optional[torch.layout] = torch.strided,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
 ) -> TimeTensor:
-    r"""Returns a timetensor filled with random numbers from a uniform distribution on the interval [0, 1)[0,1)
+    r"""Returns a :class:`TimeTensor` filled with random numbers from a uniform distribution on the interval :math:`[0, 1)`.
 
-    :param size: a sequence of integers defining the shape of the output timeseries. Can be a variable number of
-    arguments or a collection like a list or tuple.
-    :type size: int...
+    :param size: a sequence of integers defining the shape of the output timeseries. Can be a variable number of arguments or a collection like a list or tuple.
+    :type size: list of integers
+    :param length: length of the timeseries.
+    :type length: ``int``
     :param out: the output tensor.
-    :type out: ``TimeTensor``, optional
-    :param time_length: Length of the timeseries
-    :type time_length: int
-    :param dtype: the desired data type of returned timetensor. Default: if None, uses a global default
-    (see torch.set_default_tensor_type()).
-    :type dtype: ``torch.dtype``, optional
-    :param layout: the desired layout of returned TimeTensor. Default: torch.strided.
+    :type out: :class:`TimeTensor`, optional
+    :param out: the output tensor.
+    :type out: :class:`TimeTensor`, optional
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
+    :param layout: the desired layout of returned TimeTensor (default: torch.strided).
     :type layout: ``torch.layout``, optional
-    :param device: Destination device
-    :type device: ``torch.device``, optional
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: ``bool``, optional
-    :return: A ``TimeTensor`` of size size filled with zeros
-    :rtype: ``TimeTensor``
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+    :param requires_grad: Should operations been recorded by autograd for this timetensor?
+    :type requires_grad: `bool`, optional
 
-    Example::
-        >>> x = echotorch.rand(1, time_length=10)
-        timetensor([[1.], [1.], [1.], [1.], [1.]])
+    Example:
+
+        >>> echotorch.rand(2, length=10)
+        timetensor([[0.5474, 0.7742],
+                    [0.8091, 0.3192],
+                    [0.6742, 0.3458],
+                    [0.6646, 0.5652],
+                    [0.4309, 0.5330],
+                    [0.4052, 0.5731],
+                    [0.2499, 0.1044],
+                    [0.9394, 0.0862],
+                    [0.2206, 0.9380],
+                    [0.1908, 0.0594]], time_dim: 0)
     """
     if out is not None:
         out = TimeTensor.new_timetensor_with_func(
             *size,
             func=torch.rand,
-            time_length=time_length,
+            length=length,
+            batch_size=batch_size,
             dtype=dtype,
             device=device,
             requires_grad=requires_grad,
@@ -897,7 +961,8 @@ def rand(
         return TimeTensor.new_timetensor_with_func(
             *size,
             func=torch.rand,
-            time_length=time_length,
+            length=length,
+            batch_size=batch_size,
             dtype=dtype,
             device=device,
             requires_grad=requires_grad,
@@ -910,41 +975,53 @@ def rand(
 # Random time series (uniform)
 def randn(
         *size,
-        time_length: int,
+        length: int,
+        batch_size: Optional[Tuple[int]] = None,
         out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
         layout: Optional[torch.layout] = torch.strided,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
 ) -> TimeTensor:
-    r"""Returns a timetensor filled with random numbers from a normal distribution with mean :math:`\mu` 0 and
-    a standard :math:`\sigma^2` of 1 (standard normal distribution)
+    r"""Returns a :class:`TimeTensor` filled with random numbers from a normal distribution with mean :math:`\mu` 0 and
+    a standard deviation :math:`\sigma` of 1 (standard normal distribution).
 
-    :param size: Size
-    :type size: Tuple[int]
-    :param time_length: Length of the timeseries
-    :type time_length: int
+    .. math::
+        out_i \sim \mathcal{N}(0, 1)
+
+    The parameter *size* will determine the size of the *timetensor*.
+
+    :param size: the shape of the timetensor as a sequence of integers (list, tuple, etc).
+    :type size: list of ints
+    :param length: Length of the timeseries (default: 0)
+    :type length: ``int``, optional
     :param out: the output tensor.
     :type out: ``TimeTensor``, optional
-    :param dtype: ``TimeTensor`` data type
-    :type dtype: torch.dtype
-    :param device: Destination device
-    :type device: torch.device
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :return: A ``TimeTensor`` of size *size* filled with zeros
-    :rtype: ``TimeTensor``
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
+    :param layout: desired layout of the wrapped Tensor (default: ``torch.strided``).
+    :type layout: ``torch.layout``, optional
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+    :param requires_grad: Should operations been recorded by autograd for this timetensor?
+    :type requires_grad: `bool`, optional
 
-    Example::
-        >>> x = echotorch.randn(time_length=10)
-        timetensor(tensor([ 0.2610,  0.4589,  0.1833, -0.1209, -0.0103,  1.1757,  0.9236, -0.6117, 0.7906,
-        -0.1704]), time_dim: 0)
+    Example:
+
+        >>> x = echotorch.randn(length=10)
+        >>> x
+        timetensor([ 0.2610,  0.4589,  0.1833, -0.1209, -0.0103,  1.1757,  0.9236, -0.6117, 0.7906, -0.1704], time_dim: 0)
+        >>> x.size()
+        torch.Size([10])
+        >>> x.tlen
+        10
     """
     if out is not None:
         out = TimeTensor.new_timetensor_with_func(
             *size,
             func=torch.randn,
-            time_length=time_length,
+            length=length,
+            batch_size=batch_size,
             dtype=dtype,
             device=device,
             requires_grad=requires_grad,
@@ -955,7 +1032,8 @@ def randn(
         return TimeTensor.new_timetensor_with_func(
             *size,
             func=torch.randn,
-            time_length=time_length,
+            length=length,
+            batch_size=batch_size,
             dtype=dtype,
             device=device,
             requires_grad=requires_grad,

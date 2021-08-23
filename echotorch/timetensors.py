@@ -471,7 +471,9 @@ class TimeTensor(BaseTensor):
         :return: ``TimeTensor`` representation.
         :rtype: ``str``
         """
-        return "timetensor({}, time_dim: {})".format(self._tensor, self._time_dim)
+        tensor_desc = self._tensor.__repr__()
+        tensor_desc = tensor_desc[7:-1]
+        return "timetensor({}, time_dim: {})".format(tensor_desc, self._time_dim)
     # end __repr__
 
     # Are two time-tensors equivalent

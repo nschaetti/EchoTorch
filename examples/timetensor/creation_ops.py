@@ -26,6 +26,17 @@ import numpy as np
 import echotorch
 
 
+# Create a timetensor with timetensor()
+print("timetensor")
+x0 = echotorch.timetensor([1, 2, 3, 4])
+print("x0: {}".format(x0))
+print("x0.time_dim: {}".format(x0.time_dim))
+print("x0.size(): {}".format(x0.size()))
+print("x0.csize(): {}".format(x0.csize()))
+print("x0.bsize(): {}".format(x0.bsize()))
+print("x0.tlen: {}".format(x0.tlen))
+print("")
+
 # Create time-tensor with timetensor()
 print("timetensor")
 x1 = echotorch.timetensor(torch.zeros(4, 100, 6), time_dim=1)
@@ -39,8 +50,9 @@ print("")
 
 # Create time-tensor with as_timetensor()
 print("as_timetensor")
-x2 = echotorch.as_timetensor(np.zeros((4, 100, 6)), time_dim=1)
-# print("x2: {}".format(x2))
+# x2 = echotorch.as_timetensor(np.zeros((4, 100, 6)), time_dim=1)
+x2 = echotorch.as_timetensor([[0], [1], [2]], time_dim=0)
+print("x2: {}".format(x2))
 print("x2.time_dim: {}".format(x2.time_dim))
 print("x2.size(): {}".format(x2.size()))
 print("x2.csize(): {}".format(x2.csize()))
@@ -70,9 +82,9 @@ print("x4.bsize(): {}".format(x4.bsize()))
 print("x4.tlen: {}".format(x4.tlen))
 print("")
 
-# Create a time-tensor with full() and multiple lengths
+# Create a time-tensor with full() and batch dimension
 print("full")
-x5 = echotorch.full(6, fill_value=5, time_length=torch.LongTensor([[100], [50]]))
+x5 = echotorch.full(6, fill_value=5, length=100, batch_size=(2, 2))
 # print("x5: {}".format(x5))
 print("x5.time_dim: {}".format(x5.time_dim))
 print("x5.size(): {}".format(x5.size()))
@@ -83,7 +95,7 @@ print("")
 
 # Create a time-tensor with randn()
 print("randn")
-x6 = echotorch.randn(2, time_length=100)
+x6 = echotorch.randn(2, length=100)
 # print("x6: {}".format(x6))
 print("x6.time_dim: {}".format(x6.time_dim))
 print("x6.size(): {}".format(x6.size()))
@@ -113,7 +125,7 @@ print("")
 
 # Create timetensor full of zeros
 print("zeros")
-x9 = echotorch.zeros(2, time_length=100)
+x9 = echotorch.zeros(2, length=100)
 print("x9.time_dim: {}".format(x9.time_dim))
 print("x9.size(): {}".format(x9.size()))
 print("x9.csize(): {}".format(x9.csize()))
@@ -152,7 +164,7 @@ print("x12.tlen: {}".format(x12.tlen))
 print("")
 
 # Create timetensor with empty
-x13 = echotorch.empty(2, time_length=100)
+x13 = echotorch.empty(2, length=100)
 print("x13.time_dim: {}".format(x13.time_dim))
 print("x13.size(): {}".format(x13.size()))
 print("x13.csize(): {}".format(x13.csize()))
@@ -171,7 +183,7 @@ print("")
 
 
 # Create timetensor with empty_strided
-x14 = echotorch.empty_strided((2, 3), (1, 2), time_length=100, time_stride=2)
+x14 = echotorch.empty_strided((2, 3), (1, 2), length=100, time_stride=2)
 print("x14.time_dim: {}".format(x14.time_dim))
 print("x14.size(): {}".format(x14.size()))
 print("x14.csize(): {}".format(x14.csize()))
@@ -179,4 +191,14 @@ print("x14.bsize(): {}".format(x14.bsize()))
 print("x14.tlen: {}".format(x14.tlen))
 print("")
 
+# Create a time-tensor with rand()
+print("rand")
+x15 = echotorch.rand(2, length=10)
+print("x15: {}".format(x15))
+print("x15.time_dim: {}".format(x15.time_dim))
+print("x15.size(): {}".format(x15.size()))
+print("x15.csize(): {}".format(x15.csize()))
+print("x15.bsize(): {}".format(x15.bsize()))
+print("x15.tlen: {}".format(x15.tlen))
+print("")
 
