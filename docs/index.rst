@@ -35,6 +35,7 @@ generate time series data for your research.
     echotorch.transforms
     echotorch.utils
     echotorch.viz
+    basetensors
 
 .. toctree::
     :glob:

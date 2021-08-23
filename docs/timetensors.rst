@@ -1,4 +1,4 @@
-.. currentmodule:: torch
+.. currentmodule:: echotorch
 
 .. _tensor-doc:
 

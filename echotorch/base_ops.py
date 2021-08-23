@@ -32,11 +32,11 @@ from echotorch import TimeTensor
 
 # region CREATION_OPS
 
+
 # Constructs a timetensor with data.
 def timetensor(
         data: Any,
         time_dim: Optional[int] = 0,
-        time_lengths: Optional[torch.LongTensor] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False,
@@ -48,8 +48,6 @@ def timetensor(
     :type data: Tensor, :class:`TimeTensor`, List, Numpy Array
     :param time_dim:
     :type time_dim: Integer
-    :param time_lengths: Length of the timeseries, or lengths as a LongTensor if the timetensor contained multiple timeseries with different lengths.
-    :type time_lengths: Integer or LongTensor
     :param dtype: Torch Tensor data type
     :type dtype: :class:`torch.dtype`
     :param device: Destination device (cpu, gpu, etc)
@@ -79,8 +77,7 @@ def timetensor(
 
     return TimeTensor.new_timetensor(
         src_data,
-        time_dim=time_dim,
-        time_lengths=time_lengths
+        time_dim=time_dim
     )
 # end timetensor
 
@@ -110,9 +107,9 @@ def sparse_coo_timetensor(
         requires_grad=requires_grad
     )
 
+    # Create TimeTensor
     return TimeTensor.new_timetensor(
         data=coo_tensor,
-        time_lengths=None,
         time_dim=time_dim
     )
 # end sparse_coo_timetensor
@@ -121,7 +118,6 @@ def sparse_coo_timetensor(
 # Convert data into a TimeTensor
 def as_timetensor(
         data: Any,
-        time_lengths: Optional[torch.LongTensor] = None,
         time_dim: Optional[int] = 0,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None
@@ -130,8 +126,6 @@ def as_timetensor(
 
     :param data: Data to convert as :class:`TimeTensor`, Tensor, List or Numpy array.
     :type data: :class:`TimeTensor`, Tensor, List, Numpy array
-    :param time_lengths: Length of the timeseries, or lengths as a LongTensor if the timetensor contained multiple timeseries with different lengths.
-    :type time_lengths: Integer or LongTensor
     :param time_dim: The index of the time dimension.
     :type time_dim: Integer
     :param dtype: Tensor data type
@@ -155,8 +149,7 @@ def as_timetensor(
             dtype=dtype,
             device=device
         ),
-        time_dim=time_dim,
-        time_lengths=time_lengths
+        time_dim=time_dim
     )
 # end as_timetensor
 
@@ -167,11 +160,20 @@ def as_strided(
         size,
         stride,
         storage_offset=0,
-        time_lengths: Optional[torch.LongTensor] = None,
         time_dim: Optional[int] = 0,
 ) -> TimeTensor:
     r"""Create a view of an existing :class:`TimeTensor` with specified ``size``, ``stride`` and ``storage_offset``.
 
+    :param input:
+    :type input:
+    :param size:
+    :type size:
+    :param stride:
+    :type stride:
+    :param storage_offset:
+    :type storage_offset:
+    :param time_dim:
+    :type time_dim:
     """
     return TimeTensor.new_timetensor(
         torch.as_strided(
@@ -181,7 +183,6 @@ def as_strided(
             stride,
             storage_offset
         ),
-        time_lengths=time_lengths,
         time_dim=time_dim
     )
 # end as_strided
@@ -190,15 +191,12 @@ def as_strided(
 # From Numpy
 def from_numpy(
         ndarray: np.ndarray,
-        time_lengths: Optional[torch.LongTensor] = None,
         time_dim: Optional[int] = 0,
 ) -> TimeTensor:
     r"""Creates a :class:`TimeTensor` from a ``numpy.ndarray``.
 
     :param time_dim: Index of the time dimension.
     :type time_dim: Integer
-    :param time_lengths:
-    :type time_lengths: ``int`` or ``LongTensor``
     :param ndarray: The numpy array
     :type ndarray: ``numpy.array`` or ``numpay.ndarray``
     :return: :class:`TimeTensor` created from Numpy data.
@@ -214,8 +212,7 @@ def from_numpy(
     """
     return TimeTensor.new_timetensor(
         torch.from_numpy(ndarray),
-        time_dim=time_dim,
-        time_lengths=time_lengths
+        time_dim=time_dim
     )
 # end from_numpy
 
@@ -672,7 +669,8 @@ def empty_strided(
 def full(
         *size,
         fill_value: Union[int, float],
-        time_length: Union[int, torch.LongTensor],
+        length: int,
+        batch_size: Optional[Tuple[int]] = None,
         out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
         layout: Optional[torch.layout] = torch.strided,
@@ -685,10 +683,16 @@ def full(
     :type size: Tuple[int]
     :param fill_value: the value to fill the output timetensor with.
     :type fill_value: Scalar
-    :param time_length: Length of the timeseries
-    :type time_length: int
-    :param dtype: ``TimeTensor`` data type
+    :param length: Length of the timeseries
+    :type length: int
+    :param batch_size: Batch size
+    :type batch_size: ``tuple`` of ``int``
+    :param out: Output timetensor.
+    :type out: :class:`TimeTensor`
+    :param dtype: ``TimeTensor`` data type.
     :type dtype: torch.dtype
+    :param layout: TODO: doc
+    :type layout: ...
     :param device: Destination device
     :type device: torch.device
     :param requires_grad: Activate gradient computation
@@ -697,14 +701,14 @@ def full(
     :rtype: ``TimeTensor``
 
     Example::
-        >>> x = echotorch.full(2, 2, time_length=100)
+        >>> x = echotorch.full(2, 2, length=100)
         >>> x.size()
         torch.Size([100, 2, 2])
         >>> x.tsize()
         torch.Size([2, 2])
         >>> x.tlen
         100
-        >>> echotorch.full(time_length=5)
+        >>> echotorch.full(fill_value=1, length=5)
         timetensor([ 1., 1., 1., 1., 1.])
     """
     # Size
@@ -712,7 +716,8 @@ def full(
         out = TimeTensor.new_timetensor_with_func(
             *size,
             func=torch.full,
-            time_length=time_length,
+            length=length,
+            batch_size=batch_size,
             dtype=dtype,
             device=device,
             requires_grad=requires_grad,
@@ -724,7 +729,8 @@ def full(
         return TimeTensor.new_timetensor_with_func(
             *size,
             func=torch.full,
-            time_length=time_length,
+            length=length,
+            batch_size=batch_size,
             dtype=dtype,
             device=device,
             requires_grad=requires_grad,

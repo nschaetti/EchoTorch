@@ -43,7 +43,6 @@
 # Imports
 from typing import Tuple, Union, Callable
 import torch
-import numpy as np
 
 
 # region BASETENSOR
@@ -77,127 +76,129 @@ class BaseTensor(object):
 
     # region PROPERTIES
 
-    # Get timetensor device
-    @property
-    def device(self) -> torch.device:
-        """
-        Get timetensor device
-        @return: Device
-        """
-        return self._tensor.device
-    # end device
-
-    # Get timetensor gradient policy
-    @property
-    def requires_grad(self) -> bool:
-        """
-        Get timetensor gradient policy
-        @return: True/False
-        """
-        return self._tensor.requires_grad
-    # end requires_grad
-
-    # Set timetensor gradient policy
-    @requires_grad.setter
-    def requires_grad(self, value: bool) -> None:
-        """
-        Set timetensor gradient policy
-        @param value: Boolean value
-        """
-        self._tensor.requires_grad = value
-    # end requires_grad
-
     # Get tensor
     @property
     def tensor(self) -> torch.Tensor:
-        """
-        Get the original tensor
+        r"""Get the wrapped tensor.
+
+        :return: The wrapped tensor.
+        :rtype: :class:`torch.Tensor`
         """
         return self._tensor
     # end tensor
 
-    # Number of dimension
-    @property
-    def ndim(self) -> int:
-        """
-        Number of dimension
-        """
-        return self._tensor.ndim
-    # end ndim
-
-    # Data type
-    @property
-    def dtype(self) -> torch.dtype:
-        """
-        Get the tensor data type
-        """
-        return self._tensor.dtype
-    # end dtype
-
-    # Is on CUDA device
-    @property
-    def is_cuda(self) -> float:
-        """
-        Is True if the Tensor is stored on the GPU, False otherwise.
-        """
-        return self._tensor.is_cuda
-    # end is_cuda
-
     # endregion PROPERTIES
 
-    # region PUBLIC
+    # region CAST
 
-    # Size
-    def size(self) -> torch.Size:
+    # To float64 basetensor
+    def double(self) -> 'BaseTensor':
+        r"""To float64 :class:`BaseTensor` (no copy).
+
+        :return: The :class:`BaseTensor` with data casted to float64.
+        :rtype: :class:`BaseTensor`
         """
-        Size
-        """
-        return self._tensor.size()
-    # end size
-
-    # Long
-    def long(self) -> 'BaseTensor':
-        r"""To long BaseTensor (no copy)
-
-        Returns: The BaseTensor with data casted to long
-
-        """
-        self._tensor = self._tensor.long()
+        self._tensor = self._tensor.double()
         return self
-    # end long
+    # end double
 
-    # Float
+    # To float32 basetensor
     def float(self) -> 'BaseTensor':
-        r"""To float32 BaseTensor (no copy)
+        r"""To float32 :class:`BaseTensor` (no copy).
 
-        Returns: The BaseTensor with data coasted to float32
-
+        :return: The :class:`BaseTensor` with data casted to float32.
+        :rtype: :class:`BaseTensor`
         """
         self._tensor = self._tensor.float()
         return self
     # end float
 
-    # Complex
-    def complex(self) -> 'BaseTensor':
-        r"""To complex BaseTensor (no copy)
-
-        Returns: The BaseTensor with data casted to complex
-
-        """
-        self._tensor = self._tensor.complex()
-        return self
-    # end complex
-
-    # To float16 timetensor
+    # To float16 basetensor
     def half(self) -> 'BaseTensor':
-        r"""To float16 BaseTensor (no copy)
+        r"""To float16 :class:`BaseTensor` (no copy)
 
-        Returns: The BaseTensor with data casted to float16
-
+        :return: The :class:`BaseTensor` with data casted to float16.
+        :rtype: :class:`BaseTensor`
         """
         self._tensor = self._tensor.half()
         return self
     # end half
+
+    # To bfloat16 basetensor
+    def bfloat16(self) -> 'BaseTensor':
+        r"""To brain float16 :class:`BaseTensor` (no copy)
+
+        :return: The :class:`BaseTensor` with data casted to bfloat16.
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.bfloat16()
+    # end bfloat16
+
+    # To boolean basetensor
+    def bool(self) -> 'BaseTensor':
+        r"""To boolean :class:`BaseTensor` (no copy).
+
+        :return: The :class:`BaseTensor` with data casted to boolean.
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.bool()
+        return self
+    # end bool
+
+    # To byte basetensor
+    def byte(self) -> 'BaseTensor':
+        r"""To byte :class:`BaseTensor` (no copy).
+
+        :return: The :class:`BaseTensor` with data casted to bytes.
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.byte()
+        return self
+    # end byte
+
+    # To char basetensor
+    def char(self) -> 'BaseTensor':
+        r"""To char :class:`BaseTensor` (no copy)
+
+        :return: The :class:`BaseTensor` with data casted to char
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.char()
+        return self
+    # end char
+
+    # To short basetensor
+    def short(self) -> 'BaseTensor':
+        r"""To short (int16) :class:`BaseTensor` (no copy)
+
+        :return: The :class:`BaseTensor` with data casted to char
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.char()
+        return self
+    # end char
+
+    # To int timetensor
+    def int(self) -> 'BaseTensor':
+        r"""To int :class:`BaseTensor` (no copy)
+
+        :return: The :class:`BaseTensor` with data casted to int.
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.int()
+        return self
+    # end int
+
+    # Long
+    def long(self) -> 'BaseTensor':
+        r"""To long :class:`BaseTensor` (no copy)
+
+        :return: The :class:`BaseTensor` with data casted to long
+        :rtype: :class:`BaseTensor`
+        """
+        self._tensor = self._tensor.long()
+        return self
+    # end long
 
     # To
     def to(self, *args, **kwargs) -> 'BaseTensor':
@@ -208,11 +209,6 @@ class BaseTensor(object):
             From PyTorch documentation: if the ``self`` BaseTensor already has the correct ``torch.dtype`` and
             ``torch.device``, then ``self`` is returned. Otherwise, the returned basetensor is a copy of ``self``
             with the desired ``torch.dtype`` and ``torch.device``.
-
-        Args:
-            *args:
-            **kwargs:
-
         """
         # New tensor
         ntensor = self._tensor.to(*args, **kwargs)
@@ -225,69 +221,15 @@ class BaseTensor(object):
         # end if
     # end to
 
-    # endregion PUBLIC
-
-    # region TORCH_FUNCTION
-
-    # endregion TORCH_FUNCTION
-
-    # region OVERRIDE
-
-    # Is complex
-    def is_complex(self) -> bool:
-        r"""Returns *True* if the data type of ``self`` is a complex data type.
-        """
-        return self._tensor.is_complex()
-    # end is_complex
-
-    # Is floating point
-    def is_floating_point(self) -> bool:
-        r"""Returns *True* if the data type of ``self`` is a floating point data type.
-        """
-        return self._tensor.is_floating_point()
-    # end is_floating_point
-
-    # Is leaf?
-    def is_leaf(self) -> bool:
-        r"""
-        TODO: doc
-        """
-        return self._tensor.is_leaf()
-    # end is_leaf
-
-    # Data
-    @property
-    def data(self):
-        r"""Returns data contained in the timetensor
-        """
-        return self._tensor
-    # end data
-
-    # Transpose
-    def t(self) -> torch.Tensor:
-        r"""Expects the basetensor to be <= 2-D tensor and transposes dimensions 0 and 1.
-
-        0-D and 1-D tensors are returned as is. When input is a 2-D tensor this is equivalent to ``transpose(input, 0, 1)``.
-        """
-        return self._tensor.t()
-    # end t
-
-    # To numpy
-    def numpy(self) -> np.ndarray:
-        r"""To Numpy array
-
-        """
-        return self._tensor.numpy()
-    # end numpy
-
     # To CUDA device
     def cuda(
             self,
             **kwargs
     ) -> 'BaseTensor':
-        """
-        To CUDA device
-        @return:
+        r"""To CUDA device.
+
+        :return: BaseTensor transfered to GPU device.
+        :rtype: :class:`BaseTensor`
         """
         self._tensor = self._tensor.cuda(**kwargs)
         return self
@@ -298,48 +240,102 @@ class BaseTensor(object):
             self,
             **kwargs
     ) -> 'BaseTensor':
-        """
-        To CPU devices
-        @param kwargs:
-        @return:
+        r"""To CPU device.
+
+        :return: BaseTensor transferred to CPU device.
+        :rtype: :class:`BaseTensor`
         """
         self._tensor = self._tensor.cpu(**kwargs)
         return self
     # end cpu
 
-    # To
-    def to(
-            self,
-            *args,
-            **kwargs
-    ) -> 'BaseTensor':
+    # region TORCH_FUNCTION
+
+    # Transpose
+    def t(self) -> 'BaseTensor':
+        r"""Expects the basetensor to be <= 2-D tensor and transposes dimensions 0 and 1.
+
+        0-D and 1-D tensors are returned as is. When input is a 2-D tensor this is equivalent to ``transpose(input, 0, 1)``.
         """
-        Transfer to device
-        """
-        self._tensor.to(*args, **kwargs)
+        self._tensor = self._tensor.t()
         return self
-    # end to
+    # end t
+
+    # Torch functions
+    def __torch_function__(
+            self,
+            func,
+            types,
+            args=(),
+            kwargs=None
+    ):
+        r"""Torch functions implementations.
+        """
+        # Dict if None
+        if kwargs is None:
+            kwargs = {}
+
+        # end if
+
+        # Convert timetensor to tensors
+        def convert(args):
+            if type(args) is BaseTensor:
+                return args.tensor
+            elif type(args) is tuple:
+                return tuple([convert(a) for a in args])
+            elif type(args) is list:
+                return [convert(a) for a in args]
+            else:
+                return args
+            # end if
+
+        # end convert
+
+        # Get the tensor in the arguments
+        args = [convert(a) for a in args]
+
+        # Execute function
+        ret = func(*args, **kwargs)
+
+        # Return a new base tensor
+        return BaseTensor(ret)
+    # end __torch_function__
+
+    # endregion TORCH_FUNCTION
+
+    # region OVERRIDE
+
+    # Override attribute getter
+    def __getattr__(self, item):
+        r"""Override attribute getter and redirect unknown attributes to wrapper tensor.
+        """
+        if hasattr(self._tensor, item):
+            return getattr(self._tensor, item)
+        else:
+            raise AttributeError(
+                "AttributeError: Neither '{}' object nor its wrapped "
+                "tensor has no attribute '{}'".format(self.__class__.__name__, item)
+            )
+        # end if
+    # end __getattr__
 
     # Get item
     def __getitem__(self, item) -> 'BaseTensor':
-        """
-        Get data in the tensor
+        r"""Get data in the :class:`BaseTensor`.
         """
         return BaseTensor(self._tensor[item])
     # end __getitem__
 
     # Set item
     def __setitem__(self, key, value) -> None:
-        """
-        Set data in the tensor
+        r"""Set data in the :class:`BaseTensor`.
         """
         self._tensor[key] = value
     # end __setitem__
 
     # Get representation
     def __repr__(self) -> str:
-        """
-        Get a string representation
+        r"""Get the :class:`BaseTensor` string representation
         """
         return "basetensor({})".format(self._tensor)
     # end __repr__
@@ -349,10 +345,10 @@ class BaseTensor(object):
             self,
             other: 'BaseTensor'
     ) -> bool:
-        """
-        Are two time-tensors equivalent?
-        @param other: The other time-tensor
-        @return: True of False if the two time-tensors are equivalent
+        r"""Are two :class:`BaseTensor` equivalent?
+
+        :param other: The other :class:`BaseTensor`.
+        :return: True of False if the two :class:`BaseTensor` are equivalent.
         """
         return self.tensor.ndim == other.tensor.ndim and self.tensor.size() == other.tensor.size() and \
                torch.all(self.tensor == other.tensor)
@@ -376,7 +372,6 @@ class BaseTensor(object):
         :param other: object to add
         :type other: ``TimeTensor`` or ``torch.Tensor``
         """
-        print("__isub__")
         self._tensor -= other
         return self
     # end __isub__
@@ -491,45 +486,6 @@ class BaseTensor(object):
         return self
     # end __truediv__
 
-    # Torch functions
-    def __torch_function__(
-            self,
-            func,
-            types,
-            args=(),
-            kwargs=None
-    ):
-        """
-        Torch functions
-        """
-        # Dict if None
-        if kwargs is None:
-            kwargs = {}
-        # end if
-
-        # Convert timetensor to tensors
-        def convert(args):
-            if type(args) is BaseTensor:
-                return args.tensor
-            elif type(args) is tuple:
-                return tuple([convert(a) for a in args])
-            elif type(args) is list:
-                return [convert(a) for a in args]
-            else:
-                return args
-            # end if
-        # end convert
-
-        # Get the tensor in the arguments
-        args = [convert(a) for a in args]
-
-        # Execute function
-        ret = func(*args, **kwargs)
-
-        # Return a new base tensor
-        return BaseTensor(ret)
-    # end __torch_function__
-
     # endregion OVERRIDE
 
     # region STATIC
@@ -540,10 +496,11 @@ class BaseTensor(object):
             cls,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> 'BaseTensor':
-        """
-        Returns a new TimeTensor with data as the tensor data.
-        @param data:
-        @return:
+        r"""Returns a new :class:`BaseTensor` with data as the tensor data.
+
+        :param data: data as a torch tensor or another :class:`BaseTensor`.
+        :return: a new :class:`BaseTensor` with *data*.
+        :rtype: :class:`BaseTensor`
         """
         return BaseTensor(
             data
@@ -558,10 +515,12 @@ class BaseTensor(object):
             func: Callable,
             **kwargs
     ) -> 'BaseTensor':
-        """
-        Returns a new base tensor with a specific function to generate the data.
-        @param func:
-        @param size:
+        r"""Returns a new base tensor with a specific function to generate the data.
+
+        :param func: a callable object used for creation.
+        :param size: size of the :class:`BaseTensor` to be created.
+        :return: a new :class:`BaseTensor` created with ``func`` of size ``size``.
+        :rtype: :class:`BaseTensor`
         """
         # Create BaseTensor
         return BaseTensor(
@@ -578,37 +537,10 @@ class BaseTensor(object):
 
 # region VARIANTS
 
-# Float base tensor
-class FloatBaseTensor(BaseTensor):
-    r"""Float base tensor.
-    """
-
-    # Constructor
-    def __init__(
-            self,
-            data: Union[torch.Tensor, 'BaseTensor'],
-    ) -> None:
-        r"""Float BaseTensor constructor
-
-        Args:
-            data: The data in a torch tensor to transform to basetensor.
-        """
-        # Super call
-        super(FloatBaseTensor, self).__init__(
-            self,
-            data
-        )
-
-        # Transform type
-        self.float()
-    # end __init__
-
-# end FloatBaseTensor
-
 
 # Double time tensor
 class DoubleBaseTensor(BaseTensor):
-    r"""Double time tensor.
+    r"""Double :class:``BaseTensor`.
     """
 
     # Constructor
@@ -616,10 +548,10 @@ class DoubleBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""Double BaseTensor constructor
+        r"""Double :class:``BaseTensor` constructor
 
         Args:
-            data: The data in a torch tensor to transform to basetensor.
+            data: The data in a torch tensor to transform to :class:``BaseTensor`.
         """
         # Super call
         super(DoubleBaseTensor, self).__init__(
@@ -634,9 +566,36 @@ class DoubleBaseTensor(BaseTensor):
 # end DoubleBaseTensor
 
 
+# Float base tensor
+class FloatBaseTensor(BaseTensor):
+    r"""Float :class:``BaseTensor`.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'BaseTensor'],
+    ) -> None:
+        r"""Float :class:``BaseTensor` constructor
+
+        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
+        """
+        # Super call
+        super(FloatBaseTensor, self).__init__(
+            self,
+            data
+        )
+
+        # Transform type
+        self.float()
+    # end __init__
+
+# end FloatBaseTensor
+
+
 # Half base tensor
 class HalfBaseTensor(BaseTensor):
-    r"""Half base tensor.
+    r"""Half :class:``BaseTensor`.
     """
 
     # Constructor
@@ -644,10 +603,9 @@ class HalfBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""Half BaseTensor constructor
+        r"""Half :class:``BaseTensor` constructor
 
-        Args:
-            data: The data in a torch tensor to transform to basetensor.
+        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
         """
         # Super call
         super(HalfBaseTensor, self).__init__(
@@ -664,7 +622,7 @@ class HalfBaseTensor(BaseTensor):
 
 # 16-bit floating point 2 base tensor
 class BFloat16Tensor(BaseTensor):
-    r"""16-bit floating point 2 base tensor.
+    r"""16-bit floating point 2 :class:``BaseTensor`.
     """
 
     # Constructor
@@ -672,24 +630,26 @@ class BFloat16Tensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""16-bit BaseTensor constructor
+        r"""16-bit :class:``BaseTensor` constructor
 
-        Args:
-            data: The data in a torch tensor to transform to basetensor.
+        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
         """
         # Super call
         super(BFloat16Tensor, self).__init__(
             self,
             data
         )
+
+        # Cast
+        self.bfloat16()
     # end __init__
 
 # end BFloat16Tensor
 
 
-# 8-bit integer (unsigned) base tensor
-class ByteBaseTensor(BaseTensor):
-    r"""8-bit integer (unsigned) base tensor.
+# Boolean basetensor
+class BoolBaseTensor(BaseTensor):
+    r"""To boolean :class:``BaseTensor`.
     """
 
     # Constructor
@@ -697,16 +657,43 @@ class ByteBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""8-bit integer (unsigned) BaseTensor constructor
+        r"""Boolean :class:``BaseTensor`.
+        """
+        # Super call
+        super(BoolBaseTensor, self).__init__(
+            self,
+            data
+        )
 
-        Args:
-            data: The data in a torch tensor to transform to basetensor.
+        # Cast
+        self.bool()
+    # end __init__
+
+# end BoolBaseTensor
+
+
+# 8-bit integer (unsigned) base tensor
+class ByteBaseTensor(BaseTensor):
+    r"""8-bit integer (unsigned) :class:``BaseTensor`.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'BaseTensor']
+    ) -> None:
+        r"""8-bit integer (unsigned) :class:``BaseTensor` constructor
+
+        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
         """
         # Super call
         super(ByteBaseTensor, self).__init__(
             self,
             data
         )
+
+        # Cast
+        self.byte()
     # end __init__
 
 # end ByteBaseTensor
@@ -714,7 +701,7 @@ class ByteBaseTensor(BaseTensor):
 
 # 8-bit integer (signed) base tensor
 class CharBaseTensor(BaseTensor):
-    r"""8-bit integer base tensor.
+    r"""8-bit integer :class:``BaseTensor`.
     """
 
     # Constructor
@@ -722,16 +709,95 @@ class CharBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""8-bit integer base tensor.
+        r"""8-bit integer :class:``BaseTensor`.
         """
         # Super call
         super(CharBaseTensor, self).__init__(
             self,
             data
         )
+
+        # Case
+        self.char()
     # end __init__
 
 # end CharTimeTensor
+
+
+# 16-bit integer (signed) base tensor.
+class ShortBaseTensor(BaseTensor):
+    r"""16-bit integer (signed) :class:``BaseTensor`.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'BaseTensor']
+    ) -> None:
+        r"""8-bit integer :class:``BaseTensor`.
+        """
+        # Super call
+        super(ShortBaseTensor, self).__init__(
+            self,
+            data
+        )
+
+        # Cast
+        self.short()
+    # end __init__
+
+# end ShortBaseTensor
+
+
+# 32-bit integer (signed) base tensor.
+class IntBaseTensor(BaseTensor):
+    r"""32-bit integer (signed) :class:``BaseTensor`.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'BaseTensor']
+    ) -> None:
+        r"""32-bit integer :class:``BaseTensor`.
+        """
+        # Super call
+        super(IntBaseTensor, self).__init__(
+            self,
+            data
+        )
+
+        # Cast
+        self.int()
+    # end __init__
+
+# end IntBaseTensor
+
+
+# 64-bit integer (signed) base tensor.
+class LongBaseTensor(BaseTensor):
+    r"""64-bit integer (signed) :class:``BaseTensor`.
+    """
+
+    # Constructor
+    def __init__(
+            self,
+            data: Union[torch.Tensor, 'BaseTensor']
+    ) -> None:
+        r"""64-bit integer :class:``BaseTensor`.
+        """
+        # Super call
+        super(LongBaseTensor, self).__init__(
+            self,
+            data
+        )
+
+        # Cast
+        self.long()
+    # end __init__
+
+# end LongBaseTensor
+
 
 # endregion VARIANTS
 
