@@ -90,6 +90,7 @@ def timeplot(
         xticks: Optional[List[float]] = None,
         tlim: Optional[Tuple[float]] = None,
         xlim: Optional[Tuple[float]] = None,
+        axis: Optional[plt.axis] = None,
         **kwargs
 ) -> None:
     r"""Show a 0-D or 1-D timeseries, one line per channel, on a plot with time as the X-axis.
@@ -114,20 +115,35 @@ def timeplot(
     :type tlim: Tuple of ``float``, optional
     :param xlim: X-axis start and end
     :type xlim: Tuple of ``float``, optional
+    :param axis:
+    :type axis:
 
     Example
 
         >>> x = echotorch.data.random_walk(1, length=10000, shape=())
         >>> echotorch.timeplot(x[0], title="Random Walk", xlab="X_t")
     """
+    # Who to call
+    plt_call = axis if axis is not None else plt
+
     # Plot properties
-    if title is not None: plt.title(title)
-    if tlab is not None: plt.xlabel(tlab)
-    if xlab is not None: plt.ylabel(xlab)
-    if tlim is not None: plt.xlim(tlim)
-    if xlim is not None: plt.ylim(xlim)
-    if tticks is not None: plt.xticks(tticks)
-    if xticks is not None: plt.yticks(xticks)
+    if axis is None:
+        if title is not None: plt_call.title(title)
+        if tlab is not None: plt_call.xlabel(tlab)
+        if xlab is not None: plt_call.ylabel(xlab)
+        if tlim is not None: plt_call.xlim(tlim)
+        if xlim is not None: plt_call.ylim(xlim)
+        if tticks is not None: plt_call.xticks(tticks)
+        if xticks is not None: plt_call.yticks(xticks)
+    else:
+        if title is not None: plt_call.set_title(title)
+        if tlab is not None: plt_call.set_xlabel(tlab)
+        if xlab is not None: plt_call.set_ylabel(xlab)
+        if tlim is not None: plt_call.set_xlim(tlim)
+        if xlim is not None: plt_call.set_ylim(xlim)
+        if tticks is not None: plt_call.set_xticks(tticks)
+        if xticks is not None: plt_call.set_yticks(xticks)
+    # end if
 
     # 0-D or 1-D
     multi_dim = data.cdim > 0
@@ -144,6 +160,6 @@ def timeplot(
     # end if
 
     # Plot
-    plt.plot(x_data, data.numpy(), **kwargs)
+    plt_call.plot(x_data, data.numpy(), **kwargs)
 # end timeplot
 

@@ -33,6 +33,7 @@ import echotorch.viz
 # y = echotorch.rand(5, length=100)
 x = echotorch.data.ma(1, length=1000, order=5, size=1)[0]
 y = echotorch.data.ma(1, length=1000, order=5, size=1)[0]
+z = echotorch.data.ma(1, length=1000, order=5, size=5)[0]
 
 # Print tensors
 print("Timetensor x: {}".format(x))
@@ -92,3 +93,12 @@ echotorch.acf.correlogram(x, k=50, coeffs_type="correlation", plot_params={'titl
 
 # Compute cross auto-correlation coefficients
 echotorch.acf.cross_correlogram(x, y, k=50, coeffs_type="correlation", plot_params={'title': "Cross Autocorrelation coefficients"})
+
+# Show cross-correlogram
+echotorch.acf.ccfpairs(
+    z,
+    k=20,
+    coeffs_type="correlation",
+    figsize=(12, 10),
+    labels=['A', 'B', 'C', 'D', 'E']
+)

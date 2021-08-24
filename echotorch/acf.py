@@ -20,7 +20,7 @@
 # Copyright Nils Schaetti <nils.schaetti@unine.ch>
 
 # Imports
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Optional, Tuple
 import matplotlib.pyplot as plt
 import echotorch.viz
 
@@ -371,7 +371,7 @@ def ccfplot(
     plt.figure(**figure_params)
 
     # Plot
-    if input.cdim == 0:
+    if x.cdim == 0:
         echotorch.viz.timeplot(ccf_coeffs, label=labels[0], **plot_params)
     else:
         # For each channel
@@ -403,17 +403,18 @@ def cross_correlogram(
 
 # Array of cross-autocorrelation
 def ccfpairs(
-        input: TimeTensor,
+        x: TimeTensor,
         k: int,
         coeffs_type: str = "covariance",
         labels: List[str] = None,
-        figure_params: Dict = None,
-        plot_params: Dict = None
+        figsize: Optional[Tuple[int, int]] = None,
+        tight_layout: Optional[Dict] = None,
+        plot_pvalues: Optional[bool] = True
 ) -> None:
     r"""Plot an array of plots with cross-autocorrelation for each pair of channel.
 
-    :param input: the input timetensor.
-    :type input: :class:`TimeTensor`
+    :param x: the input timetensor.
+    :type x: :class:`TimeTensor`
     :param k: the number of lags.
     :type k: ``int``
     :param coeffs_type:
@@ -429,6 +430,91 @@ def ccfpairs(
 
         >>> ...
     """
-    pass
+    # Only 1D timeseries
+    assert x.cdim == 1, "Expected 1-D timeseries but {}-D given".format(x.cdim)
+
+    # Number of channels
+    nc = x.numelc()
+
+    # Labels
+    if labels is None:
+        labels = [str(i) for i in range(nc)]
+    # end if
+
+    # Figure
+    fig, axs = plt.subplots(nc, nc, figsize=figsize)
+
+    # For pair of channel
+    for chan_i in range(nc):
+        for chan_j in range(nc):
+            # No x-axis label
+            if chan_i != nc - 1:
+                axs[chan_i, chan_j].get_xaxis().set_visible(False)
+            else:
+                axs[chan_i, chan_j].get_xaxis().set_visible(True)
+            # end if
+
+            # Y ticks only on the left
+            if chan_j != 0:
+                # Enable ticks
+                axs[chan_i, chan_j].get_yaxis().set_visible(False)
+            # end if
+
+            # Different channel
+            if chan_i != chan_j:
+                # Compute cross auto-covariance
+                ccf_coeffs = ccf(x[:, chan_i], x[:, chan_j], k=k, coeffs_type=coeffs_type)
+
+                # Plot
+                echotorch.viz.timeplot(
+                    ccf_coeffs,
+                    marker=".",
+                    axis=axs[chan_i, chan_j]
+                )
+
+                # Plot text
+                if plot_pvalues:
+                    # Coef background color
+                    # back_color = 'white' if pvs[i, j] >= sign_level else 'green'
+
+                    # Show correlation coefficient
+                    axs[chan_i, chan_j].text(
+                        0.04,
+                        0.07,
+                        "0.54",
+                        fontsize=10,
+                        verticalalignment='bottom',
+                        horizontalalignment='left',
+                        bbox=dict(boxstyle='square', facecolor='green', alpha=0.75),
+                        transform=axs[chan_i, chan_j].transAxes
+                    )
+                # end if
+            else:
+                # Compute auto-covariance
+                acf_coeffs = acf(x[:, chan_i], k=k, coeffs_type=coeffs_type)
+
+                # Show titles
+                axs[chan_i, chan_j].set_title("{}".format(labels[chan_i]))
+
+                # Plot
+                echotorch.viz.timeplot(
+                    acf_coeffs,
+                    title=labels[chan_i],
+                    marker=".",
+                    axis=axs[chan_i, chan_j]
+                )
+            # end if
+        # end for
+    # end for
+
+    # Tight layout
+    if tight_layout is not None:
+        fig.tight_layout(*tight_layout)
+    else:
+        fig.tight_layout()
+    # end if
+
+    # Show
+    plt.show()
 # end ccfpairs
 
