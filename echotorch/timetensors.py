@@ -184,8 +184,7 @@ class TimeTensor(BaseTensor):
 
     # Size of channel dimensions
     def csize(self) -> torch.Size:
-        """
-        Size of channel dimensions
+        r"""Size of channel dimensions.
         """
         if self._time_dim != self._tensor.ndim - 1:
             tensor_size = self._tensor.size()
@@ -197,8 +196,7 @@ class TimeTensor(BaseTensor):
 
     # Size of batch dimensions
     def bsize(self) -> torch.Size:
-        """
-        Size of batch dimensions
+        r"""Size of batch dimensions.
         """
         if self._time_dim == 0:
             return torch.Size([])
@@ -207,6 +205,30 @@ class TimeTensor(BaseTensor):
             return tensor_size[:self._time_dim]
         # end if
     # end bsize
+
+    # Number of channel elements
+    def numelc(self):
+        r"""Returns the number of elements in the channel dimensions.
+        """
+        # Multiply sizes
+        num_el = 1
+        for c_size in list(self.csize()):
+            num_el *= c_size
+        # end for
+        return num_el
+    # end numelc
+
+    # Number of batch elements
+    def numelb(self):
+        r"""Returns the number of elements in the batch dimensions.
+        """
+        # Multiply sizes
+        num_el = 1
+        for b_size in list(self.bsize()):
+            num_el *= b_size
+        # end for
+        return num_el
+    # end numelb
 
     # region CAST
 
@@ -326,6 +348,37 @@ class TimeTensor(BaseTensor):
         """
         return func_output
     # end mm
+
+    # Transpose
+    def t(self) -> 'TimeTensor':
+        r"""Expects the timetensor to be <= 1-D timetensor and transposes dimensions 0 and 1.
+
+        If time dimension is in position 0, then it is switched to 1, and vice versa.
+
+        TODO: complet doc
+        """
+        if self.ndim == 2:
+            return TimeTensor(
+                data=self._tensor.t(),
+                time_dim=1-self._time_dim
+            )
+        elif self.ndim < 2:
+            return self
+        else:
+            # Inverse time dim if targeted
+            if self._time_dim in [0, 1]:
+                return TimeTensor(
+                    data=self._tensor.t(),
+                    time_dim=1 - self._time_dim
+                )
+            else:
+                return TimeTensor(
+                    data=self._tensor.t(),
+                    time_dim=self._time_dim
+                )
+            # end if
+        # end if
+    # end t
 
     # As strided
     def as_strided(
@@ -525,6 +578,7 @@ class TimeTensor(BaseTensor):
             func: Callable,
             length: int,
             batch_size: Optional[Tuple[int]] = None,
+            out: Optional['TimeTensor'] = None,
             **kwargs
     ) -> 'TimeTensor':
         r"""Returns a new :class:`TimeTensor` with a specific function to generate the data.
@@ -535,6 +589,10 @@ class TimeTensor(BaseTensor):
         :type size:
         :param length:
         :type length:
+        :param batch_size:
+        :type batch_size:
+        :param out:
+        :type out:
         """
         # Batch size
         batch_size = tuple() if batch_size is None else batch_size
@@ -545,11 +603,22 @@ class TimeTensor(BaseTensor):
         # Total size
         tt_size = list(batch_size) + [length] + list(size)
 
-        # Create TimeTensor
-        return TimeTensor(
-            data=func(tuple(tt_size), **kwargs),
-            time_dim=time_dim
-        )
+        # Output object
+        out = out.tensor if isinstance(out, TimeTensor) else out
+
+        # Out mode
+        if out is None:
+            # Create TimeTensor
+            return TimeTensor(
+                data=func(tuple(tt_size), **kwargs),
+                time_dim=time_dim
+            )
+        else:
+            # Call function
+            func(tuple(tt_size), out=out.tensor, **kwargs)
+            out.time_dim = time_dim
+            return out
+        # end if
     # end new_timetensor_with_func
 
     # endregion STATIC

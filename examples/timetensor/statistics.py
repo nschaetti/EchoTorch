@@ -23,13 +23,16 @@
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
-import echotorch
+import echotorch.data
+import echotorch.acf
 import echotorch.viz
 
 
 # Create a two timetensors
-x = echotorch.rand(5, time_length=100)
-y = echotorch.rand(5, time_length=100)
+# x = echotorch.rand(5, length=100)
+# y = echotorch.rand(5, length=100)
+x = echotorch.data.ma(1, length=1000, order=5, size=1)[0]
+y = echotorch.data.ma(1, length=1000, order=5, size=1)[0]
 
 # Print tensors
 print("Timetensor x: {}".format(x))
@@ -79,17 +82,13 @@ print("Cor(X, X): {}".format(echotorch.cor(x, x)))
 print("")
 
 # Compute auto-covariance coefficients
-autocov_coeffs = echotorch.autocovariance_coeffs(x, k=50)
+autocov_coeffs = echotorch.acf.acf(x, k=50)
 
 # Show autocov coeffs
-plt.figure()
-echotorch.viz.timeplot(autocov_coeffs, title="Auto-covariance coefficients")
-plt.show()
+echotorch.acf.correlogram(x, k=50, plot_params={'title': "Auto-covariance coefficients"})
 
 # Compute auto-correlation coefficients
-autocor_coeffs = echotorch.autocorrelation_coeffs(x, k=50)
+echotorch.acf.correlogram(x, k=50, coeffs_type="correlation", plot_params={'title': "Auto-correlation coefficients"})
 
-# Show autocor coeffs
-plt.figure()
-echotorch.viz.timeplot(autocor_coeffs, title="Auto-correlation coefficients")
-plt.show()
+# Compute cross auto-correlation coefficients
+echotorch.acf.cross_correlogram(x, y, k=50, coeffs_type="correlation", plot_params={'title': "Cross Autocorrelation coefficients"})

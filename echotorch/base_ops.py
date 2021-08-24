@@ -52,7 +52,10 @@ def timetensor(
         Like ``torch.tensor()``, :func:`echotorch.timetensor()` reads out data and construct a leaf variable. Check
         the `PyTorch documentation on torch.tensor() <https://pytorch.org/docs/stable/generated/torch.tensor.html#torch.tensor>`__ for more information.
 
-    :param data: Data for the wrapped :class:`torch.Tensor` as a tensor, timetensor, list or Numpy array.
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.tensor.html#torch.tensor>`__ on ``tensor()`` for more informations.
+
+    :param data: data for the wrapped :class:`torch.Tensor` as a tensor, timetensor, list or Numpy array.
     :type data: array_like
     :param time_dim: the index of the time dimension (default: 0).
     :type time_dim: ``int``, optional
@@ -110,6 +113,9 @@ def as_timetensor(
     *dtype* and is on the cpu, the no copy will be made. This behavior is similar to :func:`torch.as_tensor()`. See
     the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.as_tensor.html#torch.as_tensor>`__ for more information.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.as_tensor.html#torch.as_tensor>`__ on ``as_tensor()`` for more informations.
+
     :param data: data to convert for the wrapper tensor as :class:`TimeTensor`, Tensor, List, scalar or Numpy array.
     :type data: array-like
     :param time_dim: the index of the time dimension.
@@ -158,6 +164,9 @@ def sparse_coo_timetensor(
 
     .. note::
         The contained tensor is an uncoalesced tensor.
+
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.sparse_coo_tensor.html#torch.sparse_coo_tensor>`__ on ``sparse_coo_tensor()`` for more informations.
 
     :param indices: the data indices for the wrapped tensor as a list, tuple, Numpy ``ndarray``, scalar, etc. Indices will casted to ``torch.LongTensor``. Indices are the coordinates of data inside the matrix.
     :type indices: array_like
@@ -210,6 +219,9 @@ def as_strided(
 ) -> TimeTensor:
     r"""Create a view of an existing :class:`TimeTensor` with specified ``size``, ``stride`` and ``storage_offset``.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.as_strided.html#torch.as_strided>`__ on ``as_strided()`` for more informations.
+
     :param input:
     :type input:
     :param size:
@@ -220,6 +232,11 @@ def as_strided(
     :type storage_offset:
     :param time_dim:
     :type time_dim:
+
+    Example:
+
+        >>> ...
+
     """
     return TimeTensor.new_timetensor(
         torch.as_strided(
@@ -241,12 +258,13 @@ def from_numpy(
 ) -> TimeTensor:
     r"""Creates a :class:`TimeTensor` from a ``numpy.ndarray``.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.from_numpy.html#torch.from_numpy>`__ on ``from_numpy()`` for more informations.
+
     :param time_dim: Index of the time dimension.
     :type time_dim: Integer
     :param ndarray: The numpy array
     :type ndarray: ``numpy.array`` or ``numpay.ndarray``
-    :return: :class:`TimeTensor` created from Numpy data.
-    :rtype: :class:`TimeTensor`
 
     Examples::
         >>> x = echotorch.from_numpy(np.zeros((100, 2)), time_dim=0)
@@ -268,24 +286,33 @@ def zeros(
         *size,
         length: int,
         batch_size: Optional[Tuple[int]] = None,
+        out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = torch.strided,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
     r"""Returns a :class:`TimeTensor` of size ``size`` filled with 0.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.zeros.html#torch.zeros>`__ on ``zeros()`` for more informations.
+
     :param size: Size
     :type size: Tuple[int]
     :param length: Length of the timeseries
     :type length: int
+    :param batch_size:
+    :type batch_size: tuple of ``int``
+    :param out:
+    :type out:
     :param dtype: :class:`TimeTensor` data type
-    :type dtype: torch.dtype
+    :type dtype: torch.dtype, optional
+    :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
+    :type layout: torch.layout, optional
     :param device: Destination device
-    :type device: torch.device
+    :type device: torch.device, optional
     :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :return: A :class:`TimeTensor` of size size filled with zeros
-    :rtype: :class:`TimeTensor`
+    :type requires_grad: bool, optional
 
     Example::
         >>> x = echotorch.zeros((2, 2), length=100)
@@ -295,7 +322,7 @@ def zeros(
         torch.Size([2, 2])
         >>> x.tlen
         100
-        >>> echotorch.zeros((), time_length=5)
+        >>> echotorch.zeros((), length=5)
         timetensor([ 0., 0., 0., 0., 0.])
     """
     return TimeTensor.new_timetensor_with_func(
@@ -303,6 +330,7 @@ def zeros(
         func=torch.zeros,
         length=length,
         batch_size=batch_size,
+        out=out,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
@@ -314,16 +342,36 @@ def zeros(
 def zeros_like(
         input,
         dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False,
-        memory_format=torch.preserve_format
+        memory_format: Optional[torch.memory_format] = torch.preserve_format
 ) -> TimeTensor:
     r"""Returns a :class:`TimeTensor` filled with the scalar value 0, with the same size as ``input``.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.zeros_like.html#torch.zeros_like>`__ on ``zeros_like()`` for more informations.
+
+    :param input:
+    :type input:
+    :param dtype:
+    :type dtype:
+    :param layout:
+    :type layout:
+    :param device:
+    :type device:
+    :param requires_grad:
+    :type requires_grad:
+    :param memory_format:
+    :type memory_format:
+
+    Example:
+
+        >>> echotorch.zeros_like()
     """
     return zeros(
         *list(input.csize()),
-        time_length=input.tlen,
+        length=input.tlen,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad
@@ -342,18 +390,21 @@ def ones(
 ) -> 'TimeTensor':
     r"""Returns a :class:`TimeTensor` of size ``size`` filled with 1.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.ones.html#torch.ones>`__ on ``ones()`` for more informations.
+
     :param size: Size
     :type size: Tuple[int]
-    :param time_length: Length of the timeseries
-    :type time_length: int
+    :param length: Length of the timeseries
+    :type length: int
+    :param batch_size:
+    :type batch_size:
     :param dtype: :class:`TimeTensor` data type
     :type dtype: torch.dtype
     :param device: Destination device
     :type device: torch.device
     :param requires_grad: Activate gradient computation
     :type requires_grad: bool
-    :return: A :class:`TimeTensor` of size size filled with zeros
-    :rtype: :class:`TimeTensor`
 
     Example::
         >>> x = echotorch.ones((2, 2), time_length=100)
@@ -388,19 +439,27 @@ def ones_like(
 ) -> TimeTensor:
     r"""Returns a :class:`TimeTensor` filled with the scalar value 1, with the same size as ``input``.
 
-    Args:
-        input:
-        dtype:
-        device:
-        requires_grad:
-        memory_format:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.ones_like.html#torch.ones_like>`__ on ``ones_like()`` for more informations.
 
-    Returns:
+    :param input:
+    :type input:
+    :param dtype:
+    :type dtype:
+    :param device:
+    :type device:
+    :param requires_grad:
+    :type requires_grad:
+    :param memory_format:
+    :type memory_format:
 
+    Examples:
+
+        >>> ...
     """
     return ones(
         *list(input.csize()),
-        time_length=input.tlen,
+        length=input.tlen,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad
@@ -417,7 +476,7 @@ def arange(
         requires_grad: Optional[bool] = False
 ) -> TimeTensor:
     r"""Returns a 0-D :class:`TimeTensor` of length :math:`\ceil[\bigg]{\frac{end-start}{step}}` with values from the interval
-    `[start, end)` taken into common difference ``step`` beginning from *start*.
+    :math:`[start, end)` taken into common difference ``step`` beginning from *start*.
 
     .. note::
         **From PyTorch documentation**:
@@ -425,6 +484,9 @@ def arange(
         to avoid inconsistency, we advise a small epsilon to ``end`` in such case.
 
         :math:`out_{i+1} = out_{i} + step`
+
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.arange.html#torch.arange>`__ on ``arange()`` for more informations.
 
     :param start: the starting value of the time related set of points (default: 0).
     :type start: Number
@@ -436,9 +498,6 @@ def arange(
     :param dtype:
     :param device:
     :param requires_grad:
-    :return: a 0-D timetensor of length :math:`\ceil[\bigg]{\frac{end-start}{step}}` with values from the interval
-    `[start, end)` taken into common difference ``step`` beginning from *start*.
-    :rtype: ``TimeTensor``
 
     Examples:
 
@@ -493,6 +552,9 @@ def linspace(
     .. math::
         (start, start + \frac{end - start}{steps - 1}, \dots, start + (steps - 2) * \frac{end - start}{steps - 1}, end)
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.linspace.html#torch.linspace>`__ on ``linspace()`` for more informations.
+
     :param start: the starting value of the time related set of points.
     :type start: float
     :param end: the ending value for the time related set of points.
@@ -507,8 +569,6 @@ def linspace(
     :type device: ``torch.device``, optional
     :param requires_grad: if autograd should record operations on the returned tensor (default: *False*).
     :type requires_grad: ``bool``
-    :return: A 0-D timetensor of length ``steps`` whose values are evenly spaced from ``start`` to ``end``, inclusive.
-    :rtype: ``TimeTensor``
 
     Example:
 
@@ -549,12 +609,17 @@ def logspace(
     .. math::
         (base^{start}, base^{\frac{end - start}{steps - 1}}, \dots, base^{start + (steps - 2) * \frac{end - start}{steps - 1}}, base^{end})
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.arange.html#torch.logspace>`__ on ``logspace()`` for more informations.
+
     :param start: the starting value of the time related set of points.
     :type start: float
     :param end: the ending value for the time related set of points.
     :type end: float
     :param steps: size of the constructed tensor.
     :type steps: int
+    :param base:
+    :type base:
     :param out: the output tensor.
     :type out: ``TimeTensor``
     :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
@@ -594,16 +659,24 @@ def empty(
         size: Tuple[int],
         length: int,
         batch_size: Optional[Tuple[int]] = None,
+        out: TimeTensor = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
     r"""Returns a :class:`TimeTensor` of size ``size`` and time length ``time_length`` filled with uninitialized data.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.empty.html#torch.empty>`__ on ``empty()`` for more informations.
+
     :param size: Size
     :type size: Tuple[int]
     :param length: Length of the timeseries
     :type length: int
+    :param batch_size:
+    :type batch_size:
+    :param out:
+    :type out:
     :param dtype: ``TimeTensor`` data type
     :type dtype: torch.dtype
     :param device: Destination device
@@ -641,6 +714,9 @@ def empty_like(
 ) -> TimeTensor:
     r"""Returns an uninitialized :class:`TimeTensor` with the same  channel size and time dimension as ``input``.
     ``echotorch.empty_like(input)`` is equivalent to ``echotorch.empty(*list(input.csize()), time_length: input.tlen, dtype=input.dtype, layout=input.layout, device=input.device)``.
+
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.empty_like.html#torch.empty_like>`__ on ``empty_like()`` for more informations.
 
     :param input: the parameters of ``input`` will determine the parameters of the output tensor.
     :type input: ``Tensor``
@@ -688,11 +764,25 @@ def empty_strided(
     defined by the argument ``size`` and ``stride``. ``echotorch.empty_strided(size, stride)`` is equivalent to
     ``echotorch.empty(*size).as_strided(size, stride)``.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.empty_strided.html#torch.empty_strided>`__ on ``empty_strided()`` for more informations.
+
     :param size:
     :type size:
     :param stride:
     :type stride:
+    :param length:
+    :type length:
+    :param time_stride:
+    :type time_stride:
+    :param batch_size:
+    :type batch_size:
+    :param batch_stride:
+    :type batch_stride:
+    :param dtype:
     :type dtype: torch.dtype
+    :param layout:
+    :type layout:
     :param device: Destination device
     :type device: torch.device
     :param requires_grad: Activate gradient computation
@@ -733,6 +823,9 @@ def full(
 ) -> 'TimeTensor':
     r"""Returns a TimeTensor of size size and time length time_length filled with fill_value.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.full.html#torch.full>`__ on ``full()`` for more informations.
+
     :param size: Size
     :type size: Tuple[int]
     :param fill_value: the value to fill the output timetensor with.
@@ -751,8 +844,6 @@ def full(
     :type device: torch.device
     :param requires_grad: Activate gradient computation
     :type requires_grad: bool
-    :return: A ``TimeTensor`` of size size filled with zeros
-    :rtype: ``TimeTensor``
 
     Example::
         >>> x = echotorch.full(2, 2, length=100)
@@ -806,15 +897,25 @@ def full_like(
 ) -> TimeTensor:
     r"""
 
-    Args:
-        input:
-        dtype:
-        device:
-        requires_grad:
-        memory_format:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.full_like.html#torch.full_like>`__ on ``full_like()`` for more informations.
 
-    Returns:
+    :param input:
+    :type input:
+    :param fill_value:
+    :type fill_value:
+    :param dtype:
+    :type dtype:
+    :param device:
+    :type device:
+    :param requires_grad:
+    :type requires_grad:
+    :param memory_format:
+    :type memory_format:
 
+    Example:
+
+        >>> ...
     """
     pass
 # end full_like
@@ -829,8 +930,21 @@ def quantize_per_timetensor(
 ) -> TimeTensor:
     r"""
 
-    Returns:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.quantize_per_tensor.html#torch.quantize_per_tensor>`__ on ``quantize_per_tensor()`` for more informations.
 
+    :param input:
+    :type input:
+    :param scale:
+    :type scale:
+    :param zero_point:
+    :type zero_point:
+    :param dtype:
+    :type dtype:
+
+    Example:
+
+        >>> ...
     """
     pass
 # end quantize_per_timetensor
@@ -846,8 +960,23 @@ def quantize_per_channel(
 ) -> TimeTensor:
     r"""
 
-    Returns:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.quantize_per_channel.html#torch.quantize_per_channel>`__ on ``quantize_per_channel()`` for more informations.
 
+    :param input:
+    :type input:
+    :param scales:
+    :type scales:
+    :param zero_points:
+    :type zero_points:
+    :param axis:
+    :type axis:
+    :param dtype:
+    :type dtype:
+
+    Example:
+
+        >>> ...
     """
     pass
 # end quantize_per_channel
@@ -859,8 +988,15 @@ def dequantize(
 ) -> TimeTensor:
     r"""
 
-    Returns:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.dequantize.html#torch.dequantize>`__ on ``dequantize()`` for more informations.
 
+    :param timetensor:
+    :type timetensor:
+
+    Example:
+
+        >>> ...
     """
     pass
 # end dequantize
@@ -873,8 +1009,17 @@ def complex(
 ) -> TimeTensor:
     r"""
 
-    Returns:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.complex.html#torch.complex>`__ on ``complex()`` for more informations.
 
+    :param real:
+    :type real:
+    :param imag:
+    :type imag:
+
+    Example:
+
+        >>> ...
     """
     pass
 # end complex
@@ -888,8 +1033,19 @@ def polar(
 ) -> TimeTensor:
     r"""
 
-    Returns:
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.polar.html#torch.polar>`__ on ``polar()`` for more informations.
 
+    :param abs:
+    :type abs:
+    :param angle:
+    :type angle:
+    :param out:
+    :type out:
+
+    Example:
+
+        >>> ...
     """
     pass
 # end polar
@@ -914,10 +1070,15 @@ def rand(
 ) -> TimeTensor:
     r"""Returns a :class:`TimeTensor` filled with random numbers from a uniform distribution on the interval :math:`[0, 1)`.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.rand.html#torch.rand>`__ on ``rand()`` for more informations.
+
     :param size: a sequence of integers defining the shape of the output timeseries. Can be a variable number of arguments or a collection like a list or tuple.
     :type size: list of integers
     :param length: length of the timeseries.
     :type length: ``int``
+    :param batch_size:
+    :type batch_size:
     :param out: the output tensor.
     :type out: :class:`TimeTensor`, optional
     :param out: the output tensor.
@@ -945,30 +1106,17 @@ def rand(
                     [0.2206, 0.9380],
                     [0.1908, 0.0594]], time_dim: 0)
     """
-    if out is not None:
-        out = TimeTensor.new_timetensor_with_func(
-            *size,
-            func=torch.rand,
-            length=length,
-            batch_size=batch_size,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            layout=layout
-        )
-        return out
-    else:
-        return TimeTensor.new_timetensor_with_func(
-            *size,
-            func=torch.rand,
-            length=length,
-            batch_size=batch_size,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            layout=layout
-        )
-    # end if
+    return TimeTensor.new_timetensor_with_func(
+        *size,
+        func=torch.rand,
+        length=length,
+        batch_size=batch_size,
+        out=out,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+        layout=layout
+    )
 # end rand
 
 
@@ -991,10 +1139,15 @@ def randn(
 
     The parameter *size* will determine the size of the *timetensor*.
 
+    .. seealso::
+        See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.randn.html#torch.randn>`__ on ``randn()`` for more informations.
+
     :param size: the shape of the timetensor as a sequence of integers (list, tuple, etc).
     :type size: list of ints
     :param length: Length of the timeseries (default: 0)
     :type length: ``int``, optional
+    :param batch_size:
+    :type batch_size:
     :param out: the output tensor.
     :type out: ``TimeTensor``, optional
     :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
@@ -1016,30 +1169,17 @@ def randn(
         >>> x.tlen
         10
     """
-    if out is not None:
-        out = TimeTensor.new_timetensor_with_func(
-            *size,
-            func=torch.randn,
-            length=length,
-            batch_size=batch_size,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            layout=layout
-        )
-        return out
-    else:
-        return TimeTensor.new_timetensor_with_func(
-            *size,
-            func=torch.randn,
-            length=length,
-            batch_size=batch_size,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            layout=layout
-        )
-    # end if
+    return TimeTensor.new_timetensor_with_func(
+        *size,
+        func=torch.randn,
+        length=length,
+        batch_size=batch_size,
+        out=out,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+        layout=layout
+    )
 # end randn
 
 

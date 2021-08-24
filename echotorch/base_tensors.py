@@ -257,8 +257,9 @@ class BaseTensor(object):
 
         0-D and 1-D tensors are returned as is. When input is a 2-D tensor this is equivalent to ``transpose(input, 0, 1)``.
         """
-        self._tensor = self._tensor.t()
-        return self
+        return BaseTensor(
+            data=self._tensor.t()
+        )
     # end t
 
     # Torch functions

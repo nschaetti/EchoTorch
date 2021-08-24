@@ -266,10 +266,10 @@ def moving_average(
     # For each sample
     for s_i in range(s):
         # Generate noise Zt
-        zt = noise_func(n, time_length=length + q) * noise_std + noise_mean
+        zt = noise_func(n, length=length + q) * noise_std + noise_mean
 
         # Space for output
-        xt = echotorch.zeros(n, time_length=length)
+        xt = echotorch.zeros(n, length=length)
 
         # For each timestep
         for t in range(length):
@@ -317,8 +317,6 @@ def unima(
         samples: int,
         length: int,
         order: Optional[int] = None,
-        size: Optional[int] = None,
-        theta: Optional[List[float]] = None,
         noise_mean: Optional[float] = 0.0,
         noise_std: Optional[float] = 1.0,
         noise_func: Optional[Callable] = echotorch.randn,
@@ -335,7 +333,24 @@ def unima(
 
         >>> ...
     """
-    pass
+    # Generate series
+    ma_series = moving_average(
+        samples=samples,
+        length=length,
+        order=order,
+        size=1,
+        noise_mean=noise_mean,
+        noise_std=noise_std,
+        noise_func=noise_func,
+        parameters_func=parameters_func
+    )
+
+    # To 0-D
+    for i in range(len(ma_series)):
+        ma_series[i] = ma_series[i][:, 0]
+    # end for
+
+    return ma_series
 # end unima
 
 

@@ -43,7 +43,10 @@ from .base_ops import cat, tcat, rand
 from .base_ops import tindex_select, randn
 
 # Stat operations
-from .stat_ops import tmean, tstd, tvar, cov, cor, autocovariance_coeffs, autocorrelation_coeffs
+from .stat_ops import tmean, tstd, tvar, cov, cor
+
+# ACC operations
+from . import acf
 
 # Timeseries operations
 from .series_ops import diff
@@ -107,7 +110,9 @@ __all__ = [
     'ones', 'ones_like', 'arange', 'linspace', 'logspace', 'empty', 'empty_like', 'empty_strided', 'full', 'full_like',
     'quantize_per_timetensor', 'quantize_per_channel', 'dequantize', 'complex', 'polar',
     # Stats ops
-    'tmean', 'tstd', 'cov', 'cor', 'autocovariance_coeffs', 'autocorrelation_coeffs',
+    'tmean', 'tstd', 'cov', 'cor',
     # Series ops
-    'diff'
+    'diff',
+    # ACC ops
+    'acf',
 ]
