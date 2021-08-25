@@ -25,6 +25,7 @@ import torch
 import numpy as np
 
 # EchoTorch imports
+import echotorch
 from .base_tensors import BaseTensor
 
 
@@ -316,7 +317,7 @@ class TimeTensor(BaseTensor):
     def after_cat(
             self,
             func_output: Any,
-            *tensors,
+            *ops_input,
             dim: int = 0
     ) -> 'TimeTensor':
         r"""After the ```cat`` operation.
@@ -331,6 +332,216 @@ class TimeTensor(BaseTensor):
             time_dim=self._time_dim
         )
     # end after cat
+
+    # After chunk
+    def after_chunk(
+            self,
+            func_output: Any,
+            *ops_input,
+            dim: int = 0
+    ) -> List['TimeTensor']:
+        r"""Transform :class:`torch.Tensor` to :class:`TimeTensor`.
+        """
+        # Outputs
+        return self.transform_to_timetensors(func_output)
+    # end after_chunk
+
+    # After column_stack
+    def after_column_stack(
+            self,
+            func_output: Any,
+            *ops_input,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""Transform the :class:`torch.Tensor` to :class:`TimeTensor`.
+        """
+        return TimeTensor(
+            data=func_output,
+            time_dim=self._time_dim
+        )
+    # end after_column_stack
+
+    # After dsplit
+    def after_dsplit(
+            self,
+            func_output: Any,
+            *ops_inputs,
+            dim: int = 0
+    ) -> List['TimeTensor']:
+        r"""Transform :class:`torch.Tensor` to :class:`TimeTensor`.
+        """
+        # Outputs
+        return self.transform_to_timetensors(func_output)
+    # end after_dsplit
+
+    # After dstack
+    def after_dstack(
+            self,
+            func_output: Any,
+            *ops_inputs,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.dstack`.
+        """
+        # 0-D timeseries
+        if self.ndim == 1:
+            return TimeTensor(
+                data=func_output,
+                time_dim=1
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self._time_dim
+            )
+        # end if
+    # end after_dstack
+
+    # After gather
+    def after_gather(
+            self,
+            func_output: Any,
+            *ops_inputs,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.gather` we keep the same index for the time dimension.
+        """
+        return TimeTensor(
+            data=func_output,
+            time_dim=self._time_dim
+        )
+    # end after_gather
+
+    # After hsplit
+    def after_hsplit(
+            self,
+            func_output: Any,
+            *ops_input,
+            dim: int = 0
+    ) -> List['TimeTensor']:
+        r"""After :func:`torch.hsplit` we keep the same index for the time dimension.
+        """
+        return self.transform_to_timetensors(func_output)
+    # end after_hsplit
+
+    # After hstack
+    def after_hstack(
+            self,
+            func_ouput: Any,
+            *ops_input,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.hstack` we keep the same index for the time dimension.
+        """
+        return TimeTensor(
+            data=func_ouput,
+            time_dim=self.time_dim
+        )
+    # end after_hstack
+
+    # After index_select
+    def after_index_select(
+            self,
+            func_output: Any,
+            *ops_input,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.index_select` we keep the same index for the time dimension.
+        """
+        return TimeTensor(
+            data=func_output,
+            time_dim=self.time_dim
+        )
+    # end after_index_select
+
+    # After movedim
+    def after_movedim(
+            self,
+            func_output: Any,
+            *ops_input
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.movedim` we change index of time dimension of concerned.
+        """
+        print(func_output)
+        print(ops_input)
+        return func_output
+    # end after_movedim
+
+    # After atleast_3d
+    def after_atleast_3d(
+            self,
+            func_output: Any,
+            *ops_inputs,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.atleast_3d`.
+        """
+        # 0-D timeseries
+        if self.ndim == 1:
+            return TimeTensor(
+                data=func_output,
+                time_dim=1
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self._time_dim
+            )
+        # end if
+    # end after_atleast_3d
+
+    # Validate cat
+    # def validate_cat(
+    #         self,
+    #         ops_input: Any,
+    #         dim: int = 0
+    # ):
+    #     r"""Validate input for :func:`torch.cat`.
+    #
+    #     All :class:`TimeTensor` must have the same time dimension index.
+    #     """
+    #     self.check_time_dim(ops_input)
+    # # end validate_cat
+
+    # Validate column_stack
+    # def validate_column_stack(
+    #         self,
+    #         ops_input: Any
+    # ):
+    #     r"""
+    #     Validate :func:`torch.column_stack`.
+    #     """
+    #     self.check_time_dim(ops_input)
+    # # end validate_column_stack
+
+    # Transform to timetensor
+    def transform_to_timetensors(
+            self,
+            tensors: Any
+    ):
+        r"""Transform :class:`torch.Tensor` to :class:`TimeTensor`.
+        """
+        return [echotorch.as_timetensor(o, time_dim=self.time_dim) for o in tensors]
+    # end
+
+    # Check that all timetensors have the right time dimension index
+    def check_time_dim(
+            self,
+            tensors: Any
+    ) -> None:
+        r"""Check that all timetensors have the right time dimension index.
+        """
+        for tensor in tensors:
+            if isinstance(tensor, TimeTensor) and self.time_dim != tensor.time_dim:
+                raise RuntimeError(
+                    "Expected timetensors with the same time dimension index, got {} and {}".format(
+                        self.time_dim,
+                        tensor.time_dim
+                    )
+                )
+            # end if
+        # end for
+    # end check_time_dim
 
     # After mm (matrix multiplication)
     def mm(
@@ -444,20 +655,20 @@ class TimeTensor(BaseTensor):
 
         # end convert
 
+        # Validate ops inputs
+        if hasattr(self, 'validate_' + func.__name__): getattr(self, 'validate_' + func.__name__)(*args, **kwargs)
+
         # Before callback
-        if hasattr(self, 'before_' + func.__name__): args = getattr(self, 'before_' + func.__name__)(*args,
-                                                                                                     **kwargs)
+        if hasattr(self, 'before_' + func.__name__): args = getattr(self, 'before_' + func.__name__)(*args, **kwargs)
 
         # Get the tensor in the arguments
         conv_args = [convert(a) for a in args]
 
         # Middle callback
-        if hasattr(self, 'middle_' + func.__name__): args = getattr(self, 'middle_' + func.__name__)(*args,
-                                                                                                     **kwargs)
+        if hasattr(self, 'middle_' + func.__name__): args = getattr(self, 'middle_' + func.__name__)(*args, **kwargs)
 
         # Execute function
         ret = func(*conv_args, **kwargs)
-        # print("FUNC NAME: {}".format(func.__name__))
         # print("FUNC RET: {}".format(type(ret)))
         # print("")
         # Create TimeTensor and returns or returns directly

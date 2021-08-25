@@ -41,7 +41,8 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.imgmath',
-    'rst2pdf.pdfbuilder'
+    'rst2pdf.pdfbuilder',
+    'sphinx.ext.autosectionlabel'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -58,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'EchoTorch'
-copyright = u'2017, Nils Schaetti'
+copyright = u'2021, Nils Schaetti'
 author = u'Nils Schaetti'
 
 # The version info for the project you're documenting, acts as replacement for
