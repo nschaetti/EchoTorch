@@ -38,6 +38,13 @@ ERROR_WRONG_TIME_LENGTHS_SIZES = "The sizes of the time lengths tensor should be
 ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 
 
+# Torch ops which can be directly converted to timetensors
+TORCH_OPS_DIRECT = [
+    'cat', 'chunk', 'column_stack', 'dsplit', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
+    'scatter_add', "split"
+]
+
+
 # region TIMETENSOR
 
 # TimeTensor
@@ -313,67 +320,6 @@ class TimeTensor(BaseTensor):
         # end if
     # end after_unsqueeze
 
-    # After cat
-    def after_cat(
-            self,
-            func_output: Any,
-            *ops_input,
-            dim: int = 0
-    ) -> 'TimeTensor':
-        r"""After the ```cat`` operation.
-
-        :param func_output:
-        :param *args:
-        :param **kwargs:
-        :return:
-        """
-        return TimeTensor(
-            data=func_output,
-            time_dim=self._time_dim
-        )
-    # end after cat
-
-    # After chunk
-    def after_chunk(
-            self,
-            func_output: Any,
-            *ops_input,
-            dim: int = 0
-    ) -> List['TimeTensor']:
-        r"""Transform :class:`torch.Tensor` to :class:`TimeTensor`.
-        """
-        # Outputs
-        return self.transform_to_timetensors(func_output)
-    # end after_chunk
-
-    # After column_stack
-    def after_column_stack(
-            self,
-            func_output: Any,
-            *ops_input,
-            dim: int = 0
-    ) -> 'TimeTensor':
-        r"""Transform the :class:`torch.Tensor` to :class:`TimeTensor`.
-        """
-        return TimeTensor(
-            data=func_output,
-            time_dim=self._time_dim
-        )
-    # end after_column_stack
-
-    # After dsplit
-    def after_dsplit(
-            self,
-            func_output: Any,
-            *ops_inputs,
-            dim: int = 0
-    ) -> List['TimeTensor']:
-        r"""Transform :class:`torch.Tensor` to :class:`TimeTensor`.
-        """
-        # Outputs
-        return self.transform_to_timetensors(func_output)
-    # end after_dsplit
-
     # After dstack
     def after_dstack(
             self,
@@ -397,75 +343,75 @@ class TimeTensor(BaseTensor):
         # end if
     # end after_dstack
 
-    # After gather
-    def after_gather(
-            self,
-            func_output: Any,
-            *ops_inputs,
-            dim: int = 0
-    ) -> 'TimeTensor':
-        r"""After :func:`torch.gather` we keep the same index for the time dimension.
-        """
-        return TimeTensor(
-            data=func_output,
-            time_dim=self._time_dim
-        )
-    # end after_gather
-
-    # After hsplit
-    def after_hsplit(
-            self,
-            func_output: Any,
-            *ops_input,
-            dim: int = 0
-    ) -> List['TimeTensor']:
-        r"""After :func:`torch.hsplit` we keep the same index for the time dimension.
-        """
-        return self.transform_to_timetensors(func_output)
-    # end after_hsplit
-
-    # After hstack
-    def after_hstack(
-            self,
-            func_ouput: Any,
-            *ops_input,
-            dim: int = 0
-    ) -> 'TimeTensor':
-        r"""After :func:`torch.hstack` we keep the same index for the time dimension.
-        """
-        return TimeTensor(
-            data=func_ouput,
-            time_dim=self.time_dim
-        )
-    # end after_hstack
-
-    # After index_select
-    def after_index_select(
-            self,
-            func_output: Any,
-            *ops_input,
-            dim: int = 0
-    ) -> 'TimeTensor':
-        r"""After :func:`torch.index_select` we keep the same index for the time dimension.
-        """
-        return TimeTensor(
-            data=func_output,
-            time_dim=self.time_dim
-        )
-    # end after_index_select
-
     # After movedim
     def after_movedim(
             self,
             func_output: Any,
-            *ops_input
+            ops_input,
+            source,
+            destination
     ) -> 'TimeTensor':
         r"""After :func:`torch.movedim` we change index of time dimension of concerned.
         """
-        print(func_output)
-        print(ops_input)
-        return func_output
+        # Keep time dim
+        new_time_dim = self.time_dim
+
+        # New time dim if in dest or source
+        if source == self.time_dim:
+            new_time_dim = destination
+        elif destination == self.time_dim:
+            new_time_dim = source
+        # end if
+
+        # New timetensor
+        return TimeTensor(
+            data=func_output,
+            time_dim=new_time_dim
+        )
     # end after_movedim
+
+    # After squeeze
+    def after_squeeze(
+            self,
+            func_output,
+            input,
+            dim
+    ) -> Union['TimeTensor', torch.Tensor]:
+        r"""
+        """
+        if dim is None:
+            if self.tlen == 1:
+                return func_output
+            else:
+                # How many dim at one before time dim?
+                removed_dim = torch.sum(torch.tensor(self.size()[:self.time_dim]) == 1)
+
+                # Return with modified time dim
+                return TimeTensor(
+                    data=func_output,
+                    time_dim=self.time_dim - removed_dim
+                )
+            # end if
+        else:
+            # Time dim targeted
+            if dim == self.time_dim and self.tlen == 1:
+                return func_output
+            # end if
+
+            # If dim removed and before time dim
+            if self.size()[dim] == 1 and dim < self.time_dim:
+                return TimeTensor(
+                    data=func_output,
+                    time_dim=self.time_dim - 1
+                )
+            else:
+                return TimeTensor(
+                    data=func_output,
+                    time_dim=self.time_dim
+                )
+            # end if
+        # end if
+    # end after_squeeze
 
     # After atleast_3d
     def after_atleast_3d(
@@ -490,30 +436,6 @@ class TimeTensor(BaseTensor):
         # end if
     # end after_atleast_3d
 
-    # Validate cat
-    # def validate_cat(
-    #         self,
-    #         ops_input: Any,
-    #         dim: int = 0
-    # ):
-    #     r"""Validate input for :func:`torch.cat`.
-    #
-    #     All :class:`TimeTensor` must have the same time dimension index.
-    #     """
-    #     self.check_time_dim(ops_input)
-    # # end validate_cat
-
-    # Validate column_stack
-    # def validate_column_stack(
-    #         self,
-    #         ops_input: Any
-    # ):
-    #     r"""
-    #     Validate :func:`torch.column_stack`.
-    #     """
-    #     self.check_time_dim(ops_input)
-    # # end validate_column_stack
-
     # Transform to timetensor
     def transform_to_timetensors(
             self,
@@ -522,7 +444,25 @@ class TimeTensor(BaseTensor):
         r"""Transform :class:`torch.Tensor` to :class:`TimeTensor`.
         """
         return [echotorch.as_timetensor(o, time_dim=self.time_dim) for o in tensors]
-    # end
+    # end transform_to_timetensors
+
+    # Convert to timetensor
+    def convert_to_timetensor(self, func_ret):
+        r"""Convert to timetensor.
+        """
+        if isinstance(func_ret, torch.Tensor):
+            return TimeTensor(
+                data=func_ret,
+                time_dim=self.time_dim
+            )
+        elif isinstance(func_ret, list):
+            return self.transform_to_timetensors(func_ret)
+        elif isinstance(func_ret, tuple):
+            return tuple(self.transform_to_timetensors(func_ret))
+        else:
+            return func_ret
+        # end if
+    # end convert_to_timetensor
 
     # Check that all timetensors have the right time dimension index
     def check_time_dim(
@@ -654,7 +594,9 @@ class TimeTensor(BaseTensor):
             # end if
 
         # end convert
-
+        # print(func.__name__)
+        # print(args)
+        # print(kwargs)
         # Validate ops inputs
         if hasattr(self, 'validate_' + func.__name__): getattr(self, 'validate_' + func.__name__)(*args, **kwargs)
 
@@ -669,6 +611,11 @@ class TimeTensor(BaseTensor):
 
         # Execute function
         ret = func(*conv_args, **kwargs)
+
+        # If output can be directly converted to timetensor
+        if func.__name__ in TORCH_OPS_DIRECT:
+            ret = self.convert_to_timetensor(ret)
+        # end if
         # print("FUNC RET: {}".format(type(ret)))
         # print("")
         # Create TimeTensor and returns or returns directly

@@ -418,7 +418,7 @@ def ones(
         timetensor([ 1., 1., 1., 1., 1.])
     """
     return TimeTensor.new_timetensor_with_func(
-        size,
+        *size,
         func=torch.ones,
         length=length,
         batch_size=batch_size,

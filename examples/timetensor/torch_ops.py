@@ -307,4 +307,149 @@ z = echotorch.randn(2, 1, length=10)
 print_var("z", z)
 out = torch.movedim(z, 1, 0)
 print_var("out", out)
+print("")
+
+# moveaxis
+print("======================")
+print("moveaxis")
+x = torch.randn(3, 2, 1)
+print_var("x", x)
+out = torch.movedim(x, 1, 0)
+print_var("out", out)
+z = echotorch.randn(2, 1, length=10)
+print_var("z", z)
+out = torch.movedim(z, 1, 0)
+print_var("out", out)
+print("")
+
+# narrow
+print("======================")
+print("narrow")
+x = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+z = echotorch.timetensor([[1, 2], [3, 4], [5, 6], [7, 8]])
+print_var("x", x)
+print_var("z", z)
+print(x)
+print(z)
+out = torch.narrow(x, 0, 0, 2)
+print_var("out", out)
+print(out)
+out = torch.narrow(x, 1, 2, 0)
+print_var("out", out)
+print(out)
+out = torch.narrow(z, 0, 0, 2)
+print_var("out", out)
+print(out)
+out = torch.narrow(z, 1, 0, 0)
+print_var("out", out)
+print(out)
+print("")
+
+# nonzero
+# time dim destroyed !
+print("=======================")
+print("nonzero")
+x = torch.tensor([1, 1, 1, 0, 1])
+print_var("x", x)
+out = torch.nonzero(x)
+print_var("out", out)
+print("")
+
+# reshape
+# time dim destroyed !
+print("=======================")
+print("reshape")
+x = torch.arange(4.)
+print_var("x", x)
+out = torch.reshape(x, (2, 2))
+print_var("out", out)
+print("")
+
+# row_stack
+# alias of torch.vstack()
+
+# scatter
+print("=======================")
+print("scatter")
+x = torch.arange(1, 11).reshape((2, 5))
+y = torch.zeros(3, 5, dtype=x.dtype)
+z = echotorch.timetensor(y, time_dim=0)
+print_var("x", x)
+print_var("y", y)
+print_var("z", z)
+index = torch.tensor([[0, 1, 2, 0]])
+print_var("index", index)
+out = torch.scatter(y, 0, index, x)
+print_var("out", out)
+print(out)
+out = torch.scatter(z, 0, index, x)
+print_var("out", out)
+print(out)
+print("")
+
+# scatter_add
+print("=======================")
+print("scatter_add")
+x = torch.ones((2, 5))
+y = torch.zeros(3, 5, dtype=x.dtype)
+z = echotorch.zeros(5, length=3)
+print_var("x", x)
+print_var("y", y)
+print_var("z", z)
+index = torch.tensor([[0, 1, 2, 0, 0]])
+print_var("index", index)
+out = torch.scatter_add(y, 0, index, x)
+print_var("out", out)
+print(out)
+out = torch.scatter_add(z, 0, index, x)
+print_var("out", out)
+print(out)
+print("")
+
+# split
+x = torch.arange(10).reshape(5, 2)
+z = echotorch.timetensor(x)
+print_var("x", x)
+print_var("z", z)
+out = torch.split(x, 2)
+print_var("out", out)
+out = torch.split(x, [1, 4])
+print_var("out", out)
+out = torch.split(z, 2)
+print_var("out", out)
+out = torch.split(z, [1, 4])
+print_var("out", out)
+out = torch.split(z, 1, 1)
+print_var("out", out)
+
+# squeeze
+
+
+# stack
+
+# swapaxes
+
+# swapdims
+
+# t
+
+# take
+
+# take_along_dim
+
+# tensor_split
+
+# tile
+
+# transpose
+
+# unbind
+
+# unsqueeze
+
+# vsplit
+
+# vstack
+
+# where
 
