@@ -23,6 +23,7 @@
 from typing import Optional, Tuple, Union, List, Callable, Any
 import torch
 import numpy as np
+import warnings
 
 # EchoTorch imports
 import echotorch
@@ -40,8 +41,19 @@ ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 
 # Torch ops which can be directly converted to timetensors
 TORCH_OPS_DIRECT = [
-    'cat', 'chunk', 'column_stack', 'dsplit', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
-    'scatter_add', "split"
+    'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
+    'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where'
+]
+
+# List of torch ops implemented, if not in this list, we print a warning
+TORCH_OPS_IMPLEMENTED = [
+    # Indexing, etc
+    'cat', 'chunk', 'dsplit', 'column_stack', 'dstack', 'gather', 'hsplit', 'hstack', 'index_select', 'masked_select',
+    'movedim', 'moveaxis', 'narrow', 'nonzero', 'reshape', 'row_stack', 'scatter', 'scatter_add', "split", 'squeeze',
+    'stack', 'swapaxes', 'swapdims', 't', 'atleast_3d', 'take', 'take_along_dim', 'tensor_split', 'tile', 'transpose',
+    'unbind', 'unsqueeze', 'vsplit', 'vstack', 'where',
+    # Reduction ops
+    'argmax'
 ]
 
 
@@ -291,35 +303,6 @@ class TimeTensor(BaseTensor):
 
     # region TORCH_FUNCTION
 
-    # After unsqueeze
-    def after_unsqueeze(
-            self,
-            func_output: Any,
-            input: Any,
-            dim: int
-    ) -> 'TimeTensor':
-        r"""After unsqueeze
-
-        :param func_output: The output of the torch.unsqueeze function.
-        :type func_output:
-        :param dim: The request dimension from unsqueeze.
-        :type dim:
-        :return: The computed output.
-        :rtype:
-        """
-        if dim <= self.time_dim:
-            return TimeTensor(
-                func_output,
-                time_dim=self._time_dim+1
-            )
-        else:
-            return TimeTensor(
-                func_output,
-                time_dim=self._time_dim
-            )
-        # end if
-    # end after_unsqueeze
-
     # After dstack
     def after_dstack(
             self,
@@ -375,7 +358,7 @@ class TimeTensor(BaseTensor):
             self,
             func_output,
             input,
-            dim
+            dim=None
     ) -> Union['TimeTensor', torch.Tensor]:
         r"""
         """
@@ -412,6 +395,139 @@ class TimeTensor(BaseTensor):
             # end if
         # end if
     # end after_squeeze
+
+    # After stack
+    def after_stack(
+            self,
+            func_output,
+            tensors,
+            dim=0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.stack`, we increment time dim if needed.
+        """
+        if dim <= self.time_dim:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self.time_dim+1
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self.time_dim
+            )
+        # end if
+    # end after_stack
+
+    # after t
+    def after_t(
+            self,
+            func_output,
+            input
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.t`, swap time dim.
+        """
+        if self.ndim == 1:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self.time_dim
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=1 - self.time_dim
+            )
+        # end if
+    # end after_t
+
+    # After tranpose
+    def after_transpose(
+            self,
+            func_output,
+            input,
+            dim0,
+            dim1
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.t`, swap time dim.
+        """
+        if self.time_dim in [dim0, dim1]:
+            return TimeTensor(
+                data=func_output,
+                time_dim=dim0 if self.time_dim == dim1 else dim1
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self.time_dim
+            )
+        # end if
+    # end after_transpose
+
+    # After unbind
+    def after_unbind(
+            self,
+            func_output,
+            input,
+            dim=0
+    ) -> Tuple['TimeTensor', torch.Tensor]:
+        r"""After :func:`torch.unbind`, remove time dim if needed.
+        """
+        if dim == self.time_dim:
+            return func_output
+        else:
+            return tuple(self.transform_to_timetensors(func_output))
+        # end if
+    # end after_unbind
+
+    # After unsqueeze
+    def after_unsqueeze(
+            self,
+            func_output: Any,
+            input: Any,
+            dim: int
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.unsqueeze`, remove time dim if needed.
+
+        :param func_output: The output of the torch.unsqueeze function.
+        :type func_output:
+        :param dim: The request dimension from unsqueeze.
+        :type dim:
+        :return: The computed output.
+        :rtype:
+        """
+        if dim <= self.time_dim:
+            return TimeTensor(
+                func_output,
+                time_dim=self._time_dim + 1
+            )
+        else:
+            return TimeTensor(
+                func_output,
+                time_dim=self._time_dim
+            )
+        # end if
+    # end after_unsqueeze
+
+    # After vstack
+    def after_vstack(
+            self,
+            func_output,
+            tensors
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.vstack, we add 1 to the index of time
+        dim if it is a 0-D timeseries, other keep the same
+        """
+        if self.ndim == 1:
+            return TimeTensor(
+                data=func_output,
+                time_dim=1
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self.time_dim
+            )
+        # end if
+    # end after_vstack
 
     # After atleast_3d
     def after_atleast_3d(
@@ -501,35 +617,35 @@ class TimeTensor(BaseTensor):
     # end mm
 
     # Transpose
-    def t(self) -> 'TimeTensor':
-        r"""Expects the timetensor to be <= 1-D timetensor and transposes dimensions 0 and 1.
-
-        If time dimension is in position 0, then it is switched to 1, and vice versa.
-
-        TODO: complet doc
-        """
-        if self.ndim == 2:
-            return TimeTensor(
-                data=self._tensor.t(),
-                time_dim=1-self._time_dim
-            )
-        elif self.ndim < 2:
-            return self
-        else:
-            # Inverse time dim if targeted
-            if self._time_dim in [0, 1]:
-                return TimeTensor(
-                    data=self._tensor.t(),
-                    time_dim=1 - self._time_dim
-                )
-            else:
-                return TimeTensor(
-                    data=self._tensor.t(),
-                    time_dim=self._time_dim
-                )
-            # end if
-        # end if
-    # end t
+    # def t(self) -> 'TimeTensor':
+    #     r"""Expects the timetensor to be <= 1-D timetensor and transposes dimensions 0 and 1.
+    #
+    #     If time dimension is in position 0, then it is switched to 1, and vice versa.
+    #
+    #     TODO: complet doc
+    #     """
+    #     if self.ndim == 2:
+    #         return TimeTensor(
+    #             data=self._tensor.t(),
+    #             time_dim=1-self._time_dim
+    #         )
+    #     elif self.ndim < 2:
+    #         return self
+    #     else:
+    #         # Inverse time dim if targeted
+    #         if self._time_dim in [0, 1]:
+    #             return TimeTensor(
+    #                 data=self._tensor.t(),
+    #                 time_dim=1 - self._time_dim
+    #             )
+    #         else:
+    #             return TimeTensor(
+    #                 data=self._tensor.t(),
+    #                 time_dim=self._time_dim
+    #             )
+    #         # end if
+    #     # end if
+    # # end t
 
     # As strided
     def as_strided(
@@ -594,9 +710,14 @@ class TimeTensor(BaseTensor):
             # end if
 
         # end convert
-        # print(func.__name__)
-        # print(args)
-        # print(kwargs)
+
+        # Print warning if not implemented
+        if func.__name__ not in TORCH_OPS_IMPLEMENTED:
+            warnings.warn(
+                "Operation {} not implemented for timetensors, unpredictable behaviors here!".format(func.__name__)
+            )
+        # end if
+
         # Validate ops inputs
         if hasattr(self, 'validate_' + func.__name__): getattr(self, 'validate_' + func.__name__)(*args, **kwargs)
 
@@ -687,6 +808,46 @@ class TimeTensor(BaseTensor):
         return "timetensor({}, time_dim: {})".format(tensor_desc, self._time_dim)
     # end __repr__
 
+    # Less than operation with time tensors.
+    def __lt__(self, other) -> 'TimeTensor':
+        r"""Less than operation with time tensors.
+        """
+        return TimeTensor(
+            data=self._tensor < other,
+            time_dim=self.time_dim
+        )
+    # end __lt__
+
+    # Less or equal than operation with time tensors.
+    def __le__(self, other) -> 'TimeTensor':
+        r"""Less than operation with time tensors.
+        """
+        return TimeTensor(
+            data=self._tensor <= other,
+            time_dim=self.time_dim
+        )
+    # end __le__
+
+    # Greater than operation with time tensors.
+    def __gt__(self, other) -> 'TimeTensor':
+        r"""Greater than operation with time tensors.
+        """
+        return TimeTensor(
+            data=self._tensor > other,
+            time_dim=self.time_dim
+        )
+    # end __gt__
+
+    # Greater or equal than operation with time tensors.
+    def __ge__(self, other) -> 'TimeTensor':
+        r"""Greater or equal than operation with time tensors.
+        """
+        return TimeTensor(
+            data=self._tensor >= other,
+            time_dim=self.time_dim
+        )
+    # end __ge__
+
     # Are two time-tensors equivalent
     def __eq__(
             self,
@@ -702,6 +863,16 @@ class TimeTensor(BaseTensor):
         """
         return super(TimeTensor, self).__eq__(other) and self.time_dim == other.time_dim
     # end __eq__
+
+    # Are two time-tensors not equal
+    def __ne__(
+            self,
+            other: 'TimeTensor'
+    ) -> bool:
+        r"""Are two time-tensors not equal
+        """
+        return not(self.__eq__(self, other))
+    # end __ne__
 
     # endregion OVERRIDE
 

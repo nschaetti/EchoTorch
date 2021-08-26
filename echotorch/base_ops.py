@@ -303,8 +303,8 @@ def zeros(
     :type length: int
     :param batch_size:
     :type batch_size: tuple of ``int``
-    :param out:
-    :type out:
+    :param out: the output timetensor.
+    :type out: :class:`TimeTensor`, optional
     :param dtype: :class:`TimeTensor` data type
     :type dtype: torch.dtype, optional
     :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
@@ -315,7 +315,7 @@ def zeros(
     :type requires_grad: bool, optional
 
     Example::
-        >>> x = echotorch.zeros((2, 2), length=100)
+        >>> x = echotorch.zeros(2, 2, length=100)
         >>> x.size()
         torch.Size([100, 2, 2])
         >>> x.tsize()
@@ -332,6 +332,7 @@ def zeros(
         batch_size=batch_size,
         out=out,
         dtype=dtype,
+        layout=layout,
         device=device,
         requires_grad=requires_grad,
     )
@@ -352,29 +353,37 @@ def zeros_like(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.zeros_like.html#torch.zeros_like>`__ on ``zeros_like()`` for more informations.
 
-    :param input:
-    :type input:
-    :param dtype:
-    :type dtype:
-    :param layout:
-    :type layout:
-    :param device:
-    :type device:
-    :param requires_grad:
-    :type requires_grad:
-    :param memory_format:
-    :type memory_format:
+    :param input: the index of the time dimension and the size of ``input`` will be used to create the output timetensor.
+    :type input: :class:`TimeTensor`
+    :param dtype: :class:`TimeTensor` data type
+    :type dtype: torch.dtype, optional
+    :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
+    :type layout: torch.layout, optional
+    :param device: Destination device
+    :type device: torch.device, optional
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool, optional
+    :param memory_format: memory format of the new timetensor (default: ``torch.preserve_format``).
+    :type memory_format: ``torch.memory_format``, optional
 
     Example:
 
         >>> echotorch.zeros_like()
     """
-    return zeros(
-        *list(input.csize()),
-        length=input.tlen,
+    # Data tensor
+    data_tensor = torch.zeros_like(
+        input=input.tensor,
         dtype=dtype,
+        layout=layout,
         device=device,
-        requires_grad=requires_grad
+        requires_grad=requires_grad,
+        memory_format=memory_format
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=input.time_dim
     )
 # end zeros_like
 
@@ -384,7 +393,9 @@ def ones(
         *size,
         length: int,
         batch_size: Optional[Tuple[int]] = None,
+        out: Optional[TimeTensor] = None,
         dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = torch.strided,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False
 ) -> 'TimeTensor':
@@ -398,23 +409,27 @@ def ones(
     :param length: Length of the timeseries
     :type length: int
     :param batch_size:
-    :type batch_size:
+    :type batch_size: tuple of ``int``
+    :param out: the output timetensor.
+    :type out: :class:`TimeTensor`, optional
     :param dtype: :class:`TimeTensor` data type
-    :type dtype: torch.dtype
+    :type dtype: torch.dtype, optional
+    :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
+    :type layout: torch.layout, optional
     :param device: Destination device
-    :type device: torch.device
+    :type device: torch.device, optional
     :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
+    :type requires_grad: bool, optional
 
     Example::
-        >>> x = echotorch.ones((2, 2), time_length=100)
+        >>> x = echotorch.ones(2, 2, length=100)
         >>> x.size()
         torch.Size([100, 2, 2])
         >>> x.tsize()
         torch.Size([2, 2])
         >>> x.tlen
         100
-        >>> echotorch.ones((), time_length=5)
+        >>> echotorch.ones((), length=5)
         timetensor([ 1., 1., 1., 1., 1.])
     """
     return TimeTensor.new_timetensor_with_func(
@@ -422,7 +437,9 @@ def ones(
         func=torch.ones,
         length=length,
         batch_size=batch_size,
+        out=out,
         dtype=dtype,
+        layout=layout,
         device=device,
         requires_grad=requires_grad,
     )
@@ -433,36 +450,47 @@ def ones(
 def ones_like(
         input,
         dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False,
-        memory_format=torch.preserve_format
+        memory_format: Optional[torch.memory_format] = torch.preserve_format
 ) -> TimeTensor:
     r"""Returns a :class:`TimeTensor` filled with the scalar value 1, with the same size as ``input``.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.ones_like.html#torch.ones_like>`__ on ``ones_like()`` for more informations.
 
-    :param input:
-    :type input:
-    :param dtype:
-    :type dtype:
-    :param device:
-    :type device:
-    :param requires_grad:
-    :type requires_grad:
-    :param memory_format:
-    :type memory_format:
+    :param input: the index of the time dimension and the size of ``input`` will be used to create the output timetensor.
+    :type input: :class:`TimeTensor`
+    :param dtype: :class:`TimeTensor` data type
+    :type dtype: torch.dtype, optional
+    :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
+    :type layout: torch.layout, optional
+    :param device: Destination device
+    :type device: torch.device, optional
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool, optional
+    :param memory_format: memory format of the new timetensor (default: ``torch.preserve_format``).
+    :type memory_format: ``torch.memory_format``, optional
 
     Examples:
 
         >>> ...
     """
-    return ones(
-        *list(input.csize()),
-        length=input.tlen,
+    # Data tensor
+    data_tensor = torch.ones_like(
+        input=input.tensor,
         dtype=dtype,
+        layout=layout,
         device=device,
-        requires_grad=requires_grad
+        requires_grad=requires_grad,
+        memory_format=memory_format
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=input.time_dim
     )
 # end ones_like
 
@@ -494,10 +522,14 @@ def arange(
     :type end: Number
     :param step: the gap between each pair of adjacent time points (default: 1).
     :type step: Number
-    :param out:
-    :param dtype:
-    :param device:
-    :param requires_grad:
+    :param out: the output timetensor.
+    :type out: :class:`TimeTensor`, optional
+    :param device: Destination device
+    :type device: torch.device, optional
+    :param device: Destination device
+    :type device: torch.device, optional
+    :param requires_grad: Activate gradient computation
+    :type requires_grad: bool, optional
 
     Examples:
 
@@ -526,13 +558,33 @@ def arange(
     # end if
 
     # arange tensor
-    ar_tensor = torch.arange(start, end, step, dtype=dtype, device=device, requires_grad=requires_grad)
+    if out is not None:
+        torch.arange(
+            start,
+            end,
+            step,
+            out=out.tensor,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad
+        )
+        return out
+    else:
+        arange_tensor = torch.arange(
+            start,
+            end,
+            step,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad
+        )
 
-    # Create timetensor
-    return TimeTensor.new_timetensor(
-        data=ar_tensor,
-        time_dim=0
-    )
+        # Create timetensor
+        return TimeTensor.new_timetensor(
+            data=arange_tensor,
+            time_dim=0
+        )
+    # end if
 # end arange
 
 
@@ -561,8 +613,8 @@ def linspace(
     :type end: float
     :param steps: size of the constructed tensor.
     :type steps: int
-    :param out: the output tensor.
-    :type out: Tensor, optional
+    :param out: the output timetensor.
+    :type out: :class:`TimeTensor`, optional
     :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
     :type dtype: ``torch.dtype``, optional
     :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
@@ -582,13 +634,34 @@ def linspace(
         timetensor(tensor([-10.]), time_dim: 0)
     """
     # linspace tensor
-    ls_tensor = torch.linspace(start, end, steps, dtype=dtype, device=device, requires_grad=requires_grad)
+    if out is None:
+        ls_tensor = torch.linspace(
+            start,
+            end,
+            steps,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad
+        )
 
-    # Create timetensor
-    return TimeTensor.new_timetensor(
-        data=ls_tensor,
-        time_dim=0
-    )
+        # Create timetensor
+        return TimeTensor.new_timetensor(
+            data=ls_tensor,
+            time_dim=0
+        )
+    else:
+        torch.linspace(
+            start,
+            end,
+            steps,
+            out=out.tensor,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad
+        )
+        out.time_dim = 0
+        return out
+    # end if
 # end linspace
 
 
@@ -620,7 +693,7 @@ def logspace(
     :type steps: int
     :param base:
     :type base:
-    :param out: the output tensor.
+    :param out: the output timetensor.
     :type out: ``TimeTensor``
     :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
     :type dtype: ``torch.dtype``, optional
@@ -628,9 +701,6 @@ def logspace(
     :type device: ``torch.device``, optional
     :param requires_grad: if autograd should record operations on the returned tensor (default: *False*).
     :type requires_grad: ``bool``
-    :return: A 0-D timetensor of length ``steps`` whose values are evenly spaced from :math:`base^{start}` to :math:`base^{end}`,
-    inclusive, on a logarithm scale with base ``base``.
-    :rtype: ``TimeTensor``
 
     Example:
 
@@ -643,14 +713,38 @@ def logspace(
         >>> echotorch.logspace(start=2, end=2, steps=1, base=2)
         timetensor(tensor([4.]), time_dim: 0)
     """
-    # linspace tensor
-    ls_tensor = torch.logspace(start, end, steps, base, dtype=dtype, device=device, requires_grad=requires_grad)
+    if out is None:
+        # logspace tensor
+        ls_tensor = torch.logspace(
+            start,
+            end,
+            steps,
+            base,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad
+        )
 
-    # Create timetensor
-    return TimeTensor.new_timetensor(
-        data=ls_tensor,
-        time_dim=0
-    )
+        # Create timetensor
+        return TimeTensor.new_timetensor(
+            data=ls_tensor,
+            time_dim=0
+        )
+    else:
+        # Logspace tensor
+        torch.logspace(
+            start,
+            end,
+            steps,
+            base,
+            out=out.tensor,
+            dtype=dtype,
+            device=device,
+            requires_grad=requires_grad
+        )
+        out.time_dim = 0
+        return out
+    # end if
 # end logspace
 
 
@@ -662,7 +756,9 @@ def empty(
         out: TimeTensor = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-        requires_grad: Optional[bool] = False
+        requires_grad: Optional[bool] = False,
+        pin_memory: bool = False,
+        memory_format=torch.contiguous_format
 ) -> 'TimeTensor':
     r"""Returns a :class:`TimeTensor` of size ``size`` and time length ``time_length`` filled with uninitialized data.
 
@@ -675,16 +771,18 @@ def empty(
     :type length: int
     :param batch_size:
     :type batch_size:
-    :param out:
-    :type out:
-    :param dtype: ``TimeTensor`` data type
-    :type dtype: torch.dtype
-    :param device: Destination device
-    :type device: torch.device
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :return: A :class:`TimeTensor` of size size filled with zeros
-    :rtype: :class:`TimeTensor`
+    :param out: the output timetensor.
+    :type out: :class:`TimeTensor`, optional
+    :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
+    :type dtype: ``torch.dtype``, optional
+    :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
+    :type device: ``torch.device``, optional
+    :param requires_grad: Should autograd record operations on the returned timetensor?
+    :type requires_grad: bool, optional
+    :param pin_memory: If *True*, the returned timetensor would be allocated in the pinned memory. Works only for CPU timetensors (default: ``False``).
+    :type pin_memory: ``bool``, optional
+    :param memory_format: memory format of the returned :class:`TimeTensor` (default: ``torch.contiguous_format``).
+    :type memory_format: ``torch.memory_format``, optional
 
     Example:
 
@@ -697,9 +795,12 @@ def empty(
         func=torch.empty,
         length=length,
         batch_size=batch_size,
+        out=out,
         dtype=dtype,
         device=device,
         requires_grad=requires_grad,
+        pin_memory=pin_memory,
+        memory_format=memory_format
     )
 # end empty
 
@@ -708,6 +809,7 @@ def empty(
 def empty_like(
         input,
         dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False,
         memory_format=torch.preserve_format
@@ -720,14 +822,14 @@ def empty_like(
 
     :param input: the parameters of ``input`` will determine the parameters of the output tensor.
     :type input: ``Tensor``
-    :type dtype: torch.dtype
-    :param device: Destination device
-    :type device: torch.device
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :param memory_format: the desired memory format of returned :class:`TimeTensor` (default: `torch.preserve_format`)
-    :return: A tensor with the same
-    :rtype: :class:`TimeTensor`
+    :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
+    :type dtype: ``torch.dtype``, optional
+    :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
+    :type device: ``torch.device``, optional
+    :param requires_grad: Should autograd record operations on the returned timetensor?
+    :type requires_grad: bool, optional
+    :param memory_format: memory format of the returned :class:`TimeTensor` (default: ``torch.contiguous_format``).
+    :type memory_format: ``torch.memory_format``, optional
 
     Example:
 
@@ -736,12 +838,20 @@ def empty_like(
         timetensor([[[1., 1., 1.],
                      [1., 1., 1.]]], device='cuda:0', dtype=torch.int32)
     """
-    return empty(
-        *list(input.csize()),
-        length=input.tlen,
-        dtype=input.dtype if dtype is None else dtype,
-        device=input.device if device is None else device,
-        requires_grad=input.requires_grad if requires_grad is None else  requires_grad
+    # Data tensor
+    data_tensor = torch.empty_like(
+        input=input.tensor,
+        dtype=dtype,
+        layout=layout,
+        device=device,
+        requires_grad=requires_grad,
+        memory_format=memory_format
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=input.time_dim
     )
 # end empty_like
 
@@ -779,21 +889,20 @@ def empty_strided(
     :type batch_size:
     :param batch_stride:
     :type batch_stride:
-    :param dtype:
-    :type dtype: torch.dtype
-    :param layout:
-    :type layout:
+    :param dtype: :class:`TimeTensor` data type
+    :type dtype: torch.dtype, optional
+    :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
+    :type layout: torch.layout, optional
     :param device: Destination device
-    :type device: torch.device
+    :type device: torch.device, optional
     :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
-    :param memory_format: the desired memory format of returned :class:`TimeTensor` (default: `torch.preserve_format`)
+    :type requires_grad: bool, optional
 
     """
     # Data tensor
     data_tensor = torch.empty_strided(
-        [length] + list(size),
-        [time_stride] + list(stride),
+        list(batch_size) + [length] + list(size),
+        list(batch_stride) + [time_stride] + list(stride),
         dtype=dtype,
         layout=layout,
         device=device,
@@ -804,7 +913,7 @@ def empty_strided(
     # Create timetensor
     return TimeTensor.new_timetensor(
         data=data_tensor,
-        time_dim=0
+        time_dim=len(batch_size)
     )
 # end empty_strided
 
@@ -834,18 +943,19 @@ def full(
     :type length: int
     :param batch_size: Batch size
     :type batch_size: ``tuple`` of ``int``
-    :param out: Output timetensor.
-    :type out: :class:`TimeTensor`
-    :param dtype: ``TimeTensor`` data type.
-    :type dtype: torch.dtype
-    :param layout: TODO: doc
-    :type layout: ...
-    :param device: Destination device
-    :type device: torch.device
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool
+    :param out: the output timetensor.
+    :type out: :class:`TimeTensor`, optional
+    :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
+    :type dtype: ``torch.dtype``, optional
+    :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
+    :type layout: torch.layout, optional
+    :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
+    :type device: ``torch.device``, optional
+    :param requires_grad: if autograd should record operations on the returned tensor (default: *False*).
+    :type requires_grad: ``bool``
 
-    Example::
+    Example:
+
         >>> x = echotorch.full(2, 2, length=100)
         >>> x.size()
         torch.Size([100, 2, 2])
@@ -856,33 +966,18 @@ def full(
         >>> echotorch.full(fill_value=1, length=5)
         timetensor([ 1., 1., 1., 1., 1.])
     """
-    # Size
-    if out is not None:
-        out = TimeTensor.new_timetensor_with_func(
-            *size,
-            func=torch.full,
-            length=length,
-            batch_size=batch_size,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            fill_value=fill_value,
-            layout=layout
-        )
-        return out
-    else:
-        return TimeTensor.new_timetensor_with_func(
-            *size,
-            func=torch.full,
-            length=length,
-            batch_size=batch_size,
-            dtype=dtype,
-            device=device,
-            requires_grad=requires_grad,
-            fill_value=fill_value,
-            layout=layout
-        )
-    # end if
+    return TimeTensor.new_timetensor_with_func(
+        *size,
+        func=torch.full,
+        length=length,
+        batch_size=batch_size,
+        out=out,
+        dtype=dtype,
+        device=device,
+        requires_grad=requires_grad,
+        fill_value=fill_value,
+        layout=layout
+    )
 # end full
 
 
@@ -891,33 +986,50 @@ def full_like(
         input,
         fill_value: Union[int, float],
         dtype: Optional[torch.dtype] = None,
+        layout: Optional[torch.layout] = None,
         device: Optional[torch.device] = None,
         requires_grad: Optional[bool] = False,
         memory_format=torch.preserve_format
 ) -> TimeTensor:
-    r"""
+    r"""Returns a :class:`TimeTensor` with the same time dimension index and size as ``input`` filled with
+    ``fill_value``. ``echotorch.full_like(input, fill_value, length=100)`` is equivalent
+    ``echotorch.full(input.csize(), fill_value, length=input.tlen, batch_size=input.bsize(), dtype=input.dtype, layout=input.layout, device=input.device)``.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.full_like.html#torch.full_like>`__ on ``full_like()`` for more informations.
 
-    :param input:
-    :type input:
-    :param fill_value:
-    :type fill_value:
-    :param dtype:
-    :type dtype:
-    :param device:
-    :type device:
-    :param requires_grad:
-    :type requires_grad:
-    :param memory_format:
-    :type memory_format:
+    :param input: the index of the time dimension and the size of ``input`` will be used to create the output timetensor.
+    :type input: :class:`TimeTensor`
+    :param fill_value: the number to fill the output timetensor with.
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+    :param requires_grad: Should operations been recorded by autograd for this timetensor?
+    :type requires_grad: `bool`, optional
+    :param memory_format: memory format of the new timetensor (default: ``torch.preserve_format``).
+    :type memory_format: ``torch.memory_format``, optional
 
     Example:
 
         >>> ...
     """
-    pass
+    # Data tensor
+    data_tensor = torch.full_like(
+        input=input.tensor,
+        fill_value=fill_value,
+        dtype=dtype,
+        layout=layout,
+        device=device,
+        requires_grad=requires_grad,
+        memory_format=memory_format
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=input.time_dim
+    )
 # end full_like
 
 
@@ -928,25 +1040,39 @@ def quantize_per_timetensor(
         zero_point: int,
         dtype: Optional[torch.dtype] = None
 ) -> TimeTensor:
-    r"""
+    r"""Converts a float :class:`TimeTensor` to a quantized timetensor with given scale and zero point.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.quantize_per_tensor.html#torch.quantize_per_tensor>`__ on ``quantize_per_tensor()`` for more informations.
 
-    :param input:
-    :type input:
+    :param input: the index of the time dimension and the size of ``input`` will be used to create the output timetensor.
+    :type input: :class:`TimeTensor`
     :param scale:
-    :type scale:
+    :type scale: ``float``
     :param zero_point:
-    :type zero_point:
-    :param dtype:
-    :type dtype:
+    :type zero_point: ``int``
+    :param dtype: :class:`TimeTensor` data type
+    :type dtype: torch.dtype, optional
+    :return: A new quantized timetensor
+    :rtype: :class:`TimeTensor`
 
     Example:
 
         >>> ...
     """
-    pass
+    # Data tensor
+    data_tensor = torch.quantize_per_tensor(
+        input=input.tensor,
+        scale=scale,
+        zero_point=zero_point,
+        dtype=dtype,
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=input.time_dim
+    )
 # end quantize_per_timetensor
 
 
@@ -954,11 +1080,11 @@ def quantize_per_timetensor(
 def quantize_per_channel(
         input: TimeTensor,
         scales: torch.Tensor,
-        zero_points: int,
+        zero_points,
         axis: int,
         dtype: Optional[torch.dtype] = None,
 ) -> TimeTensor:
-    r"""
+    r"""Convert a float :class:`TimeTensor` to a per-channel quantized timetensor with given scales and zero points.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.quantize_per_channel.html#torch.quantize_per_channel>`__ on ``quantize_per_channel()`` for more informations.
@@ -971,14 +1097,27 @@ def quantize_per_channel(
     :type zero_points:
     :param axis:
     :type axis:
-    :param dtype:
-    :type dtype:
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
 
     Example:
 
         >>> ...
     """
-    pass
+    # Data tensor
+    data_tensor = torch.quantize_per_channel(
+        input=input.tensor,
+        scales=scales,
+        zero_points=zero_points,
+        axis=axis,
+        dtype=dtype
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=input.time_dim
+    )
 # end quantize_per_channel
 
 
@@ -986,19 +1125,28 @@ def quantize_per_channel(
 def dequantize(
         timetensor: TimeTensor
 ) -> TimeTensor:
-    r"""
+    r"""Returns an fp32 :class:`TimeTensor` by dequantizing a quantized :class:`TimeTensor`.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.dequantize.html#torch.dequantize>`__ on ``dequantize()`` for more informations.
 
-    :param timetensor:
-    :type timetensor:
+    :param timetensor: A quantized :class:`TimeTensor`
+    :type timetensor: :class:`TimeTensor`
 
     Example:
 
         >>> ...
     """
-    pass
+    # Data tensor
+    data_tensor = torch.dequantize(
+        timetensor.tensor
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=timetensor.time_dim
+    )
 # end dequantize
 
 
@@ -1012,8 +1160,8 @@ def complex(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.complex.html#torch.complex>`__ on ``complex()`` for more informations.
 
-    :param real:
-    :type real:
+    :param real: The real part of the complex *timetensor*. Must be float or double.
+    :type real: :class:`TimeTensor`
     :param imag:
     :type imag:
 

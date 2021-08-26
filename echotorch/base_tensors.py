@@ -355,6 +355,16 @@ class BaseTensor(object):
                torch.all(self.tensor == other.tensor)
     # end __eq__
 
+    # Are two base-tensors not equal
+    def __ne__(
+            self,
+            other: 'BaseTensor'
+    ) -> bool:
+        r"""Are two base-tensors not equal
+        """
+        return not (self.__eq__(self, other))
+    # end __ne__
+
     # Object addition
     def __iadd__(self, other):
         r"""Object addition with time tensors.
@@ -472,8 +482,9 @@ class BaseTensor(object):
         return self
     # end __rmul__
 
+    # Scalar division with base tensors
     def __truediv__(self, other):
-        r"""Scalar division with time tensors.
+        r"""Scalar division with base tensors.
 
         :param other: Scalar divisor.
         :param type: Scalar.
@@ -486,6 +497,42 @@ class BaseTensor(object):
 
         return self
     # end __truediv__
+
+    # Less than operation with base tensors.
+    def __lt__(self, other) -> 'BaseTensor':
+        r"""Less than operation with base tensors.
+        """
+        return BaseTensor(
+            data=self._tensor < other
+        )
+    # end __lt__
+
+    # Less or equal than operation with base tensors.
+    def __le__(self, other) -> 'BaseTensor':
+        r"""Less than operation with base tensors.
+        """
+        return BaseTensor(
+            data=self._tensor <= other
+        )
+    # end __le__
+
+    # Greater than operation with base tensors.
+    def __gt__(self, other) -> 'BaseTensor':
+        r"""Greater than operation with base tensors.
+        """
+        return BaseTensor(
+            data=self._tensor > other
+        )
+    # end __gt__
+
+    # Greater or equal than operation with base tensors.
+    def __ge__(self, other) -> 'BaseTensor':
+        r"""Greater or equal than operation with base tensors.
+        """
+        return BaseTensor(
+            data=self._tensor >= other
+        )
+    # end __ge__
 
     # endregion OVERRIDE
 
