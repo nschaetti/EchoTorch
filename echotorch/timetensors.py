@@ -857,8 +857,6 @@ class TimeTensor(BaseTensor):
 
         :param other: The other time-tensor
         :type other: ``TimeTensor``
-        :return: True of False if the two time-tensors are equivalent
-        :rtype: ``bool``
 
         """
         return super(TimeTensor, self).__eq__(other) and self.time_dim == other.time_dim

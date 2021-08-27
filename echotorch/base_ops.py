@@ -214,39 +214,46 @@ def as_strided(
         input,
         size,
         stride,
-        storage_offset=0,
-        time_dim: Optional[int] = 0,
+        length: int,
+        time_stride: int,
+        batch_size: Optional[Tuple[int]] = None,
+        batch_stride: Optional[Tuple[int]] = None,
+        storage_offset=0
 ) -> TimeTensor:
     r"""Create a view of an existing :class:`TimeTensor` with specified ``size``, ``stride`` and ``storage_offset``.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.as_strided.html#torch.as_strided>`__ on ``as_strided()`` for more informations.
 
-    :param input:
-    :type input:
-    :param size:
-    :type size:
-    :param stride:
-    :type stride:
-    :param storage_offset:
-    :type storage_offset:
-    :param time_dim:
-    :type time_dim:
+    :param input: the input timetensor.
+    :type input: :class:`TimeTensor`
+    :param size: shape of the channel dimensions in the timeseries.
+    :type size: ``tuple`` of ``int``
+    :param stride: stride of the channels dimensions in the timeseries.
+    :type stride: ``tuple`` or ints
+    :param length: time length of the timeseries.
+    :type length: ``int``
+    :param time_stride: stride of the time dimension.
+    :type time_stride: ``int``
+    :param batch_size: shape of the batch dimensions of the timeseries, can be ``None`` if no batch dimensions are requiered.
+    :type batch_size: ``tuple`` or ints, optional
+    :param batch_stride: stride of the batch dimensions.
+    :type batch_stride: ``tuple`` or ints, optional
+    :param storage_offset: the offset of the underlying storage of the output *timetensor*.
+    :type storage_offset: ``int``, optional
 
     Example:
 
         >>> ...
-
     """
     return TimeTensor.new_timetensor(
         torch.as_strided(
-            input,
-            size,
-            stride,
-            stride,
+            input.tensor,
+            list(batch_size) + [length] + list(size),
+            list(batch_stride) + [time_stride] + list(stride),
             storage_offset
         ),
-        time_dim=time_dim
+        time_dim=len(batch_size) if batch_size is not None else 0
     )
 # end as_strided
 
@@ -297,12 +304,12 @@ def zeros(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.zeros.html#torch.zeros>`__ on ``zeros()`` for more informations.
 
-    :param size: Size
-    :type size: Tuple[int]
+    :param size: shape of the channel dimensions in the timeseries.
+    :type size: ``tuple`` of ``int``
     :param length: Length of the timeseries
     :type length: int
-    :param batch_size:
-    :type batch_size: tuple of ``int``
+    :param batch_size: shape of the batch dimensions of the timeseries, can be ``None`` if no batch dimensions are requiered.
+    :type batch_size: ``tuple`` or ints, optional
     :param out: the output timetensor.
     :type out: :class:`TimeTensor`, optional
     :param dtype: :class:`TimeTensor` data type
@@ -404,10 +411,10 @@ def ones(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.ones.html#torch.ones>`__ on ``ones()`` for more informations.
 
-    :param size: Size
-    :type size: Tuple[int]
-    :param length: Length of the timeseries
-    :type length: int
+    :param size: shape of the channel dimensions in the timeseries.
+    :type size: ``tuple`` of ``int``
+    :param length: time length of the timeseries.
+    :type length: ``int``
     :param batch_size:
     :type batch_size: tuple of ``int``
     :param out: the output timetensor.
@@ -686,15 +693,15 @@ def logspace(
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.arange.html#torch.logspace>`__ on ``logspace()`` for more informations.
 
     :param start: the starting value of the time related set of points.
-    :type start: float
+    :type start: ``float``
     :param end: the ending value for the time related set of points.
-    :type end: float
+    :type end: ``float``
     :param steps: size of the constructed tensor.
-    :type steps: int
-    :param base:
-    :type base:
+    :type steps: ``int``
+    :param base: base of the logarithm (default: 10)
+    :type base: ``float``, optional
     :param out: the output timetensor.
-    :type out: ``TimeTensor``
+    :type out: ``TimeTensor``, optional
     :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
     :type dtype: ``torch.dtype``, optional
     :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
@@ -750,7 +757,7 @@ def logspace(
 
 # Returns empty tensor
 def empty(
-        size: Tuple[int],
+        *size,
         length: int,
         batch_size: Optional[Tuple[int]] = None,
         out: TimeTensor = None,
@@ -765,12 +772,12 @@ def empty(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.empty.html#torch.empty>`__ on ``empty()`` for more informations.
 
-    :param size: Size
-    :type size: Tuple[int]
-    :param length: Length of the timeseries
+    :param size: shape of the channel dimensions in the timeseries.
+    :type size: ``tuple`` of ``int``
+    :param length: length of the timeseries
     :type length: int
-    :param batch_size:
-    :type batch_size:
+    :param batch_size: shape of the batch dimensions of the timeseries, can be ``None`` if no batch dimensions are requiered.
+    :type batch_size: ``tuple`` or ints, optional
     :param out: the output timetensor.
     :type out: :class:`TimeTensor`, optional
     :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
@@ -791,7 +798,7 @@ def empty(
                      [1., 1., 1.]]], device='cuda:0', dtype=torch.int32)
     """
     return TimeTensor.new_timetensor_with_func(
-        size,
+        *size,
         func=torch.empty,
         length=length,
         batch_size=batch_size,
@@ -877,26 +884,26 @@ def empty_strided(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.empty_strided.html#torch.empty_strided>`__ on ``empty_strided()`` for more informations.
 
-    :param size:
-    :type size:
-    :param stride:
-    :type stride:
-    :param length:
-    :type length:
-    :param time_stride:
-    :type time_stride:
-    :param batch_size:
-    :type batch_size:
-    :param batch_stride:
-    :type batch_stride:
-    :param dtype: :class:`TimeTensor` data type
-    :type dtype: torch.dtype, optional
+    :param size: shape of the channel dimensions in the timeseries.
+    :type size: ``tuple`` of ``int``
+    :param stride: stride of the channels dimensions in the timeseries.
+    :type stride: ``tuple`` or ints
+    :param length: time length of the timeseries.
+    :type length: ``int``
+    :param time_stride: stride of the time dimension.
+    :type time_stride: ``int``
+    :param batch_size: shape of the batch dimensions of the timeseries, can be ``None`` if no batch dimensions are requiered.
+    :type batch_size: ``tuple`` or ints, optional
+    :param batch_stride: stride of the batch dimensions.
+    :type batch_stride: ``tuple`` or ints, optional
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
     :param layout: desired layout of wrapped tensor (default: ``torch.strided``)
     :type layout: torch.layout, optional
-    :param device: Destination device
-    :type device: torch.device, optional
-    :param requires_grad: Activate gradient computation
-    :type requires_grad: bool, optional
+    :param device: the estination device of the wrapped tensor (default: None, current device, see ``torch.set_default_tensor_type()``).
+    :type device: :class:`torch.device`, optional
+    :param requires_grad: Should operations been recorded by autograd for this timetensor?
+    :type requires_grad: `bool`, optional
 
     """
     # Data tensor
@@ -935,14 +942,14 @@ def full(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.full.html#torch.full>`__ on ``full()`` for more informations.
 
-    :param size: Size
-    :type size: Tuple[int]
+    :param size: shape of the channel dimensions in the timeseries.
+    :type size: ``tuple`` of ``int``
     :param fill_value: the value to fill the output timetensor with.
     :type fill_value: Scalar
-    :param length: Length of the timeseries
-    :type length: int
-    :param batch_size: Batch size
-    :type batch_size: ``tuple`` of ``int``
+    :param length: length of the timeseries
+    :type length: ``int``
+    :param batch_size: shape of the batch dimensions of the timeseries, can be ``None`` if no batch dimensions are requiered.
+    :type batch_size: ``tuple`` or ints, optional
     :param out: the output timetensor.
     :type out: :class:`TimeTensor`, optional
     :param dtype: the data type to perform the computation in. Default: if None, uses the global default dtype (see torch.get_default_dtype()) when both start and end are real, and corresponding complex dtype when either is complex.
@@ -952,7 +959,7 @@ def full(
     :param device: the desired device of returned tensor. Default: if None, uses the current device for the default tensor type (see ``torch.set_default_tensor_type()``). device will be the CPU for CPU tensor types and the current CUDA device for CUDA tensor types.
     :type device: ``torch.device``, optional
     :param requires_grad: if autograd should record operations on the returned tensor (default: *False*).
-    :type requires_grad: ``bool``
+    :type requires_grad: ``bool``, optional
 
     Example:
 
@@ -1047,14 +1054,12 @@ def quantize_per_timetensor(
 
     :param input: the index of the time dimension and the size of ``input`` will be used to create the output timetensor.
     :type input: :class:`TimeTensor`
-    :param scale:
+    :param scale: scale to apply in quantization formula.
     :type scale: ``float``
-    :param zero_point:
+    :param zero_point: offset in interger value that maps to float zero.
     :type zero_point: ``int``
-    :param dtype: :class:`TimeTensor` data type
-    :type dtype: torch.dtype, optional
-    :return: A new quantized timetensor
-    :rtype: :class:`TimeTensor`
+    :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
+    :type dtype: :class:`torch.dtype`, optional
 
     Example:
 
@@ -1089,14 +1094,14 @@ def quantize_per_channel(
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.quantize_per_channel.html#torch.quantize_per_channel>`__ on ``quantize_per_channel()`` for more informations.
 
-    :param input:
-    :type input:
-    :param scales:
-    :type scales:
-    :param zero_points:
-    :type zero_points:
-    :param axis:
-    :type axis:
+    :param input: the index of the time dimension and the size of ``input`` will be used to create the output timetensor.
+    :type input: :class:`TimeTensor`
+    :param scales: float 1D tensor of scales to be used which size matches ``input.csize(axis)``.
+    :type scales: ``Tensor``
+    :param zero_points: integer 1D tensor of offset to be used which size matches ``input.csize(axis)``.
+    :type zero_points: ``tensor`` of ``int``
+    :param axis: the channel dimension on which per-channel quantization is applied.
+    :type axis: ``int``
     :param dtype: the desired data type of the wrapped tensor (default: None, infered from ``data``).
     :type dtype: :class:`torch.dtype`, optional
 
@@ -1109,7 +1114,7 @@ def quantize_per_channel(
         input=input.tensor,
         scales=scales,
         zero_points=zero_points,
-        axis=axis,
+        axis=axis + input.time_dim,
         dtype=dtype
     )
 
@@ -1155,21 +1160,34 @@ def complex(
         real: TimeTensor,
         imag: TimeTensor
 ) -> TimeTensor:
-    r"""
+    r"""Returns a complex :class:`TimeTensor` with a ``real`` part and an imaginary ``imag`` part.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.complex.html#torch.complex>`__ on ``complex()`` for more informations.
 
-    :param real: The real part of the complex *timetensor*. Must be float or double.
+    :param real: The real part of the complex *timetensor*. Must be *float* or double.
     :type real: :class:`TimeTensor`
-    :param imag:
-    :type imag:
+    :param imag: The imaginary part of the complex *timetensor*, same *dtype* as ``real``.
+    :type imag: :class:`TimeTensor`
 
     Example:
 
         >>> ...
     """
-    pass
+    # Real and imag must have the same time dim
+    assert real.time_dim == imag.time_dim
+
+    # Data tensor
+    data_tensor = torch.complex(
+        real=real.tensor,
+        imag=imag.tensor
+    )
+
+    # New timetensor
+    return TimeTensor(
+        data=data_tensor,
+        time_dim=real.time_dim
+    )
 # end complex
 
 
@@ -1179,23 +1197,48 @@ def polar(
         angle: TimeTensor,
         out: Optional[TimeTensor] = None,
 ) -> TimeTensor:
-    r"""
+    r"""Returns a complex with Cartesian coordinates corresponding to polar coordinates represented by the absolute
+    value ``abs`` and angle ``angle``.
 
     .. seealso::
         See the `PyTorch documentation <https://pytorch.org/docs/stable/generated/torch.polar.html#torch.polar>`__ on ``polar()`` for more informations.
 
-    :param abs:
-    :type abs:
-    :param angle:
-    :type angle:
-    :param out:
-    :type out:
+    :param abs: absolute values as *float* or *double*.
+    :type abs: :class:`TimeTensor`
+    :param angle: angle values as the same *dtype* as ``abs``.
+    :type angle: :class:`TimeTensor`
+    :param out: the output :class:`TimeTensor`, if ``out`` is a ``torch.float32`` timetensor, ``out`` must be ``torch.complex64`` and  ``torch.complex128`` if ``torch.float64``.
+    :type out: :class:`TimeTensor`
 
     Example:
 
         >>> ...
     """
-    pass
+    # Abs and angle must have the same time dim
+    assert abs.time_dim == angle.time_dim
+
+    # No out
+    if out is None:
+        # Create data
+        data_tensor = torch.polar(
+            abs=abs.tensor,
+            angle=angle.tensor
+        )
+
+        # New timetensor
+        return TimeTensor(
+            data=data_tensor,
+            time_dim=abs.time_dim
+        )
+    else:
+        # Out
+        torch.polar(
+            abs=abs.tensor,
+            angle=angle.tensor,
+            out=out.tensor
+        )
+        return out
+    # end if
 # end polar
 
 
@@ -1477,3 +1520,4 @@ def is_timetensor(obj) -> bool:
 
 
 # endregion UTILITY_OPS
+
