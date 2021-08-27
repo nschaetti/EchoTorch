@@ -438,6 +438,7 @@ def show_1d_timeseries(ts, title, xmin, xmax, ymin, ymax, start=0, timesteps=-1)
     plt.close()
 # end show_1d_timeseries
 
+
 def plot_2D_ellipse(A, colorstring, linewidth, resolution):
     """
     Plots a 2D ellipse centered on 0 whose shape matrix is given by the

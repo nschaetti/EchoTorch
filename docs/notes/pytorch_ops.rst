@@ -10,44 +10,64 @@ This page list the compatibility with the different PyTorch operations on tensor
 Summary
 ~~~~~~~
 
-==========================  =======================================  =======================================================
-PyTorch Ops                 Inputs                                   Outputs
-==========================  =======================================  =======================================================
-:ref:`cat`                  :class:`Tensor` + :class:`TimeTensor`    If one of the ``input`` is a :class:`TimeTensor`, returns a :class:`TimeTensor`. If one of the input is a :class:`TimeTensor`, returns a :class:`TimeTensor`.
-:ref:`chunk`                :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`dsplit`               :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`column_stack`         :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
-:ref:`dstack`               :class:`Tensor` + :class:`TimeTensor`    The index of the time dimension of a 0-D timeseries will increase from 0 to 1, otherwise it will stay the same.
-:ref:`gather`               :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`hsplit`               :class:`TimeTensor`                      Output :class:`TimeTensor` (s) will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`hstack`               :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
-:ref:`index_select`         :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`masked_select`        :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
-:ref:`movedim`              :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved ``source`` or ``destination`` is equal to the index of the time dimension.
-:ref:`moveaxis`             :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved ``source`` or ``destination`` is equal to the index of the time dimension.
-:ref:`narrow`               True                                     True
-:ref:`nonzero`              True                                     True
-:ref:`reshape`              :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
-:ref:`row_stack`            :class:`Tensor` + :class:`TimeTensor`    True
-:ref:`scatter`              True                                     True
-:ref:`scatter_add`          True                                     True
-:ref:`split`                True                                     True
-:ref:`squeeze`              True                                     True
-:ref:`stack`                True                                     Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
-:ref:`swapaxes`             True                                     See :func:`torch.tranpose`
-:ref:`swapdims`             True                                     See :func:`torch.tranpose`
-:ref:`t`                    True                                     True
-:ref:`take`                 :class:`torch.Tensor`                    This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
-:ref:`take_along_dim`       :class:`torch.Tensor`                    This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
-:ref:`tensor_split`         True                                     True
-:ref:`tile`                 True                                     True
-:ref:`transpose`            True                                     True
-:ref:`unbind`               True                                     Output :class:`TimeTensor` (s) will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`unsqueeze`            True                                     True
-:ref:`vsplit`               True                                     True
-:ref:`vstack`               :class:`Tensor` + :class:`TimeTensor`    True
-:ref:`where`                True                                     True
-==========================  =======================================  =======================================================
+Indexing, Slicing, Joining, Mutating Ops
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+===============================  =======================================  =======================================================
+PyTorch Ops                      Inputs                                   Outputs
+===============================  =======================================  =======================================================
+:ref:`cat`                       :class:`Tensor` + :class:`TimeTensor`    If one of the ``input`` is a :class:`TimeTensor`, returns a :class:`TimeTensor`. If one of the input is a :class:`TimeTensor`, returns a :class:`TimeTensor`.
+:ref:`chunk`                     :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`dsplit`                    :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`column_stack`              :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
+:ref:`dstack`                    :class:`Tensor` + :class:`TimeTensor`    The index of the time dimension of a 0-D timeseries will increase from 0 to 1, otherwise it will stay the same.
+:ref:`gather`                    :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`hsplit`                    :class:`TimeTensor`                      Output :class:`TimeTensor` (s) will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`hstack`                    :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
+:ref:`index_select`              :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`masked_select`             :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
+:ref:`movedim`                   :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved ``source`` or ``destination`` is equal to the index of the time dimension.
+:ref:`moveaxis`                  :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved ``source`` or ``destination`` is equal to the index of the time dimension.
+:ref:`narrow`                    TODO                                     TODO
+:ref:`nonzero`                   TODO                                     TODO
+:ref:`reshape`                   :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
+:ref:`row_stack`                 :class:`Tensor` + :class:`TimeTensor`    TODO
+:ref:`scatter`                   TODO                                     TODO
+:ref:`scatter_add`               TODO                                     TODO
+:ref:`split`                     TODO                                     TODO
+:ref:`squeeze`                   TODO                                     TODO
+:ref:`stack`                     TODO                                     Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
+:ref:`swapaxes`                  TODO                                     See :func:`torch.transpose`
+:ref:`swapdims`                  TODO                                     See :func:`torch.transpose`
+:ref:`t`                         TODO                                     TODO
+:ref:`take`                      :class:`torch.Tensor`                    This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
+:ref:`take_along_dim`            :class:`torch.Tensor`                    This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
+:ref:`tensor_split`              TODO                                     TODO
+:ref:`tile`                      TODO                                     TODO
+:ref:`transpose`                 TODO                                     TODO
+:ref:`unbind`                    TODO                                     Output :class:`TimeTensor` (s) will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`unsqueeze`                 TODO                                     TODO
+:ref:`vsplit`                    TODO                                     TODO
+:ref:`vstack`                    :class:`Tensor` + :class:`TimeTensor`    TODO
+:ref:`where`                     TODO                                     TODO
+===============================  =======================================  =======================================================
+
+Other operations
+^^^^^^^^^^^^^^^^
+
+=============================================================  ===============================================================  =======================================
+PyTorch Ops                                                    Inputs                                                           Outputs
+=============================================================  ===============================================================  =======================================
+:ref:`atleast_1d`                                              :class:`TimeTensor`                                              :class:`TimeTensor` are already at least 1D, this operation returns the same timetensor.
+:ref:`atleast_2d`                                              :class:`TimeTensor`                                              When ``input`` is a 0-D timeseries, a batch dimension is added and the index of the time dimension is incremented by 1.
+:ref:`atleast_3d`                                              :class:`TimeTensor`                                              When ``input`` is a 0-D timeseries, a batch and a channel dimension are added and the index of the time dimension is incremented by 1. When ``input`` is a 1-D timeseries, only the channel dimension is added a not increment is made to the index of the time dimension.
+:ref:`bincount`                                                :class:`TimeTensor`                                              This operation destroys the time dimension, it then returns a :class:`Tensor`.
+:ref:`block_diag`                                              :class:`torch.Tensor` + :class:`TimeTensor`                      Returns a :class:`TimeTensor` with the index of the time dimension of the first timetensor in the list.
+:ref:`broadcast_tensors`                                       :class:`torch.Tensor` + :class:`TimeTensor`                      :class:`TimeTensor` in the ``input`` list is returned broadcasted as a :class:`TimeTensor` with same time index, :class:`Tensor` are returned broadcasted as :class:`Tensor`.
+:ref:`broadcast_to`                                            :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`cartesian_prod`                                          :class:`torch.Tensor` + :class:`TimeTensor`                      Output :class:`TimeTensor` will have an time dimension index set to 0.
+:ref:`clone`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have an time dimension index set to 0.
+=============================================================  ===============================================================  =======================================
 
 .. _Indexing, Slicing, Joining, Mutating Ops:
 
@@ -121,9 +141,57 @@ To stack :class:`torch.Tensor` and :class:`TimeTensor` on the time dimension, se
 dstack
 ^^^^^^
 
-.. _slicing_indexing:
+.. _Others:
 
+Other operations
+~~~~~~~~~~~~~~~~
 
-``slicing_indexing``
-~~~~~~~~~~~~~~~~~~~~
+.. _atleast_1d:
 
+atleast_1d
+^^^^^^^^^^
+
+.. _atleast_2d:
+
+atleast_2d
+^^^^^^^^^^
+
+.. _atleast_3d:
+
+atleast_3d
+^^^^^^^^^^
+
+.. _bincount:
+
+bincount
+^^^^^^^^
+
+.. _block_diag:
+
+block_diag
+^^^^^^^^^^
+
+.. _broadcast_tensors:
+
+broadcast_tensors
+^^^^^^^^^^^^^^^^^
+
+.. _broadcast_to:
+
+broadcast_to
+^^^^^^^^^^^^
+
+.. _bucketize:
+
+bucketize
+^^^^^^^^^
+
+.. _cartesian_prod:
+
+cartesian_prod
+^^^^^^^^^^^^^^
+
+.. _clone:
+
+clone
+^^^^^

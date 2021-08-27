@@ -41,8 +41,11 @@ ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 
 # Torch ops which can be directly converted to timetensors
 TORCH_OPS_DIRECT = [
+    # Indexing, etc
     'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
-    'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where'
+    'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
+    # Other
+    'atleast_1d', 'block_diag', 'broadcast_to', 'bucketize', 'clone'
 ]
 
 # List of torch ops implemented, if not in this list, we print a warning
@@ -52,8 +55,13 @@ TORCH_OPS_IMPLEMENTED = [
     'movedim', 'moveaxis', 'narrow', 'nonzero', 'reshape', 'row_stack', 'scatter', 'scatter_add', "split", 'squeeze',
     'stack', 'swapaxes', 'swapdims', 't', 'atleast_3d', 'take', 'take_along_dim', 'tensor_split', 'tile', 'transpose',
     'unbind', 'unsqueeze', 'vsplit', 'vstack', 'where',
+    # Other operations,
+    'atleast_1d', 'atleast_2d', 'atleast_3d', 'bincount', 'block_diag', 'broadcast_tensors', 'broadcast_to',
+    'bucketize', 'cartesian_prod', 'cdist',
     # Reduction ops
-    'argmax'
+    'argmax', 'mean', 'std', 'var',
+    # BLAS and LAPACK
+    'mm'
 ]
 
 
@@ -303,6 +311,8 @@ class TimeTensor(BaseTensor):
 
     # region TORCH_FUNCTION
 
+    # region TORCH_INDEXING
+
     # After dstack
     def after_dstack(
             self,
@@ -529,6 +539,33 @@ class TimeTensor(BaseTensor):
         # end if
     # end after_vstack
 
+    # endregion TORCH_INDEXING
+
+    # region TORCH_OTHER
+
+    # After atleast_2d
+    def after_atleast_2d(
+            self,
+            func_output: Any,
+            *ops_inputs,
+            dim: int = 0
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.atleast_2d`.
+        """
+        # 0-D timeseries
+        if self.ndim == 1:
+            return TimeTensor(
+                data=func_output,
+                time_dim=1
+            )
+        else:
+            return TimeTensor(
+                data=func_output,
+                time_dim=self._time_dim
+            )
+        # end if
+    # end after_atleast_2d
+
     # After atleast_3d
     def after_atleast_3d(
             self,
@@ -551,6 +588,103 @@ class TimeTensor(BaseTensor):
             )
         # end if
     # end after_atleast_3d
+
+    # After broadcast_tensors
+    def after_broadcast_tensors(
+            self,
+            func_output,
+            *tensors
+    ) -> Tuple['TimeTensor']:
+        r"""After :func:`torch.broadcast_tensors`.
+        """
+        output_list = list()
+        for t_i, tensor in enumerate(func_output):
+            if isinstance(tensors[t_i], TimeTensor):
+                output_list.append(
+                    TimeTensor(
+                        data=tensor,
+                        time_dim=tensors[t_i].time_dim
+                    )
+                )
+            else:
+                output_list.append(tensor)
+            # end if
+        # end for
+        return tuple(output_list)
+    # end after_broadcast_tensors
+
+    # After cartesian_prod
+    def after_cartesian_prod(
+            self,
+            func_output,
+            *tensors
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.cartesian_prod`.
+        """
+        return TimeTensor(
+            data=func_output,
+            time_dim=0
+        )
+    # end after_cartesian_prod
+
+    # After cdist
+    def after_cdist(
+            self,
+            func_output,
+            *tensors,
+            p=2.0,
+            compute_mode='use_mm_for_euclid_dist_if_necessary'
+    ) -> Union[torch.Tensor, 'TimeTensor']:
+        r"""After :func:`torch.cdist`.
+        """
+        if self is tensors[0]:
+            if self.time_dim in [0, 1]:
+                return TimeTensor(
+                    data=func_output,
+                    time_dim=self.time_dim
+                )
+            else:
+                return func_output
+            # end if
+        else:
+            if self.time_dim == 0:
+                return TimeTensor(
+                    data=func_output,
+                    time_dim=0
+                )
+            elif self.time_dim == 1:
+                return TimeTensor(
+                    data=func_output,
+                    time_dim=2
+                )
+            else:
+                return func_output
+            # end if
+        # end if
+    # end after_cdist
+
+    # endregion TORCH_OTHER
+
+    # region TORCH_BLAS_LAPACK
+
+    # After mm (matrix multiplication)
+    def mm(
+            self,
+            func_output: Any,
+            m1,
+            m2
+    ) -> Union['TimeTensor', torch.Tensor]:
+        r"""After mm (matrix multiplication)
+
+        :param m1: first tensor.
+        :type m1: :class:`TimeTensor` or ``torch.Tensor``
+        :param m2: second tensor.
+        :type m2: :class:`TimeTensor` or ``torch.Tensor``
+        """
+        return func_output
+    # end mm
+
+    # endregion TORCH_BLAS_LAPACK
 
     # Transform to timetensor
     def transform_to_timetensors(
@@ -598,23 +732,6 @@ class TimeTensor(BaseTensor):
             # end if
         # end for
     # end check_time_dim
-
-    # After mm (matrix multiplication)
-    def mm(
-            self,
-            func_output: Any,
-            m1,
-            m2
-    ) -> Union['TimeTensor', torch.Tensor]:
-        r"""After mm (matrix multiplication)
-
-        :param m1: first tensor.
-        :type m1: :class:`TimeTensor` or ``torch.Tensor``
-        :param m2: second tensor.
-        :type m2: :class:`TimeTensor` or ``torch.Tensor``
-        """
-        return func_output
-    # end mm
 
     # Transpose
     # def t(self) -> 'TimeTensor':
