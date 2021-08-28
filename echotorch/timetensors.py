@@ -44,6 +44,17 @@ TORCH_OPS_DIRECT = [
     # Indexing, etc
     'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
     'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
+    # Pointwise operations,
+    'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
+    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
+    'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
+    'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
+    'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
+    'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
+    'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
+    ''
+    # logaddexp, logaddexp2
+    'logical_and', 'logical_not', 'logical_or', 'logical_xor', ''
     # Other
     'atleast_1d', 'block_diag', 'broadcast_to', 'bucketize', 'clone'
 ]
@@ -55,6 +66,8 @@ TORCH_OPS_IMPLEMENTED = [
     'movedim', 'moveaxis', 'narrow', 'nonzero', 'reshape', 'row_stack', 'scatter', 'scatter_add', "split", 'squeeze',
     'stack', 'swapaxes', 'swapdims', 't', 'atleast_3d', 'take', 'take_along_dim', 'tensor_split', 'tile', 'transpose',
     'unbind', 'unsqueeze', 'vsplit', 'vstack', 'where',
+    # Pointwise operations,
+    'abs', 'absolute',
     # Other operations,
     'atleast_1d', 'atleast_2d', 'atleast_3d', 'bincount', 'block_diag', 'broadcast_tensors', 'broadcast_to',
     'bucketize', 'cartesian_prod', 'cdist',
