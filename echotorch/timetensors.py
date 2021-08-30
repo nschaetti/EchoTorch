@@ -38,26 +38,166 @@ ERROR_TIME_LENGTHS_TOO_BIG = "There is time lengths which are bigger than the ac
 ERROR_WRONG_TIME_LENGTHS_SIZES = "The sizes of the time lengths tensor should be {}"
 ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 
+# Torch overridable methods
+# TORCH_OPS = [
+#     'abs', 'absolute', 'adaptive_avg_pool1d', 'adaptive_max_pool1d', 'acos', 'arccos', 'acosh', 'arccosh', 'add',
+#     'addbmm', 'addcdiv', 'addcmul', 'addmm', 'addmv', 'addr', 'affine_grid_generator', 'all', 'allclose',
+#     'alpha_dropout', 'amax', 'amin', 'angle', 'any', 'argmax', 'argmin', 'argsort', 'asin', '_assert_async', 'arcsin',
+#     'asinh', 'arcsinh', 'atan', 'arctan', 'atan2', 'atanh', 'arctanh', 'atleast_1d', 'atleast_2d', 'atleast_3d',
+#     'avg_pool1d', 'baddbmm', 'batch_norm', 'batch_norm_backward_elemt', 'batch_norm_backward_reduce',
+#     'batch_norm_elemt', 'batch_norm_gather_stats', 'batch_norm_gather_stats_with_counts', 'batch_norm_stats',
+#     'batch_norm_update_stats', 'bernoulli', 'bilinear', 'binary_cross_entropy_with_logits', 'bincount', 'binomial',
+#     'bitwise_and', 'bitwise_not', 'bitwise_or', 'bitwise_xor', 'block_diag', 'bmm', 'broadcast_tensors',
+#     'broadcast_to', 'bucketize', 'cartesian_prod', 'cat', 'cdist', 'ceil', 'celu', 'chain_matmul', 'channel_shuffle',
+#     'cholesky', 'linalg_cholesky', 'linalg_cholesky_ex', 'cholesky_inverse', 'cholesky_solve',
+#     'choose_qparams_optimized', 'chunk', 'clamp', 'clip', 'clamp_min', 'clamp_max', 'column_stack', 'clone',
+#     'combinations', 'complex', 'copysign', 'polar', 'linalg_cond', 'conj', 'constant_pad_nd', 'conv1d', 'conv2d',
+#     'conv3d', 'convolution', 'conv_tbc', 'conv_transpose1d', 'conv_transpose2d', 'conv_transpose3d', 'cos',
+#     'cosine_embedding_loss', 'cosh', 'cosine_similarity', 'count_nonzero', 'cross', 'ctc_loss', 'cummax', 'cummin',
+#     'cumprod', 'cumsum', 'logcumsumexp', 'deg2rad', 'dequantize', 'det', 'linalg_det', 'detach', 'diag', 'diag_embed',
+#     'diagflat', 'diff', 'diagonal', 'digamma', 'dist', 'div', 'divide', 'dot', 'dropout', 'dsmm', 'hsmm', 'dsplit',
+#     'dstack', 'eig', 'linalg_eig', 'linalg_eigvals', 'linalg_eigh', 'linalg_eigvalsh', 'einsum', 'embedding',
+#     'embedding_bag', 'empty_like', 'eq', 'equal', 'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1',
+#     'fake_quantize_per_channel_affine', 'fake_quantize_per_tensor_affine', 'fbgemm_linear_fp16_weight',
+#     'fbgemm_linear_fp16_weight_fp32_activation', 'fbgemm_linear_int8_weight',
+#     'fbgemm_linear_int8_weight_fp32_activation', 'fbgemm_linear_quantize_weight', 'fbgemm_pack_gemm_matrix_fp16',
+#     'fbgemm_pack_quantized_matrix', 'feature_alpha_dropout', 'feature_dropout', 'fft_fft', 'fft_ifft', 'fft_rfft',
+#     'fft_irfft', 'fft_hfft', 'fft_ihfft', 'fft_fftn', 'fft_ifftn', 'fft_rfftn', 'fft_irfftn', 'fft_fft2', 'fft_ifft2',
+#     'fft_rfft2', 'fft_irfft2', 'fft_fftshift', 'fft_ifftshift', 'fix', 'flatten', 'flip', 'fliplr', 'flipud',
+#     'frobenius_norm', 'floor', 'floor_divide', 'float_power', 'fmod', 'frac', 'frexp', 'full_like', 'lu_unpack',
+#     'gather', 'gcd', 'ge', 'greater_equal', 'geqrf', 'i0', 'inner', 'outer', 'ger', 'gradient', 'grid_sampler',
+#     'grid_sampler_2d', 'grid_sampler_3d', 'group_norm', 'gru', 'gru_cell', 'gt', 'greater', 'hardshrink', 'heaviside',
+#     'hinge_embedding_loss', 'histc', 'linalg_householder_product', 'hsplit', 'hstack', 'hypot', 'igamma', 'igammac',
+#     'imag', 'index_add', 'index_copy', 'index_put', 'index_select', 'index_fill', 'isfinite', 'isinf', 'isreal',
+#     'isposinf', 'isneginf', 'instance_norm', 'int_repr', 'inverse', 'linalg_inv', 'linalg_inv_ex', 'is_complex',
+#     'is_distributed', 'is_floating_point', 'is_nonzero', 'is_same_size', 'is_signed', 'isclose', 'isnan', 'istft',
+#     'kl_div', 'kron', 'kthvalue', 'layer_norm', 'lcm', 'ldexp', 'le', 'less_equal', 'lerp', 'lgamma', 'lobpcg', 'log',
+#     'log_softmax', 'log10', 'log1p', 'log2', 'logaddexp', 'logaddexp2', 'logdet', 'xlogy', 'logical_and',
+#     'logical_not', 'logical_or', 'logical_xor', 'logsumexp', 'logit', 'lstm', 'lstm_cell', 'lstsq', 'lt', 'less',
+#     'lu', 'lu_solve', 'margin_ranking_loss', 'masked_fill', 'masked_scatter', 'masked_select', 'matmul',
+#     'matrix_power', 'linalg_matrix_power', 'matrix_rank', 'linalg_matrix_rank', 'linalg_multi_dot', 'matrix_exp',
+#     'max', 'maximum', 'fmax', 'max_pool1d', 'max_pool2d', 'max_pool3d', 'max_pool1d_with_indices', 'mean', 'median',
+#     'nanmedian', 'meshgrid', 'min', 'minimum', 'fmin', 'miopen_batch_norm', 'miopen_convolution',
+#     'miopen_convolution_transpose', 'miopen_depthwise_convolution', 'miopen_rnn', 'mode', 'movedim', 'moveaxis',
+#     'msort', 'mul', 'multiply', 'multinomial', 'mv', 'mvlgamma', 'narrow', 'narrow_copy', 'nan_to_num',
+#     'native_batch_norm', 'native_layer_norm', 'native_group_norm', 'native_norm', 'ne', 'not_equal', 'neg',
+#     'negative', 'nextafter', 'adaptive_avg_pool2d', 'adaptive_avg_pool3d', 'adaptive_max_pool1d',
+#     'adaptive_max_pool1d_with_indices', 'adaptive_max_pool2d', 'adaptive_max_pool2d_with_indices',
+#     'adaptive_max_pool3d', 'adaptive_max_pool3d_with_indices', 'affine_grid', 'alpha_dropout', 'avg_pool2d',
+#     'avg_pool3d', 'batch_norm', 'bilinear', 'binary_cross_entropy', 'binary_cross_entropy_with_logits', 'celu',
+#     'cosine_embedding_loss', 'cross_entropy', 'ctc_loss', 'dropout', 'dropout2d', 'dropout3d', 'elu', 'embedding',
+#     'embedding_bag', 'feature_alpha_dropout', 'fold', 'fractional_max_pool2d', 'fractional_max_pool2d_with_indices',
+#     'fractional_max_pool3d', 'fractional_max_pool3d_with_indices', 'gaussian_nll_loss', 'gelu', 'glu', 'grid_sample',
+#     'group_norm', 'gumbel_softmax', 'hardshrink', 'hardtanh', 'hinge_embedding_loss', 'instance_norm', 'interpolate',
+#     'kl_div', 'l1_loss', 'layer_norm', 'leaky_relu', 'linear', 'local_response_norm', 'log_softmax', 'log_sigmoid',
+#     'lp_pool1d', 'lp_pool2d', 'margin_ranking_loss', 'max_pool1d', 'max_pool1d_with_indices', 'max_pool2d',
+#     'max_pool2d_with_indices', 'max_pool3d', 'max_pool3d_with_indices', 'max_unpool1d', 'max_unpool2d', 'max_unpool3d',
+#     'mse_loss', 'multi_head_attention_forward', 'multi_margin_loss', 'multilabel_margin_loss',
+#     'multilabel_soft_margin_loss', 'nll_loss', 'normalize', 'one_hot', '_pad', 'pairwise_distance',
+#     'poisson_nll_loss', 'prelu', 'relu', 'relu6', 'rrelu', 'selu', 'silu', 'mish', 'smooth_l1_loss', 'huber_loss',
+#     'soft_margin_loss', 'softmax', 'softmin', 'softplus', 'softshrink', 'softsign', 'tanhshrink', '_threshold',
+#     'triplet_margin_loss', 'triplet_margin_with_distance_loss', 'unfold', 'nonzero', 'norm', 'linalg_norm',
+#     'linalg_vector_norm', 'linalg_matrix_norm', 'norm_except_dim', 'nuclear_norm', 'numel', 'orgqr', 'ormqr',
+#     'pairwise_distance', 'permute', 'pca_lowrank', 'pdist', 'pinverse', 'linalg_pinv', 'pixel_shuffle',
+#     'pixel_unshuffle', 'poisson', 'poisson_nll_loss', 'polygamma', 'positive', 'prelu', 'ones_like', 'pow', 'prod',
+#     'put', 'q_per_channel_axis', 'q_per_channel_scales', 'q_per_channel_zero_points', 'q_scale', 'q_zero_point', 'qr',
+#     'linalg_qr', 'quantile', 'nanquantile', 'quantize_per_channel', 'quantize_per_tensor', 'quantized_batch_norm',
+#     'quantized_gru_cell', 'quantized_lstm_cell', 'quantized_max_pool1d', 'quantized_max_pool2d',
+#     'quantized_rnn_relu_cell', 'quantized_rnn_tanh_cell', 'rad2deg', 'rand_like', 'randint_like', 'randn_like',
+#     'ravel', 'real', 'vdot', 'view_as_real', 'view_as_complex', 'reciprocal', 'relu', 'remainder', 'renorm',
+#     'repeat_interleave', 'reshape', 'rnn_relu', 'rnn_relu_cell', 'rnn_tanh', 'rnn_tanh_cell', 'roll', 'rot90',
+#     'round', 'row_stack', '_rowwise_prune', 'rrelu', 'rsqrt', 'rsub', 'saddmm', 'scatter', 'scatter_add',
+#     'searchsorted', 'segment_reduce', 'select', 'selu', 'sigmoid', 'sign', 'signbit', 'sgn', 'sin', 'sinc', 'sinh',
+#     'slogdet', 'linalg_slogdet', 'smm', 'softmax', 'solve', 'linalg_solve', 'sort', 'split', 'split_with_sizes',
+#     'sqrt', 'square', 'squeeze', 'stack', 'std', 'std_mean', 'stft', 'sub', 'subtract', 'sum', 'nansum', 'svd',
+#     'svd_lowrank', 'linalg_svd', 'linalg_svdvals', 'symeig', 'swapaxes', 'swapdims', 'special_entr', 'special_erf',
+#     'special_erfc', 'special_erfinv', 'special_exp2', 'special_expm1', 'special_expit', 'special_gammaln',
+#     'special_i0e', 'special_logit', 'special_xlog1py', 't', 'take', 'take_along_dim', 'tan', 'tanh',
+#     'linalg_tensorinv', 'linalg_tensorsolve', 'tensordot', 'tensor_split', 'threshold', 'tile', 'topk', 'trace',
+#     'transpose', 'trapz', 'triangular_solve', 'tril', 'triplet_margin_loss', 'triu', 'true_divide', 'trunc', 'unbind',
+#     'unique', 'unique_consecutive', 'unsafe_chunk', 'unsafe_split', 'unsafe_split_with_sizes', 'unsqueeze', 'var',
+#     'var_mean', 'vsplit', 'vstack', 'where', 'zeros_like', '__floordiv__', '__rfloordiv__', '__ifloordiv__',
+#     '__truediv__', '__rdiv__', '__idiv__', '__lshift__', '__ilshift__', '__rshift__', '__irshift__', '__float__',
+#     '__complex__', '__array__', '__bool__', '__contains__', 'neg', '__invert__', '__mod__', '__imod__',
+#     '__array_wrap__', '__getitem__', '__deepcopy__', '__int__', '__long__', '__hash__', '__index__', '__len__',
+#     '__format__', '__reduce_ex__', '__reversed__', '__repr__', '__setitem__', '__setstate__', '__get__', 'type',
+#     '_coalesced_', '_dimI', '_dimV', '_indices', '_is_view', '_nnz', 'crow_indices', 'col_indices',
+#     '_update_names', '_values', 'align_as', 'align_to', 'apply_', 'as_strided', 'as_strided_', 'backward', 'bfloat16',
+#     'bool', 'byte', 'char', 'cauchy_', 'coalesce', 'contiguous', 'copy_', 'cpu', 'cuda', 'xpu', 'data_ptr',
+#     'dense_dim', 'dim', 'double', 'cdouble', 'element_size', 'expand', 'expand_as', 'exponential_', 'fill_',
+#     'fill_diagonal_', 'float', 'cfloat', 'geometric_', 'get_device', 'half', 'has_names', 'indices', 'int',
+#     'is_coalesced', 'is_contiguous', 'is_pinned', 'is_set_to', 'is_shared', 'item', 'log_normal_', 'log_softmax',
+#     'long', 'map_', 'map2_', 'mm', 'narrow_copy', 'ndimension', 'nelement', 'normal_', 'numpy', 'permute',
+#     'pin_memory', 'put_', 'qscheme', 'random_', 'record_stream', 'refine_names', 'register_hook', 'rename', 'repeat',
+#     'requires_grad_', 'reshape_as', 'resize', 'resize_', 'resize_as', 'retain_grad', 'set_', 'share_memory_',
+#     'short', 'size', 'sparse_dim', 'sparse_mask', 'sparse_resize_', 'sparse_resize_and_clear_', 'sspaddmm', 'storage',
+#     'storage_offset', 'storage_type', 'sum_to_size', 'tile', 'to', 'to_dense', 'to_sparse', 'tolist', 'to_mkldnn',
+#     'type_as', 'unfold', 'uniform_', 'values', 'view', 'view_as', 'zero_', 'linalg_lstsq', 'abs', 'abs_', 'absolute',
+#     'absolute_', 'acos', 'acos_', 'arccos', 'arccos_', 'acosh', 'acosh_', 'arccosh', 'arccosh_', 'add', 'add_',
+#     '__add__', '__iadd__', '__radd__', 'addbmm', 'addbmm_', 'addcdiv', 'addcdiv_', 'addcmul', 'addcmul_', 'addmm',
+#     'addmm_', 'addmv', 'addmv_', 'addr', 'addr_', 'all', 'allclose', 'amax', 'amin', 'angle', 'any', 'argmax',
+#     'argmin', 'argsort', 'asin', 'asin_', 'arcsin', 'arcsin_', 'asinh', 'asinh_', 'arcsinh', 'arcsinh_', 'atan',
+#     'atan_', 'arctan', 'arctan_', 'atan2', 'atan2_', 'atanh', 'atanh_', 'arctanh', 'arctanh_', 'baddbmm', 'baddbmm_',
+#     'bernoulli', 'bernoulli_', 'bincount', 'bitwise_and', 'bitwise_and_', '__and__', '__iand__', 'bitwise_not',
+#     'bitwise_not_', 'bitwise_or', 'bitwise_or_', '__or__', '__ior__', 'bitwise_xor', 'bitwise_xor_', '__xor__',
+#     '__ixor__', 'bmm', 'broadcast_to', 'ceil', 'ceil_', 'cholesky', 'cholesky_inverse', 'cholesky_solve', 'chunk',
+#     'clamp', 'clamp_', 'clip', 'clip_', 'clamp_min', 'clamp_min_', 'clamp_max', 'clamp_max_', 'clone', 'copysign',
+#     'copysign_', 'conj', 'cos', 'cos_', 'cosh', 'cosh_', 'count_nonzero', 'cross', 'cummax', 'cummin', 'cumprod',
+#     'cumprod_', 'cumsum', 'cumsum_', 'logcumsumexp', 'deg2rad', 'deg2rad_', 'dequantize', 'det', 'detach', 'detach_',
+#     'diag', 'diag_embed', 'diagflat', 'diff', 'diagonal', 'digamma', 'digamma_', 'dist', 'div', 'div_', '__div__',
+#     'divide', 'divide_', 'dot', 'dsplit', 'eig', 'eq', 'eq_', '__eq__', 'equal', 'erf', 'erf_', 'erfc', 'erfc_',
+#     'erfinv', 'erfinv_', 'exp', 'exp_', 'exp2', 'exp2_', 'expm1', 'expm1_', 'fix', 'fix_', 'flatten', 'flip', 'fliplr',
+#     'flipud', 'floor', 'floor_', 'floor_divide', 'floor_divide_', 'float_power', 'float_power_', 'fmod', 'fmod_',
+#     'frac', 'frac_', 'frexp', 'gather', 'gcd', 'gcd_', 'ge', 'ge_', '__ge__', 'greater_equal', 'greater_equal_',
+#     'geqrf', 'i0', 'i0_', 'inner', 'outer', 'ger', 'gt', 'gt_', '__gt__', 'greater', 'greater_', 'hardshrink',
+#     'heaviside', 'heaviside_', 'histc', 'hsplit', 'hypot', 'hypot_', 'igamma', 'igamma_', 'igammac', 'igammac_',
+#     'index_add', 'index_add_', 'index_copy', 'index_copy_', 'index_put', 'index_put_', 'index_select', 'index_fill',
+#     'index_fill_', 'isfinite', 'isinf', 'isreal', 'isposinf', 'isneginf', 'int_repr', 'inverse', 'is_complex',
+#     'is_distributed', 'is_floating_point', 'is_nonzero', 'is_same_size', 'is_signed', 'isclose', 'isnan', 'istft',
+#     'kron', 'kthvalue', 'lcm', 'lcm_', 'ldexp', 'ldexp_', 'le', 'le_', '__le__', 'less_equal', 'less_equal_',
+#     'lerp', 'lerp_', 'lgamma', 'lgamma_', 'log', 'log_', 'log10', 'log10_', 'log1p', 'log1p_', 'log2', 'log2_',
+#     'logaddexp', 'logaddexp2', 'logdet', 'xlogy', 'xlogy_', 'logical_and', 'logical_and_', 'logical_not',
+#     'logical_not_', 'logical_or', 'logical_or_', 'logical_xor', 'logical_xor_', 'logsumexp', 'logit', 'logit_',
+#     'lstsq', 'lt', 'lt_', '__lt__', 'less', 'less_', 'lu', 'lu_solve', 'masked_fill', 'masked_fill_',
+#     'masked_scatter', 'masked_scatter_', 'masked_select', 'matmul', '__matmul__', 'matrix_power', 'matrix_exp',
+#     'max', 'maximum', 'fmax', 'mean', 'median', 'nanmedian', 'min', 'minimum', 'fmin', 'mode', 'movedim', 'moveaxis',
+#     'msort', 'mul', 'mul_', '__mul__', '__imul__', '__rmul__', 'multiply', 'multiply_', 'multinomial', 'mv',
+#     'mvlgamma', 'mvlgamma_', 'narrow', 'nan_to_num', 'nan_to_num_', 'ne', 'ne_', '__ne__', 'not_equal', 'not_equal_',
+#     'neg_', 'negative', 'negative_', 'nextafter', 'nextafter_', 'prelu', 'relu', 'relu_', 'softmax', 'nonzero',
+#     '__nonzero__', 'norm', 'numel', 'orgqr', 'ormqr', 'pinverse', 'polygamma', 'polygamma_', 'positive', 'pow',
+#     'pow_', '__ipow__', '__rpow__', 'prod', 'put', 'q_per_channel_axis', 'q_per_channel_scales',
+#     'q_per_channel_zero_points', 'q_scale', 'q_zero_point', 'qr', 'quantile', 'nanquantile', 'rad2deg', 'rad2deg_',
+#     'ravel', 'vdot', 'reciprocal', 'reciprocal_', 'remainder', 'remainder_', 'renorm', 'renorm_',
+#     'repeat_interleave', 'reshape', 'roll', 'rot90', 'round', 'round_', 'rsqrt', 'rsqrt_', '__rsub__', 'scatter',
+#     'scatter_', 'scatter_add', 'scatter_add_', 'select', 'sigmoid', 'sigmoid_', 'sign', 'sign_', 'signbit', 'sgn',
+#     'sgn_', 'sin', 'sin_', 'sinc', 'sinc_', 'sinh', 'sinh_', 'slogdet', 'smm', 'solve', 'sort', 'split',
+#     'split_with_sizes', 'sqrt', 'sqrt_', 'square', 'square_', 'squeeze', 'squeeze_', 'std', 'stft', 'sub', 'sub_',
+#     '__sub__', '__isub__', 'subtract', 'subtract_', 'sum', 'nansum', 'svd', 'symeig', 'swapaxes', 'swapaxes_',
+#     'swapdims', 'swapdims_', 't', 't_', 'take', 'take_along_dim', 'tan', 'tan_', 'tanh', 'tanh_', 'tensor_split',
+#     'topk', 'trace', 'transpose', 'transpose_', 'triangular_solve', 'tril', 'tril_', 'triu', 'triu_', 'true_divide',
+#     'true_divide_', 'trunc', 'trunc_', 'unbind', 'unique', 'unique_consecutive', 'unsafe_chunk', 'unsafe_split',
+#     'unsafe_split_with_sizes', 'unsqueeze', 'unsqueeze_', 'var', 'vsplit', 'where', 'rename_', 'resize_as_'
+# ]
 
 # Torch ops which can be directly converted to timetensors
-TORCH_OPS_DIRECT = [
-    # Indexing, etc
-    'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
-    'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
-    # Pointwise operations,
-    'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
-    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
-    'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
-    'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
-    'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
-    'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
-    'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
-    ''
-    # logaddexp, logaddexp2
-    'logical_and', 'logical_not', 'logical_or', 'logical_xor', ''
-    # Other
-    'atleast_1d', 'block_diag', 'broadcast_to', 'bucketize', 'clone'
-]
+# TORCH_OPS_DIRECT = [
+#     # Indexing, etc
+#     'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
+#     'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
+#     # Pointwise operations,
+#     'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
+#     'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
+#     'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
+#     'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
+#     'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
+#     'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
+#     'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
+#     ''
+#     # logaddexp, logaddexp2
+#     'logical_and', 'logical_not', 'logical_or', 'logical_xor',
+#     # Other
+#     'atleast_1d', 'block_diag', 'broadcast_to', 'bucketize', 'clone'
+# ]
 
 # List of torch ops implemented, if not in this list, we print a warning
 TORCH_OPS_IMPLEMENTED = [
@@ -67,14 +207,42 @@ TORCH_OPS_IMPLEMENTED = [
     'stack', 'swapaxes', 'swapdims', 't', 'atleast_3d', 'take', 'take_along_dim', 'tensor_split', 'tile', 'transpose',
     'unbind', 'unsqueeze', 'vsplit', 'vstack', 'where',
     # Pointwise operations,
-    'abs', 'absolute',
+    'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
+    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
+    'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
+    'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
+    'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
+    'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
+    'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
     # Other operations,
     'atleast_1d', 'atleast_2d', 'atleast_3d', 'bincount', 'block_diag', 'broadcast_tensors', 'broadcast_to',
     'bucketize', 'cartesian_prod', 'cdist',
     # Reduction ops
     'argmax', 'mean', 'std', 'var',
     # BLAS and LAPACK
-    'mm'
+    'mm',
+    # Convolution
+    'conv1d', 'conv2d', 'conv3d', 'conv_tranpose1d', 'conv_tranpose2d', 'conv_tranpose3d', 'unfold', 'fold',
+    # Pooling
+    'avg_pool1d', 'avg_pool2d', 'avg_pool3d', 'max_pool1d', 'max_pool1d_indices', 'max_pool2d', 'max_pool2d_indices',
+    'max_pool3d', 'max_pool3d_indices', 'max_unpool1d', 'max_unpool2d', 'max_unpool3d', 'lp_pool1d', 'lp_pool2d',
+    'lp_pool3d', 'adaptive_max_pool1d', 'adaptive_max_pool2d', 'adaptive_max_pool3d', 'adaptive_avg_pool1d',
+    'adaptive_avg_pool2d', 'adaptive_avg_pool3d', 'fractional_max_pool2d', 'fractional_max_pool3d',
+    # Linear
+    'linear', 'bilinear',
+    # Dropout
+    'dropout', 'alpha_dropout', 'feature_alpha_dropout', 'dropout2d', 'dropout3d',
+    # Sparse
+    'embedding', 'embedding_bag', 'one_hot',
+    # Distance
+    'pairwise_distance', 'cosine_similarity', 'pdist',
+    # Vision
+    'pixel_shuffle', 'pixel_unshuffle', 'pad', 'interpolate', 'grid_sample',
+]
+
+# Rejected Torch operations
+TORCH_OPS_UNSUPPORTED = [
+    'affine_grid'
 ]
 
 
@@ -699,6 +867,86 @@ class TimeTensor(BaseTensor):
 
     # endregion TORCH_BLAS_LAPACK
 
+    # region TORCH_CONVOLUTION
+
+    # After fold
+    def after_fold(
+            self,
+            func_output: Any,
+            output_size,
+            kernel_size,
+            dilation=1,
+            padding=0,
+            stride=1
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.fold`.
+        """
+        return echotorch.as_timetensor(
+            data=func_output,
+            time_dim=2
+        )
+    # end after_fold
+
+    # endregion TORCH_CONVOLUTION
+
+    # region TORCH_SPARSE
+
+    # After embedding_bag
+    def after_embedding_bag(
+            self,
+            func_output,
+            input,
+            weight,
+            offsets=None,
+            max_norm=None,
+            norm_type=2,
+            scale_grad_by_freq=False,
+            mode='mean',
+            sparse=False,
+            per_sample_weights=None,
+            include_last_offset=False,
+            padding_idx=None
+    ) -> Union['TimeTensor', torch.Tensor]:
+        r"""After :func:`torch.embedding_bag`.
+        """
+        if input.ndim == 1:
+            return echotorch.as_timetensor(
+                data=func_output,
+                time_dim=0
+            )
+        else:
+            return func_output
+        # end if
+    # end after_embedding_bag
+
+    # endregion TORCH_SPARSE
+
+    # region TORCH_DISTANCE
+
+    # After pairwise_distance
+    def pairwise_distance(
+            self,
+            func_output,
+            x1,
+            x2,
+            p=2.0,
+            eps=1e-06,
+            keepdim=False
+    ) -> Union['TimeTensor', torch.Tensor]:
+        r"""After :func:`torch.pairwise_distance`.
+        """
+        if self.time_dim == 0:
+            return echotorch.as_timetensor(
+                data=func_output,
+                time_dim=0
+            )
+        else:
+            return func_output
+        # end if
+    # end pairwise_distance
+
+    # endregion TORCH_DISTANCE
+
     # Transform to timetensor
     def transform_to_timetensors(
             self,
@@ -726,6 +974,38 @@ class TimeTensor(BaseTensor):
             return func_ret
         # end if
     # end convert_to_timetensor
+
+    # Transform to timetensor if coherent
+    def transform_similar_tensors(self, inpt):
+        r"""Convert input to timetensors if elements are tensor with the same number of dimension.
+        """
+        if isinstance(inpt, torch.Tensor) and inpt.ndim == self.ndim:
+            return echotorch.as_timetensor(
+                data=inpt,
+                time_dim=self.time_dim
+            )
+        else:
+            return inpt
+        # end if
+    # end transform_similar_tensors
+
+    # Convert to timetensor if coherent
+    def convert_similar_tensors(self, inpt):
+        r"""Convert input to timetensors if elements are tensor with the same number of dimension.
+        """
+        if isinstance(inpt, torch.Tensor) and inpt.ndim == self.ndim:
+            return echotorch.as_timetensor(
+                data=inpt,
+                time_dim=self.time_dim
+            )
+        elif isinstance(inpt, list):
+            return [self.transform_similar_tensors(x) for x in inpt]
+        elif isinstance(inpt, tuple):
+            return tuple([self.transform_similar_tensors(x) for x in inpt])
+        else:
+            return inpt
+        # end if
+    # end convert_similar_tensors
 
     # Check that all timetensors have the right time dimension index
     def check_time_dim(
@@ -841,6 +1121,13 @@ class TimeTensor(BaseTensor):
 
         # end convert
 
+        # Raise error if unsupported operation
+        if func.__name__ in TORCH_OPS_UNSUPPORTED:
+            raise RuntimeError(
+                "Operation {} is not supported for timetensors".format(func.__name__)
+            )
+        # end if
+
         # Print warning if not implemented
         if func.__name__ not in TORCH_OPS_IMPLEMENTED:
             warnings.warn(
@@ -864,16 +1151,15 @@ class TimeTensor(BaseTensor):
         ret = func(*conv_args, **kwargs)
 
         # If output can be directly converted to timetensor
-        if func.__name__ in TORCH_OPS_DIRECT:
-            ret = self.convert_to_timetensor(ret)
-        # end if
-        # print("FUNC RET: {}".format(type(ret)))
-        # print("")
+        # if func.__name__ in TORCH_OPS_DIRECT:
+        #     ret = self.convert_to_timetensor(ret)
+        # # end if
+
         # Create TimeTensor and returns or returns directly
         if hasattr(self, 'after_' + func.__name__):
             return getattr(self, 'after_' + func.__name__)(ret, *args, **kwargs)
         else:
-            return ret
+            return self.convert_similar_tensors(ret)
         # end if
     # end __torch_function__
 
