@@ -1,7 +1,7 @@
 Compatibility between TimeTensors and PyTorch operations
 ========================================================
 
-This page list the compatibility with the different PyTorch operations on tensor.
+This page list the compatibilities with the different PyTorch operations on :class:`TimeTensor`.
 
 .. contents:: Table of Contents
 
@@ -14,20 +14,20 @@ Indexing, Slicing, Joining, Mutating Ops
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ===============================  =======================================  =======================================================
-PyTorch Ops                      Inputs                                   Outputs
+PyTorch Ops                      Inputs                                   Time dimension inference rule
 ===============================  =======================================  =======================================================
 :ref:`cat`                       :class:`Tensor` + :class:`TimeTensor`    If one of the ``input`` is a :class:`TimeTensor`, returns a :class:`TimeTensor`. If one of the input is a :class:`TimeTensor`, returns a :class:`TimeTensor`.
 :ref:`chunk`                     :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`dsplit`                    :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`column_stack`              :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
+:ref:`column_stack`              :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in :attr:`input`.
 :ref:`dstack`                    :class:`Tensor` + :class:`TimeTensor`    The index of the time dimension of a 0-D timeseries will increase from 0 to 1, otherwise it will stay the same.
 :ref:`gather`                    :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`hsplit`                    :class:`TimeTensor`                      Output :class:`TimeTensor` (s) will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`hstack`                    :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in ``intput``.
+:ref:`hstack`                    :class:`Tensor` + :class:`TimeTensor`    Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor` in :attr:`input`.
 :ref:`index_select`              :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`masked_select`             :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
-:ref:`movedim`                   :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved ``source`` or ``destination`` is equal to the index of the time dimension.
-:ref:`moveaxis`                  :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved ``source`` or ``destination`` is equal to the index of the time dimension.
+:ref:`movedim`                   :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved :attr:`source` or :attr:`destination` is equal to the index of the time dimension.
+:ref:`moveaxis`                  :class:`TimeTensor`                      The returned :class:`TimeTensor` will have its time dimension moved :attr:`source` or :attr:`destination` is equal to the index of the time dimension.
 :ref:`narrow`                    :class:`TimeTensor`                      Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`nonzero`                   :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
 :ref:`reshape`                   :class:`TimeTensor`                      This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
@@ -55,8 +55,11 @@ PyTorch Ops                      Inputs                                   Output
 Pointwise Ops
 ^^^^^^^^^^^^^
 
+Pointwise operations returns a :class:`TimeTensor` with the same index for the time dimension as the :attr:`input`. If the operation takes more than one input, the output
+:class:`TimeTensor` will have the same time index as the first timetensor in the input.
+
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`abs`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`absolute`                                                :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -89,8 +92,8 @@ PyTorch Ops                                                    Inputs           
 :ref:`cos`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`cosh`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`deg2rad`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`div`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`divide`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`div`                                                     :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`divide`                                                  :class:`TimeTensor` + :class:`Tensor`                            See :func:`torch.div`.
 :ref:`digamma`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`erf`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`erfc`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -98,8 +101,8 @@ PyTorch Ops                                                    Inputs           
 :ref:`exp`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`exp2`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`expm1`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`fake_quantize_per_channel_affine`                        TODO                                                             TODO
-:ref:`fake_quantize_per_tensor_affine`                         TODO                                                             TODO
+:ref:`fake_quantize_per_channel_affine`                        :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`fake_quantize_per_tensor_affine`                         :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`fix`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`float_power`                                             :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`floor`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -116,143 +119,141 @@ PyTorch Ops                                                    Inputs           
 :ref:`log10`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`log1p`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`log2`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`logaddexp`                                               :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`logaddexp2`                                              :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`logical_and`                                             :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`logical_not`                                             :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`logical_or`                                              :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`logical_xor`                                             :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
 :ref:`logit`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`logaddexp`                                               TODO                                                             TODO
-:ref:`logaddexp2`                                              TODO                                                             TODO
-:ref:`logical_and`                                             TODO                                                             TODO
-:ref:`logical_not`                                             TODO                                                             TODO
-:ref:`logical_or`                                              TODO                                                             TODO
-:ref:`logical_xor`                                             TODO                                                             TODO
-:ref:`logit`                                                   TODO                                                             TODO
-:ref:`hypot`                                                   TODO                                                             TODO
+:ref:`hypot`                                                   :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
 :ref:`i0`                                                      :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`igamma`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`igammac`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`mul`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`multiply`                                                :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
-:ref:`mvlgamma`                                                TODO                                                             TODO
-:ref:`nan_to_num`                                              TODO                                                             TODO
-:ref:`neg`                                                     TODO                                                             TODO
-:ref:`negative`                                                TODO                                                             TODO
-:ref:`nextafter`                                               TODO                                                             TODO
-:ref:`polygamma`                                               TODO                                                             TODO
-:ref:`positive`                                                TODO                                                             TODO
-:ref:`pow`                                                     TODO                                                             TODO
-:ref:`rad2deg`                                                 TODO                                                             TODO
-:ref:`real`                                                    TODO                                                             TODO
-:ref:`reciprocal`                                              TODO                                                             TODO
-:ref:`remainder`                                               TODO                                                             TODO
-:ref:`round`                                                   TODO                                                             TODO
-:ref:`rsqrt`                                                   TODO                                                             TODO
-:ref:`sigmoid`                                                 TODO                                                             TODO
-:ref:`sign`                                                    TODO                                                             TODO
-:ref:`sgn`                                                     TODO                                                             TODO
-:ref:`signbit`                                                 TODO                                                             TODO
-:ref:`sin`                                                     TODO                                                             TODO
-:ref:`sinc`                                                    TODO                                                             TODO
-:ref:`sinh`                                                    TODO                                                             TODO
-:ref:`sqrt`                                                    TODO                                                             TODO
-:ref:`square`                                                  TODO                                                             TODO
-:ref:`sub`                                                     TODO                                                             TODO
-:ref:`subtract`                                                TODO                                                             TODO
-:ref:`tan`                                                     TODO                                                             TODO
-:ref:`tanh`                                                    TODO                                                             TODO
-:ref:`true_divide`                                             TODO                                                             TODO
-:ref:`trunc`                                                   TODO                                                             TODO
-:ref:`xlogy`                                                   TODO                                                             TODO
+:ref:`mvlgamma`                                                :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`nan_to_num`                                              :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`neg`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`negative`                                                :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`nextafter`                                               :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`polygamma`                                               :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`positive`                                                :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`pow`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`rad2deg`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`real`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`reciprocal`                                              :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`remainder`                                               :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`round`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`rsqrt`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sigmoid`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sign`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sgn`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`signbit`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sin`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sinc`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sinh`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sqrt`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`square`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
+:ref:`sub`                                                     :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`subtract`                                                :class:`TimeTensor` + :class:`Tensor`                            See :func:`torch.substract`.
+:ref:`tan`                                                     :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`tanh`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`true_divide`                                             :class:`TimeTensor` + :class:`Tensor`                            Alias for :func:`div` with :attr:`rounding_mode=None`.
+:ref:`trunc`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`xlogy`                                                   :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
 =============================================================  ===============================================================  =======================================
 
 Reduction Ops
 ^^^^^^^^^^^^^
 
+Reduction operations with a :attr:`dim` parameter will return a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor.
+Indeed, if :attr:`dim` is equal to the index of the time dimension, the operation will reduce the time dimension which will then disappear and a :class:`Tensor` will be returned.
+
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
-:ref:`argmax`                                                  TODO                                                             TODO
-:ref:`argmin`                                                  TODO                                                             TODO
-:ref:`amax`                                                    TODO                                                             TODO
-:ref:`amin`                                                    TODO                                                             TODO
-:ref:`all`                                                     TODO                                                             TODO
-:ref:`any`                                                     TODO                                                             TODO
-:ref:`max`                                                     TODO                                                             TODO
-:ref:`dist`                                                    TODO                                                             TODO
-:ref:`logsumexp`                                               TODO                                                             TODO
-:ref:`mean`                                                    TODO                                                             TODO
-:ref:`median`                                                  TODO                                                             TODO
-:ref:`nanmedian`                                               TODO                                                             TODO
-:ref:`mode`                                                    TODO                                                             TODO
-:ref:`norm`                                                    TODO                                                             TODO
-:ref:`nansum`                                                  TODO                                                             TODO
-:ref:`prod`                                                    TODO                                                             TODO
-:ref:`quantile`                                                TODO                                                             TODO
-:ref:`nanquantile`                                             TODO                                                             TODO
-:ref:`std`                                                     TODO                                                             TODO
-:ref:`std_mean`                                                TODO                                                             TODO
-:ref:`sum`                                                     TODO                                                             TODO
-:ref:`unique`                                                  TODO                                                             TODO
-:ref:`unique_consecutive`                                      TODO                                                             TODO
-:ref:`var`                                                     TODO                                                             TODO
-:ref:`var_mean`                                                TODO                                                             TODO
-:ref:`count_nonzero`                                           TODO                                                             TODO
+:ref:`argmax`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`argmin`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`amax`                                                    :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`amin`                                                    :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`all`                                                     :class:`TimeTensor`                                              Return a ``boolean``.
+:ref:`any`                                                     :class:`TimeTensor`                                              Return a ``boolean``.
+:ref:`max`                                                     :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`min`                                                     :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`dist`                                                    :class:`TimeTensor`                                              This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
+:ref:`logsumexp`                                               :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`mean`                                                    :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`median`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`nanmedian`                                               :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`mode`                                                    :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`norm`                                                    :class:`TimeTensor`                                              This operation will destroy the time dimension, the output will then be a :class:`Tensor`.
+:ref:`nansum`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`prod`                                                    :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`quantile`                                                :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`nanquantile`                                             :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`std`                                                     :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`std_mean`                                                :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`sum`                                                     :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`unique`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`unique_consecutive`                                      :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`var`                                                     :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`var_mean`                                                :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`count_nonzero`                                           :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
 =============================================================  ===============================================================  =======================================
 
 Comparison Ops
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
-:ref:`allclose`                                                TODO                                                             TODO
-:ref:`argsort`                                                 TODO                                                             TODO
-:ref:`eq`                                                      TODO                                                             TODO
-:ref:`equal`                                                   TODO                                                             TODO
-:ref:`ge`                                                      TODO                                                             TODO
-:ref:`greater_equal`                                           TODO                                                             TODO
-:ref:`gt`                                                      TODO                                                             TODO
-:ref:`greated`                                                 TODO                                                             TODO
-:ref:`isclose`                                                 TODO                                                             TODO
-:ref:`isfinite`                                                TODO                                                             TODO
-:ref:`isinf`                                                   TODO                                                             TODO
-:ref:`isposinf`                                                TODO                                                             TODO
-:ref:`isneginf`                                                TODO                                                             TODO
-:ref:`isnan`                                                   TODO                                                             TODO
-:ref:`isreal`                                                  TODO                                                             TODO
-:ref:`kthvalue`                                                TODO                                                             TODO
-:ref:`le`                                                      TODO                                                             TODO
-:ref:`less_equal`                                              TODO                                                             TODO
-:ref:`lt`                                                      TODO                                                             TODO
-:ref:`less`                                                    TODO                                                             TODO
-:ref:`maximum`                                                 TODO                                                             TODO
-:ref:`minimum`                                                 TODO                                                             TODO
-:ref:`fmax`                                                    TODO                                                             TODO
-:ref:`fmin`                                                    TODO                                                             TODO
-:ref:`ne`                                                      TODO                                                             TODO
-:ref:`not_equal`                                               TODO                                                             TODO
-:ref:`sort`                                                    TODO                                                             TODO
-:ref:`topk`                                                    TODO                                                             TODO
-:ref:`msort`                                                   TODO                                                             TODO
+:ref:`allclose`                                                :class:`TimeTensor`                                              Return a ``boolean``.
+:ref:`argsort`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`eq`                                                      :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`equal`                                                   :class:`TimeTensor` + :class:`Tensor`                            Return a ``boolean``.
+:ref:`ge`                                                      :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`greater_equal`                                           :class:`TimeTensor` + :class:`Tensor`                            Alias for :func:`torch.ge`.
+:ref:`gt`                                                      :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`greated`                                                 :class:`TimeTensor` + :class:`Tensor`                            Alias for :func:`gt`.
+:ref:`isclose`                                                 :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`isfinite`                                                :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`isinf`                                                   :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`isposinf`                                                :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`isneginf`                                                :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`isnan`                                                   :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`isreal`                                                  :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`kthvalue`                                                :class:`TimeTensor`                                              Returns a :class:`TimeTensor` if :attr:`dim` is not equal to the index of the time dimension in the input timetensor, otherwise a :class:`Tensor` is returned.
+:ref:`le`                                                      :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`less_equal`                                              :class:`TimeTensor` + :class:`Tensor`                            Alias for :func:`le`.
+:ref:`lt`                                                      :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`less`                                                    :class:`TimeTensor` + :class:`Tensor`                            Alias for :func:`lt`.
+:ref:`maximum`                                                 :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`minimum`                                                 :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`fmax`                                                    :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`fmin`                                                    :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`ne`                                                      :class:`TimeTensor`                                              Output :class:`TimeTensor` filled with ``boolean`` will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`not_equal`                                               :class:`TimeTensor`                                              Alias for :func:`ne`.
+:ref:`sort`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`topk`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`msort`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
 =============================================================  ===============================================================  =======================================
 
 Spectral Ops
 ^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
-:ref:`stft`                                                    TODO                                                             TODO
-:ref:`istft`                                                   TODO                                                             TODO
-:ref:`bertlett_window`                                         TODO                                                             TODO
-:ref:`blackman_window`                                         TODO                                                             TODO
-:ref:`hamming_window`                                          TODO                                                             TODO
-:ref:`hann_window`                                             TODO                                                             TODO
-:ref:`kaiser_window                                            TODO                                                             TODO
+:ref:`stft`                                                    :class:`TimeTensor`                                              Output :class:`TimeTensor` with :attr:`time_dim=1` if no batch dimension given, otherwise :attr:`time_dim=2`.
+:ref:`istft`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` with :attr:`time_dim=0` if no batch dimension given, otherwise :attr:`time_dim=1`.
 =============================================================  ===============================================================  =======================================
 
 Other operations
 ^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`atleast_1d`                                              :class:`TimeTensor`                                              :class:`TimeTensor` are already at least 1D, this operation returns the same timetensor.
 :ref:`atleast_2d`                                              :class:`TimeTensor`                                              When ``input`` is a 0-D timeseries, a batch dimension is added and the index of the time dimension is incremented by 1.
@@ -263,10 +264,10 @@ PyTorch Ops                                                    Inputs           
 :ref:`broadcast_to`                                            :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`cartesian_prod`                                          :class:`Tensor` + :class:`TimeTensor`                            Output :class:`TimeTensor` will have an time dimension index set to 0.
 :ref:`clone`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have an time dimension index set to 0.
-:ref:`combinations`                                            TODO                                                             TODO
-:ref:`cross`                                                   TODO                                                             TODO
-:ref:`cummax`                                                  TODO                                                             TODO
-:ref:`cummin`                                                  TODO                                                             TODO
+:ref:`combinations`                                            :class:`TimeTensor`                                              :class:`TimeTensor` time_dim=0
+:ref:`cross`                                                   :class:`TimeTensor`                                              :class:`TimeTensor` same time_dim
+:ref:`cummax`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
+:ref:`cummin`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
 :ref:`cumprod`                                                 TODO                                                             TODO
 :ref:`cumsum`                                                  TODO                                                             TODO
 :ref:`diag`                                                    TODO                                                             TODO
@@ -306,7 +307,7 @@ BLAS and LAPACK Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`addbmm`                                                  TODO                                                             TODO
 :ref:`addmm`                                                   TODO                                                             TODO
@@ -357,7 +358,7 @@ Convolution functions
 ^^^^^^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`conv1d`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`conv2d`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -373,7 +374,7 @@ Pooling functions
 ^^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`avg_pool1d`                                              :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`avg_pool2d`                                              :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -400,7 +401,7 @@ Linear functions
 ^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`linear`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`bilinear`                                                :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -410,7 +411,7 @@ Dropout functions
 ^^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`dropout`                                                 :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`alpha_dropout`                                           :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
@@ -423,7 +424,7 @@ Sparse functions
 ^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`embedding`                                               :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`embedding_bag`                                           :class:`TimeTensor`                                              If ``input`` is 1-D, the ``output`` is a :class:`TimeTensor` with time dimension at position 0. If 2-D, time dimension is destroyed and a :class:`Tensor` is returned.
@@ -434,7 +435,7 @@ Distance functions
 ^^^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`pairwise_distance`                                       :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` if time dimension is at index 0, otherwise return a :class:`Tensor`.
 :ref:`cosine_similarity`                                       :class:`TimeTensor` + :class:`Tensor`                            Output :class:`TimeTensor` if ``dim`` is not equal to the index of the time dimension, otherwise return a :class:`Tensor`.
@@ -445,7 +446,7 @@ Vision functions
 ^^^^^^^^^^^^^^^^
 
 =============================================================  ===============================================================  =======================================
-PyTorch Ops                                                    Inputs                                                           Outputs
+PyTorch Ops                                                    Inputs                                                           Time dimension inference rule
 =============================================================  ===============================================================  =======================================
 :ref:`pixel_shuffle`                                           :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.
 :ref:`pixel_unshuffle`                                         :class:`TimeTensor`                                              Output :class:`TimeTensor` will have the same time dimension index as the input :class:`TimeTensor`.

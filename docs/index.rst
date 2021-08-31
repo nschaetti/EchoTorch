@@ -36,6 +36,7 @@ generate time series data for your research.
     echotorch.utils
     echotorch.viz
     echotorch.acf
+    time_tensors
     basetensors
 
 .. toctree::

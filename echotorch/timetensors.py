@@ -180,24 +180,31 @@ ERROR_TIME_DIM_NEGATIVE = "The index of the time-dimension cannot be negative"
 # ]
 
 # Torch ops which can be directly converted to timetensors
-# TORCH_OPS_DIRECT = [
-#     # Indexing, etc
-#     'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
-#     'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
-#     # Pointwise operations,
-#     'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
-#     'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
-#     'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
-#     'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
-#     'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
-#     'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
-#     'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
-#     ''
-#     # logaddexp, logaddexp2
-#     'logical_and', 'logical_not', 'logical_or', 'logical_xor',
-#     # Other
-#     'atleast_1d', 'block_diag', 'broadcast_to', 'bucketize', 'clone'
-# ]
+TORCH_OPS_DIRECT = [
+    # Indexing, etc
+    'cat', 'chunk', 'dsplit', 'column_stack', 'gather', 'hsplit', 'hstack', 'index_select', 'narrow', 'scatter',
+    'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
+    # Pointwise operations,
+    'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
+    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
+    'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
+    'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
+    'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
+    'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
+    'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
+    # logaddexp, logaddexp2
+    'logical_and', 'logical_not', 'logical_or', 'logical_xor',
+    # Other operation
+    'atleast_1d', 'block_diag', 'broadcast_to', 'bucketize', 'clone',
+    # Reduction ops
+]
+
+# Torch reduction ops which can be converted to timetensor depending on the value of the parameter 'dim'
+TORCH_OPS_REDUCTION = [
+    'argmax', 'argmin', 'amax', 'amin', 'max', 'min', 'logsumexp', 'mean', 'median', 'nanmedian', 'mode', 'nansum',
+    'prod', 'quantile', 'nanquantile', 'std', 'std_mean', 'sum', 'unique', 'unique_consecutive', 'var', 'var_mean',
+    'count_nonzero', 'argsort',
+]
 
 # List of torch ops implemented, if not in this list, we print a warning
 TORCH_OPS_IMPLEMENTED = [
@@ -212,13 +219,23 @@ TORCH_OPS_IMPLEMENTED = [
     'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
     'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
     'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
-    'lgamma', 'log', 'log10', 'log1p', 'log2', 'logit', # hypot
-    'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg', 'negative', # nextafter
+    'lgamma', 'log', 'log10', 'log1p', 'log2', 'logaddexp', 'logaddexp2', 'logical_and', 'logical_or', 'logical_not',
+    'logical_xor', 'logit', 'hypot', 'i0', 'igamma', 'igammac', 'mul', 'multiply', 'mvlgamma', 'nan_to_num', 'neg',
+    'negative', 'nextafter', 'polygamma', 'positive', 'pow', 'rad2deg', 'real', 'reciprocal', 'remainder', 'round',
+    'rsqrt', 'sigmoid', 'sign', 'sgn', 'signbit',
     # Other operations,
     'atleast_1d', 'atleast_2d', 'atleast_3d', 'bincount', 'block_diag', 'broadcast_tensors', 'broadcast_to',
-    'bucketize', 'cartesian_prod', 'cdist',
+    'bucketize', 'cartesian_prod', 'cdist', 'clone', 'combinations', 'cross', 'cummax', 'cummin',
     # Reduction ops
-    'argmax', 'mean', 'std', 'var',
+    'argmax', 'argmin', 'amax', 'amin', 'all', 'any', 'max', 'min', 'logsumexp', 'mean', 'median', 'nanmedian',
+    'mode', 'nansum', 'prod', 'quantile', 'nanquantile', 'std', 'std_mean', 'sum', 'unique', 'unique_consecutive',
+    'var', 'var_mean', 'count_nonzero',
+    # Comparison
+    'allclose', 'argsort', 'eq', 'equal', 'ge', 'greater_equal', 'gt', 'greated', 'isclose', 'isfinite', 'isinf',
+    'kthvalue', 'le', 'less_equal', 'lt', 'less', 'maximum', 'minimum', 'fmax', 'fmin', 'ne', 'not_equal', 'sort',
+    'topk', 'msort',
+    # Spectral
+    'stft', 'istft',
     # BLAS and LAPACK
     'mm',
     # Convolution
@@ -722,6 +739,109 @@ class TimeTensor(BaseTensor):
 
     # endregion TORCH_INDEXING
 
+    # region TORCH_COMPARISON
+
+    # After kthvalue
+    def after_kthvalue(
+            self,
+            func_ret,
+            input,
+            k,
+            dim=None,
+            keepdim=False
+    ):
+        r"""After :func:`torch.kthvalue`.
+        """
+        return (
+            self.convert_after_reduction(func_ret.values, input, dim, keepdim),
+            self.convert_after_reduction(func_ret.indices, input, dim, keepdim)
+        )
+    # end after_kthvalue
+
+    # After topk
+    def after_topk(
+            self,
+            func_ret,
+            input,
+            k,
+            dim=None,
+            largest=True,
+            sorted=True
+    ):
+        r"""After :func:`torch.kthvalue`.
+        """
+        return (
+            self.convert_after_reduction(func_ret.values, input, dim, True),
+            self.convert_after_reduction(func_ret.indices, input, dim, True)
+        )
+    # end after_kthvalue
+
+    # endregion TORCH_COMPARISON
+
+    # region TORCH_SPECTRAL
+
+    # Short-time Fourier transform (STFT)
+    def after_stft(
+            self,
+            func_ret,
+            input,
+            n_fft,
+            hop_length=None,
+            win_length=None,
+            window=None,
+            center=True,
+            pad_mode='reflect',
+            normalized=False,
+            onesided=None,
+            return_complex=None
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.stft`.
+        """
+        if input.ndim == 1:
+            return TimeTensor(
+                data=func_ret,
+                time_dim=1
+            )
+        else:
+            return TimeTensor(
+                data=func_ret,
+                time_dim=2
+            )
+        # end if
+    # end after_stft
+
+    # Inverse Short-time Fourier transform (ISTFT)
+    def after_istft(
+            self,
+            func_ret,
+            input,
+            n_fft,
+            hop_length=None,
+            win_length=None,
+            window=None,
+            center=True,
+            normalized=False,
+            onesided=None,
+            length=None,
+            return_complex=False
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.istft`
+        """
+        if input.ndim == 3:
+            return TimeTensor(
+                data=func_ret,
+                time_dim=0
+            )
+        else:
+            return TimeTensor(
+                data=func_ret,
+                time_dim=1
+            )
+        # end if
+    # end after_istft
+
+    # endregion TORCH_SPECTRAL
+
     # region TORCH_OTHER
 
     # After atleast_2d
@@ -844,6 +964,52 @@ class TimeTensor(BaseTensor):
         # end if
     # end after_cdist
 
+    # After combinations
+    def after_combinations(
+            self,
+            func_ret,
+            input,
+            r=2,
+            with_replacement=False
+    ) -> 'TimeTensor':
+        r"""After :func:`torch.combinations`.
+        """
+        return TimeTensor(
+            data=func_ret,
+            time_dim=0
+        )
+    # end after_combinations
+
+    # After cummax
+    def after_cummax(
+            self,
+            func_ret,
+            input,
+            dim=None
+    ):
+        r"""After :func:`torch.cummax`.
+        """
+        return (
+            self.convert_after_reduction(func_ret.values, input, dim, True),
+            self.convert_after_reduction(func_ret.indices, input, dim, True)
+        )
+    # end after_cummax
+
+    # After cummin
+    def after_cummin(
+            self,
+            func_ret,
+            input,
+            dim=None
+    ):
+        r"""After :func:`torch.cummax`.
+        """
+        return (
+            self.convert_after_reduction(func_ret.values, input, dim, True),
+            self.convert_after_reduction(func_ret.indices, input, dim, True)
+        )
+    # end after_cummin
+
     # endregion TORCH_OTHER
 
     # region TORCH_BLAS_LAPACK
@@ -957,6 +1123,23 @@ class TimeTensor(BaseTensor):
         return [echotorch.as_timetensor(o, time_dim=self.time_dim) for o in tensors]
     # end transform_to_timetensors
 
+    # Transform object to timetensor if possible
+    def transform_object_to_timetensor(
+            self,
+            obj
+    ):
+        r"""Transform object to timetensor if possible
+        """
+        if isinstance(obj, torch.Tensor):
+            return echotorch.as_timetensor(
+                data=obj,
+                time_dim=self.time_dim
+            )
+        else:
+            return obj
+        # end if
+    # end transform_object_to_timetensor
+
     # Convert to timetensor
     def convert_to_timetensor(self, func_ret):
         r"""Convert to timetensor.
@@ -967,9 +1150,9 @@ class TimeTensor(BaseTensor):
                 time_dim=self.time_dim
             )
         elif isinstance(func_ret, list):
-            return self.transform_to_timetensors(func_ret)
+            return [self.transform_object_to_timetensor(x) for x in func_ret]
         elif isinstance(func_ret, tuple):
-            return tuple(self.transform_to_timetensors(func_ret))
+            return tuple([self.transform_object_to_timetensor(x) for x in func_ret])
         else:
             return func_ret
         # end if
@@ -1025,6 +1208,24 @@ class TimeTensor(BaseTensor):
             # end if
         # end for
     # end check_time_dim
+
+    # Convert the output of a reduction operation
+    def convert_after_reduction(
+            self,
+            func_ret,
+            input,
+            dim: int = None,
+            keepdim: bool = False,
+            **kwargs
+    ) -> Union['TimeTensor', torch.Tensor]:
+        r"""Convert the output of a reduction operation.
+        """
+        if (dim is None or dim == self.time_dim) and not keepdim:
+            return func_ret
+        else:
+            return self.convert_to_timetensor(func_ret)
+        # end if
+    # end convert_after_reduction
 
     # Transpose
     # def t(self) -> 'TimeTensor':
@@ -1151,9 +1352,11 @@ class TimeTensor(BaseTensor):
         ret = func(*conv_args, **kwargs)
 
         # If output can be directly converted to timetensor
-        # if func.__name__ in TORCH_OPS_DIRECT:
-        #     ret = self.convert_to_timetensor(ret)
-        # # end if
+        if func.__name__ in TORCH_OPS_DIRECT:
+            ret = self.convert_to_timetensor(ret)
+        elif func.__name__ in TORCH_OPS_REDUCTION:
+            ret = self.convert_after_reduction(ret, *args, **kwargs)
+        # end if
 
         # Create TimeTensor and returns or returns directly
         if hasattr(self, 'after_' + func.__name__):

@@ -62,7 +62,7 @@ Creation Ops
 
 
 Indexing, Slicing, Joining, Mutating Ops
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
     :toctree: generated

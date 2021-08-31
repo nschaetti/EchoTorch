@@ -198,3 +198,5 @@ imgmath_latex_preamble = r'\usepackage{amsmath}' \
                          r'\usepackage{mathtools}' \
                          r'\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}'
 
+# HTML favicon
+html_favicon = 'images/favicon.png'
