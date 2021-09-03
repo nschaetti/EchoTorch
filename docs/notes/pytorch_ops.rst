@@ -266,17 +266,17 @@ PyTorch Ops                                                    Inputs           
 :ref:`clone`                                                   :class:`TimeTensor`                                              Output :class:`TimeTensor` will have an time dimension index set to 0.
 :ref:`combinations`                                            :class:`TimeTensor`                                              :class:`TimeTensor` time_dim=0
 :ref:`cross`                                                   :class:`TimeTensor`                                              :class:`TimeTensor` same time_dim
-:ref:`cummax`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
-:ref:`cummin`                                                  :class:`TimeTensor`                                              Output :class:`TimeTensor` (s) will have the same time dimension index as the first :class:`TimeTensor`.
-:ref:`cumprod`                                                 TODO                                                             TODO
-:ref:`cumsum`                                                  TODO                                                             TODO
-:ref:`diag`                                                    TODO                                                             TODO
+:ref:`cummax`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` with the index of the time dimension of the first timetensor in the list.
+:ref:`cummin`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` with the index of the time dimension of the first timetensor in the list.
+:ref:`cumprod`                                                 :class:`TimeTensor`                                              Returns a :class:`TimeTensor` with the index of the time dimension of the first timetensor in the list.
+:ref:`cumsum`                                                  :class:`TimeTensor`                                              Returns a :class:`TimeTensor` with the index of the time dimension of the first timetensor in the list.
+:ref:`diag`                                                    :class:`TimeTensor`                                              This operation destroys the time dimension, it then returns a :class:`Tensor`.
 :ref:`diag_embed`                                              TODO                                                             TODO
 :ref:`diagflat`                                                TODO                                                             TODO
 :ref:`diagonal`                                                TODO                                                             TODO
 :ref:`diff`                                                    TODO                                                             TODO
 :ref:`einsum`                                                  TODO                                                             TODO
-:ref:`flatten`                                                 TODO                                                             TODO
+:ref:`flatten`                                                 TODO                                                             This operation destroys the time dimension, it then returns a :class:`Tensor`.
 :ref:`flip`                                                    TODO                                                             TODO
 :ref:`fliplr`                                                  TODO                                                             TODO
 :ref:`flipud`                                                  TODO                                                             TODO
