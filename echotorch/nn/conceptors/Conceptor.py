@@ -614,8 +614,8 @@ class Conceptor(NeuralFilter):
         :return: True/False
         """
         # Eigen values of C - D
-        eigv = torch.eig(other.C - self.C, eigenvectors=False)
-        return float(torch.max(eigv)) > 0.0
+        eigv = torch.view_as_real(torch.linalg.eigvals(other.C - self.C))
+        return float(torch.max(eigv).item()) > 0.0
     # end __gt__
 
     # Greater or equal (abstraction relationship)
@@ -627,8 +627,8 @@ class Conceptor(NeuralFilter):
         :return: True/False
         """
         # Eigen values of C - D
-        eigv = torch.eig(other.C - self.C, eigenvectors=False)
-        return float(torch.max(eigv)) >= 0.0
+        eigv = torch.view_as_real(torch.linalg.eigvals(other.C - self.C))
+        return float(torch.max(eigv).item()) >= 0.0
     # end __ge__
 
     # Less than (abstraction relationship)
@@ -640,8 +640,8 @@ class Conceptor(NeuralFilter):
         :return: True/False
         """
         # Eigen value of C - D
-        eigv = torch.eig(other.C - self.C, eigenvectors=False)
-        return float(torch.max(eigv)) < 0.0
+        eigv = torch.view_as_real(torch.linalg.eigvals(other.C - self.C))
+        return float(torch.max(eigv).item()) < 0.0
     # end __lt__
 
     # Less or equal than (abstraction relationship)
@@ -652,8 +652,8 @@ class Conceptor(NeuralFilter):
         :param other: Second operand
         :return: True/False
         """
-        eigv = torch.eig(other.C - self.C, eigenvectors=False)
-        return float(torch.max(eigv)) <= 0.0
+        eigv = torch.view_as_real(torch.linalg.eigvals(other.C - self.C))
+        return float(torch.max(eigv).item()) <= 0.0
     # end __le__
 
     # Addition (+)

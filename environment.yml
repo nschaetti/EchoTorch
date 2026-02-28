@@ -1,0 +1,17 @@
+name: echotorch-py311-cu129
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=2.1.2
+  - scipy=1.14
+  - scikit-learn
+  - matplotlib
+  - networkx
+  - tqdm
+  - pytest
+  - pytorch=2.8=*cuda129*
+  - torchvision=0.23=*cuda129*
+  - pip
+  - pip:
+      - -e .

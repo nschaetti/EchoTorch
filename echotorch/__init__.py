@@ -26,7 +26,24 @@ from . import models
 from . import nn
 from . import transforms
 from . import utils
+from .timetensor import TimeTensor
+from .base_ops import (
+    timetensor, as_timetensor, sparse_coo_timetensor, as_strided, from_numpy,
+    zeros, zeros_like, ones, ones_like, arange, linspace, logspace,
+    empty, empty_like, empty_strided, full, full_like,
+    quantize_per_timetensor, quantize_per_channel, dequantize, complex, polar,
+    rand, randn, tcat, cat, tindex_select, is_timetensor,
+)
+from .stat_ops import tsum, tquantile, tmean, tstd, tvar, cor, cov
 
 
 # All echotorch's modules
-__all__ = ['datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils']
+__all__ = [
+    'datasets', 'evaluation', 'models', 'nn', 'transforms', 'utils',
+    'TimeTensor', 'timetensor', 'as_timetensor', 'sparse_coo_timetensor', 'as_strided', 'from_numpy',
+    'zeros', 'zeros_like', 'ones', 'ones_like', 'arange', 'linspace', 'logspace',
+    'empty', 'empty_like', 'empty_strided', 'full', 'full_like',
+    'quantize_per_timetensor', 'quantize_per_channel', 'dequantize', 'complex', 'polar',
+    'rand', 'randn', 'tcat', 'cat', 'tindex_select', 'is_timetensor',
+    'tsum', 'tquantile', 'tmean', 'tstd', 'tvar', 'cor', 'cov'
+]

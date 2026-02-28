@@ -134,13 +134,15 @@ class SFACell(Node):
                     self.xTx += torch.mm(x[b].t(), x[b]) / time_length
 
                     # Eigen-decomposition of the covariance matrix
-                    D, U = torch.eig(self.xTx, eigenvectors=True)
+                    D, U = torch.linalg.eig(self.xTx)
+                    D = D.real
+                    U = U.real
 
                     # Check eigenvalues
                     self._check_eigenvalues(D)
 
-                    # Remove imaginary parts and compute the diagonal matrix
-                    D = torch.diag(D[:, 0])
+                    # Build the diagonal matrix
+                    D = torch.diag(D)
 
                     # Whitening matrix S
                     S = torch.mm(torch.sqrt(torch.inverse(D)), U.t())
@@ -163,7 +165,9 @@ class SFACell(Node):
             # end for
 
             # Compute eigen decomposition
-            L, V = torch.eig(self.dxTdx, eigenvectors=True)
+            L, V = torch.linalg.eig(self.dxTdx)
+            L = L.real
+            V = V.real
 
             # Check eigenvalues
             self._check_eigenvalues(L)
@@ -211,7 +215,7 @@ class SFACell(Node):
         :param V: Eigenvectors
         :return: The eigenvector corresponding to the smallest eigenvalues
         """
-        return torch.index_select(V, 1, torch.argsort(L[:, 0])[:self._output_dim])
+        return torch.index_select(V, 1, torch.argsort(L)[:self._output_dim])
     # end _slowest_features
 
     # endregion PRIVATE

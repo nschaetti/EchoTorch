@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 600
     strategy:
       matrix:
-        python-version: [3.12]
+        python-version: [3.11, 3.12]
 
     steps:
     - uses: actions/checkout@v2
@@ -39,7 +39,7 @@ jobs:
       run: |
         pip install coverage
         pip install pytest-cov
-        pytest --cov=codecov
+        pytest --cov=echotorch
     - name: Upload covdecov report
       run: |
         bash <(curl -s https://codecov.io/bash)

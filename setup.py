@@ -13,6 +13,12 @@ setup(
     author='Raamesh Balabhadrapatruni',
     author_email='raameshb@proton.me',
     license='GPLv3',
+    python_requires='>=3.11,<3.13',
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+    ],
     packages=find_packages(),
     zip_safe=False,
     download_url = 'https://github.com/RaameshB/EchoTorch/archive/refs/tags/v1.0.0-pre.tar.gz',
@@ -22,7 +28,8 @@ setup(
              'scipy==1.14',
              'matplotlib',
              'torch==2.8.0',
-             'torchvision',
+             'torchvision==0.23.0',
+             'scikit-learn',
              'networkx',
              'tqdm'
     ]

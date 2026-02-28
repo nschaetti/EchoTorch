@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/images/echotorch_complete.png" /></p>
+<p align="center"><img src="images/banner/banner_readme.png" alt="EchoTorch banner" /></p>
 
 --------------------------------------------------------------------------------
 
@@ -132,8 +132,8 @@ You need to following package to install EchoTorch.
 * scipy
 * scikit-learn
 * matplotlib
-* torch==1.3.0
-* torchvision==0.4.1
+* torch==2.8.0
+* torchvision==0.23.0
 
 ### Installation
 
@@ -218,4 +218,3 @@ prediction.
 ```python
 predicted = esn(test_input)
 ```
-

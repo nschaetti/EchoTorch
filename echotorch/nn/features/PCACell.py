@@ -156,7 +156,7 @@ class PCACell(nn.Module):
         total_var = torch.diag(xTx).sum()
 
         # Compute and sort eigenvalues
-        d, v = torch.symeig(xTx, eigenvectors=True)
+        d, v = torch.linalg.eigh(xTx)
 
         # Check for negative eigenvalues
         if float(d.min()) < 0:
@@ -165,10 +165,10 @@ class PCACell(nn.Module):
         # end if
 
         # Indexes
-        indexes = list(range(d.size(0)-1, -1, -1))
+        indexes = torch.arange(d.size(0) - 1, -1, -1, device=d.device)
 
         # Sort by descending order
-        d = torch.take(d, Variable(torch.LongTensor(indexes)))
+        d = torch.take(d, indexes)
         v = v[:, indexes]
 
         # Explained covariance
