@@ -30,7 +30,8 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data.dataloader import DataLoader
 import numpy as np
-import mdp
+from echotorch.utils.matrix_generation import NormalMatrixGenerator
+# import mdp
 import matplotlib.pyplot as plt
 
 # Parameters
@@ -53,20 +54,27 @@ use_cuda = True
 use_cuda = torch.cuda.is_available() if use_cuda else False
 
 # Manual seed
-mdp.numx.random.seed(1)
+# mdp.numx.random.seed(1)
 np.random.seed(2)
 torch.manual_seed(1)
 
 # NARMA30 dataset
-narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10, seed=1)
-narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10, seed=10)
+narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10)
+narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10)
 
 # Data loader
 trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
 # ESN cell
-esn = etnn.ESN(input_dim=input_dim, hidden_dim=n_hidden, output_dim=1, spectral_radius=spectral_radius, learning_algo='grad')
+# esn = etnn.LiESN(input_dim=input_dim, hidden_dim=n_hidden, output_dim=1, spectral_radius=spectral_radius, leaky_rate=0.9261, learning_algo='grad')
+esn = etnn.ESN(input_dim=input_dim,
+               hidden_dim=n_hidden,
+               output_dim=1,
+               w_generator=NormalMatrixGenerator(connectivity=0.1954, spetral_radius=0.9),
+               win_generator=NormalMatrixGenerator(connectivity=0.1954, scale=0.9252, apply_spectral_radius=False),
+               wbias_generator=NormalMatrixGenerator(connectivity=0.1954, scale=0.9252, apply_spectral_radius=False),
+               learning_algo='grad')
 if use_cuda:
     esn.cuda()
 # end if
@@ -80,7 +88,7 @@ optimizer = optim.SGD(esn.parameters(), lr=learning_rate, momentum=momentum, wei
 # For each iteration
 for epoch in range(n_iterations):
     # Iterate over batches
-    for data in trainloader:
+    for i, data in enumerate(trainloader):
         # Inputs and outputs
         inputs, targets = data
         inputs, targets = Variable(inputs), Variable(targets)
@@ -100,6 +108,9 @@ for epoch in range(n_iterations):
         optimizer.step()
 
         # Print error measures
+        print(f"Epoch: {epoch}/{n_iterations}...")
+        print(f"Batch: {i}/{len(trainloader)}")
+        print(f"Loss: {loss.item():.4f}")
         print(("Train MSE: {}".format(float(loss.data))))
         print(("Train NRMSE: {}".format(echotorch.utils.nrmse(out.data, targets.data))))
     # end for

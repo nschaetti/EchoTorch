@@ -30,6 +30,7 @@ import echotorch.utils.matrix_generation as mg
 from echotorch.nn.linear.RRCell import RRCell
 from ..Node import Node
 from .ESNCell import ESNCell
+from echotorch.utils.matrix_generation import NormalMatrixGenerator
 
 
 # Echo State Network module.
@@ -39,7 +40,10 @@ class ESN(Node):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, w_generator, win_generator, wbias_generator,
+    def __init__(self, input_dim, hidden_dim, output_dim,
+                 w_generator   = NormalMatrixGenerator(connectivity=0.1954, spetral_radius=0.9),
+                 win_generator = NormalMatrixGenerator(connectivity=0.1954, scale=0.9252, apply_spectral_radius=False),
+                 wbias_generator = NormalMatrixGenerator(connectivity=0.1954, scale=0.9252, apply_spectral_radius=False),
                  input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv', ridge_param=0.0, with_bias=True,
                  softmax_output=False, normalize_output=False, washout=0, create_rnn=True, create_output=True,
                  debug=Node.NO_DEBUG, test_case=None, dtype=torch.float32):
@@ -81,6 +85,8 @@ class ESN(Node):
         self._win_generator = win_generator
         self._wbias_generator = wbias_generator
         self._dtype = dtype
+        self._learning_algo = learning_algo
+        if self._learning_algo == 'grad': self._linear = torch.nn.Linear(hidden_dim, output_dim)
 
         if create_rnn:
             # Generate matrices
@@ -257,8 +263,11 @@ class ESN(Node):
         # Compute hidden states
         hidden_states = self._esn_cell(u, reset_state=reset_state)
 
+
+
         # Learning algo
-        if not self.training:
+        if self._learning_algo == 'grad': return self._linear(hidden_states)
+        elif not self.training:
             return self._output(hidden_states, None)
         else:
             return self._output(hidden_states, y[:, self._esn_cell.washout:])

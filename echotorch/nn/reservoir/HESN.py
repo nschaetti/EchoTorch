@@ -37,7 +37,7 @@ class HESN(object):
             leaky_rate=1.0, train_leaky_rate=False, feedbacks=False, wfdb_sparsity=None,
             normalize_feedbacks=False):
         # Embedding layer
-        self.mode = model
+        self.model = model
 
         # Li-ESN
         self.esn = LiESN(

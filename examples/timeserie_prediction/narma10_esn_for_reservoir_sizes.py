@@ -22,6 +22,8 @@
 
 # Imports
 import torch
+from numpy.random import shuffle
+
 from echotorch.datasets.NARMADataset import NARMADataset
 import echotorch.nn as etnn
 import echotorch.utils
@@ -46,6 +48,9 @@ batch_size = 1
 # Reservoir hyper-parameters
 n_reservoir_sizes = 50
 spectral_radius = 0.99
+connectivity = 0.1954
+input_scaling = 0.9252
+bias_scaling = 0.079079
 leaky_rate = 1.0
 input_dim = 1
 reservoir_sizes = np.linspace(10, 1000, n_reservoir_sizes)
@@ -62,8 +67,8 @@ np.random.seed(2)
 torch.manual_seed(1)
 
 # NARMA30 dataset
-narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10, seed=1)
-narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10, seed=10)
+narma10_train_dataset = NARMADataset(train_sample_length, n_train_samples, system_order=10)
+narma10_test_dataset = NARMADataset(test_sample_length, n_test_samples, system_order=10)
 
 # Data loader
 trainloader = DataLoader(narma10_train_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
@@ -72,6 +77,26 @@ testloader = DataLoader(narma10_test_dataset, batch_size=batch_size, shuffle=Fal
 # Save NRMSE and MSE
 MSE_per_reservoir_size = np.zeros(n_reservoir_sizes)
 NRMSE_per_reservoir_size = np.zeros(n_reservoir_sizes)
+
+# Internal matrix
+w_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    spetral_radius=spectral_radius
+)
+
+# Input weights
+win_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    scale=input_scaling,
+    apply_spectral_radius=False
+)
+
+# Bias vector
+wbias_generator = echotorch.utils.matrix_generation.NormalMatrixGenerator(
+    connectivity=connectivity,
+    scale=bias_scaling,
+    apply_spectral_radius=False
+)
 
 # For each reservoir size
 for i, reservoir_size in enumerate(reservoir_sizes):
@@ -83,7 +108,10 @@ for i, reservoir_size in enumerate(reservoir_sizes):
         output_dim=1,
         spectral_radius=spectral_radius,
         learning_algo='inv',
-        leaky_rate=leaky_rate
+        leaky_rate=leaky_rate,
+        w_generator=w_generator,
+        win_generator=win_generator,
+        wbias_generator=wbias_generator
     )
 
     # Transfer in the GPU if possible
@@ -128,5 +156,5 @@ plt.plot(reservoir_sizes, MSE_per_reservoir_size, 'r')
 plt.show()
 
 # Show NRMSE per reservoir size
-plt.plot(reservoir_sizes, NRMSE_per_reservoir_size, 'r')
+plt.plot(reservoir_sizes, NRMSE_per_reservoir_size, 'b')
 plt.show()

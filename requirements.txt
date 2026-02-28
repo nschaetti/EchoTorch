@@ -1,12 +1,11 @@
 # This is an implicit value, here for clarity
 --index-url https://pypi.python.org/simple/
 future
-python==3.9
-numpy==1.22.0
-scipy==1.10
+numpy==2.1.2
+scipy==1.14
 scikit-learn
 matplotlib
-torch==1.10
+torch==2.2.0
 torchvision==0.11
 networkx
 tqdm

@@ -2,7 +2,7 @@
 #
 
 # Imports
-from . import random
+import random
 import numpy as np
 import torch
 

@@ -28,7 +28,7 @@ import torch
 from .LiESNCell import LiESNCell
 from echotorch.nn.reservoir.ESN import ESN
 from ..Node import Node
-
+from echotorch.utils.matrix_generation import NormalMatrixGenerator
 
 # Leaky-Integrated Echo State Network module
 class LiESN(ESN):
@@ -37,7 +37,10 @@ class LiESN(ESN):
     """
 
     # Constructor
-    def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate, w_generator, win_generator, wbias_generator,
+    def __init__(self, input_dim, hidden_dim, output_dim, leaky_rate,
+                 w_generator   = NormalMatrixGenerator(connectivity=0.1954, spetral_radius=0.9),
+                 win_generator = NormalMatrixGenerator(connectivity=0.1954, scale=0.9252,apply_spectral_radius=False),
+                 wbias_generator=NormalMatrixGenerator(connectivity=0.1954, scale=0.9252,apply_spectral_radius=False),
                  spectral_radius=0.9, bias_scaling=1.0, input_scaling=1.0, nonlin_func=torch.tanh, learning_algo='inv',
                  ridge_param=0.0, with_bias=True, softmax_output=False, washout=0, debug=Node.NO_DEBUG, test_case=None,
                  dtype=torch.float32):
