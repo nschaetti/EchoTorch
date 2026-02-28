@@ -21,7 +21,7 @@ setup(
              'numpy==2.1.2',
              'scipy==1.14',
              'matplotlib',
-             'torch==2.5.1',
+             'torch==2.8.0',
              'torchvision',
              'networkx',
              'tqdm'
