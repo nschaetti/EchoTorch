@@ -69,7 +69,7 @@ linear = nn.Linear(in_features=hidden_dim, out_features=1)
 # ESN cell
 gated_esn = etnn.GatedESN(
     input_dim=input_dim,
-    reservoir_dim=input_dim,
+    reservoir_dim=reservoir_dim,
     pca_dim=hidden_dim,
     hidden_dim=hidden_dim,
     leaky_rate=leaky_rate,
