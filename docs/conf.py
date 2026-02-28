@@ -18,9 +18,11 @@
 #
 import os
 import sys
+
+# Import echotorch
+sys.path.insert(0, os.path.abspath('../'))
 import echotorch
-#import sphinx_bootstrap_theme
-sys.path.insert(0, os.path.abspath('../echotorch'))
+# import sphinx_bootstrap_theme
 
 
 # -- General configuration ------------------------------------------------
