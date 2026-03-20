@@ -10,8 +10,8 @@ setup(
     long_description="A Python toolkit for Reservoir Computing, Echo State Network and Conceptor experimentation "
                      "based on pyTorch"
                      "Updated version of the original work by Nils Schaetti",
-    author='Raamesh Balabhadrapatruni',
-    author_email='raameshb@proton.me',
+    author='Nils Schaetti',
+    author_email='nils.schaetti@unige.ch',
     license='GPLv3',
     python_requires='>=3.11,<3.13',
     classifiers=[
