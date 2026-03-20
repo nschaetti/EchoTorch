@@ -4,14 +4,14 @@ from setuptools import setup, find_packages
 
 # Installation setup
 setup(
-    name='EchoTorch-PyTorch2Build',
+    name='EchoTorch',
     version='1.0.0-pre',
     description="A Python toolkit for Reservoir Computing",
     long_description="A Python toolkit for Reservoir Computing, Echo State Network and Conceptor experimentation "
                      "based on pyTorch"
                      "Updated version of the original work by Nils Schaetti",
-    author='Raamesh Balabhadrapatruni',
-    author_email='raameshb@proton.me',
+    author='Nils Schaetti',
+    author_email='nils.schaetti@unige.ch',
     license='GPLv3',
     python_requires='>=3.11,<3.13',
     classifiers=[
@@ -21,7 +21,7 @@ setup(
     ],
     packages=find_packages(),
     zip_safe=False,
-    download_url = 'https://github.com/RaameshB/EchoTorch/archive/refs/tags/v1.0.0-pre.tar.gz',
+    download_url = 'https://github.com/nschaetti/EchoTorch/archive/refs/tags/v1.0.0-pre.tar.gz',
     install_requires = [
              'future',
              'numpy==2.1.2',
