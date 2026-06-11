@@ -27,7 +27,7 @@ setup(
              'numpy==2.1.2',
              'scipy==1.14',
              'matplotlib',
-             'torch==2.8.0',
+             'torch==2.12.0',
              'torchvision==0.23.0',
              'scikit-learn',
              'networkx',

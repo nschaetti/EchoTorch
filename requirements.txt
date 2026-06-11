@@ -5,7 +5,7 @@ numpy==2.1.2
 scipy==1.14
 scikit-learn
 matplotlib
-torch==2.8.0
+torch==2.12.0
 torchvision==0.23.0
 networkx
 tqdm
