@@ -21,7 +21,7 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
+from torch.utils.data import Dataset
 
 
 # Sequences of symbols taken randomly

@@ -26,7 +26,6 @@ Created on 4 November 2019
 
 # Imports
 import torch
-from torch.autograd import Variable
 import math
 from ..NeuralFilter import NeuralFilter
 from echotorch.utils.utility_functions import generalized_squared_cosine
@@ -61,10 +60,10 @@ class Conceptor(NeuralFilter):
         c_size = input_dim
 
         # Initialize correlation matrix R
-        self.register_buffer('R', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
+        self.register_buffer('R', torch.zeros(c_size, c_size, dtype=self._dtype))
 
         # Initialize Conceptor matrix C
-        self.register_buffer('C', Variable(torch.zeros(c_size, c_size, dtype=self._dtype), requires_grad=False))
+        self.register_buffer('C', torch.zeros(c_size, c_size, dtype=self._dtype))
     # end __init__
 
     # region PROPERTIES

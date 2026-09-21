@@ -23,7 +23,6 @@
 import torch
 import torch.nn as nn
 from ..Node import Node
-from torch.autograd import Variable
 
 
 # Inject noise into reservoir

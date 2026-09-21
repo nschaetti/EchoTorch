@@ -22,7 +22,7 @@
 
 # Imports
 import math
-from torch.utils.data.dataset import Dataset
+from torch.utils.data import Dataset
 import numpy as np
 
 

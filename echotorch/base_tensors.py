@@ -132,6 +132,7 @@ class BaseTensor(object):
         :rtype: :class:`BaseTensor`
         """
         self._tensor = self._tensor.bfloat16()
+        return self
     # end bfloat16
 
     # To boolean basetensor
@@ -171,12 +172,12 @@ class BaseTensor(object):
     def short(self) -> 'BaseTensor':
         r"""To short (int16) :class:`BaseTensor` (no copy)
 
-        :return: The :class:`BaseTensor` with data casted to char
+        :return: The :class:`BaseTensor` with data casted to short.
         :rtype: :class:`BaseTensor`
         """
-        self._tensor = self._tensor.char()
+        self._tensor = self._tensor.short()
         return self
-    # end char
+    # end short
 
     # To int timetensor
     def int(self) -> 'BaseTensor':
@@ -202,8 +203,8 @@ class BaseTensor(object):
 
     # To
     def to(self, *args, **kwargs) -> 'BaseTensor':
-        r"""Performs BaseTensor dtype and/or device concersion. A ``torch.dtype`` and ``torch.device`` are inferred
-        from the arguments of ``self.to(*args, **kwargs)
+        r"""Performs :class:`BaseTensor` dtype and/or device conversion. A ``torch.dtype`` and ``torch.device`` are
+        inferred from the arguments of ``self.to(*args, **kwargs)``.
 
         .. note::
             From PyTorch documentation: if the ``self`` BaseTensor already has the correct ``torch.dtype`` and
@@ -213,13 +214,32 @@ class BaseTensor(object):
         # New tensor
         ntensor = self._tensor.to(*args, **kwargs)
 
-        # Same tensor?
-        if self._tensor == ntensor:
+        # Same tensor? (compare storage identity, since == is element-wise)
+        if self._tensor.data_ptr() == ntensor.data_ptr() and self._tensor.dtype == ntensor.dtype \
+                and self._tensor.device == ntensor.device:
             return self
         else:
             return BaseTensor(ntensor)
         # end if
     # end to
+
+    # Wrap a raw tensor in a new instance of the same subclass, preserving
+    # the time dimension for TimeTensor subclasses.
+    def _wrap(self, data: torch.Tensor) -> 'BaseTensor':
+        r"""Create a new instance of the same :class:`BaseTensor` subclass holding ``data``,
+        preserving the time dimension for :class:`TimeTensor` subclasses.
+
+        :param data: The raw torch tensor to wrap.
+        :type data: ``torch.Tensor``
+        :return: A new instance of the same type as ``self``.
+        :rtype: :class:`BaseTensor`
+        """
+        if hasattr(self, '_time_dim'):
+            return self.__class__(data, time_dim=self._time_dim)
+        else:
+            return self.__class__(data)
+        # end if
+    # end _wrap
 
     # To CUDA device
     def cuda(
@@ -362,7 +382,7 @@ class BaseTensor(object):
     ) -> bool:
         r"""Are two base-tensors not equal
         """
-        return not (self.__eq__(self, other))
+        return not (self.__eq__(other))
     # end __ne__
 
     # Object addition
@@ -389,113 +409,114 @@ class BaseTensor(object):
 
     # Scalar addition
     def __add__(self, other):
-        r"""Scalar addition with time tensors.
+        r"""Addition of the :class:`BaseTensor` with an other object, returning a new
+        :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar to add
+        :param other: Scalar or :class:`BaseTensor` to add
         :type other: Scalar
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor + other.tensor
+            result = self._tensor + other.tensor
         else:
-            self._tensor = self._tensor + other
+            result = self._tensor + other
         # end if
-
-        return self
+        return self._wrap(result)
     # end __add__
 
     # Scalar addition (right)
     def __radd__(self, other):
-        r"""Scalar addition with time tensors (right)
+        r"""Addition of an other object with the :class:`BaseTensor` on the right (``other + self``),
+        returning a new :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar to add
+        :param other: Scalar or :class:`BaseTensor` to add
         :type other: Scalar
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor + other.tensor
+            result = other.tensor + self._tensor
         else:
-            self._tensor = self._tensor + other
+            result = other + self._tensor
         # end if
-
-        return self
+        return self._wrap(result)
     # end __radd__
 
     # Scalar subtraction
     def __sub__(self, other):
-        r"""Scalar subtraction with time tensors.
+        r"""Subtraction of an other object from the :class:`BaseTensor`, returning a new
+        :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar to subtract.
+        :param other: Scalar or :class:`BaseTensor` to subtract.
         :type other: scalar
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor - other.tensor
+            result = self._tensor - other.tensor
         else:
-            self._tensor = self._tensor - other
+            result = self._tensor - other
         # end if
-
-        return self
+        return self._wrap(result)
     # end __sub__
 
     # Scalar subtraction (right)
     def __rsub__(self, other):
-        r"""Scalar subtraction with time tensors (right).
+        r"""Subtraction of the :class:`BaseTensor` from an other object (``other - self``),
+        returning a new :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar to subtract.
+        :param other: Scalar or :class:`BaseTensor` to subtract.
         :type other: scalar.
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor - other.tensor
+            result = other.tensor - self._tensor
         else:
-            self._tensor = self._tensor - other
+            result = other - self._tensor
         # end if
-
-        return self
+        return self._wrap(result)
     # end __rsub__
 
     # Scalar multiplication
     def __mul__(self, other):
-        r"""Scalar multiplication with time tensors
+        r"""Multiplication of the :class:`BaseTensor` with an other object, returning a new
+        :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar multiplier
+        :param other: Scalar or :class:`BaseTensor` multiplier
         :type other: Scalar
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor * other.tensor
+            result = self._tensor * other.tensor
         else:
-            self._tensor = self._tensor * other
+            result = self._tensor * other
         # end if
-        return self
+        return self._wrap(result)
     # end __mul__
 
     # Scalar multiplication (right)
     def __rmul__(self, other):
-        r"""Scalar multiplication with time tensors
+        r"""Multiplication of an other object with the :class:`BaseTensor` on the right (``other * self``),
+        returning a new :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar multiplier
+        :param other: Scalar or :class:`BaseTensor` multiplier
         :param type: Scalar
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor * other.tensor
+            result = other.tensor * self._tensor
         else:
-            self._tensor = self._tensor * other
+            result = other * self._tensor
         # end if
-
-        return self
+        return self._wrap(result)
     # end __rmul__
 
     # Scalar division with base tensors
     def __truediv__(self, other):
-        r"""Scalar division with base tensors.
+        r"""Division of the :class:`BaseTensor` by an other object, returning a new
+        :class:`BaseTensor` (the original tensor is left unmodified).
 
-        :param other: Scalar divisor.
+        :param other: Scalar or :class:`BaseTensor` divisor.
         :param type: Scalar.
         """
         if isinstance(other, BaseTensor):
-            self._tensor = self._tensor / other.tensor
+            result = self._tensor / other.tensor
         else:
-            self._tensor = self._tensor / other
+            result = self._tensor / other
         # end if
-
-        return self
+        return self._wrap(result)
     # end __truediv__
 
     # Less than operation with base tensors.
@@ -588,7 +609,7 @@ class BaseTensor(object):
 
 # Double time tensor
 class DoubleBaseTensor(BaseTensor):
-    r"""Double :class:``BaseTensor`.
+    r"""Double :class:`BaseTensor`.
     """
 
     # Constructor
@@ -596,14 +617,13 @@ class DoubleBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""Double :class:``BaseTensor` constructor
+        r"""Double :class:`BaseTensor` constructor
 
         Args:
-            data: The data in a torch tensor to transform to :class:``BaseTensor`.
+            data: The data in a torch tensor to transform to :class:`BaseTensor`.
         """
         # Super call
         super(DoubleBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -616,7 +636,7 @@ class DoubleBaseTensor(BaseTensor):
 
 # Float base tensor
 class FloatBaseTensor(BaseTensor):
-    r"""Float :class:``BaseTensor`.
+    r"""Float :class:`BaseTensor`.
     """
 
     # Constructor
@@ -624,13 +644,12 @@ class FloatBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor'],
     ) -> None:
-        r"""Float :class:``BaseTensor` constructor
+        r"""Float :class:`BaseTensor` constructor
 
-        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
+        :param data: The data in a torch tensor to transform to :class:`BaseTensor`.
         """
         # Super call
         super(FloatBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -643,7 +662,7 @@ class FloatBaseTensor(BaseTensor):
 
 # Half base tensor
 class HalfBaseTensor(BaseTensor):
-    r"""Half :class:``BaseTensor`.
+    r"""Half :class:`BaseTensor`.
     """
 
     # Constructor
@@ -651,13 +670,12 @@ class HalfBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""Half :class:``BaseTensor` constructor
+        r"""Half :class:`BaseTensor` constructor
 
-        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
+        :param data: The data in a torch tensor to transform to :class:`BaseTensor`.
         """
         # Super call
         super(HalfBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -670,7 +688,7 @@ class HalfBaseTensor(BaseTensor):
 
 # 16-bit floating point 2 base tensor
 class BFloat16Tensor(BaseTensor):
-    r"""16-bit floating point 2 :class:``BaseTensor`.
+    r"""16-bit floating point 2 :class:`BaseTensor`.
     """
 
     # Constructor
@@ -678,13 +696,12 @@ class BFloat16Tensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""16-bit :class:``BaseTensor` constructor
+        r"""16-bit :class:`BaseTensor` constructor
 
-        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
+        :param data: The data in a torch tensor to transform to :class:`BaseTensor`.
         """
         # Super call
         super(BFloat16Tensor, self).__init__(
-            self,
             data
         )
 
@@ -697,7 +714,7 @@ class BFloat16Tensor(BaseTensor):
 
 # Boolean basetensor
 class BoolBaseTensor(BaseTensor):
-    r"""To boolean :class:``BaseTensor`.
+    r"""To boolean :class:`BaseTensor`.
     """
 
     # Constructor
@@ -705,11 +722,10 @@ class BoolBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""Boolean :class:``BaseTensor`.
+        r"""Boolean :class:`BaseTensor`.
         """
         # Super call
         super(BoolBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -722,7 +738,7 @@ class BoolBaseTensor(BaseTensor):
 
 # 8-bit integer (unsigned) base tensor
 class ByteBaseTensor(BaseTensor):
-    r"""8-bit integer (unsigned) :class:``BaseTensor`.
+    r"""8-bit integer (unsigned) :class:`BaseTensor`.
     """
 
     # Constructor
@@ -730,13 +746,12 @@ class ByteBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""8-bit integer (unsigned) :class:``BaseTensor` constructor
+        r"""8-bit integer (unsigned) :class:`BaseTensor` constructor
 
-        :param data: The data in a torch tensor to transform to :class:``BaseTensor`.
+        :param data: The data in a torch tensor to transform to :class:`BaseTensor`.
         """
         # Super call
         super(ByteBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -749,7 +764,7 @@ class ByteBaseTensor(BaseTensor):
 
 # 8-bit integer (signed) base tensor
 class CharBaseTensor(BaseTensor):
-    r"""8-bit integer :class:``BaseTensor`.
+    r"""8-bit integer :class:`BaseTensor`.
     """
 
     # Constructor
@@ -757,11 +772,10 @@ class CharBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""8-bit integer :class:``BaseTensor`.
+        r"""8-bit integer :class:`BaseTensor`.
         """
         # Super call
         super(CharBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -774,7 +788,7 @@ class CharBaseTensor(BaseTensor):
 
 # 16-bit integer (signed) base tensor.
 class ShortBaseTensor(BaseTensor):
-    r"""16-bit integer (signed) :class:``BaseTensor`.
+    r"""16-bit integer (signed) :class:`BaseTensor`.
     """
 
     # Constructor
@@ -782,11 +796,10 @@ class ShortBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""8-bit integer :class:``BaseTensor`.
+        r"""8-bit integer :class:`BaseTensor`.
         """
         # Super call
         super(ShortBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -799,7 +812,7 @@ class ShortBaseTensor(BaseTensor):
 
 # 32-bit integer (signed) base tensor.
 class IntBaseTensor(BaseTensor):
-    r"""32-bit integer (signed) :class:``BaseTensor`.
+    r"""32-bit integer (signed) :class:`BaseTensor`.
     """
 
     # Constructor
@@ -807,11 +820,10 @@ class IntBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""32-bit integer :class:``BaseTensor`.
+        r"""32-bit integer :class:`BaseTensor`.
         """
         # Super call
         super(IntBaseTensor, self).__init__(
-            self,
             data
         )
 
@@ -824,7 +836,7 @@ class IntBaseTensor(BaseTensor):
 
 # 64-bit integer (signed) base tensor.
 class LongBaseTensor(BaseTensor):
-    r"""64-bit integer (signed) :class:``BaseTensor`.
+    r"""64-bit integer (signed) :class:`BaseTensor`.
     """
 
     # Constructor
@@ -832,11 +844,10 @@ class LongBaseTensor(BaseTensor):
             self,
             data: Union[torch.Tensor, 'BaseTensor']
     ) -> None:
-        r"""64-bit integer :class:``BaseTensor`.
+        r"""64-bit integer :class:`BaseTensor`.
         """
         # Super call
         super(LongBaseTensor, self).__init__(
-            self,
             data
         )
 

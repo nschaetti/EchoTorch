@@ -30,7 +30,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from echotorch.nn.reservoir.LiESNCell import LiESNCell
 from echotorch.nn.features.PCACell import PCACell
-from torch.autograd import Variable
 
 
 # Gated Echo State Network
@@ -137,7 +136,7 @@ class GatedESN(nn.Module):
         Init hidden layer
         :return: Initiated hidden layer
         """
-        return Variable(torch.zeros(self.hidden_dim), requires_grad=False)
+        return torch.zeros(self.hidden_dim)
     # end init_hidden
 
     # Init update vector
@@ -221,11 +220,11 @@ class GatedESN(nn.Module):
             # end if
 
             # Hidden states
-            hidden_states = Variable(torch.zeros(n_batches, time_length, self.hidden_dim))
+            hidden_states = torch.zeros(n_batches, time_length, self.hidden_dim)
             hidden_states = hidden_states.cuda() if pca_states.is_cuda else hidden_states
         else:
             # Hidden states
-            hidden_states = Variable(torch.zeros(n_batches, time_length, self.hidden_dim))
+            hidden_states = torch.zeros(n_batches, time_length, self.hidden_dim)
             hidden_states = hidden_states.cuda() if reservoir_states.is_cuda else hidden_states
         # end if
 

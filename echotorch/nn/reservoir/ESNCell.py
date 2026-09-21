@@ -27,7 +27,6 @@ Created on 26 January 2018
 # Imports
 import torch
 import torch.sparse
-from torch.autograd import Variable
 import echotorch.utils
 from echotorch.utils.visualisation import Observable
 from ..Node import Node
@@ -82,13 +81,13 @@ class ESNCell(Node, Observable):
         self.register_buffer('hidden', self._init_hidden())
 
         # Initialize input weights
-        self.register_buffer('w_in', Variable(w_in, requires_grad=False))
+        self.register_buffer('w_in', w_in)
 
         # Initialize reservoir weights randomly
-        self.register_buffer('w', Variable(w, requires_grad=False))
+        self.register_buffer('w', w)
 
         # Initialize bias
-        self.register_buffer('w_bias', Variable(w_bias, requires_grad=False))
+        self.register_buffer('w_bias', w_bias)
 
         # Add observation point
         self.add_observation_point("w", unique=True)
@@ -198,7 +197,7 @@ class ESNCell(Node, Observable):
         n_batches = int(u.size()[0])
 
         # Outputs
-        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype))
+        outputs = torch.zeros(n_batches, time_length, self.output_dim, dtype=self.dtype)
         outputs = outputs.cuda() if self.hidden.is_cuda else outputs
 
         # For each sample
@@ -325,7 +324,7 @@ class ESNCell(Node, Observable):
         Init hidden layer
         :return: Initiated hidden layer
         """
-        return Variable(torch.zeros(self.output_dim, dtype=self.dtype), requires_grad=False)
+        return torch.zeros(self.output_dim, dtype=self.dtype)
     # end _init_hidden
 
     # endregion PRIVATE

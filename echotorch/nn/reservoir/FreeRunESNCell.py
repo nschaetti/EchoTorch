@@ -27,7 +27,6 @@ Created on 28 November 2019
 # Imports
 import torch
 import torch.sparse
-from torch.autograd import Variable
 
 import echotorch.utils
 from echotorch.utils.visualisation import Observable

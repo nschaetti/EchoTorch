@@ -39,15 +39,27 @@ class NilsNet(nn.Module):
         # Upper class
         super(NilsNet, self).__init__()
 
+        # Feature selector map (model name -> builder and weights enum)
+        _weights = {
+            'resnet18': torchvision.models.ResNet18_Weights.IMAGENET1K_V1,
+            'resnet34': torchvision.models.ResNet34_Weights.IMAGENET1K_V1,
+            'resnet50': torchvision.models.ResNet50_Weights.IMAGENET1K_V1,
+            'alexnet': torchvision.models.AlexNet_Weights.IMAGENET1K_V1,
+        }
+
+        # If pretrained is requested, use the pre-trained weights (the legacy
+        # ``pretrained=`` keyword was removed in modern torchvision)
+        _weights[feature_selector] = _weights[feature_selector] if pretrained else None
+
         # ResNet
         if feature_selector == 'resnet18':
-            self.feature_selector = torchvision.models.resnet18(pretrained=True)
+            self.feature_selector = torchvision.models.resnet18(weights=_weights['resnet18'])
         elif feature_selector == 'resnet34':
-            self.feature_selector = torchvision.models.resnet34(pretrained=True)
+            self.feature_selector = torchvision.models.resnet34(weights=_weights['resnet34'])
         elif feature_selector == 'resnet50':
-            self.feature_selector = torchvision.models.resnet50(pretrained=True)
+            self.feature_selector = torchvision.models.resnet50(weights=_weights['resnet50'])
         elif feature_selector == 'alexnet':
-            self.feature_selector = torchvision.models.alexnet(pretrained=True)
+            self.feature_selector = torchvision.models.alexnet(weights=_weights['alexnet'])
         # end if
 
         # Skip last layer

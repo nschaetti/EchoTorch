@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 from ..Node import Node
-from torch.autograd import Variable
 
 
 # Compute the approximation of time derivative
@@ -79,25 +78,25 @@ class SFACell(Node):
         # Create buffer for the covariance matrix
         self.register_buffer(
             'xTx',
-            Variable(torch.zeros(self._input_dim, self._input_dim, dtype=dtype), requires_grad=False)
+            torch.zeros(self._input_dim, self._input_dim, dtype=dtype)
         )
 
         # Create buffer for the covariance matrix of the derivatives
         self.register_buffer(
             'dxTdx',
-            Variable(torch.zeros(self._input_dim, self._input_dim, dtype=dtype), requires_grad=False)
+            torch.zeros(self._input_dim, self._input_dim, dtype=dtype)
         )
 
         # Create buffer for the trained project matrix
         self.register_buffer(
             'W',
-            Variable(torch.zeros(output_dim, self._input_dim, dtype=dtype), requires_grad=False)
+            torch.zeros(output_dim, self._input_dim, dtype=dtype)
         )
 
         # Create buffer for the trained bias
         self.register_buffer(
             'b',
-            Variable(torch.zeros(self._input_dim, dtype=dtype), requires_grad=False)
+            torch.zeros(self._input_dim, dtype=dtype)
         )
     # end __init__
 

@@ -30,7 +30,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .BDESNCell import BDESNCell
 from sklearn.decomposition import IncrementalPCA
-from torch.autograd import Variable
 
 
 # Bi-directional Echo State Network module with PCA reduction
@@ -172,7 +171,7 @@ class BDESNPCA(nn.Module):
 
         # For each batch
         pca_states[0] = torch.from_numpy(self.ipca.fit_transform(hidden_states.data[0].numpy()).copy())
-        pca_states = Variable(pca_states)
+        pca_states = pca_states
 
         # FFNN output
         return F.relu(self.linear2(F.relu(self.linear1(pca_states))))

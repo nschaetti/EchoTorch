@@ -30,7 +30,6 @@ import torch
 import torch.nn as nn
 from echotorch.nn.reservoir.LiESNCell import LiESNCell
 import numpy as np
-from torch.autograd import Variable
 
 
 # Bi-directional Echo State Network module
@@ -144,8 +143,8 @@ class BDESNCell(nn.Module):
         forward_hidden_states = self.esn_cell(u)
 
         # Backward compute hidden states
-        backward_hidden_states = self.esn_cell(Variable(torch.from_numpy(np.flip(u.data.numpy(), 1).copy())))
-        backward_hidden_states = Variable(torch.from_numpy(np.flip(backward_hidden_states.data.numpy(), 1).copy()))
+        backward_hidden_states = self.esn_cell(torch.from_numpy(np.flip(u.data.numpy(), 1).copy()))
+        backward_hidden_states = torch.from_numpy(np.flip(backward_hidden_states.data.numpy(), 1).copy())
 
         return torch.cat((forward_hidden_states, backward_hidden_states), dim=2)
 

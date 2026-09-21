@@ -1408,16 +1408,16 @@ def tcat(
 
     Example::
 
-        >>> x = echotorch.randn(2, time_length=20)
+        >>> x = echotorch.randn(2, length=20)
         >>> x
         timetensor([[....]])
         >>> echotorch.tcat((x, x, x))
         timetensor([[...]])
 
     """
-    # None
+    # At least one timetensor is required
     if len(tensors) == 0:
-        return None
+        raise ValueError("tcat() requires at least one timetensor")
     # end if
 
     # First time dim and ndim
@@ -1432,7 +1432,7 @@ def tcat(
                 "and {}/{}".format(ndim, time_dim, tensor.ndim, tensor.time_dim)
             )
         # end if
-    # end if
+    # end for
 
     # Time tensor
     return torch.cat(tensors, dim=time_dim)
@@ -1444,11 +1444,20 @@ def cat(
         tensors: Tuple[TimeTensor],
         dim: int = 0
 ) -> Union[TimeTensor, Any]:
-    """Concatenate time-related dimensions
+    r"""Concatenate the channel dimensions of a sequence of :class:`TimeTensor` while keeping the time
+    dimension untouched. All timetensors must have the same number of dimensions, the same time dimension
+    index and the same time length.
+
+    :param tensors: sequence of :class:`TimeTensor` to concatenate along the channel dimension.
+    :type tensors: sequence of :class:`TimeTensor`
+    :param dim: offset (from the time dimension) of the channel dimension to concatenate.
+    :type dim: ``int``
+    :return: The timetensors concatenated along the considered channel dimension.
+    :rtype: :class:`TimeTensor`
     """
-    # None
+    # At least one timetensor is required
     if len(tensors) == 0:
-        return None
+        raise ValueError("cat() requires at least one timetensor")
     # end if
 
     # First time dim and ndim
@@ -1471,7 +1480,7 @@ def cat(
                 )
             )
         # end if
-    # end if
+    # end for
 
     # Time tensor
     return torch.cat(tensors, dim=time_dim+1+dim)

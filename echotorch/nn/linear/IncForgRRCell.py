@@ -27,7 +27,6 @@ Created on 5 November 2019
 # Imports
 import torch.sparse
 import torch
-from torch.autograd import Variable
 from ..conceptors import Conceptor
 from .IncRRCell import IncRRCell
 from echotorch.utils import nrmse
@@ -98,8 +97,8 @@ class IncForgRRCell(IncRRCell):
         self.A = Conceptor.empty(self.output_dim)
 
         # Wout matrix, update, increment and new
-        self.register_buffer('w_out_up', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
-        self.register_buffer('w_out_new', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
+        self.register_buffer('w_out_up', torch.zeros(1, self.input_dim, dtype=self.dtype))
+        self.register_buffer('w_out_new', torch.zeros(1, self.input_dim, dtype=self.dtype))
     # end __init__
 
     # region PUBLIC

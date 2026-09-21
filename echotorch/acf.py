@@ -21,7 +21,9 @@
 
 # Imports
 from typing import Dict, List, Callable, Optional, Tuple
+import math
 import matplotlib.pyplot as plt
+from scipy.stats import t as student_t
 import echotorch.viz
 
 # Local imports
@@ -409,22 +411,32 @@ def ccfpairs(
         labels: List[str] = None,
         figsize: Optional[Tuple[int, int]] = None,
         tight_layout: Optional[Dict] = None,
-        plot_pvalues: Optional[bool] = True
+        plot_pvalues: Optional[bool] = True,
+        sign_level: Optional[float] = 0.05
 ) -> None:
     r"""Plot an array of plots with cross-autocorrelation for each pair of channel.
+
+    When ``plot_pvalues`` is ``True``, the Pearson correlation coefficient at lag 0 and its
+    associated p-value are computed for each cross-channel pair and displayed on the
+    corresponding subplot. The background is colored in green when the p-value is lower
+    than ``sign_level`` (significant) and white otherwise.
 
     :param x: the input timetensor.
     :type x: :class:`TimeTensor`
     :param k: the number of lags.
     :type k: ``int``
-    :param coeffs_type:
-    :type coeffs_type:
-    :param labels:
-    :type labels:
-    :param figure_params:
-    :type figure_params:
-    :param plot_params:
-    :type plot_params:
+    :param coeffs_type: type of coefficients to plot, "covariance" or "correlation".
+    :type coeffs_type: ``str``
+    :param labels: labels for each channel.
+    :type labels: ``list`` of ``str``, optional
+    :param figsize: size of the figure.
+    :type figsize: ``tuple``, optional
+    :param tight_layout: parameters for the tight layout.
+    :type tight_layout: ``dict``, optional
+    :param plot_pvalues: display correlation coefficients and their p-values.
+    :type plot_pvalues: ``bool``
+    :param sign_level: p-value threshold below which a correlation is considered significant.
+    :type sign_level: ``float``
 
     Example:
 
@@ -474,18 +486,28 @@ def ccfpairs(
 
                 # Plot text
                 if plot_pvalues:
-                    # Coef background color
-                    # back_color = 'white' if pvs[i, j] >= sign_level else 'green'
+                    # Pearson correlation coefficient at lag 0 (tlen samples) and its p-value
+                    r_coef = float(ccf_coeffs[0])
+                    n_samples = x.tlen
+                    df = n_samples - 2
+                    # t-statistic of the correlation coefficient
+                    t_val = r_coef * math.sqrt(df) / math.sqrt(1.0 - r_coef * r_coef) if abs(r_coef) < 1.0 \
+                        else float('inf')
+                    # Two-sided p-value from the student t-distribution
+                    p_value = 2.0 * student_t.cdf(-abs(t_val), df) if abs(r_coef) < 1.0 else 0.0
 
-                    # Show correlation coefficient
+                    # Background color: green if significant, white otherwise
+                    back_color = 'green' if p_value < sign_level else 'white'
+
+                    # Show correlation coefficient and p-value
                     axs[chan_i, chan_j].text(
                         0.04,
                         0.07,
-                        "0.54",
+                        "r={:.2g}\np={:.2g}".format(r_coef, p_value),
                         fontsize=10,
                         verticalalignment='bottom',
                         horizontalalignment='left',
-                        bbox=dict(boxstyle='square', facecolor='green', alpha=0.75),
+                        bbox=dict(boxstyle='square', facecolor=back_color, alpha=0.75),
                         transform=axs[chan_i, chan_j].transAxes
                     )
                 # end if

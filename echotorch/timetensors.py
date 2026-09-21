@@ -185,7 +185,7 @@ TORCH_OPS_DIRECT = [
     'scatter_add', "split", 'tensor_split', 'tile', 'vsplit', 'where',
     # Pointwise operations,
     'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
-    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
+    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwise_not', 'bitwise_and', 'bitwise_or',
     'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
     'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
     'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
@@ -214,7 +214,7 @@ TORCH_OPS_IMPLEMENTED = [
     'permute', 'flatten', 'unbind', 'unsqueeze', 'vsplit', 'vstack', 'where',
     # Pointwise operations,
     'abs', 'absolute', 'acos', 'arccos', 'acosh', 'arccosh', 'add', 'addcdiv', 'addcmul', 'angle', 'asin', 'arcsin',
-    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwose_not', 'bitwise_and', 'bitwise_or',
+    'asinh', 'arcsinh', 'atan', 'arctan', 'atanh', 'arctanh', 'atan2', 'bitwise_not', 'bitwise_and', 'bitwise_or',
     'bitwise_xor', 'ceil', 'clamp', 'clip', 'conj', 'copysign', 'cos', 'cosh', 'deg2rad', 'div', 'divide', 'digamma',
     'erf', 'erfc', 'erfinv', 'exp', 'exp2', 'expm1', # fake_quantize_per_channel_affine, fake_quantize_per_tensor_affine,
     'fix', 'float_power', 'floor', 'floor_divide', 'fmod', 'frac', 'frexp', 'gradient', 'imag', 'ldexp', 'lerp',
@@ -230,7 +230,7 @@ TORCH_OPS_IMPLEMENTED = [
     'mode', 'nansum', 'prod', 'quantile', 'nanquantile', 'std', 'std_mean', 'sum', 'unique', 'unique_consecutive',
     'var', 'var_mean', 'count_nonzero',
     # Comparison
-    'allclose', 'argsort', 'eq', 'equal', 'ge', 'greater_equal', 'gt', 'greated', 'isclose', 'isfinite', 'isinf',
+    'allclose', 'argsort', 'eq', 'equal', 'ge', 'greater_equal', 'gt', 'greater', 'isclose', 'isfinite', 'isinf',
     'kthvalue', 'le', 'less_equal', 'lt', 'less', 'maximum', 'minimum', 'fmax', 'fmin', 'ne', 'not_equal', 'sort',
     'topk', 'msort',
     # Spectral
@@ -238,7 +238,7 @@ TORCH_OPS_IMPLEMENTED = [
     # BLAS and LAPACK
     'mm',
     # Convolution
-    'conv1d', 'conv2d', 'conv3d', 'conv_tranpose1d', 'conv_tranpose2d', 'conv_tranpose3d', 'unfold', 'fold',
+    'conv1d', 'conv2d', 'conv3d', 'conv_transpose1d', 'conv_transpose2d', 'conv_transpose3d', 'unfold', 'fold',
     # Pooling
     'avg_pool1d', 'avg_pool2d', 'avg_pool3d', 'max_pool1d', 'max_pool1d_indices', 'max_pool2d', 'max_pool2d_indices',
     'max_pool3d', 'max_pool3d_indices', 'max_unpool1d', 'max_unpool2d', 'max_unpool3d', 'lp_pool1d', 'lp_pool2d',
@@ -361,7 +361,7 @@ class TimeTensor(BaseTensor):
         # Check time dim is valid
         if value >= self.tensor.ndim:
             # Error
-            raise ValueError(ERROR_TENSOR_TO_SMALL.format(value, self._tensor.ndim))
+            raise ValueError(ERROR_TENSOR_TO_SMALL.format(value, self._tensor.ndim, value + 1))
         elif value < 0:
             raise ValueError(ERROR_TIME_DIM_NEGATIVE)
         # end if
@@ -459,8 +459,8 @@ class TimeTensor(BaseTensor):
 
     # To
     def to(self, *args, **kwargs) -> 'TimeTensor':
-        r"""Performs TimeTensor dtype and/or device concersion. A ``torch.dtype`` and ``torch.device`` are inferred
-        from the arguments of ``self.to(*args, **kwargs)
+        r"""Performs :class:`TimeTensor` dtype and/or device conversion. A ``torch.dtype`` and ``torch.device`` are
+        inferred from the arguments of ``self.to(*args, **kwargs)``.
 
         .. note::
             From PyTorch documentation: if the ``self`` TimeTensor already has the correct ``torch.dtype`` and
@@ -475,8 +475,9 @@ class TimeTensor(BaseTensor):
         # New tensor
         ntensor = self._tensor.to(*args, **kwargs)
 
-        # Same tensor?
-        if self._tensor == ntensor:
+        # Same tensor? (compare storage identity, since == is element-wise)
+        if self._tensor.data_ptr() == ntensor.data_ptr() and self._tensor.dtype == ntensor.dtype \
+                and self._tensor.device == ntensor.device:
             return self
         else:
             return TimeTensor(
@@ -779,7 +780,7 @@ class TimeTensor(BaseTensor):
             func_output,
             tensors
     ) -> 'TimeTensor':
-        r"""After :func:`torch.vstack, we add 1 to the index of time
+        r"""After :func:`torch.vstack`, we add 1 to the index of time
         dim if it is a 0-D timeseries, other keep the same
         """
         if self.ndim == 1:
@@ -1148,7 +1149,7 @@ class TimeTensor(BaseTensor):
     # region TORCH_DISTANCE
 
     # After pairwise_distance
-    def pairwise_distance(
+    def after_pairwise_distance(
             self,
             func_output,
             x1,
@@ -1167,7 +1168,7 @@ class TimeTensor(BaseTensor):
         else:
             return func_output
         # end if
-    # end pairwise_distance
+    # end after_pairwise_distance
 
     # endregion TORCH_DISTANCE
 
@@ -1383,13 +1384,20 @@ class TimeTensor(BaseTensor):
             storage_offset=0,
             time_dim=None
     ) -> 'TimeTensor':
-        r"""TODO: document
+        r"""Create a view of the wrapped tensor with the requested ``size``, ``stride`` and ``storage_offset``,
+        preserving the :class:`TimeTensor` wrapper whenever the time dimension is still present in the result.
 
-        :param size:
-        :param stride:
-        :param storage_offset:
-        :return:
-        :rtype:
+        :param size: shape of the output tensor.
+        :type size: ``tuple`` of ``int``
+        :param stride: stride of the output tensor.
+        :type stride: ``tuple`` of ``int``
+        :param storage_offset: offset of the underlying storage.
+        :type storage_offset: ``int``
+        :param time_dim: optional explicit index of the time dimension in the output. When ``None``,
+            the current time dimension index is preserved if it fits in the new shape.
+        :type time_dim: ``int``, optional
+        :return: The strided view, wrapped in a :class:`TimeTensor` when the time dimension is present.
+        :rtype: :class:`TimeTensor` or ``torch.Tensor``
         """
         # Strided tensor
         data_tensor = self._tensor.as_strided(size, stride, storage_offset)
@@ -1401,9 +1409,9 @@ class TimeTensor(BaseTensor):
                 data=data_tensor,
                 time_dim=self._time_dim if time_dim is None else time_dim
             )
-        elif time_dim is not None:
-            pass
         else:
+            # No room for the current time dimension: return the raw tensor
+            # (an explicit time_dim is ignored since it cannot fit the new shape)
             return data_tensor
         # end if
     # end as_strided
@@ -1646,7 +1654,7 @@ class TimeTensor(BaseTensor):
     ) -> bool:
         r"""Are two time-tensors not equal
         """
-        return not(self.__eq__(self, other))
+        return not self.__eq__(other)
     # end __ne__
 
     # endregion OVERRIDE

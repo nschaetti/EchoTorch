@@ -47,28 +47,29 @@ def tsum(
 # end tsum
 
 
-# Quantile
+# Quantile over time dimension
 def tquantile(
         input: TimeTensor,
-        q
+        q: Union[float, Tensor]
 ) -> Tensor:
-    r"""Computes the :math:`q`-th quantiles of each row of the ``input`` timetensor along the time dimension.
+    r"""Computes the :math:`q`-th quantile of elements in ``input`` along the time dimension.
 
-    .. note::
-        From Torch documentation:
-        To compute the quantile, we map q in [0, 1] to the range of indices [0, n] to find the location of the quantile in the sorted input. If the quantile lies between two data points a < b with indices i and j in the sorted order, result is computed using linear interpolation as follows:
-
-        a + (b - a) * fraction, where fraction is the fractional part of the computed quantile index.
-
-        If q is a 1D tensor, the first dimension of the output represents the quantiles and has size equal to the size of q, the remaining dimensions are what remains from the reduction.
+    When ``q`` is a float in [0, 1], the output has the same number of dimensions
+    as the input with the time dimension removed.  When ``q`` is a 1-D tensor the
+    quantile dimension is prepended.
 
     :param input: the input timetensor.
     :type input: ``TimeTensor``
+    :param q: quantile(s) to compute, value(s) in [0, 1].
+    :type q: ``float`` or ``Tensor``
 
-    Example:
+    Example::
 
-        >>> x = echotorch.randn(5, time_length=100)
+        >>> x = echotorch.randn(5, length=100)
+        >>> echotorch.tquantile(x, 0.5)
+        tensor([...])
     """
+    return torch.quantile(input.tensor, q, dim=input.time_dim)
 
 
 # Average over time dimension
@@ -87,45 +88,44 @@ def tmean(
 # Standard deviation over time dimension
 def tstd(
         input: TimeTensor,
-        unbiased: bool = True
+        correction: int = 1
 ) -> Tensor:
-    r"""Returns the standard deviation over time dimension of all elements in the ``input`` timetensor.
+    r"""Returns the standard deviation over the time dimension of all elements in the ``input`` timetensor.
 
     :param input: the input timetensor.
     :type input: ``TimeTensor``
-    :param unbiased: whether to used Bessel's correction (:math:`\delta N = 1`)
-    :type unbiased: bool
+    :param correction: Bessel's correction applied to the variance (default: ``1``).
+    :type correction: ``int``
 
-    Example:
+    Example::
 
-        >>> x = echotorch.rand(5, time_length=10)
+        >>> x = echotorch.rand(5, length=10)
         >>> echotorch.tstd(x)
         tensor([0.2756, 0.2197, 0.2963, 0.2962, 0.2853])
-        """
-    return std(input, dim=input.time_dim, unbiased=unbiased)
+    """
+    return std(input, dim=input.time_dim, correction=correction)
 # end tstd
 
 
 # Variance over time dimension
 def tvar(
         input: TimeTensor,
-        unbiased: bool = True
+        correction: int = 1
 ) -> Tensor:
-    r"""Returns the variance over time dimension of all elements in the ``input`` timetensor.
+    r"""Returns the variance over the time dimension of all elements in the ``input`` timetensor.
 
     :param input: the input timetensor.
     :type input: ``TimeTensor``
-    :param unbiased: whether to used Bessel's correction (:math:`\delta N = 1`)
-    :type unbiased: bool
+    :param correction: Bessel's correction applied to the variance (default: ``1``).
+    :type correction: ``int``
 
-    Example:
+    Example::
 
-        >>> x = echotorch.rand(5, time_length=10)
+        >>> x = echotorch.rand(5, length=10)
         >>> echotorch.tvar(x)
         tensor([0.0726, 0.0542, 0.0754, 0.0667, 0.0675])
-
     """
-    return var(input, dim=input.time_dim, unbiased=unbiased)
+    return var(input, dim=input.time_dim, correction=correction)
 # end tvar
 
 
@@ -183,7 +183,13 @@ def cor(
                 [ 0.2477, -0.5867,  0.4337, -0.2673,  0.0725],
                 [ 0.2607,  0.4544,  0.5199,  0.2562,  0.4110]])
     """
-    # Get covariance matrix
+    # Compute the standard deviations of t1 and t2, handling the
+    # single-timeseries (auto-correlation) case where t2 is None
+    if t2 is None:
+        t2 = t1
+    # end if
+
+    # Compute the covariance matrix
     cov_m = cov(t1, t2, bias, ddof)
 
     # Get sigma for t1 and t2
@@ -265,6 +271,11 @@ def cov(
                 [ 0.0080,  0.0390, -0.0212,  0.0773,  0.1014],
                 [-0.1000, -0.0774,  0.0011,  0.0819, -0.0735]])
     """
+    # Handle the auto-covariance case where t2 is None
+    if t2 is None:
+        t2 = t1
+    # end if
+
     # Check that t1 and t2 have the time dim at pos 0
     if t1.time_dim != 0 or t2.time_dim != 0:
         raise ValueError(
@@ -286,15 +297,22 @@ def cov(
         )
     # end if
 
+    # Number of time samples
+    tlen = t1.tlen
+
+    # Work on the raw tensor data
+    t1_raw = t1.tensor
+    t2_raw = t2.tensor
+
     # If 0-D, transform in 1-D
     if t1.cdim == 0:
-        t1 = torch.unsqueeze(t1, dim=t1.time_dim+1)
-        t2 = torch.unsqueeze(t2, dim=t2.time_dim + 1)
+        t1_raw = torch.unsqueeze(t1_raw, dim=t1.time_dim+1)
+        t2_raw = torch.unsqueeze(t2_raw, dim=t2.time_dim+1)
     # end if
 
-    # Compute means
-    t1_mean = tmean(t1)
-    t2_mean = tmean(t2)
+    # Compute means over the time dimension
+    t1_mean = torch.mean(t1_raw, dim=t1.time_dim, keepdim=True)
+    t2_mean = torch.mean(t2_raw, dim=t2.time_dim, keepdim=True)
 
     # Bias value
     if ddof is None:
@@ -306,7 +324,7 @@ def cov(
         add_bias = ddof
     # end if
 
-    # Compute covariance
-    return mm((t1 - t1_mean).t(), t2 - t2_mean) / (t1.tlen - add_bias)
+    # Compute covariance matrix over the time samples
+    return mm((t1_raw - t1_mean).t(), t2_raw - t2_mean) / (tlen - add_bias)
 # end cov
 

@@ -23,7 +23,7 @@
 import math
 import torch
 import torch.distributions.multinomial
-from torch.utils.data.dataset import Dataset
+from torch.utils.data import Dataset
 import numpy as np
 
 

@@ -28,7 +28,6 @@ Created on 5 November 2019
 import torch.sparse
 import torch
 from ..Node import Node
-from torch.autograd import Variable
 
 
 # Incremental Ridge Regression node
@@ -83,8 +82,8 @@ class IncRRCell(Node):
         # end if
 
         # Wout matrix
-        self.register_buffer('w_out', Variable(torch.zeros(1, input_dim, dtype=dtype), requires_grad=False))
-        self.register_buffer('w_out_inc', Variable(torch.zeros(1, self.input_dim, dtype=self.dtype), requires_grad=False))
+        self.register_buffer('w_out', torch.zeros(1, input_dim, dtype=dtype))
+        self.register_buffer('w_out_inc', torch.zeros(1, self.input_dim, dtype=self.dtype))
     # end __init__
 
     # region PRIVATE
@@ -242,7 +241,7 @@ class IncRRCell(Node):
             return x
         else:
             # Outputs
-            outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype), requires_grad=False)
+            outputs = torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype)
             outputs = outputs.cuda() if self.w_out.is_cuda else outputs
 
             # For each sample in the batch
@@ -272,9 +271,9 @@ class IncRRCell(Node):
         :return:
         """
         if x.is_cuda:
-            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype).cuda(), requires_grad=False)
+            bias = torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype).cuda()
         else:
-            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype), requires_grad=False)
+            bias = torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype)
         # end if
         return torch.cat((bias, x), dim=2)
     # end _add_constant

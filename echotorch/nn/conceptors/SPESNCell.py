@@ -26,7 +26,6 @@ Created on 26 January 2018
 
 # Imports
 import torch
-from torch.autograd import Variable
 from echotorch.nn.reservoir.ESNCell import ESNCell
 import matplotlib.pyplot as plt
 
@@ -65,20 +64,20 @@ class SPESNCell(ESNCell):
         self._loading_method = loading_method
 
         # X covariance matrix
-        self.register_buffer('xTx', Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
+        self.register_buffer('xTx', torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype))
 
         # X and Y covariance matrix
         if loading_method == SPESNCell.INPUTS_RECREATION:
-            self.register_buffer('xTy', Variable(torch.zeros(self._output_dim, self._input_dim, dtype=self._dtype), requires_grad=False))
+            self.register_buffer('xTy', torch.zeros(self._output_dim, self._input_dim, dtype=self._dtype))
         else:
-            self.register_buffer('xTy', Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
+            self.register_buffer('xTy', torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype))
         # end if
 
         # Input simulation matrix
-        self.register_buffer('D', Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
+        self.register_buffer('D', torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype))
 
         # Input recreation matrix
-        self.register_buffer('R', Variable(torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype), requires_grad=False))
+        self.register_buffer('R', torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype))
     # end __init__
 
     # region PRIVATE

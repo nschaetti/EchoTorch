@@ -27,7 +27,6 @@ Created on 5th November 2019
 # Imports
 import math
 import torch
-from torch.autograd import Variable
 from .IncSPESNCell import IncSPESNCell
 from .Conceptor import Conceptor
 from echotorch.utils import nrmse
@@ -96,25 +95,25 @@ class IncForgSPESNCell(IncSPESNCell):
         # Input simulation matrix update
         self.register_buffer(
             'Dup',
-            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+            torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype)
         )
 
         # Input simulation matrix update
         self.register_buffer(
             'Dnew',
-            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+            torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype)
         )
 
         # Input recreation matrix update
         self.register_buffer(
             'Rup',
-            Variable(torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+            torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype)
         )
 
         # Input recreation matrix update
         self.register_buffer(
             'Rnew',
-            Variable(torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+            torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype)
         )
     # end __init__
 

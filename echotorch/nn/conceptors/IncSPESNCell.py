@@ -27,7 +27,6 @@ Created on 5th November 2019
 # Imports
 import math
 import torch
-from torch.autograd import Variable
 from echotorch.nn.reservoir.ESNCell import ESNCell
 from .SPESNCell import SPESNCell
 import matplotlib.pyplot as plt
@@ -63,13 +62,13 @@ class IncSPESNCell(SPESNCell):
         # Input simulation matrix increment
         self.register_buffer(
             'Dinc',
-            Variable(torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+            torch.zeros(self._output_dim, self._output_dim, dtype=self._dtype)
         )
 
         # Input recreation matrix increment
         self.register_buffer(
             'Rinc',
-            Variable(torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype), requires_grad=False)
+            torch.zeros(self._input_dim, self._output_dim, dtype=self._dtype)
         )
     # end __init__
 

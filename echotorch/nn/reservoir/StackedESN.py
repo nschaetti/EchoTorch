@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 from .LiESNCell import LiESNCell
 from ..linear.RRCell import RRCell
 from .ESNCell import ESNCell
@@ -225,7 +224,7 @@ class StackedESN(nn.Module):
         :return: Output or hidden states
         """
         # Hidden states
-        hidden_states = Variable(torch.zeros(u.size(0), u.size(1), self.n_features))
+        hidden_states = torch.zeros(u.size(0), u.size(1), self.n_features)
 
         # Compute hidden states
         pos = 0

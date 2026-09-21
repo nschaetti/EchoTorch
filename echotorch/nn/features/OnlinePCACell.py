@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 
 
 # Online PCA cell
@@ -292,7 +291,7 @@ class OnlinePCACell(nn.Module):
         :param x:
         :return:
         """
-        bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
+        bias = torch.ones((x.size()[0], x.size()[1], 1))
         return torch.cat((bias, x), dim=2)
     # end _add_constant
 

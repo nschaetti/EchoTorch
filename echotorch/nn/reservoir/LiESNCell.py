@@ -27,7 +27,6 @@ Created on 26 January 2018
 import torch
 import torch.sparse
 import torch.nn as nn
-from torch.autograd import Variable
 from echotorch.nn.reservoir.ESNCell import ESNCell
 
 

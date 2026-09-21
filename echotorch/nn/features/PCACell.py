@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 
 
 # Filter the input data through the most significatives principal components.
@@ -62,8 +61,8 @@ class PCACell(nn.Module):
         self.reduce = reduce
 
         # Set it as buffer
-        self.register_buffer('xTx', Variable(torch.zeros(input_dim, input_dim), requires_grad=False))
-        self.register_buffer('xTx_avg', Variable(torch.zeros(input_dim), requires_grad=False))
+        self.register_buffer('xTx', torch.zeros(input_dim, input_dim))
+        self.register_buffer('xTx_avg', torch.zeros(input_dim))
 
         # Eigen values
         self.d = None
@@ -117,7 +116,7 @@ class PCACell(nn.Module):
         time_length = x.size()[1]
 
         # Outputs
-        outputs = Variable(torch.zeros(n_batches, time_length, self.output_dim))
+        outputs = torch.zeros(n_batches, time_length, self.output_dim)
         outputs = outputs.cuda() if x.is_cuda else outputs
 
         # For each batch
@@ -367,7 +366,7 @@ class PCACell(nn.Module):
         :param x:
         :return:
         """
-        bias = Variable(torch.ones((x.size()[0], x.size()[1], 1)), requires_grad=False)
+        bias = torch.ones((x.size()[0], x.size()[1], 1))
         return torch.cat((bias, x), dim=2)
     # end _add_constant
 

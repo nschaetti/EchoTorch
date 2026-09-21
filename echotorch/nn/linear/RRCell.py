@@ -28,7 +28,6 @@ Created on 26 January 2018
 import torch.sparse
 import torch
 from ..Node import Node
-from torch.autograd import Variable
 
 
 # Ridge Regression node
@@ -83,9 +82,9 @@ class RRCell(Node):
         # end if
 
         # Set it as buffer
-        self.register_buffer('xTx', Variable(torch.zeros(self._x_size, self._x_size, dtype=dtype), requires_grad=False))
-        self.register_buffer('xTy', Variable(torch.zeros(self._x_size, output_dim, dtype=dtype), requires_grad=False))
-        self.register_buffer('w_out', Variable(torch.zeros(output_dim, input_dim, dtype=dtype), requires_grad=False))
+        self.register_buffer('xTx', torch.zeros(self._x_size, self._x_size, dtype=dtype))
+        self.register_buffer('xTy', torch.zeros(self._x_size, output_dim, dtype=dtype))
+        self.register_buffer('w_out', torch.zeros(output_dim, input_dim, dtype=dtype))
     # end __init__
 
     # region PROPERTIES
@@ -148,8 +147,7 @@ class RRCell(Node):
             # end if
         elif not self.training:
             # Outputs
-            outputs = Variable(torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype),
-                               requires_grad=False)
+            outputs = torch.zeros(batch_size, time_length, self._output_dim, dtype=self._dtype)
             outputs = outputs.cuda() if self.w_out.is_cuda else outputs
 
             # For each batch
@@ -210,9 +208,9 @@ class RRCell(Node):
         :return:
         """
         if x.is_cuda:
-            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype).cuda(), requires_grad=False)
+            bias = torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype).cuda()
         else:
-            bias = Variable(torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype), requires_grad=False)
+            bias = torch.ones((x.size()[0], x.size()[1], 1), dtype=self.dtype)
         # end if
 
         return torch.cat((bias, x), dim=2)

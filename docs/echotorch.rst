@@ -137,7 +137,9 @@ Statistical Operations
     :toctree: generated
     :nosignatures:
 
+    tsum
     tmean
+    tquantile
     tstd
     tvar
     cov

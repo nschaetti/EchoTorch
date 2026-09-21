@@ -3,7 +3,7 @@
 
 # Imports
 import torch
-from torch.utils.data.dataset import Dataset
+from torch.utils.data import Dataset
 
 
 # Generates a series of input timeseries and delayed versions as outputs.
